@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 fastapi = "*"
 slowapi = "*"
+uvicorn = "*"
 
 [dev-packages]
 
