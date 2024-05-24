@@ -1,2 +1,4 @@
 # Ignore Angular builds
 /front-end
+
+node_modules
