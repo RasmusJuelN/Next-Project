@@ -7,6 +7,8 @@ name = "pypi"
 fastapi = "*"
 slowapi = "*"
 uvicorn = "*"
+ldap3 = "*"
+python-jose = "*"
 
 [dev-packages]
 
