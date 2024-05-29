@@ -1,4 +1,7 @@
 # Ignore Angular builds
 /front-end
 
+# Ignore logs from backend
+/back-end/logs/
+
 node_modules
