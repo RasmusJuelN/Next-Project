@@ -29,7 +29,13 @@ async def get_full_name_from_ldap(connection: Connection, username: str) -> str:
     if len(connection.entries) == 0:
         raise ValueError("No matching entries found")
 
-    attributes: List[str] = ["displayName", "cn", "name", "distinguishedName"]
+    attributes: List[str] = [
+        "displayName",
+        "cn",
+        "name",
+        "givenName",
+        "distinguishedName",
+    ]
     for attr in attributes:
         if attr in connection.entries[0]:
             if attr == "distinguishedName":
