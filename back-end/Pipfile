@@ -9,6 +9,7 @@ slowapi = "*"
 uvicorn = "*"
 ldap3 = "*"
 python-jose = "*"
+pycryptodome = "*"
 
 [dev-packages]
 
