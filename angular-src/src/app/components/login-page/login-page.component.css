@@ -1,0 +1,55 @@
+.container{
+    display: flex;
+    justify-content: center;
+}
+/* login.component.css */
+.card {
+    min-width: 400px;
+    max-width: 400px;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  
+  .card-header {
+    background-color: #f3f3f3;
+    border-bottom: 1px solid #ccc;
+    border-radius: 8px 8px 0px 0px;
+    text-align: center;
+    padding: 5px;
+  }
+  
+  .card-body {
+    padding: 15px;
+  }
+  
+  .card-body label {
+    display: block;
+    margin-top: 12px;
+  }
+  
+  .card-body input {
+    width: calc(100% - 25px);
+    padding: 8px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .card-body button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .card-body button:hover {
+    background-color: #0056b3;
+  }
+  

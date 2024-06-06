@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="card">
+      <div class="card-header">
+          <h2>Login</h2>
+      </div>
+      <div class="card-body">
+          <form (ngSubmit)="checkLogin()" #loginForm="ngForm">
+              <label for="username">Username:</label>
+              <input type="text" id="username" [(ngModel)]="userName" name="username" required (keyup.enter)="passwordInput.focus()">
+
+              <label for="password">Password:</label>
+              <input type="password" id="password" #passwordInput [(ngModel)]="password" name="password" required (keyup.enter)="checkLogin()">
+
+              <div>
+                  <button type="submit">Send</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
