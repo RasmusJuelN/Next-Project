@@ -2,6 +2,8 @@
 /front-end
 
 # Ignore logs from backend
-/back-end/logs/
+logs/
 
 node_modules
+
+__pycache__
