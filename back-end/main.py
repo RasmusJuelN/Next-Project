@@ -1,28 +1,27 @@
 from logging import DEBUG, INFO, Logger
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Request
+from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt, ExpiredSignatureError  # type: ignore
-from ldap3 import Server, Connection, ALL, NTLM  # type: ignore
+from ldap3 import Server, Connection, SASL, DIGEST_MD5, ALL  # type: ignore
 from ldap3.core.exceptions import (  # type: ignore
     LDAPException,
     LDAPInvalidCredentialsResult,
     LDAPSocketOpenError,
 )
-from typing import Literal, Optional, Any, Union
+from typing import Optional, Any, Union
 from pydantic import BaseModel
 from datetime import datetime, timedelta, UTC
 
 from lib._logger import LogHelper
 
-SECRET_KEY = Literal[
-    "fcd67c9b07b2d022a3cff8570a1f48b0e73d78abefe3156aa6fde53afacf0210"
-]  # TODO: CHANGE BEFORE DEPLOYMENT
-ALGORITHM = Literal["HS256"]
+SECRET_KEY = "fcd67c9b07b2d022a3cff8570a1f48b0e73d78abefe3156aa6fde53afacf0210"  # TODO: CHANGE BEFORE DEPLOYMENT AND MOVE TO ENVIRONMENT VARIABLES
+ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-LDAP_SERVER = "ldap://placeholder"
-LDAP_BASE_DN = "DC=placeholder,DC=placeholder"
+DOMAIN = "dc.next.dev"
+LDAP_SERVER = f"ldap://{DOMAIN}"
+LDAP_BASE_DN = "DC=NEXT,DC=dev"
 
 logger: Logger = LogHelper.create_logger(
     logger_name="backend API",
@@ -52,14 +51,8 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 @app.exception_handler(exc_class_or_status_code=LDAPException)
 async def ldap_exception_handler(request: Request, exc: LDAPException) -> JSONResponse:
-    if isinstance(exc, LDAPInvalidCredentialsResult):
-        logger.info(msg=f"Invalid credentials for user {exc.connection.user}")
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content={"detail": "Incorrect username or password"},
-        )
-    elif isinstance(exc, LDAPSocketOpenError):
-        logger.error(
+    if isinstance(exc, LDAPSocketOpenError):
+        logger.exception(
             msg="Timed out trying to connect to server.",
             exc_info=True,
         )
@@ -68,7 +61,7 @@ async def ldap_exception_handler(request: Request, exc: LDAPException) -> JSONRe
             content={"detail": "Timed out trying to connect to server"},
         )
     else:
-        logger.error(msg=f"Unexpected error occurred: {exc}")
+        logger.exception(msg=f"Unexpected error occurred: {exc}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
@@ -91,9 +84,6 @@ async def jwt_exception_handler(request: Request, exc: JWTError) -> JSONResponse
         )
 
 
-router = APIRouter()
-
-
 async def dependency_validate_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> TokenData:
@@ -111,14 +101,20 @@ async def dependency_validate_token(
     return TokenData(username=username)
 
 
-@router.post(path="/auth", response_model=dict)
+@app.post(path="/auth", response_model=dict)
 async def authenticate_user(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> dict[str, str]:
-    user: Connection = await authenticate_user_ldap(
-        username=form_data.username, password=form_data.password
-    )
-    if not user:
+    try:
+        await authenticate_user_ldap(
+            username=form_data.username, password=form_data.password
+        )
+    except LDAPInvalidCredentialsResult:
+        ip_address: str = request.client.host if request.client else "Unknown IP Address"
+        logger.info(
+            msg=f"{ip_address} failed to authenticate with username {form_data.username}"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -126,7 +122,10 @@ async def authenticate_user(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     encoded_jwt: str = await create_access_token(
-        data={"sub": form_data.username}, expires_delta=access_token_expires
+        data={
+            "sub": form_data.username,
+        },
+        expires_delta=access_token_expires,
     )
     return {"access_token": encoded_jwt, "token_type": "bearer"}
 
@@ -163,14 +162,14 @@ async def authenticate_user_ldap(username: str, password: str) -> Connection:
         LDAPException: If the connection fails for any reason. Use specific exceptions for more granular error handling.
     """
     server = Server(host=LDAP_SERVER, get_info=ALL)
-    user_dn: str = f"CN={username},{LDAP_BASE_DN}"
 
     conn = Connection(
         server=server,
-        user=user_dn,
-        password=password,
-        authentication=NTLM,
         auto_bind=True,
+        version=3,
+        authentication=SASL,
+        sasl_mechanism=DIGEST_MD5,
+        sasl_credentials=(None, username, password, None, "sign"),
         raise_exceptions=True,
     )
     return conn
@@ -186,7 +185,4 @@ async def read_protected(
     token: str = Depends(dependency=oauth2_scheme),
     username: TokenData = Depends(dependency=dependency_validate_token),
 ) -> dict[str, str]:
-    return {"message": "You are authenticated"}
-
-
-app.include_router(router=router, prefix="/api/v1")
+    return {"message": f"Hello, {username.username}"}
