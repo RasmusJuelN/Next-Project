@@ -6,6 +6,7 @@ from ldap3.core.exceptions import (  # type: ignore
     LDAPException,
     LDAPSocketOpenError,
 )
+from typing import Dict, Union, List
 
 from lib._logger import LogHelper
 from lib._auth import (
@@ -14,6 +15,7 @@ from lib._auth import (
     oauth2_scheme,
     dependency_validate_token,
 )
+from lib._questions import questionnaire
 
 
 logger: Logger = LogHelper.create_logger(
@@ -81,4 +83,17 @@ async def read_protected(
     token: str = Depends(dependency=oauth2_scheme),
     username: TokenData = Depends(dependency=dependency_validate_token),
 ) -> dict[str, str]:
-    return {"message": f"Hello, {username.username}"}
+@app.get(
+    path="/questions/{question_id}",
+    response_model=Dict[str, Union[str, List[Dict[str, Union[int, str]]]]],
+)
+async def read_question(
+    question_id: int,
+) -> Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]:
+    for question in questionnaire["questions"]:
+        if question["id"] == str(object=question_id):
+            return question
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Question not found",
+    )
