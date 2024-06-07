@@ -11,9 +11,7 @@ from typing import Dict, Union, List
 from lib._logger import LogHelper
 from lib._auth import (
     router as auth_router,
-    TokenData,
-    oauth2_scheme,
-    dependency_validate_token,
+    get_full_name_from_token,
 )
 from lib._questions import questionnaire
 
@@ -80,9 +78,11 @@ async def read_root() -> dict[str, str]:
 
 @app.get(path="/protected", response_model=dict)
 async def read_protected(
-    token: str = Depends(dependency=oauth2_scheme),
-    username: TokenData = Depends(dependency=dependency_validate_token),
+    full_name: str = Depends(dependency=get_full_name_from_token),
 ) -> dict[str, str]:
+    return {"message": f"Hello, {full_name}"}
+
+
 @app.get(
     path="/questions/{question_id}",
     response_model=Dict[str, Union[str, List[Dict[str, Union[int, str]]]]],

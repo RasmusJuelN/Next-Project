@@ -162,3 +162,16 @@ async def encode_or_decode_token(
     else:
         raise ValueError("Either `token` or `data` must be provided, but not both.")
 
+
+async def get_full_name_from_token(
+    token: str = Depends(dependency=oauth2_scheme),
+) -> str:
+    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    full_name: Union[str, None] = payload.get("full_name")
+    if full_name is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return full_name
