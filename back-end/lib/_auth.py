@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from ldap3 import Server, Connection, SASL, DIGEST_MD5, ALL  # type: ignore
 from ldap3.core.exceptions import LDAPInvalidCredentialsResult  # type: ignore
 from jose import jwt  # type: ignore
-from typing import Optional, Any, Union
+from typing import Optional, Any, Union, overload
 from logging import Logger, DEBUG, INFO
 from pydantic import BaseModel
 
@@ -117,22 +117,48 @@ async def create_access_token(
     else:
         expire = datetime.now(tz=UTC) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt: str = jwt.encode(claims=to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt: str = await encode_token(data=to_encode)
     return encoded_jwt
 
 
 async def dependency_validate_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> TokenData:
-    payload: dict[str, Any] = jwt.decode(
-        token=token, key=SECRET_KEY, algorithms=[ALGORITHM]
-    )
+    payload: dict[str, Any] = await decode_token(token=token)
     username: Union[str, None] = payload.get("sub")
 
     if username is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
+            detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return TokenData(username=username)
+
+
+async def decode_token(token: str) -> dict[str, Any]:
+    return jwt.decode(token=token, key=SECRET_KEY, algorithms=[ALGORITHM])
+
+
+async def encode_token(data: dict) -> str:
+    return jwt.encode(claims=data, key=SECRET_KEY, algorithm=ALGORITHM)
+
+
+@overload
+async def encode_or_decode_token(*, token: str) -> dict[str, Any]: ...  # noqa: E704
+
+
+@overload
+async def encode_or_decode_token(*, data: dict) -> str: ...  # noqa: E704
+
+
+async def encode_or_decode_token(
+    *, token: Optional[str] = None, data: Optional[dict] = None
+) -> Union[str, dict[str, Any]]:
+    if token is not None and data is None:
+        return await decode_token(token=token)
+    elif token is None and data is not None:
+        return await encode_token(data=data)
+    else:
+        raise ValueError("Either `token` or `data` must be provided, but not both.")
+
