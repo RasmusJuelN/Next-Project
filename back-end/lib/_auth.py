@@ -35,7 +35,7 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
 
 
 router = APIRouter()
