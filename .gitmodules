@@ -1,0 +1,3 @@
+[submodule "back-end/external/log_helper"]
+	path = back-end/external/log_helper
+	url = https://github.com/LobaDK/LogHelper.git
