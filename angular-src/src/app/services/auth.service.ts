@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -14,10 +14,16 @@ export class AuthService {
   private token = '';
 
   loginAuthentication(userName: string, password: string): Observable<{ token: string } | { error: string }> {
-    const url = `${environment.apiUrl}/GetJwtToken`;
-    const body = { userName, password };
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
 
-    return this.httpClient.post<{ token: string }>(url, body).pipe(
+    // URL-encoded form data
+    let body = new URLSearchParams();
+    body.set('username', userName);
+    body.set('password', password);
+
+    return this.httpClient.post<{ token: string }>(`${environment.apiUrl}/auth`, body.toString(), { headers: headers }).pipe(
       tap(response => {
         if (response && response.token) {
           this.token = response.token;

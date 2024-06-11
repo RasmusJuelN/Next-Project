@@ -1,4 +1,5 @@
-<div *ngIf="studentList.length > 0; else noStudents">
+@if(studentList.length > 0){
+  <div class="studentList">
     <h2>Student List:</h2>
     <ul>
       <li *ngFor="let student of studentList">
@@ -11,18 +12,23 @@
       </li>
     </ul>
   </div>
-  
-<ng-template #noStudents>
+}
+@else{
   <p>No students found.</p>
-</ng-template>
+}
 
-<div *ngIf="studentsYetToFinish.length > 0">
-  <h2>Students Yet to Finish Questionnaire:</h2>
-  <ul>
-    <li *ngFor="let student of studentsYetToFinish">
-      <p>ID: {{student.id}}</p>
-      <p>Username: {{student.username}}</p>
-      <p>Role: {{student.role}}</p>
-    </li>
-  </ul>
-</div>
+
+@if(studentsYetToFinish.length > 0){
+  <div class="studentList">
+    <h2>Students Yet to Finish Questionnaire:</h2>
+    <ul>
+      @for(student of studentsYetToFinish; track student.id){
+        <li>
+          <p>ID: {{student.id}}</p>
+          <p>Username: {{student.username}}</p>
+          <p>Role: {{student.role}}</p>
+        </li>
+      }
+    </ul>
+  </div>
+}

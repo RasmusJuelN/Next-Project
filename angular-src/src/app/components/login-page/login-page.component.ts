@@ -13,11 +13,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   styleUrls: ['./login-page.component.css']
 })
 export class LoginPageComponent {
+  router = inject(Router);
+  authService = inject(AuthService);
+
+  errorMessage: string | null = null;
   userName: string = "";
   password: string = "";
-  loginService = inject(MockAuthService); // Use Mock for now
-  router = inject(Router);
-  errorMessage: string | null = null;
 
   ngOnInit() {
     const token = localStorage.getItem('token');
@@ -26,28 +27,18 @@ export class LoginPageComponent {
     }
   }
 
-  constructor(private http: HttpClient) {}
-
   checkLogin() {
-    // Headers
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded'
-    });
-
-    // URL-encoded form data
-    let body = new URLSearchParams();
-    body.set('username', this.userName);
-    body.set('password', this.password);
-
-    this.http.post('http://localhost:4200/api/v1/auth', body.toString(), { headers: headers })
-    .subscribe({
+    this.authService.loginAuthentication(this.userName, this.password).subscribe({
       next: response => {
         if ('access_token' in response) {
           this.router.navigate(['/']);
+        } else if ('error' in response) {
+          this.errorMessage = response.error;
         }
       },
       error: error => {
         console.log('Login failed', error);
+        this.errorMessage = 'Login failed. Please check your credentials.';
       }
     });
   }

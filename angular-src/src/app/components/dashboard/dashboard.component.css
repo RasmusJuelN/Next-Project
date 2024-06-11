@@ -1,10 +1,11 @@
-  div {
-    font-family: Arial, sans-serif;
-    margin: 0 auto;
-    width: 30%;
-    padding: 20px;
-    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
-  }
+.studentList {
+  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  width: 30%;
+  padding: 20px;
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+}
+
 
   h2 {
     color: #333;

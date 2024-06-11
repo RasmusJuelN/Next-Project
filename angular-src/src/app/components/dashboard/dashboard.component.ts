@@ -54,7 +54,10 @@ export class DashboardComponent {
   }
   
   addStudentToQuestionnaire(studentId: number): void {
-    this.dataService.addStudentToQuestionnaire(studentId)
+    this.dataService.addStudentToQuestionnaire(studentId);
+    this.dataService.getStudentsYetToFinish().subscribe((students) => {
+      this.studentsYetToFinish = students;
+    });
   }
 
   isStudentInQuestionnaire(studentId: number): boolean {
