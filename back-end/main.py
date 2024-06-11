@@ -23,7 +23,7 @@ logger: Logger = LogHelper.create_logger(
     stream_log_level=INFO,
 )
 
-app = FastAPI()
+app = FastAPI(root_path="/api/v1")
 
 app.include_router(router=auth_router)
 
