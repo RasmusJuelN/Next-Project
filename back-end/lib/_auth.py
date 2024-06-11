@@ -12,7 +12,7 @@ from typing import Optional, Any, Union, overload
 from logging import Logger, DEBUG, INFO
 from pydantic import BaseModel
 
-from lib._logger import LogHelper
+from external.log_helper.log_helper import LogHelper
 from lib._utils import get_full_name_from_ldap
 
 SECRET_KEY = "fcd67c9b07b2d022a3cff8570a1f48b0e73d78abefe3156aa6fde53afacf0210"  # TODO: CHANGE BEFORE DEPLOYMENT AND MOVE TO ENVIRONMENT VARIABLES
