@@ -1,0 +1,45 @@
+@if(questions){
+    <div class="container">
+        <form (ngSubmit)="onSubmit()" #questionnaireForm="ngForm">
+          <div style="text-align: left;">
+            <h2>Spørgeskema</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>E</th>
+                <th>D</th>
+                <th>C</th>
+                <th>B</th>
+                <th>A</th>
+              </tr>
+            </thead>
+            <tbody>
+                @for(question of questions; track question.id;){
+                    <tr>
+                        <td>{{ question.text }}</td>
+                        @for(option of question.options; track option.id){
+                            <td>
+                                <div class="questionmark" 
+                                matTooltip="{{ option.label }}"
+                                [matTooltipPosition] = "'right'">
+                                <mat-icon svgIcon="help" aria-hidden="false" class="help"></mat-icon>
+                              </div>
+                              <input 
+                                type="radio" 
+                                [name]="'question' + question.id" 
+                                [value]="option.value" 
+                                [(ngModel)]="question.selectedOption" 
+                                [id]="'question' + question.id + 'option' + option.id"
+                              />
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+          </table>
+          <button type="submit">Send Svar</button>
+        </form>
+      </div>
+}

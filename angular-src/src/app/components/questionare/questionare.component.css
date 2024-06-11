@@ -1,0 +1,42 @@
+.container {
+    width: 75%;
+    margin: auto;
+    text-align: center;
+  }
+  
+  table {
+    border-collapse:collapse;
+  }
+  th{
+    min-width: 75px;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    position: relative;
+  }
+  
+  .tooltip {
+    text-align: center;
+    position: absolute;
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+  }
+
+  .questionmark{
+    position: absolute;
+    left: 5px;
+    top: 5px;
+  }
+
+  button {
+    margin-top: 20px;
+  }
+  
+  .help{
+    min-height: 10px;
+    max-height: 15px;
+  }

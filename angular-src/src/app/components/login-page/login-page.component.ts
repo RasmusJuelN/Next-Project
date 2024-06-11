@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { MookAuthService } from '../../services/mook-auth.service';
+import { MockAuthService } from '../../services/mock-auth.service';
 
 @Component({
   selector: 'app-login-page',
@@ -14,7 +14,7 @@ import { MookAuthService } from '../../services/mook-auth.service';
 export class LoginPageComponent {
   userName: string = "";
   password: string = "";
-  loginService = inject(MookAuthService); // Use Mock for now
+  loginService = inject(MockAuthService); // Use Mock for now
   router = inject(Router);
   errorMessage: string | null = null;
 

@@ -1,0 +1,28 @@
+<div *ngIf="studentList.length > 0; else noStudents">
+    <h2>Student List:</h2>
+    <ul>
+      <li *ngFor="let student of studentList">
+        <p>ID: {{student.id}}</p>
+        <p>Username: {{student.username}}</p>
+        <p>Role: {{student.role}}</p>
+        @if(!isStudentInQuestionnaire(student.id)){
+          <button (click)="addStudentToQuestionnaire(student.id)">Add to Questionnaire</button>
+        }
+      </li>
+    </ul>
+  </div>
+  
+<ng-template #noStudents>
+  <p>No students found.</p>
+</ng-template>
+
+<div *ngIf="studentsYetToFinish.length > 0">
+  <h2>Students Yet to Finish Questionnaire:</h2>
+  <ul>
+    <li *ngFor="let student of studentsYetToFinish">
+      <p>ID: {{student.id}}</p>
+      <p>Username: {{student.username}}</p>
+      <p>Role: {{student.role}}</p>
+    </li>
+  </ul>
+</div>
