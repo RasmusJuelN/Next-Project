@@ -4,12 +4,12 @@
           <h2>Login</h2>
       </div>
       <div class="card-body">
-          <form (ngSubmit)="checkLogin()" #loginForm="ngForm">
+          <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
               <label for="username">Username:</label>
               <input type="text" id="username" [(ngModel)]="userName" name="username" required (keyup.enter)="passwordInput.focus()">
 
               <label for="password">Password:</label>
-              <input type="password" id="password" #passwordInput [(ngModel)]="password" name="password" required (keyup.enter)="checkLogin()">
+              <input type="password" id="password" #passwordInput [(ngModel)]="password" name="password" required>
 
               <div>
                   <button type="submit">Send</button>
