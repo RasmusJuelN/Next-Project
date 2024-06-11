@@ -1,6 +1,6 @@
 export interface Option {
-  id: number; // ID of the option from the database
-  questionId: number; // ID of the question this option belongs to
+  id?: number; // ID of the option from the database
+  questionId?: number; // ID of the question this option belongs to
   value: number; // Rating value (1-5)
   label: string; // Label explaining the rating
 }

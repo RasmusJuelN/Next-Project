@@ -12,27 +12,27 @@ questionnaire: Dict[
     "questions": [
         {
             "id": "1",
-            "question": "Indlæringsevne",
-            "answers": [
+            "text": "Indlæringsevne",
+            "options": [
                 {
-                    "id": 1,
-                    "text": "Viser lidt eller ingen forståelse for arbejdsopgaverne",
+                    "value": 1,
+                    "label": "Viser lidt eller ingen forståelse for arbejdsopgaverne",
                 },
                 {
-                    "id": 2,
-                    "text": "Forstår arbejdsopgaverne, men kan ikke anvende den i praksis. Har svært ved at tilegne sig ny viden",
+                    "value": 2,
+                    "label": "Forstår arbejdsopgaverne, men kan ikke anvende den i praksis. Har svært ved at tilegne sig ny viden",
                 },
                 {
-                    "id": 3,
-                    "text": "Let ved at forstå arbejdsopgaverne og anvende den i praksis. Har let ved at tilegne sig ny viden.",
+                    "value": 3,
+                    "label": "Let ved at forstå arbejdsopgaverne og anvende den i praksis. Har let ved at tilegne sig ny viden.",
                 },
                 {
-                    "id": 4,
-                    "text": "Mindre behov for oplæring end normalt. Kan selv finde/tilegne sig ny viden.",
+                    "value": 4,
+                    "label": "Mindre behov for oplæring end normalt. Kan selv finde/tilegne sig ny viden.",
                 },
                 {
-                    "id": 5,
-                    "text": "Behøver næsten ingen oplæring. Kan ved selvstudium, endog ved svært tilgængeligt materiale, tilegne sig ny viden.",
+                    "value": 5,
+                    "label": "Behøver næsten ingen oplæring. Kan ved selvstudium, endog ved svært tilgængeligt materiale, tilegne sig ny viden.",
                 },
             ],
         },

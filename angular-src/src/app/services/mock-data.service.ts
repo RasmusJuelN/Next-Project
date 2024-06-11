@@ -17,22 +17,22 @@ export class MockDataService {
       id: 1,
       text: 'How well does the student understand the material?',
       options: [
-        { id: 1, questionId: 1, value: -2, label: 'Does not understand at all' },
-        { id: 2, questionId: 1, value: -1, label: 'Understands poorly' },
-        { id: 3, questionId: 1, value: 0, label: 'Understands somewhat' },
-        { id: 4, questionId: 1, value: 1, label: 'Understands well' },
-        { id: 5, questionId: 1, value: 2, label: 'Understands very well' },
+        { id: 1, questionId: 1, value: 1, label: 'Does not understand at all' },
+        { id: 2, questionId: 1, value: 2, label: 'Understands poorly' },
+        { id: 3, questionId: 1, value: 3, label: 'Understands somewhat' },
+        { id: 4, questionId: 1, value: 4, label: 'Understands well' },
+        { id: 5, questionId: 1, value: 5, label: 'Understands very well' },
       ]
     },
     {
       id: 2,
       text: 'How engaged is the student during class?',
       options: [
-        { id: 6, questionId: 2, value: -2, label: 'Not engaged at all' },
-        { id: 7, questionId: 2, value: -1, label: 'Rarely engaged' },
-        { id: 8, questionId: 2, value: 0, label: 'Sometimes engaged' },
-        { id: 9, questionId: 2, value: 1, label: 'Mostly engaged' },
-        { id: 10, questionId: 2, value: 2, label: 'Always engaged' },
+        { id: 6, questionId: 2, value: 1, label: 'Not engaged at all' },
+        { id: 7, questionId: 2, value: 2, label: 'Rarely engaged' },
+        { id: 8, questionId: 2, value: 3, label: 'Sometimes engaged' },
+        { id: 9, questionId: 2, value: 4, label: 'Mostly engaged' },
+        { id: 10, questionId: 2, value: 5, label: 'Always engaged' },
       ]
     }
   ];

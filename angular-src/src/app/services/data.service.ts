@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class DataService {
 
-  private baseUrl: string = `${environment.apiUrl}/api`;
+  private baseUrl: string = `${environment.apiUrl}`;
 
   httpClient = inject(HttpClient )
 
@@ -21,5 +21,8 @@ export class DataService {
   // Note: this has not been tested as backend isn't ready yet
   getQuestionsForUser(userId: number): Observable<Question[]> {
     return this.httpClient.get<Question[]>(`${this.baseUrl}/questions?userId=${userId}`);
+  }
+  getQuestionFromId(questionId: number): Observable<Question> {
+    return this.httpClient.get<Question>(`${this.baseUrl}/questions/${questionId}`);
   }
 }

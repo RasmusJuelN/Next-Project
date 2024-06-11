@@ -10,9 +10,10 @@ export class ChartService {
   initializeChart(questions: Question[], answers: StudentTeacherAnwser[]): Chart {
     const labels = questions.map(q => q.text);
 
-    // currently having a range of -2 to 2, but can be changed to any range
-    const convertToRange = (rating: number): [number, number] => 
-      rating === 0 ? [-0.3, 0.3] : rating > 0 ? [0, rating] : [rating, 0];
+    const convertToRange = (rating: number): [number, number] => {
+      const converted = rating - 3; // Convert 1-5 to -2 to +2
+      return converted === 0 ? [-0.3, 0.3] : converted > 0 ? [0, converted] : [converted, 0];
+    };
 
     const studentRatings = answers.map(a => convertToRange(a.student.rating));
     const teacherRatings = answers.map(a => convertToRange(a.teacher.rating));

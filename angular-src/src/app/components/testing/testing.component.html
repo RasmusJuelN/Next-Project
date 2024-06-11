@@ -1,0 +1,9 @@
+<!-- testing.component.html -->
+<div *ngIf="question">
+    <h1>{{ question.text }}</h1>
+    <ul>
+      <li *ngFor="let option of question.options">
+        {{ option.label }} ({{ option.value }})
+      </li>
+    </ul>
+  </div>
