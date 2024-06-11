@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { MockAuthService } from '../../services/mock-auth.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-login-page',
@@ -25,24 +26,35 @@ export class LoginPageComponent {
     }
   }
 
+  constructor(private http: HttpClient) {}
+
   checkLogin() {
-    this.loginService.loginAuthentication(this.userName, this.password).subscribe({
+    // Headers
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    // URL-encoded form data
+    let body = new URLSearchParams();
+    body.set('username', this.userName);
+    body.set('password', this.password);
+
+    this.http.post('http://localhost:4200/api/v1/auth', body.toString(), { headers: headers })
+    .subscribe({
       next: response => {
-        if ('token' in response) {
-          console.log('JWT Token:', response.token);
+        if ('access_token' in response) {
           this.router.navigate(['/']);
         }
       },
       error: error => {
         console.log('Login failed', error);
-        this.errorMessage = error.message;
       }
     });
   }
 
   onSubmit(form: any): void {
     if (form.valid) {
-      console.log('Form Submitted!', form.value);
+      this.checkLogin();
     }
   }
 }
