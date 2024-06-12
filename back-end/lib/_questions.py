@@ -36,6 +36,69 @@ questionnaire: Dict[
                 },
             ],
         },
+        {
+            "id": "2",
+            "text": "Kreativitet og selvstændighed",
+            "options": [
+                {
+                    "value": 1,
+                    "label": "Viser intet initiativ. Er passiv, uinteresseret og uselvstændig",
+                },
+                {
+                    "value": 2,
+                    "label": "Viser ringe initiativ. Kommer ikke med løsningsforslag. Viser ingen interesse i at tilægge eget arbejde.",
+                },
+                {
+                    "value": 3,
+                    "label": "Viser normalt initiativ. Kommer selv med løsningsforslag. Tilrettelægger eget arbejde.",
+                },
+                {
+                    "value": 4,
+                    "label": "Meget initiativrig. Kommer selv med løsningsforslag. Gode evner for at tilrettelægge eget og andres arbejde.",
+                },
+                {
+                    "value": 5,
+                    "label": "Overordentlig initiativrig. Løser selv problemerne. Tilrettelægger selvstændigt arbejdet for mig selv og andre.",
+                },
+            ],
+        },
+        {
+            "id": "3",
+            "text": "Arbejdsindsats",
+            "options": [
+                {"value": 1, "label": "Uacceptabel"},
+                {"value": 2, "label": "Under middel"},
+                {"value": 3, "label": "Middel"},
+                {"value": 4, "label": "Over middel"},
+                {"value": 5, "label": "Særdeles god"},
+            ],
+        },
+        {
+            "id": "4",
+            "text": "Orden og omhyggelighed",
+            "options": [
+                {
+                    "value": 1,
+                    "label": "Omgås materialer, maskiner og værktøj på en sløset og ligegyldig måde. Holder ikke sin arbejdsplads ordentlig.",
+                },
+                {
+                    "value": 2,
+                    "label": "Bruger maskiner og værktøj uden megen omtanke. Mindre god orden og omhyggelighed.",
+                },
+                {
+                    "value": 3,
+                    "label": "Bruger maskiner, materialer og værktøj med påpasselighed og omhyggelighed middel. Rimelig god orden.",
+                },
+                {
+                    "value": 4,
+                    "label": "Meget påpasselig både i praktik og teori. God orden.",
+                },
+                {
+                    "value": 5,
+                    "label": "I høj grad påpasselig. God forståelse for materialevalg. Særdeles god orden.",
+                },
+            ],
+        },
     ]
 }
 
