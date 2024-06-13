@@ -11,9 +11,14 @@ from typing import Dict, Union, List
 from external.log_helper.log_helper import LogHelper
 from lib._auth import (
     router as auth_router,
-    get_full_name_from_token,
+    get_token_data,
+    is_admin,
+    is_elev,
+    is_laerer,
+    TokenData,
 )
 from lib._questions import questionnaire
+from lib._models import Question
 
 
 logger: Logger = LogHelper.create_logger(
@@ -76,16 +81,46 @@ async def read_root() -> dict[str, str]:
     return {"message": "Hello World"}
 
 
-@app.get(path="/protected", response_model=dict)
+@app.get(path="/protected", response_model=TokenData)
 async def read_protected(
-    full_name: str = Depends(dependency=get_full_name_from_token),
+    token_data: TokenData = Depends(dependency=get_token_data),
 ) -> dict[str, str]:
-    return {"message": f"Hello, {full_name}"}
+    return {**token_data.model_dump()}
+
+
+@app.get(path="/protected/elev", response_model=dict)
+async def read_protected_elev(
+    token_data: TokenData = Depends(dependency=get_token_data),
+    is_elev=Depends(dependency=is_elev),
+) -> dict[str, str]:
+    return {
+        "message": f"Hello, {token_data.full_name}. Your scope is {token_data.scope} and your UUID is {token_data.uuid}"
+    }
+
+
+@app.get(path="/protected/laerer", response_model=dict)
+async def read_protected_laerer(
+    token_data: TokenData = Depends(dependency=get_token_data),
+    is_laerer=Depends(dependency=is_laerer),
+) -> dict[str, str]:
+    return {
+        "message": f"Hello, {token_data.full_name}. Your scope is {token_data.scope} and your UUID is {token_data.uuid}"
+    }
+
+
+@app.get(path="/protected/admin", response_model=dict)
+async def read_protected_admin(
+    token_data: TokenData = Depends(dependency=get_token_data),
+    is_admin=Depends(dependency=is_admin),
+) -> dict[str, str]:
+    return {
+        "message": f"Hello, {token_data.full_name}. Your scope is {token_data.scope} and your UUID is {token_data.uuid}"
+    }
 
 
 @app.get(
     path="/questions/{question_id}",
-    response_model=Dict[str, Union[str, List[Dict[str, Union[int, str]]]]],
+    response_model=Question,
 )
 async def read_question(
     question_id: int,
