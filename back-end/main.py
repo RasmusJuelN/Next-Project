@@ -1,6 +1,6 @@
 from logging import DEBUG, INFO, Logger
 from fastapi import FastAPI, HTTPException, Depends, status, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from jose import JWTError, ExpiredSignatureError  # type: ignore
 from ldap3.core.exceptions import (  # type: ignore
     LDAPException,
@@ -76,46 +76,57 @@ async def jwt_exception_handler(request: Request, exc: JWTError) -> JSONResponse
         )
 
 
-@app.get(path="/", response_model=dict)
-async def read_root() -> dict[str, str]:
-    return {"message": "Hello World"}
+@app.get(path="/", include_in_schema=False)
+async def read_root() -> RedirectResponse:
+    return RedirectResponse(url="/docs")
 
 
-@app.get(path="/protected", response_model=TokenData)
+@app.get(
+    path="/protected",
+    response_model=TokenData,
+    tags=["users"],
+    response_description="The token data",
+)
 async def read_protected(
     token_data: TokenData = Depends(dependency=get_token_data),
 ) -> dict[str, str]:
+    """
+    Test endpoint to check if the token is valid and to return the token data.
+    """
     return {**token_data.model_dump()}
 
 
-@app.get(path="/protected/elev", response_model=dict)
+@app.get(path="/protected/elev", tags=["users"], response_model=TokenData, response_description="The token data")
 async def read_protected_elev(
     token_data: TokenData = Depends(dependency=get_token_data),
     is_elev=Depends(dependency=is_elev),
 ) -> dict[str, str]:
-    return {
-        "message": f"Hello, {token_data.full_name}. Your scope is {token_data.scope} and your UUID is {token_data.uuid}"
-    }
+    """
+    Test endpoint to check if the token is valid, if the user role matches the required role, and to return the token data.
+    """
+    return {**token_data.model_dump()}
 
 
-@app.get(path="/protected/laerer", response_model=dict)
+@app.get(path="/protected/laerer", tags=["users"], response_model=TokenData, response_description="The token data")
 async def read_protected_laerer(
     token_data: TokenData = Depends(dependency=get_token_data),
     is_laerer=Depends(dependency=is_laerer),
 ) -> dict[str, str]:
-    return {
-        "message": f"Hello, {token_data.full_name}. Your scope is {token_data.scope} and your UUID is {token_data.uuid}"
-    }
+    """
+    Test endpoint to check if the token is valid, if the user role matches the required role, and to return the token data.
+    """
+    return {**token_data.model_dump()}
 
 
-@app.get(path="/protected/admin", response_model=dict)
+@app.get(path="/protected/admin", tags=["users"], response_model=TokenData, response_description="The token data")
 async def read_protected_admin(
     token_data: TokenData = Depends(dependency=get_token_data),
     is_admin=Depends(dependency=is_admin),
 ) -> dict[str, str]:
-    return {
-        "message": f"Hello, {token_data.full_name}. Your scope is {token_data.scope} and your UUID is {token_data.uuid}"
-    }
+    """
+    Test endpoint to check if the token is valid, if the user role matches the required role, and to return the token data.
+    """
+    return {**token_data.model_dump()}
 
 
 @app.get(
