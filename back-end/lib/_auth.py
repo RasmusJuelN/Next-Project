@@ -75,7 +75,7 @@ is_laerer = RoleChecker(SCOPES["lærer"])
 router = APIRouter()
 
 
-@router.post(path="/auth", response_model=dict[str, str])
+@router.post(path="/auth", tags=["auth"])
 async def authenticate_user(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -100,21 +100,30 @@ async def authenticate_user(
     full_name: str = await get_full_name_from_ldap(
         connection=conn, username=form_data.username
     )
-    encoded_jwt: str = await create_access_token(
-        data={
-            "sub": form_data.username,
-            "full_name": full_name,
-            "scope": await determine_scope_from_groups(
-                groups=await get_member_of_from_ldap(
+    try:
+        encoded_jwt: str = await create_access_token(
+            data={
+                "sub": form_data.username,
+                "full_name": full_name,
+                "scope": await determine_scope_from_groups(
+                    groups=await get_member_of_from_ldap(
+                        connection=conn, username=form_data.username
+                    )
+                ),
+                "uuid": await get_uuid_from_ldap(
                     connection=conn, username=form_data.username
-                )
-            ),
-            "uuid": await get_uuid_from_ldap(
-                connection=conn, username=form_data.username
-            ),
-        },
-        expires_delta=access_token_expires,
-    )
+                ),
+            },
+            expires_delta=access_token_expires,
+        )
+    except ValueError as e:
+        conn.unbind()
+        logger.exception(msg=str(object=e))
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User does not have the required permissions to access this resource.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return {"access_token": encoded_jwt, "token_type": "bearer"}
 
 
