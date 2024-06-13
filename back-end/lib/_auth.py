@@ -47,6 +47,31 @@ class TokenData(BaseModel):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
 
 
+class RoleChecker:
+    def __init__(self, role: str) -> None:
+        self.role = role
+
+    async def __call__(self, token: str = Depends(dependency=oauth2_scheme)) -> None:
+        payload: dict[str, Any] = await encode_or_decode_token(token=token)
+        scope: Union[str, None] = payload.get("scope")
+        if scope is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        if not scope == self.role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have the required permissions to access this resource.",
+            )
+
+
+is_admin = RoleChecker(SCOPES["admin"])
+is_elev = RoleChecker(SCOPES["elev"])
+is_laerer = RoleChecker(SCOPES["lærer"])
+
+
 router = APIRouter()
 
 
