@@ -13,7 +13,7 @@ class Question(BaseModel):
     options: List[Option]
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "question": "What is your favorite programming language?",
