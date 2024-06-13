@@ -13,7 +13,13 @@ from logging import Logger, DEBUG, INFO
 from pydantic import BaseModel
 
 from external.log_helper.log_helper import LogHelper
-from lib._utils import get_full_name_from_ldap
+from lib._utils import (
+    get_full_name_from_ldap,
+    get_member_of_from_ldap,
+    get_uuid_from_ldap,
+    determine_scope_from_groups,
+    SCOPES,
+)
 
 SECRET_KEY = "fcd67c9b07b2d022a3cff8570a1f48b0e73d78abefe3156aa6fde53afacf0210"  # TODO: CHANGE BEFORE DEPLOYMENT AND MOVE TO ENVIRONMENT VARIABLES
 ALGORITHM = "HS256"
@@ -33,6 +39,9 @@ logger: Logger = LogHelper.create_logger(
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+    full_name: Optional[str] = None
+    scope: Optional[str] = None
+    uuid: Optional[str] = None
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
@@ -70,6 +79,14 @@ async def authenticate_user(
         data={
             "sub": form_data.username,
             "full_name": full_name,
+            "scope": await determine_scope_from_groups(
+                groups=await get_member_of_from_ldap(
+                    connection=conn, username=form_data.username
+                )
+            ),
+            "uuid": await get_uuid_from_ldap(
+                connection=conn, username=form_data.username
+            ),
         },
         expires_delta=access_token_expires,
     )
@@ -175,3 +192,57 @@ async def get_full_name_from_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return full_name
+
+
+async def get_uuid_from_token(
+    token: str = Depends(dependency=oauth2_scheme),
+) -> str:
+    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    uuid: Union[str, None] = payload.get("uuid")
+    if uuid is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return uuid
+
+
+async def get_scope_from_token(
+    token: str = Depends(dependency=oauth2_scheme),
+) -> str:
+    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    scope: Union[str, None] = payload.get("scope")
+    if scope is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return scope
+
+
+async def get_username_from_token(
+    token: str = Depends(dependency=oauth2_scheme),
+) -> str:
+    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    username: Union[str, None] = payload.get("sub")
+    if username is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return username
+
+
+async def get_token_data(
+    token: str = Depends(dependency=oauth2_scheme),
+) -> TokenData:
+    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    return TokenData(
+        username=payload.get("sub"),
+        full_name=payload.get("full_name"),
+        scope=payload.get("scope"),
+        uuid=payload.get("uuid"),
+    )
