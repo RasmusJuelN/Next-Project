@@ -11,7 +11,7 @@ async def get_full_name_from_ldap(
     username: str,
 ) -> str:
     """
-    Convenience function that calls `return_first_non_empty_attribute` with predefined attributes.
+    Retrieves the full name of a user from LDAP based on their username.
 
     Args:
         connection (Connection): The LDAP connection object.
