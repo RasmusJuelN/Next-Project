@@ -24,12 +24,12 @@ export interface StudentAnswer {
 
 
 export interface TeacherAnswer {
-  id: number; // ID of the teacher's answer from the database
+  id?: number; // ID of the teacher's answer from the database
   teacherId: number; // ID of the teacher
-  questionId: number; // ID of the question
+  questionId?: number; // ID of the question
   rating: number; // Rating value (1-5)
-  answerId: number; // ID of an anwser
-  answerDate: Date; // Date when the answer was provided
+  answerId?: number; // ID of an anwser
+  answerDate?: Date; // Date when the answer was provided
 }
 
 export interface StudentTeacherAnwser{

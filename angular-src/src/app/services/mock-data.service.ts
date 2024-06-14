@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Question, User } from '../../models/questionare';
+import { Question, StudentTeacherAnwser, User } from '../../models/questionare';
 import { delay, of, throwError } from 'rxjs';
 
 @Injectable({
@@ -11,7 +11,31 @@ export class MockDataService {
     { id: 3, username: 'Alexander', role: 'student' },
     { id: 4, username: 'Johan', role: 'student'}
   ];
-
+  private mockQuestions: Question[] = [
+    {
+      id: 1,
+      text: 'Elevn er har let ved at forstå arbejdsopgaverne og anvende dem i praksis.',
+      options: [
+        { id: 1, questionId: 1, value: 1, label: 'Viser lidt eller ingen forstålse for arbejdesopgaverne' },
+        { id: 2, questionId: 1, value: 2, label: 'Forstår arbejdsopgaverne, men kan ikke avende den i praksis. Har svært ved at tilegne sig i ny viden' },
+        { id: 3, questionId: 1, value: 3, label: 'Let ved at forstå arbejdsopgaverne og anvende den i praksis. Har let ved at tilegne sig ny viden.' },
+        { id: 4, questionId: 1, value: 4, label: 'Mindre behov for oplæring end normalt. Kan selv finde/tilegne sig ny viden.' },
+        { id: 5, questionId: 1, value: 5, label: 'Behøver næsten ingen oplæring. Kan ved selvstudium, endog ved svært tilgængeligt materiale, tilegne sig ny viden.' },
+      ]
+    },
+    {
+      id: 2,
+      text: 'Eleven viser initiativ og Kommer selv med løsningsforslag.',
+      options: [
+        { id: 6, questionId: 2, value: 1, label: 'Viser intet initiativ. Er passiv, uinteresseret og uselvstændig' },
+        { id: 7, questionId: 2, value: 2, label: 'Viser ringe initiativ. Kommer ikke med løsningsforslag. Viser ingen interesse i at tilægge eget arbejde.' },
+        { id: 8, questionId: 2, value: 3, label: 'Viser normalt initiativ. Kommer selv med løsningsforslag. Tilrettelægger eget arbejde.' },
+        { id: 9, questionId: 2, value: 4, label: 'Meget initiativrig. Kommer selv med løsningsforslag. Gode evner for at tilrettelægge eget og andres arbejde.' },
+        { id: 10, questionId: 2, value: 5, label: 'Overordentlig initiativrig. Løser selv problemerne. Tilrettelægger selvstændigt arbejdet for mig selv og andre.' },
+      ]
+    }
+  ];
+/*
   private mockQuestions: Question[] = [
     {
       id: 1,
@@ -35,6 +59,11 @@ export class MockDataService {
         { id: 10, questionId: 2, value: 5, label: 'Always engaged' },
       ]
     }
+  ];
+*/
+  private mockStudentTeacherAnswers: StudentTeacherAnwser[] = [
+    {anwserID:1 , student: { id: 2, studentId: 2, questionId: 1, rating: 5, answerId: 1, answerDate: new Date() }, 
+    teacher: { id: 1, teacherId: 1, questionId: 1, rating: 5, answerId: 1, answerDate: new Date() } },
   ];
 
   private studentInQuestionare = [{studentId: 2, isFinished: false}, {studentId: 3, isFinished: false}];
@@ -82,6 +111,5 @@ export class MockDataService {
     });
     return of(studentsYetToFinish);
   }
-
   
 }

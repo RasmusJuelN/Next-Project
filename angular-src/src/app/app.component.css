@@ -1,0 +1,15 @@
+button {
+    background-color: aliceblue;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.top {
+    display: flex;
+    align-items:center;
+}
+
+.top h1 {
+    margin: 0;
+    margin-right: 10px; /*Just a little space*/
+}

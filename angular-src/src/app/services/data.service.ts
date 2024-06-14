@@ -23,6 +23,6 @@ export class DataService {
     return this.httpClient.get<Question[]>(`${this.baseUrl}/questions?userId=${userId}`);
   }
   getQuestionFromId(questionId: number): Observable<Question> {
-    return this.httpClient.get<Question>(`${this.baseUrl}/questions/${questionId}`);
+    return this.httpClient.get<Question>(`${this.baseUrl}/questions/?id=${questionId}`);
   }
 }
