@@ -7,7 +7,7 @@ from typing import List
 from uuid import UUID
 
 
-SCOPES: dict[str, str] = {"elev": "elev", "lærer": "lærer", "admin": "admin"}
+SCOPES: dict[str, str] = {"student": "student", "teacher": "teacher", "admin": "admin"}
 
 
 async def get_object_by_uuid(

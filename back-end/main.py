@@ -13,8 +13,8 @@ from lib._auth import (
     router as auth_router,
     get_token_data,
     is_admin,
-    is_elev,
-    is_laerer,
+    is_student,
+    is_teacher,
     TokenData,
 )
 from lib._questions import questionnaire
@@ -96,10 +96,15 @@ async def read_protected(
     return {**token_data.model_dump()}
 
 
-@app.get(path="/protected/elev", tags=["users"], response_model=TokenData, response_description="The token data")
+@app.get(
+    path="/protected/elev",
+    tags=["users"],
+    response_model=TokenData,
+    response_description="The token data",
+)
 async def read_protected_elev(
     token_data: TokenData = Depends(dependency=get_token_data),
-    is_elev=Depends(dependency=is_elev),
+    is_elev=Depends(dependency=is_student),
 ) -> dict[str, str]:
     """
     Test endpoint to check if the token is valid, if the user role matches the required role, and to return the token data.
@@ -107,10 +112,15 @@ async def read_protected_elev(
     return {**token_data.model_dump()}
 
 
-@app.get(path="/protected/laerer", tags=["users"], response_model=TokenData, response_description="The token data")
+@app.get(
+    path="/protected/laerer",
+    tags=["users"],
+    response_model=TokenData,
+    response_description="The token data",
+)
 async def read_protected_laerer(
     token_data: TokenData = Depends(dependency=get_token_data),
-    is_laerer=Depends(dependency=is_laerer),
+    is_laerer=Depends(dependency=is_teacher),
 ) -> dict[str, str]:
     """
     Test endpoint to check if the token is valid, if the user role matches the required role, and to return the token data.
@@ -118,7 +128,12 @@ async def read_protected_laerer(
     return {**token_data.model_dump()}
 
 
-@app.get(path="/protected/admin", tags=["users"], response_model=TokenData, response_description="The token data")
+@app.get(
+    path="/protected/admin",
+    tags=["users"],
+    response_model=TokenData,
+    response_description="The token data",
+)
 async def read_protected_admin(
     token_data: TokenData = Depends(dependency=get_token_data),
     is_admin=Depends(dependency=is_admin),

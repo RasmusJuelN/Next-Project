@@ -68,8 +68,8 @@ class RoleChecker:
 
 
 is_admin = RoleChecker(SCOPES["admin"])
-is_elev = RoleChecker(SCOPES["elev"])
-is_laerer = RoleChecker(SCOPES["lærer"])
+is_student = RoleChecker(SCOPES["student"])
+is_teacher = RoleChecker(SCOPES["teacher"])
 
 
 router = APIRouter()
