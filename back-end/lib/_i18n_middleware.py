@@ -11,10 +11,16 @@ class I18nMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self, request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
-        language = request.headers.get("Accept-Language", "en")
-        if language not in self.LAN_LIST:
-            language = "en"
-        request.state.language = language
+        language = request.headers.get("Accept-Language", default="en")
+
+        # Accept-Language header example: "en-US,en-GB;q=0.9,en;q=0.8"
+        for lang in self.LAN_LIST:
+            if lang in language:
+                request.state.lang = lang
+                break
+        else:
+            request.state.lang = "en-US"
+
         response: Response = await call_next(request)
         return response
 
@@ -33,7 +39,9 @@ class Translator:
     def t(self, key: str, **kwargs: Dict[str, Any]) -> str:
         file_key, *translation_keys = key.split(sep=".")
 
-        locale_module: ModuleType = import_module(name=f"lib.lang.{self.lang}.{file_key}")
+        locale_module: ModuleType = import_module(
+            name=f"lib.lang.{self.lang}.{file_key}"
+        )
 
         translations: Dict[str, str] = locale_module.locale
         for translation_key in translation_keys:
