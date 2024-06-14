@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { User } from '../../../models/questionare';
 import { CommonModule } from '@angular/common';
 import { catchError, throwError } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,8 +15,8 @@ import { catchError, throwError } from 'rxjs';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
-  authService = inject(MockAuthService)
-  dataService = inject(MockDataService)
+  authService = inject(AuthService) // Change this to AuthService when using it really used
+  dataService = inject(MockDataService) // Change this to DataService when using it really used
   router = inject(Router)
 
   studentList: User[] = [];
@@ -41,6 +42,7 @@ export class DashboardComponent {
     else if (role === 'student'){
       console.log(`welcome ${role}`);
       const userId = this.authService.getUserId();
+      console.log('User ID:', userId);
       if (userId !== null) {
         this.router.navigate(['answer', userId]);
       } else {

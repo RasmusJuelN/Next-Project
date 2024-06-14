@@ -13,7 +13,7 @@ import { MockAuthService } from '../../services/mock-auth.service';
 })
 export class LoginPageComponent {
   router = inject(Router);
-  authService = inject(AuthService);
+  authService = inject(AuthService); // Change this to AuthService when using it really
 
   errorMessage: string | null = null;
   userName: string = "";

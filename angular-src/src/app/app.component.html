@@ -1,0 +1,7 @@
+<div class="top">
+    <h1>Welcome to {{title}}!</h1>
+    @if (tokenExists){
+        <button (click)="deleteToken()">Delete Token</button>
+    }
+  </div>
+  <router-outlet />

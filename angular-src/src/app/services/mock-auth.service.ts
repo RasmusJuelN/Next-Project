@@ -15,20 +15,20 @@ export class MockAuthService {
     this.mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1heCIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNjE1MTU5MDcwLCJleHAiOjE2MTUxNjI2NzB9.58DRS8vsDQb4ZQrWFl3aVvz_wNR9fi-mx4u9EdMn6fM';
   }
 
-  loginAuthentication(userName: string, password: string): Observable<{ token: string } | { error: string }> {
+  loginAuthentication(userName: string, password: string): Observable<{ access_token: string } | { error: string }> {
     const premadeUsers = [
-      { userName: "Max", password: "test1112" }, // This user is a teacher
-      { userName: "Nicklas", password: "test1212" },
-      { userName: "Alexander", password: "test1234" }
+      { userName: "MJ", password: "Pa$$w0rd" }, // This user is a teacher
+      { userName: "NH", password: "Pa$$w0rd" },
+      { userName: "Alexander", password: "Pa$$w0rd" }
     ];
 
     const matchedUser = premadeUsers.find(user => user.userName === userName && user.password === password);
 
     if (matchedUser) {
-      return of({ token: this.mockToken }).pipe(
+      return of({ access_token: this.mockToken }).pipe(
         tap(response => {
           console.log("Login success");
-          localStorage.setItem('token', response.token);
+          localStorage.setItem('token', response.access_token);
         })
       );
     } else {
@@ -59,6 +59,7 @@ export class MockAuthService {
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
+        console.log(decodedToken);
         return decodedToken.role || null;
       } catch (error) {
         console.error('Invalid token', error);
