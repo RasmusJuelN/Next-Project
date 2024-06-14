@@ -16,11 +16,41 @@ class Question(BaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
-                "question": "What is your favorite programming language?",
+                "text": "What is your favorite programming language?",
                 "options": [
-                    {"option": 1, "text": "Python"},
-                    {"option": 2, "text": "JavaScript"},
-                    {"option": 3, "text": "Java"},
+                    {"value": 1, "label": "Python"},
+                    {"value": 2, "label": "JavaScript"},
+                    {"value": 3, "label": "Java"},
                 ],
+            }
+        }
+
+
+class AllQuestions(BaseModel):
+    questions: List[Question]
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "questions": [
+                    {
+                        "id": 1,
+                        "text": "What is your favorite programming language?",
+                        "options": [
+                            {"value": 1, "label": "Python"},
+                            {"value": 2, "label": "JavaScript"},
+                            {"value": 3, "label": "Java"},
+                        ],
+                    },
+                    {
+                        "id": 2,
+                        "text": "What is your favorite IDE?",
+                        "options": [
+                            {"value": 1, "label": "PyCharm"},
+                            {"value": 2, "label": "VS Code"},
+                            {"value": 3, "label": "IntelliJ IDEA"},
+                        ],
+                    },
+                ]
             }
         }

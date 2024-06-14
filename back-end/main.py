@@ -18,7 +18,7 @@ from lib._auth import (
     TokenData,
 )
 from lib._questions import questionnaire
-from lib._models import Question
+from lib._models import Question, AllQuestions
 
 
 logger: Logger = LogHelper.create_logger(
@@ -145,16 +145,26 @@ async def read_protected_admin(
 
 
 @app.get(
-    path="/questions/{question_id}",
+    path="/questions/",
     response_model=Question,
 )
 async def read_question(
-    question_id: int,
+    id: int,
 ) -> Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]:
     for question in questionnaire["questions"]:
-        if question["id"] == str(object=question_id):
+        if question["id"] == str(object=id):
             return question
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Question not found",
     )
+
+
+@app.get(
+    path="/questions/all",
+    response_model=AllQuestions,
+)
+async def read_questions() -> (
+    Dict[str, List[Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]]]
+):
+    return questionnaire
