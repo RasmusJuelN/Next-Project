@@ -9,7 +9,7 @@ from ldap3.core.exceptions import (  # type: ignore
 )
 from typing import Dict, Union, List
 
-from external.log_helper.log_helper import LogHelper
+from lib._logger import LogHelper
 from lib._auth import (
     router as auth_router,
     get_token_data,
