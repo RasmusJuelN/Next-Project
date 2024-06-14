@@ -20,6 +20,7 @@ from lib._auth import (
 )
 from lib._questions import questionnaire
 from lib._models import Question, AllQuestions
+from lib._i18n_middleware import I18nMiddleware, Translator
 
 # noqa: W291 (trailing whitespace) prevents Flake8 from complaining about trailing whitespace. Used for docstrings.
 # fmt: off/on (black formatting) disables/enables Black formatting for the code block. Used for docstrings.
@@ -42,6 +43,7 @@ app.add_middleware(
 )
 
 app.include_router(router=auth_router)
+app.add_middleware(middleware_class=I18nMiddleware)
 
 
 @app.exception_handler(exc_class_or_status_code=HTTPException)
@@ -206,6 +208,7 @@ async def read_protected_admin(
 )
 async def read_question(
     id: int,
+    request: Request,
 ) -> Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]:
     """
     Call this endpoint with the ID of the question you want to retrieve.
@@ -216,12 +219,13 @@ async def read_question(
 
     - **raises**:  `HTTPException`: A 404 error if the question is not found.
     """
+    translator = Translator(lang=request.state.language)
     for question in questionnaire["questions"]:
         if question["id"] == str(object=id):
             return question
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail="Question not found",
+        detail=f"{translator.t(key='errors.question_not_found')}: {id}",
     )
 
 
@@ -229,9 +233,9 @@ async def read_question(
     path="/questions/all",
     response_model=AllQuestions,
 )
-async def read_questions() -> (
-    Dict[str, List[Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]]]
-):
+async def read_questions(
+    request: Request,
+) -> Dict[str, List[Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]]]:
     """
     Call this endpoint to retrieve all questions.
 
@@ -241,9 +245,10 @@ async def read_questions() -> (
 
     - **raises**:  `HTTPException`: A 404 error if no questions are found.
     """
+    translator = Translator(lang=request.state.language)
     if len(questionnaire["questions"]) > 0:
         return questionnaire
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail="No questions found",
+        detail=translator.t(key="errors.no_questions_found"),
     )
