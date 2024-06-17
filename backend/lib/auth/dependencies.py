@@ -3,9 +3,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 
-from backend.lib._utils import SCOPES
 from .models import TokenData
-from .constants import ALGORITHM, SECRET_KEY
+from .constants import ALGORITHM, SECRET_KEY, SCOPES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
 

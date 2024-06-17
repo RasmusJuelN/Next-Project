@@ -9,7 +9,7 @@ from ldap3.core.exceptions import LDAPInvalidCredentialsResult  # type: ignore
 from logging import Logger, DEBUG, INFO
 
 from backend.lib._logger import LogHelper
-from backend.lib._utils import (
+from .utility import (
     get_full_name_from_ldap,
     get_member_of_from_ldap,
     get_uuid_from_ldap,

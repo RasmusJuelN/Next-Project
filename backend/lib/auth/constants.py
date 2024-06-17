@@ -5,3 +5,5 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 DOMAIN = "dc.next.dev"
 LDAP_SERVER = f"ldap://{DOMAIN}"
 LDAP_BASE_DN = "DC=NEXT,DC=dev"
+
+SCOPES: dict[str, str] = {"student": "student", "teacher": "teacher", "admin": "admin"}
