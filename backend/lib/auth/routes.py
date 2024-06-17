@@ -21,7 +21,7 @@ from .utility import authenticate_user_ldap, create_access_token
 
 logger: Logger = LogHelper.create_logger(
     logger_name="backend API (auth)",
-    log_file="logs/backend.log",
+    log_file="backend/logs/backend.log",
     file_log_level=DEBUG,
     stream_log_level=INFO,
 )
