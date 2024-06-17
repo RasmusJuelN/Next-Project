@@ -9,9 +9,8 @@
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
-            "cwd": "${workspaceFolder}/back-end/",
             "args": [
-                "main:app",
+                "backend.main:app",
                 "--reload"
             ],
             "jinja": true
