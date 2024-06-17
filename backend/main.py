@@ -10,14 +10,9 @@ from ldap3.core.exceptions import (  # type: ignore
 from typing import Dict, Union, List
 
 from .lib._logger import LogHelper
-from .lib._auth import (
-    router as auth_router,
-    get_token_data,
-    is_admin,
-    is_student,
-    is_teacher,
-    TokenData,
-)
+from .lib.auth.routes import router as auth_router
+from .lib.auth.models import TokenData
+from .lib.auth.dependencies import get_token_data, is_student, is_teacher, is_admin
 from .lib._questions import questionnaire
 from .lib._models import Question, AllQuestions
 from .lib._i18n_middleware import I18nMiddleware, Translator
