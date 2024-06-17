@@ -22,7 +22,7 @@ from .lib.i18n_middleware import I18nMiddleware, Translator
 
 logger: Logger = LogHelper.create_logger(
     logger_name="backend API (main)",
-    log_file="logs/backend.log",
+    log_file="backend/logs/backend.log",
     file_log_level=DEBUG,
     stream_log_level=INFO,
 )
