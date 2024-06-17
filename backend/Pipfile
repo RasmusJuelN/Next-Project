@@ -12,6 +12,7 @@ python-jose = "*"
 pycryptodome = "*"
 
 [dev-packages]
+types-python-jose = "*"
 
 [requires]
 python_version = "3.12"
