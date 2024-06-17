@@ -125,10 +125,10 @@ async def read_protected(
     tags=["users"],
     response_model=TokenData,
     response_description="The token data",
+    dependencies=[Depends(dependency=is_student)],
 )
 async def read_protected_student(
     token_data: TokenData = Depends(dependency=get_token_data),
-    is_student=Depends(dependency=is_student),
 ) -> dict[str, str]:
     # fmt: off
     """
@@ -153,10 +153,10 @@ async def read_protected_student(
     tags=["users"],
     response_model=TokenData,
     response_description="The token data",
+    dependencies=[Depends(dependency=is_teacher)],
 )
 async def read_protected_teacher(
     token_data: TokenData = Depends(dependency=get_token_data),
-    is_teacher=Depends(dependency=is_teacher),
 ) -> dict[str, str]:
     # fmt: off
     """
@@ -180,10 +180,10 @@ async def read_protected_teacher(
     tags=["users"],
     response_model=TokenData,
     response_description="The token data",
+    dependencies=[Depends(dependency=is_admin)],
 )
 async def read_protected_admin(
     token_data: TokenData = Depends(dependency=get_token_data),
-    is_admin=Depends(dependency=is_admin),
 ) -> dict[str, str]:
     # fmt: off
     """
