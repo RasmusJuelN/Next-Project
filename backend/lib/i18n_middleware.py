@@ -14,12 +14,13 @@ class I18nMiddleware(BaseHTTPMiddleware):
         languages: str = request.headers.get("Accept-Language", default="en-US")
 
         # Accept-Language header example: "en-US,en-GB;q=0.9,en;q=0.8"
-        for lang in self.LAN_LIST:
-            if lang in language:
-                request.state.lang = lang
+        for language in languages.split(sep=","):
+            lang: str = language.split(sep=";")[0]
+            if lang in self.LAN_LIST:
+                request.state.language = lang
                 break
         else:
-            request.state.lang = "en-US"
+            request.state.language = "en-US"
 
         response: Response = await call_next(request)
         return response
