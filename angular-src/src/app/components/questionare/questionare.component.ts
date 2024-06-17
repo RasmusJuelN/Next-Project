@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Question } from '../../../models/questionare';
+import { Question } from '../../models/questionare';
 import { MockDataService } from '../../services/mock-data.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import {MatIconRegistry, MatIconModule} from '@angular/material/icon';
@@ -18,18 +18,10 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 export class QuestionareComponent {
   dataService = inject(MockDataService);
   route = inject(ActivatedRoute);
-  private matIconRegistry = inject(MatIconRegistry);
-  private domSanitizer = inject(DomSanitizer);
   private router = inject(Router);
 
   questions: Question[] = [];
-
-  constructor() {
-    this.matIconRegistry.addSvgIcon(
-      'help',
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/help.svg')
-    );
-  }
+  currentQuestionIndex: number = 0;
 
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.paramMap.get('userId'));
@@ -49,8 +41,23 @@ export class QuestionareComponent {
       }
     });
   }
-  onSubmit() {
-    console.log("submitted");
+
+  selectOption(value: number): void {
+    this.questions[this.currentQuestionIndex].selectedOption = value;
+  }  
+
+  nextQuestion(): void {
+    if (this.currentQuestionIndex < this.questions.length - 1) {
+      this.currentQuestionIndex++;
+    } else {
+      // Submit the answers or navigate to another page
+      console.log('Submit answers');
+    }
   }
 
+  previousQuestion(): void {
+    if (this.currentQuestionIndex > 0) {
+      this.currentQuestionIndex--;
+    }
+  }
 }

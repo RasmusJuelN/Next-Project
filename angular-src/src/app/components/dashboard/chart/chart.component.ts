@@ -15,4 +15,5 @@ export class ChartComponent {
   dataService = inject(MockDataService);
   ChartService = inject(ChartService);
 
+  // This is early component meant to showcase charts
 }

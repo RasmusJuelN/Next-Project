@@ -1,45 +1,33 @@
-@if(questions){
-    <div class="container">
-        <form (ngSubmit)="onSubmit()" #questionnaireForm="ngForm">
-          <div style="text-align: left;">
-            <h2>Spørgeskema</h2>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Utilstrækkelig</th>
-                <th>Tilstrækkelig</th>
-                <th>Jævn</th>
-                <th>Fortringlig</th>
-                <th>Fremragende</th>
-              </tr>
-            </thead>
-            <tbody>
-                @for(question of questions; track question.id;){
-                    <tr>
-                        <td>{{ question.text }}</td>
-                        @for(option of question.options; track option.id){
-                            <td>
-                                <div class="questionmark" 
-                                matTooltip="{{ option.label }}"
-                                [matTooltipPosition] = "'right'">
-                                <mat-icon svgIcon="help" aria-hidden="false" class="help"></mat-icon>
-                              </div>
-                              <input 
-                                type="radio" 
-                                [name]="'question' + question.id" 
-                                [value]="option.value" 
-                                [(ngModel)]="question.selectedOption" 
-                                [id]="'question' + question.id + 'option' + option.id"
-                              />
-                            </td>
-                        }
-                    </tr>
-                }
-            </tbody>
-          </table>
-          <button type="submit">Send Svar</button>
-        </form>
+<p>questionare2 works!</p>
+<div>
+  <div class="progress-container">
+    <h4>{{ currentQuestionIndex + 1 }} ud af {{ questions.length }}</h4>
+    <div class="progress-bar">
+      <div class="progress" [style.width]="(currentQuestionIndex + 1) / questions.length * 100 + '%'"></div>
+    </div>
+  </div>
+  <div>
+    <h3>{{ questions[currentQuestionIndex].text }}</h3>
+  </div>
+  <div class="options-container">
+    @for(option of questions[currentQuestionIndex].options; track option.id) {
+      <div class="option-item" 
+           [class.selected]="questions[currentQuestionIndex].selectedOption === option.value"
+           (click)="selectOption(option.value)">
+        <label [for]="'question' + questions[currentQuestionIndex].id + 'option' + option.id">{{ option.label }}</label>
+        <input 
+          type="radio" 
+          [name]="'question' + questions[currentQuestionIndex].id" 
+          [value]="option.value" 
+          [(ngModel)]="questions[currentQuestionIndex].selectedOption" 
+          [id]="'question' + questions[currentQuestionIndex].id + 'option' + option.id"
+          hidden
+        />
       </div>
-}
+    }
+  </div>
+  <div class="button-container">
+    <button (click)="previousQuestion()" [disabled]="currentQuestionIndex === 0">Tilbage</button>
+    <button (click)="nextQuestion()">{{ currentQuestionIndex === questions.length - 1 ? 'Submit' : 'Næste' }}</button>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Question } from '../../../models/questionare';
+import { Question } from '../../models/questionare';
 import { DataService } from '../../services/data.service';
 import { CommonModule } from '@angular/common';
 import { Chart } from 'chart.js';

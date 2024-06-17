@@ -12,7 +12,7 @@ export class MockAuthService {
 
   constructor() {
     // This token automaticly assumes the the user is "Max" and is a teacher
-    this.mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1heCIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNjE1MTU5MDcwLCJleHAiOjE2MTUxNjI2NzB9.58DRS8vsDQb4ZQrWFl3aVvz_wNR9fi-mx4u9EdMn6fM';
+    this.mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1heCIsInNjb3BlIjoidGVhY2hlciIsImlhdCI6MTYxNTE1OTA3MCwiZXhwIjoxNjE1MTYyNjcwfQ.r4BA1CdV8w6MonSkquOz_qupn4pnI1pNzBi2B5Dtj-o';
   }
 
   loginAuthentication(userName: string, password: string): Observable<{ access_token: string } | { error: string }> {
@@ -60,7 +60,7 @@ export class MockAuthService {
       try {
         const decodedToken: any = jwtDecode(token);
         console.log(decodedToken);
-        return decodedToken.role || null;
+        return decodedToken.scope || null;
       } catch (error) {
         console.error('Invalid token', error);
         return null;

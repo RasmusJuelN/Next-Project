@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Question, StudentTeacherAnwser } from '../../models/questionare';
+import { Question, StudentTeacherAnwser } from '../models/questionare';
 import {Chart, ChartConfiguration, ChartData, ChartItem} from 'chart.js';
 
 @Injectable({
