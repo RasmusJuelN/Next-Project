@@ -9,8 +9,8 @@ from ldap3.core.exceptions import (  # type: ignore
 )
 from typing import Dict, Union, List
 
-from lib._logger import LogHelper
-from lib._auth import (
+from .lib._logger import LogHelper
+from .lib._auth import (
     router as auth_router,
     get_token_data,
     is_admin,
@@ -18,9 +18,9 @@ from lib._auth import (
     is_teacher,
     TokenData,
 )
-from lib._questions import questionnaire
-from lib._models import Question, AllQuestions
-from lib._i18n_middleware import I18nMiddleware, Translator
+from .lib._questions import questionnaire
+from .lib._models import Question, AllQuestions
+from .lib._i18n_middleware import I18nMiddleware, Translator
 
 # noqa: W291 (trailing whitespace) prevents Flake8 from complaining about trailing whitespace. Used for docstrings.
 # fmt: off/on (black formatting) disables/enables Black formatting for the code block. Used for docstrings.

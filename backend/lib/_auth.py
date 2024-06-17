@@ -12,8 +12,8 @@ from typing import Optional, Any, Union, overload
 from logging import Logger, DEBUG, INFO
 from pydantic import BaseModel
 
-from lib._logger import LogHelper
-from lib._utils import (
+from ..lib._logger import LogHelper
+from ..lib._utils import (
     get_full_name_from_ldap,
     get_member_of_from_ldap,
     get_uuid_from_ldap,
