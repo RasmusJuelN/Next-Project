@@ -13,6 +13,7 @@ pycryptodome = "*"
 
 [dev-packages]
 types-python-jose = "*"
+types-ldap3 = "*"
 
 [requires]
 python_version = "3.12"
