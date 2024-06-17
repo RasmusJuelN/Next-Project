@@ -1,3 +1,14 @@
+"""
+Log Helper Module
+
+Author: Nicklas H. (LobaDK)
+Date: 2024
+
+This module is part of a collection of utilities intended to simplify logging in Python applications. It is provided "as is" for anyone to use, modify, and distribute, freely and openly. While not required, credit back to the original author is appreciated.
+
+This module is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+"""
+
 import logging
 from logging import StreamHandler
 from logging.handlers import TimedRotatingFileHandler
