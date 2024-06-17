@@ -11,7 +11,7 @@ class I18nMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self, request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
-        language = request.headers.get("Accept-Language", default="en")
+        languages: str = request.headers.get("Accept-Language", default="en-US")
 
         # Accept-Language header example: "en-US,en-GB;q=0.9,en;q=0.8"
         for lang in self.LAN_LIST:
