@@ -48,6 +48,34 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
 
 
 class RoleChecker:
+    """
+    RoleChecker class is responsible for checking if a user has the required role to access a resource.
+
+    Refer to the `SCOPES` constant in lib._utils for the available roles. No value is returned.
+
+    Raises:
+        HTTPException (status_code=401): If the token is invalid.
+        HTTPException (status_code=403): If the user does not have the required role.
+
+    Example:
+        ```python
+        is_admin = RoleChecker(SCOPES["admin"])
+
+        @router.get("/admin", dependencies=[Depends(is_admin)])
+        async def admin_only_route():
+            return {"message": "You are an admin."}
+        ```
+
+    Alternatively:
+        ```python
+        is_admin = RoleChecker(SCOPES["admin"])
+
+        @router.get("/admin")
+        async def admin_only_route(_ = Depends(is_admin)):
+            return {"message": "You are an admin."}
+        ```
+    """
+
     def __init__(self, role: str) -> None:
         self.role = role
 
