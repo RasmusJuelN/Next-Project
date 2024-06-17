@@ -16,9 +16,6 @@ from json import load, dump
 from configparser import ConfigParser
 from collections.abc import MutableMapping
 from atexit import register
-from sys import path as sys_path
-
-sys_path.append(str(Path(__file__).resolve().parent.parent))
 
 
 # Initialize flags indicating the availability of optional modules
@@ -42,7 +39,7 @@ except ImportError:
     pass
 
 try:
-    from ._logger import LogHelper
+    from .._logger import LogHelper
 
     logging_available = True
 except ImportError:
@@ -108,6 +105,7 @@ class SettingsManager(MutableMapping):
         save_on_exit: bool = False,
         save_on_change: bool = False,
         use_logger: bool = False,
+        log_file: Optional[str] = None,
         sanitize: bool = False,
         format: Optional[str] = None,
     ) -> None:
@@ -122,6 +120,7 @@ class SettingsManager(MutableMapping):
             save_on_exit (bool, optional): Whether to save the settings when the program exits. Defaults to False.
             save_on_change (bool, optional): Whether to save the settings when they are changed. May cause slowdowns if the settings are changed frequently. Try and update the settings in bulk. Defaults to False.
             use_logger (bool, optional): Whether to use a Logger. If false, only severe errors will be printed using `print()`. Defaults to False.
+            log_file (str, optional): The path and name of the log file. Defaults to None.
             sanitize (bool, optional): Whether to sanitize and check the settings before reading/writing. Defaults to False.
             format (Optional[str], optional): The format is automatically guessed from the extension, but this can be used to override it. Defaults to None.
 
@@ -141,10 +140,13 @@ class SettingsManager(MutableMapping):
             raise ValueError("You must provide default_settings.")
         if not logging_available and use_logger:
             raise ValueError("The log_helper module is not available.")
+        if not use_logger and log_file:
+            raise ValueError("You must enable use_logger to use a log file.")
 
         if use_logger:
             self.logger: Logger = LogHelper.create_logger(
-                logger_name="SettingsManager", log_file="settings.log"
+                logger_name="SettingsManager",
+                log_file="settings.log" if not log_file else log_file,
             )
 
         if path:
@@ -197,6 +199,11 @@ class SettingsManager(MutableMapping):
                 message=f"Settings file {self.read_path} exists; loading settings."
             )
             self._load()
+        else:
+            self.log_or_print(
+                message=f"Settings file {self.read_path} does not exist; using default settings."
+            )
+            self.data = self.default_settings
         self.log_or_print(message=f"Is save_on_change enabled? {self.save_on_change}.")
         self.log_or_print(
             message=f"SettingsManager initialized with format {self.format}."
@@ -237,7 +244,7 @@ class SettingsManager(MutableMapping):
             with open(self.read_path, "r") as f:
                 self.data = toml_load(f)
         elif self.format == "ini":
-            config = ConfigParser()
+            config = ConfigParser(allow_no_value=True)
             config.read(self.read_path)
             self.data = {
                 section: dict(config.items(section)) for section in config.sections()
@@ -258,7 +265,7 @@ class SettingsManager(MutableMapping):
             with open(self.write_path, "w") as file:
                 toml_dump(self.data, file)
         elif self.format == "ini":
-            config = ConfigParser()
+            config = ConfigParser(allow_no_value=True)
             for section, settings in self.data.items():
                 config[section] = settings
             with open(self.write_path, "w") as file:
