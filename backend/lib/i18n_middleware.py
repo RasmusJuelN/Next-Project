@@ -40,7 +40,7 @@ class Translator:
         file_key, *translation_keys = key.split(sep=".")
 
         locale_module: ModuleType = import_module(
-            name=f"lib.lang.{self.lang}.{file_key}"
+            name=f"backend.lib.lang.{self.lang}.{file_key}"
         )
 
         translations: Dict[str, str] = locale_module.locale
