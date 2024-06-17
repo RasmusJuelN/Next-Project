@@ -68,6 +68,15 @@ is_teacher = RoleChecker(role=SCOPES["teacher"])
 async def get_token_data(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> TokenData:
+    """
+    Retrieves the token data from the provided token.
+
+    Args:
+        token (str): The token to decode and retrieve data from.
+
+    Returns:
+        TokenData: An instance of the TokenData class containing the decoded token data.
+    """
     payload: dict[str, Any] = jwt.decode(
         token=token, key=SECRET_KEY, algorithms=[ALGORITHM]
     )
@@ -82,6 +91,18 @@ async def get_token_data(
 async def validate_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> TokenData:
+    """
+    Validates the provided token and returns the decoded token data.
+
+    Args:
+        token (str): The token to be validated.
+
+    Returns:
+        TokenData: The decoded token data.
+
+    Raises:
+        HTTPException: If the token is invalid or missing a username.
+    """
     payload: dict[str, Any] = jwt.decode(
         token=token, key=SECRET_KEY, algorithms=[ALGORITHM]
     )

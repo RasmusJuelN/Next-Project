@@ -9,24 +9,88 @@ from .dependencies import oauth2_scheme
 
 
 async def decode_token(token: str) -> dict[str, Any]:
+    """
+    Convenience function to decode a token. Wraps around `jwt.decode`.
+
+    Args:
+        token (str): The token to decode.
+
+    Returns:
+        dict[str, Any]: The payload extracted from the token.
+
+    Raises:
+        Refer to `jwt.decode` for possible exceptions.
+    """
     return jwt.decode(token=token, key=SECRET_KEY, algorithms=[ALGORITHM])
 
 
 async def encode_token(data: dict) -> str:
+    """
+    Convenience function to encode a token. Wraps around `jwt.encode`.
+
+    Args:
+        data (dict): The data to encode.
+
+    Returns:
+        str: The encoded token.
+
+    Raises:
+        Refer to `jwt.encode` for possible exceptions.
+    """
     return jwt.encode(claims=data, key=SECRET_KEY, algorithm=ALGORITHM)
 
 
 @overload
-async def encode_or_decode_token(*, token: str) -> dict[str, Any]: ...  # noqa: E704
+async def encode_or_decode_token(*, token: str) -> dict[str, Any]:
+    """
+    Decode the provided token and return the payload.
+
+    Args:
+        token (str): The token to decode.
+
+    Returns:
+        dict[str, Any]: The payload extracted from the token.
+
+    Raises:
+        Refer to `jwt.decode` for possible exceptions.
+    """
+    ...
 
 
 @overload
-async def encode_or_decode_token(*, data: dict) -> str: ...  # noqa: E704
+async def encode_or_decode_token(*, data: dict) -> str:
+    """
+    Encode the provided data and return the token.
+
+    Args:
+        data (dict): The data to encode.
+
+    Returns:
+        str: The encoded token.
+
+    Raises:
+        Refer to `jwt.encode` for possible exceptions.
+    """
+    ...
 
 
 async def encode_or_decode_token(
     *, token: Optional[str] = None, data: Optional[dict] = None
 ) -> Union[str, dict[str, Any]]:
+    """
+    Encode or decode the provided token or data.
+
+    Args:
+        token (Optional[str]): The token to decode.
+        data (Optional[dict]): The data to encode.
+
+    Returns:
+        Union[str, dict[str, Any]]: The decoded payload or the encoded token.
+
+    Raises:
+        ValueError: If both `token` and `data` are provided.
+        Refer to `jwt.decode` and `jwt.encode` for possible exceptions.
+    """
     if token is not None and data is None:
         return await decode_token(token=token)
     elif token is None and data is not None:
@@ -38,6 +102,18 @@ async def encode_or_decode_token(
 async def get_full_name_from_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> str:
+    """
+    Retrieves the full name from the provided token.
+
+    Args:
+        token (str): The token to decode and extract the full name from.
+
+    Returns:
+        str: The full name extracted from the token.
+
+    Raises:
+        HTTPException: If the token is invalid or does not contain a full name.
+    """
     payload: dict[str, Any] = await encode_or_decode_token(token=token)
     full_name: Union[str, None] = payload.get("full_name")
     if full_name is None:
@@ -52,6 +128,18 @@ async def get_full_name_from_token(
 async def get_uuid_from_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> str:
+    """
+    Retrieves the UUID from the provided token.
+
+    Args:
+        token (str): The token to decode and extract the UUID from.
+
+    Returns:
+        str: The UUID extracted from the token.
+
+    Raises:
+        HTTPException: If the token is invalid or does not contain a UUID.
+    """
     payload: dict[str, Any] = await encode_or_decode_token(token=token)
     uuid: Union[str, None] = payload.get("uuid")
     if uuid is None:
@@ -66,6 +154,18 @@ async def get_uuid_from_token(
 async def get_scope_from_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> str:
+    """
+    Retrieves the scope from the provided token.
+
+    Args:
+        token (str): The token to extract the scope from.
+
+    Returns:
+        str: The scope extracted from the token.
+
+    Raises:
+        HTTPException: If the token is invalid or does not contain a scope.
+    """
     payload: dict[str, Any] = await encode_or_decode_token(token=token)
     scope: Union[str, None] = payload.get("scope")
     if scope is None:
@@ -80,6 +180,18 @@ async def get_scope_from_token(
 async def get_username_from_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> str:
+    """
+    Retrieves the username from the provided token.
+
+    Args:
+        token (str): The token to decode and extract the username from.
+
+    Returns:
+        str: The username extracted from the token.
+
+    Raises:
+        HTTPException: If the token is invalid or does not contain a username.
+    """
     payload: dict[str, Any] = await encode_or_decode_token(token=token)
     username: Union[str, None] = payload.get("sub")
     if username is None:
@@ -126,6 +238,17 @@ async def authenticate_user_ldap(username: str, password: str) -> Connection:
 async def create_access_token(
     data: dict, expires_delta: Optional[timedelta] = None
 ) -> str:
+    """
+    Create an access token with the provided data and expiration delta.
+
+    Args:
+        data (dict): The data to be encoded in the access token.
+        expires_delta (Optional[timedelta]): The expiration delta for the access token.
+            If not provided, a default expiration of 15 minutes will be used.
+
+    Returns:
+        str: The encoded access token.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire: datetime = datetime.now(tz=UTC) + expires_delta
