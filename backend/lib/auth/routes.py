@@ -58,16 +58,16 @@ async def authenticate_user(
     try:
         encoded_jwt: str = await create_access_token(
             data={
-                "sub": form_data.username,
+                "sub": await get_uuid_from_ldap(
+                    connection=conn, username=form_data.username
+                ),
                 "full_name": full_name,
                 "scope": await determine_scope_from_groups(
                     groups=await get_member_of_from_ldap(
                         connection=conn, username=form_data.username
                     )
                 ),
-                "uuid": await get_uuid_from_ldap(
-                    connection=conn, username=form_data.username
-                ),
+                "username": form_data.username,
             },
             expires_delta=access_token_expires,
         )

@@ -81,10 +81,10 @@ async def get_token_data(
         token=token, key=SECRET_KEY, algorithms=[ALGORITHM]
     )
     return TokenData(
-        username=payload.get("sub"),
+        username=payload.get("username"),
         full_name=payload.get("full_name"),
         scope=payload.get("scope"),
-        uuid=payload.get("uuid"),
+        uuid=payload.get("sub"),
     )
 
 
