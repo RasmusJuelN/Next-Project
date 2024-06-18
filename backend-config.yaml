@@ -1,4 +1,4 @@
-AUTH:
+auth:
   access_token_expire_minutes: 30
   algorithm: HS256
   domain: dc.next.dev
