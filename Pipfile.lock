@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2f6457b0a895495c3edcc5bb18185552a697216a75ec4784c8fbcfc0ee9964a1"
+            "sha256": "f480a962896a67f5a9268684af77109bfa59befbd90c8fe064eece03c8a0bc9e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -55,6 +55,14 @@
             ],
             "markers": "platform_system == 'Windows'",
             "version": "==0.4.6"
+        },
+        "dacite": {
+            "hashes": [
+                "sha256:cc31ad6fdea1f49962ea42db9421772afe01ac5442380d9a99fcf3d188c61afe"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.6'",
+            "version": "==1.8.1"
         },
         "deprecated": {
             "hashes": [
