@@ -1,16 +1,13 @@
-<p>questionare2 works!</p>
-<div>
+<div class="questionnaire-container">
   <div class="progress-container">
     <h4>{{ currentQuestionIndex + 1 }} ud af {{ questions.length }}</h4>
     <div class="progress-bar">
       <div class="progress" [style.width]="(currentQuestionIndex + 1) / questions.length * 100 + '%'"></div>
     </div>
   </div>
-  <div>
-    <h3>{{ questions[currentQuestionIndex].text }}</h3>
-  </div>
+  <h3>{{ questions[currentQuestionIndex].text }}</h3>
   <div class="options-container">
-    @for(option of questions[currentQuestionIndex].options; track option.id) {
+    @for(option of questions[currentQuestionIndex].options; track option.value) {
       <div class="option-item" 
            [class.selected]="questions[currentQuestionIndex].selectedOption === option.value"
            (click)="selectOption(option.value)">
@@ -28,6 +25,10 @@
   </div>
   <div class="button-container">
     <button (click)="previousQuestion()" [disabled]="currentQuestionIndex === 0">Tilbage</button>
-    <button (click)="nextQuestion()">{{ currentQuestionIndex === questions.length - 1 ? 'Submit' : 'Næste' }}</button>
+    @if(currentQuestionIndex === questions.length - 1) {
+      <button (click)="submit()">Submit</button>
+    } @else {
+      <button (click)="nextQuestion()">Næste</button>
+    }
   </div>
 </div>

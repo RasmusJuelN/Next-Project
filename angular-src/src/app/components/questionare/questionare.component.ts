@@ -60,4 +60,7 @@ export class QuestionareComponent {
       this.currentQuestionIndex--;
     }
   }
+  submit(){
+    console.log('pressed Submit button')
+  }
 }

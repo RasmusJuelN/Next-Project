@@ -12,7 +12,7 @@ export class MockAuthService {
 
   constructor() {
     // This token automaticly assumes the the user is "Max" and is a teacher
-    this.mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1heCIsInNjb3BlIjoidGVhY2hlciIsImlhdCI6MTYxNTE1OTA3MCwiZXhwIjoxNjE1MTYyNjcwfQ.r4BA1CdV8w6MonSkquOz_qupn4pnI1pNzBi2B5Dtj-o';
+    this.mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTYxNTE2MjY3MH0.4a8y5LBmXoe4Kqpfg-GSGslNvzMAf8avtLPrm5gEVAA';
   }
 
   loginAuthentication(userName: string, password: string): Observable<{ access_token: string } | { error: string }> {
