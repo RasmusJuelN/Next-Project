@@ -34,8 +34,8 @@ export interface TeacherAnswer {
 
 export interface StudentTeacherAnwser{
   anwserID: number // The id of anwser collection
-  student: StudentAnswer;
-  teacher: TeacherAnswer;
+  student: StudentAnswer; // The student anwser
+  teacher: TeacherAnswer; // The teacher anwser
 }
 
 export interface User {

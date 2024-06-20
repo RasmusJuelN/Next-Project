@@ -61,6 +61,14 @@ export class QuestionareComponent {
     }
   }
   submit(){
-    console.log('pressed Submit button')
+    let result = confirm("Will you proceed?");
+    if (result) {
+      // User clicked 'Yes'
+      alert("You submited Data!");
+    } else {
+        // User clicked 'No'
+        alert("You did not submit data!");
+    }
+
   }
 }
