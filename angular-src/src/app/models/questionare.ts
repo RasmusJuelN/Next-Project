@@ -1,3 +1,6 @@
+/**
+ * Represents an option for a question in a questionnaire.
+ */
 export interface Option {
   id?: number; // ID of the option from the database
   questionId?: number; // ID of the question this option belongs to
@@ -5,6 +8,9 @@ export interface Option {
   label: string; // Label explaining the rating
 }
 
+/**
+ * Represents a question in a questionnaire.
+ */
 export interface Question {
   id: number; // ID of the question from the database
   text: string; // Text of the question
@@ -13,6 +19,9 @@ export interface Question {
 }
 
 
+/**
+ * Represents a student's answer to a question.
+ */
 export interface StudentAnswer {
   id: number; // ID of the student's answer from the database
   studentId: number; // ID of the student
@@ -23,6 +32,9 @@ export interface StudentAnswer {
 }
 
 
+/**
+ * Represents a teacher's answer to a question.
+ */
 export interface TeacherAnswer {
   id?: number; // ID of the teacher's answer from the database
   teacherId: number; // ID of the teacher
@@ -32,14 +44,21 @@ export interface TeacherAnswer {
   answerDate?: Date; // Date when the answer was provided
 }
 
+/**
+ * Represents a a combined student and teacher answer to a question.
+ */
 export interface StudentTeacherAnwser{
   anwserID: number // The id of anwser collection
   student: StudentAnswer; // The student anwser
   teacher: TeacherAnswer; // The teacher anwser
 }
 
+
+/**
+ * Represents a user like (e.g., 'student', 'teacher', 'admin').
+ */
 export interface User {
-  id: number;
-  username: string;
-  role: string; // Additional roles can be defined as needed (e.g., 'student', 'teacher', 'admin')
+  id: number; // ID of the user from the database
+  username: string; // Username of the user
+  role: string; // Role for the user.
 }

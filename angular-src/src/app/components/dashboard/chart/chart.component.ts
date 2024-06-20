@@ -3,6 +3,9 @@ import { Chart } from 'chart.js';
 import { MockDataService } from '../../../services/mock-data.service';
 import { ChartService } from '../../../services/chart.service';
 
+/**
+ * Represents the ChartComponent class that showcases charts. Currently in testing.
+ */
 @Component({
   selector: 'app-chart',
   standalone: true,
@@ -14,6 +17,4 @@ export class ChartComponent {
   chart: Chart | null = null;
   dataService = inject(MockDataService);
   ChartService = inject(ChartService);
-
-  // This is early component meant to showcase charts
 }

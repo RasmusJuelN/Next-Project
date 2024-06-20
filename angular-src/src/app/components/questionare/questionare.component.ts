@@ -15,6 +15,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
   templateUrl: './questionare.component.html',
   styleUrl: './questionare.component.css'
 })
+/**
+ * Represents a component for displaying and interacting with a questionnaire.
+ */
 export class QuestionareComponent {
   dataService = inject(MockDataService);
   route = inject(ActivatedRoute);
@@ -23,6 +26,9 @@ export class QuestionareComponent {
   questions: Question[] = [];
   currentQuestionIndex: number = 0;
 
+  /**
+   * Initializes the component and retrieves the questions for the specified user.
+   */
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.paramMap.get('userId'));
     if (isNaN(userId)) {
@@ -42,10 +48,18 @@ export class QuestionareComponent {
     });
   }
 
+  /**
+   * Selects an option for the current question.
+   * @param value - The value of the selected option.
+   */
   selectOption(value: number): void {
     this.questions[this.currentQuestionIndex].selectedOption = value;
   }  
 
+  /**
+   * Moves to the next question.
+   * If there are no more questions, submits the answers or navigates to another page.
+   */
   nextQuestion(): void {
     if (this.currentQuestionIndex < this.questions.length - 1) {
       this.currentQuestionIndex++;
@@ -55,20 +69,27 @@ export class QuestionareComponent {
     }
   }
 
+  /**
+   * Moves to the previous question.
+   */
   previousQuestion(): void {
     if (this.currentQuestionIndex > 0) {
       this.currentQuestionIndex--;
     }
   }
-  submit(){
+
+  /**
+   * Submits the answers.
+   * Displays a confirmation dialog and shows an alert based on the user's choice.
+   */
+  submit(): void {
     let result = confirm("Will you proceed?");
     if (result) {
       // User clicked 'Yes'
-      alert("You submited Data!");
+      alert("You submitted Data!");
     } else {
-        // User clicked 'No'
-        alert("You did not submit data!");
+      // User clicked 'No'
+      alert("You did not submit data!");
     }
-
   }
 }

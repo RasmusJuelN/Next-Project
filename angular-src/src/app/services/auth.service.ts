@@ -9,10 +9,19 @@ import  {jwtDecode } from 'jwt-decode'
 @Injectable({
   providedIn: 'root'
 })
+/**
+ * Service responsible for handling authentication-related functionality.
+ */
 export class AuthService {
   httpClient = inject(HttpClient);
   private token = '';
 
+  /**
+   * Authenticates the user with the provided username and password.
+   * @param userName - The username of the user.
+   * @param password - The password of the user.
+   * @returns An Observable that emits either an access token or an error message.
+   */
   loginAuthentication(userName: string, password: string): Observable<{ access_token: string } | { error: string }> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -37,6 +46,10 @@ export class AuthService {
     );
   }
 
+  /**
+   * Retrieves the user ID from the stored token.
+   * @returns The user ID or null if the token is invalid or not present.
+   */
   getUserId(){
     const token = localStorage.getItem('token');
     if (token) {
@@ -51,7 +64,10 @@ export class AuthService {
     return null;
   }
   
-  // GetRole does not correctly as the token has yet to get role in token from backend
+  /**
+   * Retrieves the role of the user from the stored token.
+   * @returns The user's role or null if the token is invalid or not present.
+   */
   getRole(){
     const token = localStorage.getItem('token');
     if (token) {
@@ -66,5 +82,4 @@ export class AuthService {
     }
     return null;
   }
-
 }

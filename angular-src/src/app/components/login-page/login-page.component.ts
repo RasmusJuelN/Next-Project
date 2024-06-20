@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { MockAuthService } from '../../services/mock-auth.service';
 
+/**
+ * Represents the login page component.
+ */
 @Component({
   selector: 'app-login-page',
   standalone: true,
@@ -19,6 +22,9 @@ export class LoginPageComponent {
   userName: string = "";
   password: string = "";
 
+  /**
+   * Initializes the componen and tries to redirect to the dashboard if the user is already logged in.
+   */
   ngOnInit() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -26,6 +32,9 @@ export class LoginPageComponent {
     }
   }
 
+  /**
+   * Checks the login credentials and performs the login action.
+   */
   checkLogin() {
     this.authService.loginAuthentication(this.userName, this.password).subscribe({
       next: response => {
@@ -42,6 +51,10 @@ export class LoginPageComponent {
     });
   }
 
+  /**
+   * A test funtion for the form submission.
+   * @param form - The form data.
+   */
   onSubmit(form: any): void {
     if (form.valid) {
       this.checkLogin();

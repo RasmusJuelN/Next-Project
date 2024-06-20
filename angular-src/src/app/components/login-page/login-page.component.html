@@ -1,20 +1,24 @@
 <div class="container">
-  <div class="card">
-      <div class="card-header">
-          <h2>Login</h2>
-      </div>
-      <div class="card-body">
-          <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
-              <label for="username">Username:</label>
-              <input type="text" id="username" [(ngModel)]="userName" name="username" required (keyup.enter)="passwordInput.focus()">
+    <!-- A card div that contains the login form -->
+    <div class="card">
+        <!-- The header of the card, which shows "login" -->
+        <div class="card-header">
+            <h2>Login</h2>
+        </div>
+        <!-- The body of the card -->
+        <div class="card-body">
+            <!-- The login form. When the form is submitted, the onSubmit method is called with the loginForm as an argument -->
+            <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
+                <label for="username">Username:</label>
+                <!--passwordInput.focus() makes it go over to #passwordInput below-->
+                <input type="text" id="username" [(ngModel)]="userName" name="username" required (keyup.enter)="passwordInput.focus()">
 
-              <label for="password">Password:</label>
-              <input type="password" id="password" #passwordInput [(ngModel)]="password" name="password" required>
-
-              <div>
-                  <button type="submit">Send</button>
-              </div>
-          </form>
-      </div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" #passwordInput [(ngModel)]="password" name="password" required>
+                <div>
+                    <button type="submit">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
   </div>
-</div>

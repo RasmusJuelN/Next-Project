@@ -7,6 +7,13 @@ import {Chart, ChartConfiguration, ChartData, ChartItem} from 'chart.js';
 })
 export class ChartService {
 
+  /**
+   * Initializes a chart with the given questions and answers.
+   * 
+   * @param questions - An array of Question objects representing the questions for the chart.
+   * @param answers - An array of StudentTeacherAnswer objects representing the answers for the chart.
+   * @returns A Chart object representing the initialized chart.
+   */
   initializeChart(questions: Question[], answers: StudentTeacherAnwser[]): Chart {
     const labels = questions.map(q => q.text);
 

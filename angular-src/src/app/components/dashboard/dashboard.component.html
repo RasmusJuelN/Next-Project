@@ -1,27 +1,36 @@
+<!-- This section displays the list of students -->
 @if(studentList.length > 0){
   <div class="studentList">
     <h2>Student List:</h2>
     <ul>
-      <li *ngFor="let student of studentList">
-        <p>ID: {{student.id}}</p>
-        <p>Username: {{student.username}}</p>
-        <p>Role: {{student.role}}</p>
-        @if(!isStudentInQuestionnaire(student.id)){
-          <button (click)="addStudentToQuestionnaire(student.id)">Add to Questionnaire</button>
-        }
-      </li>
+      <!-- Loop through each student in the studentList array -->
+       @for (student of studentList; track student.id) {
+        <li>
+          <p>ID: {{student.id}}</p>
+          <p>Username: {{student.username}}</p>
+          <p>Role: {{student.role}}</p>
+          <!-- Check if the student is not already in the questionnaire -->
+          @if(!isStudentInQuestionnaire(student.id)){
+            <!-- Button to add the student to the questionnaire -->
+            <button (click)="addStudentToQuestionnaire(student.id)">Add to Questionnaire</button>
+          }
+        </li>
+       }
     </ul>
   </div>
 }
 @else{
+  <!-- Display a message if no students are found -->
   <p>No students found.</p>
 }
 
 
+<!-- This section displays the list of students yet to finish the questionnaire -->
 @if(studentsYetToFinish.length > 0){
   <div class="studentList">
     <h2>Students Yet to Finish Questionnaire:</h2>
     <ul>
+      <!-- Loop through each student in the studentsYetToFinish array -->
       @for(student of studentsYetToFinish; track student.id){
         <li>
           <p>ID: {{student.id}}</p>

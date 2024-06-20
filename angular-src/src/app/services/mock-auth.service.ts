@@ -11,10 +11,16 @@ export class MockAuthService {
   private mockToken = '';
 
   constructor() {
-    // This token automaticly assumes the the user is "Max" and is a teacher
+    // This token automatically assumes that the user is "Max" and is a teacher
     this.mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTYxNTE2MjY3MH0.4a8y5LBmXoe4Kqpfg-GSGslNvzMAf8avtLPrm5gEVAA';
   }
 
+  /**
+   * Authenticates the user login using mock data.
+   * @param userName - The username of the user.
+   * @param password - The password of the user.
+   * @returns An Observable that emits an access token if the login is successful, or an error message if the login fails.
+   */
   loginAuthentication(userName: string, password: string): Observable<{ access_token: string } | { error: string }> {
     const premadeUsers = [
       { userName: "MJ", password: "Pa$$w0rd" }, // This user is a teacher
@@ -40,6 +46,10 @@ export class MockAuthService {
     }
   }
 
+  /**
+   * Retrieves the user ID from the token stored in the local storage.
+   * @returns The user ID if the token is valid, or null if the token is invalid or not found.
+   */
   getUserId(){
     const token = localStorage.getItem('token');
     if (token) {
@@ -54,6 +64,10 @@ export class MockAuthService {
     return null;
   }
   
+  /**
+   * Retrieves the role from the token stored in the local storage.
+   * @returns The role if the token is valid, or null if the token is invalid or not found.
+   */
   getRole(){
     const token = localStorage.getItem('token');
     if (token) {

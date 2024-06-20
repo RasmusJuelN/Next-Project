@@ -1,29 +1,25 @@
 <div class="questionnaire-container">
   <div class="progress-container">
+    <!--shows index out of current total, +1 is so the first element of 0 is 1.-->
     <h4>{{ currentQuestionIndex + 1 }} ud af {{ questions.length }}</h4>
     <div class="progress-bar">
+      <!--Example for logic, 0+1/4=0.25*100. It then adds a question mark and get it as "25%" for width  -->
       <div class="progress" [style.width]="(currentQuestionIndex + 1) / questions.length * 100 + '%'"></div>
     </div>
   </div>
   <h3>{{ questions[currentQuestionIndex].text }}</h3>
   <div class="options-container">
     @for(option of questions[currentQuestionIndex].options; track option.value) {
+      <!--if the selected option equals the option value, set "option-item.selected" as class-->
       <div class="option-item" 
            [class.selected]="questions[currentQuestionIndex].selectedOption === option.value"
            (click)="selectOption(option.value)">
-        <label [for]="'question' + questions[currentQuestionIndex].id + 'option' + option.id">{{ option.label }}</label>
-        <input 
-          type="radio" 
-          [name]="'question' + questions[currentQuestionIndex].id" 
-          [value]="option.value" 
-          [(ngModel)]="questions[currentQuestionIndex].selectedOption" 
-          [id]="'question' + questions[currentQuestionIndex].id + 'option' + option.id"
-          hidden
-        />
+        <p >{{ option.label }}</p>
       </div>
     }
   </div>
   <div class="button-container">
+    <!--Goes to the next and previous until the last one-->
     <button (click)="previousQuestion()" [disabled]="currentQuestionIndex === 0">Tilbage</button>
     @if(currentQuestionIndex === questions.length - 1) {
       <button (click)="submit()">Submit</button>

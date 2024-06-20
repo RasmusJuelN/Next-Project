@@ -5,6 +5,9 @@ import { CommonModule } from '@angular/common';
 import { Chart } from 'chart.js';
 import { ActivatedRoute, Router } from '@angular/router';
 
+/**
+ * This is a testing component that is used to test the application. This means it might not be fully functional and change often
+ */
 @Component({
   selector: 'app-testing',
   standalone: true,
