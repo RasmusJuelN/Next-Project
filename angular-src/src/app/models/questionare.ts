@@ -4,7 +4,7 @@
 export interface ActiveQuestionnaire {
   id?: string;
   studentId: number;
-  TeacherId: number;
+  teacherId: number;
   isStudentFinished: boolean;
   isTeacherFinished: boolean;
 }

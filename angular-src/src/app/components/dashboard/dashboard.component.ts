@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MockDataService } from '../../services/mock-data.service';
 import { Router } from '@angular/router';
-import { User } from '../../models/questionare';
+import { User, ActiveQuestionnaire } from '../../models/questionare';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
@@ -10,10 +10,10 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrls: ['./dashboard.component.css']
 })
 /**
- * Represents the dashboard component which is used display specfic data for instructors and admins.
+ * Represents the dashboard component which is used display specific data for instructors and admins.
  */
 export class DashboardComponent implements OnInit {
   authService = inject(AuthService);
@@ -21,18 +21,22 @@ export class DashboardComponent implements OnInit {
   router = inject(Router);
   studentList: User[] = [];
   studentsYetToFinish: User[] = [];
+  activeQuestionnaires: ActiveQuestionnaire[] = [];
 
   ngOnInit(): void {
     const role = this.authService.getRole();
     console.log('User Role:', role);
 
     if (role === 'teacher') {
-      console.log(`welcome ${role}`);
+      console.log(`Welcome ${role}`);
       this.loadStudentsData();
+      this.loadActiveQuestionnaires();
     } else if (role === 'admin') {
-      console.log(`welcome ${role}`);
+      console.log(`Welcome ${role}`);
+      this.loadStudentsData();
+      this.loadActiveQuestionnaires();
     } else if (role === 'student') {
-      console.log(`welcome ${role}`);
+      console.log(`Welcome ${role}`);
       const userId = this.authService.getUserId();
       console.log('User ID:', userId);
       if (userId !== null) {
@@ -59,6 +63,15 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
+   * Loads the active questionnaires.
+   */
+  loadActiveQuestionnaires(): void {
+    this.dataService.getActiveQuestionnaires().subscribe((questionnaires) => {
+      this.activeQuestionnaires = questionnaires;
+    });
+  }
+
+  /**
    * Adds a student to the questionnaire.
    * @param studentId The ID of the student to add.
    */
@@ -76,6 +89,29 @@ export class DashboardComponent implements OnInit {
     return this.dataService.isStudentInQuestionnaire(studentId);
   }
 
+  /**
+   * Creates a new active questionnaire.
+   * @param studentId The ID of the student.
+   * @param teacherId The ID of the teacher.
+   */
+  createActiveQuestionnaire(studentId: number, teacherId: number): void {
+    console.log('Creating new active questionnaire...');
+    const newQuestionnaire = this.dataService.createActiveQuestionnaire(studentId, teacherId);
+    console.log('New Active Questionnaire Created:', newQuestionnaire);
+    this.loadActiveQuestionnaires();
+  }
 
-  
+  /**
+   * Deletes an active questionnaire.
+   * @param questionnaireId The ID of the questionnaire to delete.
+   */
+  deleteActiveQuestionnaire(questionnaireId: string): void {
+    if (questionnaireId) {
+      this.dataService.deleteActiveQuestionnaire(questionnaireId);
+      console.log(`Questionnaire with ID ${questionnaireId} deleted.`);
+      this.loadActiveQuestionnaires();
+    } else {
+      console.error('Invalid questionnaire ID');
+    }
+  }
 }

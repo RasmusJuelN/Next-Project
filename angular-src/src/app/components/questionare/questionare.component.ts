@@ -21,7 +21,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 export class QuestionareComponent {
   dataService = inject(MockDataService);
   route = inject(ActivatedRoute);
-  private router = inject(Router);
+  router = inject(Router);
+  userId: number|null = null;
 
   questions: Question[] = [];
   currentQuestionIndex: number = 0;
@@ -36,7 +37,7 @@ export class QuestionareComponent {
       this.router.navigate(['/']);
       return;
     }
-
+    this.userId = userId;
     this.dataService.getQuestionsForUser(userId).subscribe({
       next: questions => {
         this.questions = questions;
@@ -85,7 +86,11 @@ export class QuestionareComponent {
   submit(): void {
     let result = confirm("Will you proceed?");
     if (result) {
-      // User clicked 'Yes'
+      if(this.userId) {
+        this.dataService.submitData(this.userId);
+        // User clicked 'Yes'
+        console.log("Data submitted!");
+      }
       alert("You submitted Data!");
     } else {
       // User clicked 'No'

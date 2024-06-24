@@ -1,4 +1,4 @@
-<!-- This section displays the list of students who has not been asigned a questionare -->
+<!-- This section displays the list of students who have not been assigned a questionnaire -->
 @if(studentList.length > 0){
   <div class="studentList">
     <h2>Student List:</h2>
@@ -20,7 +20,6 @@
   <p>No students found.</p>
 }
 
-
 <!-- This section displays the list of students yet to finish the questionnaire -->
 @if(studentsYetToFinish.length > 0){
   <div class="studentList">
@@ -36,3 +35,35 @@
     </ul>
   </div>
 }
+
+<!-- This section displays the list of active questionnaires -->
+@if(activeQuestionnaires.length > 0){
+  <div class="studentList">
+    <h2>Active Questionnaires:</h2>
+    <ul>
+      @for(questionnaire of activeQuestionnaires; track questionnaire.id){
+        <li>
+          <p>ID: {{questionnaire.id}}</p>
+          <p>Student ID: {{questionnaire.studentId}}</p>
+          <p>Teacher ID: {{questionnaire.teacherId}}</p>
+          @if(questionnaire.id){
+            <button (click)="deleteActiveQuestionnaire(questionnaire.id)">Delete</button>
+          }
+        </li>
+      }
+    </ul>
+  </div>
+}
+@else{
+  <p>No active questionnaires found.</p>
+}
+
+<!-- Form to create a new active questionnaire -->
+<div class="studentList">
+  <h3>Create New Questionnaire</h3>
+    <label for="studentId">Student ID:</label>
+    <input id="studentId" #studentId type="number" required>
+    <label for="teacherId">Teacher ID:</label>
+    <input id="teacherId" #teacherId type="number" required>
+    <button (click)="createActiveQuestionnaire(+studentId.value, +teacherId.value)" type="submit">Create</button>
+</div>
