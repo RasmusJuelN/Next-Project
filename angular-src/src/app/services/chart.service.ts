@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Question, StudentTeacherAnwser } from '../models/questionare';
+import { Question, StudentTeacherAnswer } from '../models/questionare';
 import {Chart, ChartConfiguration, ChartData, ChartItem} from 'chart.js';
 
 @Injectable({
@@ -8,13 +8,13 @@ import {Chart, ChartConfiguration, ChartData, ChartItem} from 'chart.js';
 export class ChartService {
 
   /**
-   * Initializes a chart with the given questions and answers.
+   * Initializes a chart with the given questions and answers. Note it requres a canvas element with the id 'myChart'.
    * 
    * @param questions - An array of Question objects representing the questions for the chart.
    * @param answers - An array of StudentTeacherAnswer objects representing the answers for the chart.
    * @returns A Chart object representing the initialized chart.
    */
-  initializeChart(questions: Question[], answers: StudentTeacherAnwser[]): Chart {
+  initializeChart(questions: Question[], answers: StudentTeacherAnswer[]): Chart {
     const labels = questions.map(q => q.text);
 
     const convertToRange = (rating: number): [number, number] => {
@@ -108,9 +108,7 @@ export class ChartService {
         }
       }
     };
-
     const canvas = document.getElementById('myChart') as HTMLCanvasElement;
     return new Chart(canvas as ChartItem, config);
   }
-
 }

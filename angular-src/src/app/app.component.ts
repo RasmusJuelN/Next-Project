@@ -11,11 +11,17 @@ import { jwtDecode } from 'jwt-decode';
   templateUrl: 'app.component.html',
   styleUrl: 'app.component.css'
 })
+/**
+ * Represents the root component of the application.
+ */
 export class AppComponent {
   tokenExists = false;
   userName: string | null = null;
 
-
+  /**
+   * Initializes the component.
+   * Checks if a token exists in the local storage and retrieves the user name from the decoded token.
+   */
   ngOnInit() {
     this.tokenExists = localStorage.getItem('token') !== null;
 
@@ -31,13 +37,14 @@ export class AppComponent {
         }
       }
     }
-
   }
 
+  /**
+   * Deletes the token from the local storage and updates the tokenExists flag.
+   */
   deleteToken() {
     localStorage.removeItem('token');
     this.tokenExists = false;
     alert('Token deleted');
   }
-
 }

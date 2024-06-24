@@ -19,20 +19,9 @@ export class DashboardComponent implements OnInit {
   authService = inject(AuthService);
   dataService = inject(MockDataService);
   router = inject(Router);
-
-  /**
-   * Represents the list of students.
-   */
   studentList: User[] = [];
-
-  /**
-   * Represents the list of students who have not finished yet.
-   */
   studentsYetToFinish: User[] = [];
 
-  /**
-   * Initializes the component.
-   */
   ngOnInit(): void {
     const role = this.authService.getRole();
     console.log('User Role:', role);
@@ -86,4 +75,7 @@ export class DashboardComponent implements OnInit {
   isStudentInQuestionnaire(studentId: number): boolean {
     return this.dataService.isStudentInQuestionnaire(studentId);
   }
+
+
+  
 }

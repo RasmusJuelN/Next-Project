@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { User, Question, StudentTeacherAnwser } from '../models/questionare';
+import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../models/questionare';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +19,8 @@ export class MockDataService {
 
   private mockStudents: User[] = [];
   private mockQuestions: Question[] = [];
-  private mockStudentTeacherAnswers: StudentTeacherAnwser[] = [];
-  private studentInQuestionare: { studentId: number, isFinished: boolean }[] = [];
+  private mockStudentTeacherAnswers: StudentTeacherAnswer[] = [];
+  private mockActiveQuestionnaire: ActiveQuestionnaire[] = [];
 
   constructor(private http: HttpClient) {
     const savedData = localStorage.getItem(this.localStorageKey);
@@ -29,7 +29,7 @@ export class MockDataService {
       this.mockStudents = parsedData.mockStudents;
       this.mockQuestions = parsedData.mockQuestions;
       this.mockStudentTeacherAnswers = parsedData.mockStudentTeacherAnswers;
-      this.studentInQuestionare = parsedData.studentInQuestionare;
+      this.mockActiveQuestionnaire = parsedData.mockActiveQuestionnaire;
     } else {
       this.loadInitialData();
     }
@@ -44,7 +44,7 @@ export class MockDataService {
       this.mockStudents = data.mockStudents;
       this.mockQuestions = data.mockQuestions;
       this.mockStudentTeacherAnswers = data.mockStudentTeacherAnswers;
-      this.studentInQuestionare = data.studentInQuestionare;
+      this.mockActiveQuestionnaire = data.mockActiveQuestionnaire;
       this.saveData();
     });
   }
@@ -57,7 +57,7 @@ export class MockDataService {
       mockStudents: this.mockStudents,
       mockQuestions: this.mockQuestions,
       mockStudentTeacherAnswers: this.mockStudentTeacherAnswers,
-      studentInQuestionare: this.studentInQuestionare
+      mockActiveQuestionnaire: this.mockActiveQuestionnaire
     };
     localStorage.setItem(this.localStorageKey, JSON.stringify(dataToSave));
   }
@@ -74,16 +74,16 @@ export class MockDataService {
    * Adds a student to the questionnaire in local memory.
    * @param studentId The ID of the student to add.
    */
-  addStudentToQuestionnaire(studentId: number): void {
-    const studentExists = this.mockStudents.some(student => student.id === studentId);
-    const studentAvailableForQuestionnaire = this.studentInQuestionare.some(student => student.studentId === studentId && !student.isFinished);
+  addStudentToQuestionnaire(_studentId: number): void {
+    const studentExists = this.mockStudents.some(student => student.id === _studentId);
+    const studentAvailableForQuestionnaire = this.mockActiveQuestionnaire.some(student => student.studentId === _studentId && !student.isStudentFinished);
 
     if (studentExists && !studentAvailableForQuestionnaire) {
-      this.studentInQuestionare.push({ studentId, isFinished: false });
+      this.mockActiveQuestionnaire.push({studentId:_studentId, TeacherId: 1, isStudentFinished: false, isTeacherFinished: false});
       this.saveData();
-      console.log(`Student with ID ${studentId} added to questionnaire.`);
+      console.log(`Student with ID ${_studentId} added to questionnaire.`);
     } else {
-      console.error(`Error: Student with ID ${studentId} not found or already in questionnaire.`);
+      console.error(`Error: Student with ID ${_studentId} not found or already in questionnaire.`);
     }
   }
 
@@ -95,7 +95,7 @@ export class MockDataService {
    */
   getQuestionsForUser(userId: number): Observable<Question[]> {
     const userExists = this.mockStudents.some(student => student.id === userId);
-    const studentAvailableForQuestionnaire = this.studentInQuestionare.some(student => student.studentId === userId && !student.isFinished);
+    const studentAvailableForQuestionnaire = this.mockActiveQuestionnaire.some(student => student.studentId === userId && !student.isStudentFinished);
 
     if (userExists && studentAvailableForQuestionnaire) {
       return of(this.mockQuestions);
@@ -110,7 +110,7 @@ export class MockDataService {
    * @returns True if the student is in the questionnaire, false otherwise.
    */
   isStudentInQuestionnaire(studentId: number): boolean {
-    return this.studentInQuestionare.some(student => student.studentId === studentId && !student.isFinished);
+    return this.mockActiveQuestionnaire.some(student => student.studentId === studentId && !student.isStudentFinished);
   }
 
   /**
@@ -119,9 +119,22 @@ export class MockDataService {
    */
   getStudentsYetToFinish(): Observable<User[]> {
     const studentsYetToFinish = this.mockStudents.filter(student => {
-      const studentInQ = this.studentInQuestionare.find(siq => siq.studentId === student.id);
-      return studentInQ && !studentInQ.isFinished;
+      const studentInQ = this.mockActiveQuestionnaire.find(siq => siq.studentId === student.id);
+      return studentInQ && !studentInQ.isStudentFinished;
     });
     return of(studentsYetToFinish);
   }
+
+  generateId(): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+    const idLength = 4;
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < idLength; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    console.log('Generated ID:', result);
+    return result;
+  }
+
 }

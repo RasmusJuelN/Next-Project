@@ -1,4 +1,24 @@
 /**
+ * Represents Active Questionnaire
+ */
+export interface ActiveQuestionnaire {
+  id?: string;
+  studentId: number;
+  TeacherId: number;
+  isStudentFinished: boolean;
+  isTeacherFinished: boolean;
+}
+
+/**
+ * Represents a user like (e.g., 'student', 'teacher', 'admin').
+ */
+export interface User {
+  id: number; // ID of the user from the database
+  username: string; // Username of the user
+  role: string; // Role for the user.
+}
+
+/**
  * Represents an option for a question in a questionnaire.
  */
 export interface Option {
@@ -18,47 +38,19 @@ export interface Question {
   selectedOption?: number; // ID of the selected option, if any
 }
 
-
-/**
- * Represents a student's answer to a question.
- */
-export interface StudentAnswer {
-  id: number; // ID of the student's answer from the database
-  studentId: number; // ID of the student
-  questionId: number; // ID of the question
-  rating: number; // Rating value (1-5)
-  answerId: number; // ID of an anwser
-  answerDate: Date; // Date when the answer was provided
-}
-
-
-/**
- * Represents a teacher's answer to a question.
- */
-export interface TeacherAnswer {
-  id?: number; // ID of the teacher's answer from the database
-  teacherId: number; // ID of the teacher
-  questionId?: number; // ID of the question
-  rating: number; // Rating value (1-5)
-  answerId?: number; // ID of an anwser
-  answerDate?: Date; // Date when the answer was provided
+export interface userAnswer{
+  questinareId: string;
+  questionId: number;
+  userId: number;
+  role: string;
+  rating: number;
 }
 
 /**
- * Represents a a combined student and teacher answer to a question.
+ * Represents a combined student and teacher answer to a question.
  */
-export interface StudentTeacherAnwser{
-  anwserID: number // The id of anwser collection
-  student: StudentAnswer; // The student anwser
-  teacher: TeacherAnswer; // The teacher anwser
-}
-
-
-/**
- * Represents a user like (e.g., 'student', 'teacher', 'admin').
- */
-export interface User {
-  id: number; // ID of the user from the database
-  username: string; // Username of the user
-  role: string; // Role for the user.
+export interface StudentTeacherAnswer{
+  Questionnaire: string // The id of anwser collection
+  student: userAnswer; // The student anwser
+  teacher: userAnswer; // The teacher anwser
 }

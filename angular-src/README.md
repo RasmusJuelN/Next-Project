@@ -18,14 +18,18 @@ The main application directory. This is where the core components, services, mod
 - **app.routes.ts**: Defines the routing configuration for the application, mapping URLs to respective components for navigation.
 #### src/app/components
 This directory contains all the reusable components of the application. Components are the building blocks of the UI, each encapsulating a specific piece of functionality and layout.
+
+**Remember to switch between mock services and real services as needed for testing and production.**
+
 #### src/app/models
 This directory contains the data models used in the application. Models define the structure of the data being handled. Currently, it contains a single file consolidating all data models.
+
 #### src/app/services
 Services provide extended logic for components and manage data operations. They also contain mock data files that use local storage to simulate backend data during development. 
 
-Remember to switch between mock services and real services as needed for testing and production.
 ### src/assets
 Contains static assets such as images and other resources. It also includes a default mock data JSON file used when there is no data available in local storage.
+
 # FrontendProj
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.5.
 

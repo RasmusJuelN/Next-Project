@@ -110,15 +110,35 @@
       ]
     }
   ],
-  "mockStudentTeacherAnswers": [
+  
+  "mockAnswers": [
+      {"questinareId": "efgh", "questionId": 1, "userId":2,"role":"student", "rating": 5},
+      {"questinareId": "ijkl", "questionId": 1, "userId":3,"role":"student", "rating": 2},
+      {"questinareId":"efgh", "questionId":1, "userId":1, "role": "teacher", "rating": 5}
+  ], 
+
+  "mockStudentTeacherAnswer":[
     {
-      "anwserID": 1,
-      "student": { "id": 2, "studentId": 2, "questionId": 1, "rating": 5, "answerId": 1, "answerDate": "2023-06-16T00:00:00.000Z" },
-      "teacher": { "id": 1, "teacherId": 1, "questionId": 1, "rating": 5, "answerId": 1, "answerDate": "2023-06-16T00:00:00.000Z" }
+      "questinareId": "efgh",
+      "student": {"questinareId": "efgh", "questionId": 1, "userId": 2, "role": "student", "rating": 5},
+      "teacher": {"questinareId": "efgh", "questionId": 1, "userId": 1, "role": "teacher", "rating": 5}
     }
   ],
-  "studentInQuestionare": [
-    { "studentId": 2, "isFinished": false },
-    { "studentId": 3, "isFinished": false }
+
+  "mockActiveQuestionnaire": [
+      {
+          "id": "efgh",
+          "studentId":2,
+          "teacherId":1,
+          "isStudentFinished": false,
+          "isTeacherFinished": false
+      },
+      {
+          "id": "ijkl",
+          "studentId":3,
+          "instructorId":1,
+          "isStudentFinished": false,
+          "isTeacherFinished": false
+      }
   ]
 }

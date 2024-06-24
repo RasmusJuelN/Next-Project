@@ -25,7 +25,8 @@ export class MockAuthService {
     const premadeUsers = [
       { userName: "MJ", password: "Pa$$w0rd" }, // This user is a teacher
       { userName: "NH", password: "Pa$$w0rd" },
-      { userName: "Alexander", password: "Pa$$w0rd" }
+      { userName: "Alexander", password: "Pa$$w0rd" },
+      { userName: "Johan", password: "Pa$$w0rd"}
     ];
 
     const matchedUser = premadeUsers.find(user => user.userName === userName && user.password === password);

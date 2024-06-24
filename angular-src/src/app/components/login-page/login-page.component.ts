@@ -23,7 +23,7 @@ export class LoginPageComponent {
   password: string = "";
 
   /**
-   * Initializes the componen and tries to redirect to the dashboard if the user is already logged in.
+   * Initializes the component and tries to redirect to the dashboard if the user is already logged in.
    */
   ngOnInit() {
     const token = localStorage.getItem('token');
