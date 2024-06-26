@@ -7,6 +7,5 @@ import { TestingComponent } from './components/testing/testing.component';
 export const routes: Routes = [
     { path: 'login-page', component: LoginPageComponent },
     { path: 'dashboard', component: DashboardComponent},
-    { path: 'answer/:userId', component: QuestionareComponent},
-    { path: 'testing/:questionareId', component: TestingComponent}
+    { path: 'answer/:id', component: QuestionareComponent},
 ];

@@ -1,44 +1,96 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Question } from '../../models/questionare';
 import { MockDataService } from '../../services/mock-data.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import {MatIconRegistry, MatIconModule} from '@angular/material/icon';
+import { MatIconRegistry, MatIconModule } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AuthService } from '../../services/auth.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-questionare',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatIconModule,MatTooltipModule],
+  imports: [FormsModule, CommonModule, MatIconModule, MatTooltipModule],
   templateUrl: './questionare.component.html',
-  styleUrl: './questionare.component.css'
+  styleUrls: ['./questionare.component.css']
 })
 /**
  * Represents a component for displaying and interacting with a questionnaire.
  */
-export class QuestionareComponent {
+export class QuestionareComponent implements OnInit {
   dataService = inject(MockDataService);
+  authService = inject(AuthService);
   route = inject(ActivatedRoute);
   router = inject(Router);
-  userId: number|null = null;
 
+  userId: number | null = null;
+  role: string | null = null;
   questions: Question[] = [];
   currentQuestionIndex: number = 0;
+  activeQuestionnaireId: string | null = null;
 
   /**
    * Initializes the component and retrieves the questions for the specified user.
    */
   ngOnInit(): void {
-    const userId = Number(this.route.snapshot.paramMap.get('userId'));
-    if (isNaN(userId)) {
-      console.error('Invalid user ID');
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        this.userId = decodedToken.sub;
+        this.role = decodedToken.scope;
+        this.activeQuestionnaireId = this.route.snapshot.paramMap.get('id');
+
+        if (this.userId && this.role && this.activeQuestionnaireId) {
+          this.validateAccess();
+        } else {
+          console.error('Invalid token data or missing active questionnaire ID');
+          this.router.navigate(['/']);
+        }
+      } catch (error) {
+        console.error('Invalid token', error);
+        this.router.navigate(['/']);
+      }
+    } else {
+      console.error('No token found');
       this.router.navigate(['/']);
-      return;
     }
-    this.userId = userId;
-    this.dataService.getQuestionsForUser(userId).subscribe({
+  }
+
+  /**
+   * Validates if the user has access to the questionnaire.
+   */
+  validateAccess(): void {
+    this.dataService.getActiveQuestionnaireById(this.activeQuestionnaireId!).subscribe({
+      next: (questionnaire) => {
+        if (questionnaire) {
+          if ((this.role === 'student' && questionnaire.studentId == this.userId && !questionnaire.isStudentFinished) ||
+              (this.role === 'teacher' && questionnaire.teacherId == this.userId && !questionnaire.isTeacherFinished)) {
+            this.loadQuestions();
+          } else {
+            console.error('Access denied or questionnaire already finished');
+            this.router.navigate(['/']);
+          }
+        } else {
+          console.error('Invalid questionnaire ID');
+          this.router.navigate(['/']);
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.router.navigate(['/']);
+      }
+    });
+  }
+
+  /**
+   * Loads the questions for the user.
+   */
+  loadQuestions(): void {
+    this.dataService.getQuestionsForUser().subscribe({
       next: questions => {
         this.questions = questions;
       },
@@ -66,7 +118,7 @@ export class QuestionareComponent {
       this.currentQuestionIndex++;
     } else {
       // Submit the answers or navigate to another page
-      console.log('Submit answers');
+      this.submit();
     }
   }
 
@@ -86,14 +138,15 @@ export class QuestionareComponent {
   submit(): void {
     let result = confirm("Will you proceed?");
     if (result) {
-      if(this.userId) {
-        this.dataService.submitData(this.userId);
-        // User clicked 'Yes'
+      if (this.userId && this.activeQuestionnaireId) {
+        this.dataService.submitData(this.userId, this.role!, this.activeQuestionnaireId);
         console.log("Data submitted!");
+        this.dataService.submitData(this.userId, this.role!, this.activeQuestionnaireId);
+        this.router.navigate(['/']);
+      } else {
+        console.error('Invalid user ID or questionnaire ID');
       }
-      alert("You submitted Data!");
     } else {
-      // User clicked 'No'
       alert("You did not submit data!");
     }
   }

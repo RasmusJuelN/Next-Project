@@ -42,6 +42,10 @@ export class MockDataService {
       });
     }
   }
+  getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire | null> {
+    const activeQuestionnaire = this.mockActiveQuestionnaire.find(aq => aq.id === id) || null;
+    return of(activeQuestionnaire);
+  }
 
   /**
    * Saves the current state of mock data to local storage.
@@ -87,15 +91,8 @@ export class MockDataService {
    * @param userId The ID of the user.
    * @returns An observable that emits the list of questions.
    */
-  getQuestionsForUser(userId: number): Observable<Question[]> {
-    const userExists = this.mockStudents.some(student => student.id === userId);
-    const studentAvailableForQuestionnaire = this.mockActiveQuestionnaire.some(aq => aq.studentId === userId && !aq.isStudentFinished);
-
-    if (userExists && studentAvailableForQuestionnaire) {
-      return of(this.mockQuestions);
-    } else {
-      return throwError(() => new Error(`Error: User with ID ${userId} not found or questionnaire is finished.`));
-    }
+  getQuestionsForUser(): Observable<Question[]> {
+    return of(this.mockQuestions);
   }
 
   /**
@@ -123,28 +120,25 @@ export class MockDataService {
    * Marks a user's questionnaire as finished based on their role.
    * @param userId The ID of the user.
    */
-  submitData(userId: number): void {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decodedToken: any = jwtDecode(token);
-        const userRole = decodedToken.scope; // Assuming the role is stored in the 'scope' field
-
-        
-        this.mockActiveQuestionnaire.forEach(activeQuestionnaire => {
-          if (userRole === 'student' && activeQuestionnaire.studentId === userId) {
-            activeQuestionnaire.isStudentFinished = true;
-            console.log(`Student with ID ${userId} has finished the questionnaire.`);
-          } else if (userRole === 'teacher' && activeQuestionnaire.teacherId === userId) {
-            activeQuestionnaire.isTeacherFinished = true;
-          }
-        });
-
-        this.saveData();
-      } catch (error) {
-        console.error('Invalid token', error);
+  submitData(userId: number, role: string, questionnaireId: string): void {
+    // Update mockActiveQuestionnaire based on the role and questionnaireId
+    for (let activeQuestionnaire of this.mockActiveQuestionnaire) {
+      if (activeQuestionnaire.id == questionnaireId) {
+        if (role == 'student' && activeQuestionnaire.studentId == userId) {
+          activeQuestionnaire.isStudentFinished = true;
+          console.log(`Student with ID ${userId} has finished the questionnaire.`);
+          this.saveData();
+          break;
+        } else if (role == 'teacher' && activeQuestionnaire.teacherId == userId) {
+          activeQuestionnaire.isTeacherFinished = true;
+          console.log(`Teacher with ID ${userId} has finished the questionnaire.`);
+          this.saveData();
+          break;
+        }
       }
     }
+    console.log('Error: User not found in active questionnaire.');
+    console.log("data",)
   }
    /**
    * Creates a new active questionnaire.
@@ -183,6 +177,10 @@ export class MockDataService {
     this.saveData();
   }
 
+  /**
+   * Generates a random ID for purpose of testing creating new questionare on the frontend.
+   * @returns The generated ID.
+   */
   generateId(): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
     const idLength = 4;
