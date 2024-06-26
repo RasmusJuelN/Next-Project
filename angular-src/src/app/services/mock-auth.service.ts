@@ -54,7 +54,7 @@ export class MockAuthService {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decodedToken: any = jwtDecode(token);
+        const decodedToken: any = this.decodeToken(token);
         return decodedToken.sub || null;
       } catch (error) {
         console.error('Invalid token', error);
@@ -72,7 +72,7 @@ export class MockAuthService {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decodedToken: any = jwtDecode(token);
+        const decodedToken: any = this.decodeToken(token);
         console.log(decodedToken);
         return decodedToken.scope || null;
       } catch (error) {
@@ -81,5 +81,24 @@ export class MockAuthService {
       }
     }
     return null;
+  }
+
+  decodeToken(token: string): any {
+    return jwtDecode(token);
+  }
+
+  getUserFromToken(token: string): { userId: number, role: string } | null {
+    try {
+      const decodedToken: any = this.decodeToken(token);
+      const userId = decodedToken.sub;
+      const role = decodedToken.scope;
+      if (userId && role) {
+        return { userId, role };
+      }
+      return null;
+    } catch (error) {
+      console.error('Invalid token', error);
+      return null;
+    }
   }
 }

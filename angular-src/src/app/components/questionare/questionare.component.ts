@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Question } from '../../models/questionare';
+import { ActiveQuestionnaire, Question } from '../../models/questionare';
 import { MockDataService } from '../../services/mock-data.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconRegistry, MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
 import { jwtDecode } from 'jwt-decode';
+import { MockAuthService } from '../../services/mock-auth.service';
 
 @Component({
   selector: 'app-questionare',
@@ -22,7 +23,7 @@ import { jwtDecode } from 'jwt-decode';
  */
 export class QuestionareComponent implements OnInit {
   dataService = inject(MockDataService);
-  authService = inject(AuthService);
+  authService = inject(MockAuthService);
   route = inject(ActivatedRoute);
   router = inject(Router);
 
@@ -33,50 +34,62 @@ export class QuestionareComponent implements OnInit {
   activeQuestionnaireId: string | null = null;
 
   /**
+   * Redirects to [/] home route and logs an error message.
+   * @param message - A string error message to display.
+   */
+  private redirectToHomeErr(message: string): void {
+    console.error(message);
+    this.router.navigate(['/']);
+  }
+
+  /**
    * Initializes the component and retrieves the questions for the specified user.
    */
   ngOnInit(): void {
     const token = localStorage.getItem('token');
     if (token) {
-      try {
-        const decodedToken: any = jwtDecode(token);
-        this.userId = decodedToken.sub;
-        this.role = decodedToken.scope;
-        this.activeQuestionnaireId = this.route.snapshot.paramMap.get('id');
+      this.initializeUserFromToken(token);
+    } else {
+      this.redirectToHomeErr('Access denied or questionnaire already finished');
+    }
+  }
 
-        if (this.userId && this.role && this.activeQuestionnaireId) {
-          this.validateAccess();
-        } else {
-          console.error('Invalid token data or missing active questionnaire ID');
-          this.router.navigate(['/']);
-        }
-      } catch (error) {
-        console.error('Invalid token', error);
-        this.router.navigate(['/']);
+  private initializeUserFromToken(token: string): void {
+    const user = this.authService.getUserFromToken(token);
+    if (user) {
+      this.userId = user.userId;
+      this.role = user.role;
+      this.activeQuestionnaireId = this.route.snapshot.paramMap.get('id');
+      if (this.activeQuestionnaireId) {
+        this.validateAccess();
+      } else {
+        this.redirectToHomeErr('Missing active questionnaire ID');
       }
     } else {
-      console.error('No token found');
-      this.router.navigate(['/']);
+      this.redirectToHomeErr('Invalid token data');
     }
+  }
+
+  /**
+   * Checks if the user is authorized to access the questionnaire.
+   * @param questionnaire - The active questionnaire.
+   * @returns True if the user is authorized, false otherwise.
+   */
+  private isAuthorizedUser(questionnaire: ActiveQuestionnaire) {
+    return (this.role === 'student' && questionnaire.studentId == this.userId && !questionnaire.isStudentFinished) ||
+           (this.role === 'teacher' && questionnaire.teacherId == this.userId && !questionnaire.isTeacherFinished);
   }
 
   /**
    * Validates if the user has access to the questionnaire.
    */
-  validateAccess(): void {
+  private validateAccess(): void {
     this.dataService.getActiveQuestionnaireById(this.activeQuestionnaireId!).subscribe({
       next: (questionnaire) => {
-        if (questionnaire) {
-          if ((this.role === 'student' && questionnaire.studentId == this.userId && !questionnaire.isStudentFinished) ||
-              (this.role === 'teacher' && questionnaire.teacherId == this.userId && !questionnaire.isTeacherFinished)) {
-            this.loadQuestions();
-          } else {
-            console.error('Access denied or questionnaire already finished');
-            this.router.navigate(['/']);
-          }
+        if (questionnaire && this.isAuthorizedUser(questionnaire)) {
+          this.loadQuestions();
         } else {
-          console.error('Invalid questionnaire ID');
-          this.router.navigate(['/']);
+          this.redirectToHomeErr('Access denied or questionnaire already finished');
         }
       },
       error: (err) => {
@@ -89,15 +102,10 @@ export class QuestionareComponent implements OnInit {
   /**
    * Loads the questions for the user.
    */
-  loadQuestions(): void {
+  private loadQuestions(): void {
     this.dataService.getQuestionsForUser().subscribe({
-      next: questions => {
-        this.questions = questions;
-      },
-      error: err => {
-        console.error(err);
-        this.router.navigate(['/']);
-      }
+      next: questions => this.questions = questions,
+      error: () => this.redirectToHomeErr('Error loading questions')
     });
   }
 
@@ -111,7 +119,7 @@ export class QuestionareComponent implements OnInit {
 
   /**
    * Moves to the next question.
-   * If there are no more questions, submits the answers or navigates to another page.
+   * If there are no more questions, submits the answers or navigates to next question.
    */
   nextQuestion(): void {
     if (this.currentQuestionIndex < this.questions.length - 1) {
@@ -136,12 +144,10 @@ export class QuestionareComponent implements OnInit {
    * Displays a confirmation dialog and shows an alert based on the user's choice.
    */
   submit(): void {
-    let result = confirm("Will you proceed?");
-    if (result) {
+    if (confirm("Will you proceed?")) {
       if (this.userId && this.activeQuestionnaireId) {
         this.dataService.submitData(this.userId, this.role!, this.activeQuestionnaireId);
         console.log("Data submitted!");
-        this.dataService.submitData(this.userId, this.role!, this.activeQuestionnaireId);
         this.router.navigate(['/']);
       } else {
         console.error('Invalid user ID or questionnaire ID');
