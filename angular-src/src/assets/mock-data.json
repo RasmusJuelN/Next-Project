@@ -4,6 +4,9 @@
     { "id": 3, "username": "Alexander", "role": "student" },
     { "id": 4, "username": "Johan", "role": "student" }
   ],
+  "mockTeachers": [
+    { "id": 1, "username": "Max", "role": "teacher" }
+  ],
   "mockQuestions": [
     {
       "id": 1,

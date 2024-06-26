@@ -10,6 +10,7 @@ import {jwtDecode} from 'jwt-decode';
 export class MockDataService {
   private localStorageKey = 'mockData';
   private mockStudents: User[] = [];
+  private mockTeachers: User[] = [];
   private mockQuestions: Question[] = [];
   private mockStudentTeacherAnswers: StudentTeacherAnswer[] = [];
   private mockActiveQuestionnaire: ActiveQuestionnaire[] = [];
@@ -27,6 +28,7 @@ export class MockDataService {
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       this.mockStudents = parsedData.mockStudents;
+      this.mockTeachers = parsedData.mockTeachers;
       this.mockQuestions = parsedData.mockQuestions;
       this.mockStudentTeacherAnswers = parsedData.mockStudentTeacherAnswers;
       this.mockActiveQuestionnaire = parsedData.mockActiveQuestionnaire;
@@ -47,6 +49,7 @@ export class MockDataService {
   private saveData(): void {
     const dataToSave = {
       mockStudents: this.mockStudents,
+      mockTeachers: this.mockTeachers,
       mockQuestions: this.mockQuestions,
       mockStudentTeacherAnswers: this.mockStudentTeacherAnswers,
       mockActiveQuestionnaire: this.mockActiveQuestionnaire
