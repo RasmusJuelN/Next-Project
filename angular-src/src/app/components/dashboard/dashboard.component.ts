@@ -22,19 +22,15 @@ export class DashboardComponent implements OnInit {
   studentList: User[] = [];
   studentsYetToFinish: User[] = [];
   activeQuestionnaires: ActiveQuestionnaire[] = [];
+  studentsInQuestionnaire: Set<number> = new Set<number>();
 
   ngOnInit(): void {
     const role = this.authService.getRole();
     console.log('User Role:', role);
 
-    if (role === 'teacher') {
+    if (role === 'teacher' || role === 'admin') {
       console.log(`Welcome ${role}`);
-      this.loadStudentsData();
-      this.loadActiveQuestionnaires();
-    } else if (role === 'admin') {
-      console.log(`Welcome ${role}`);
-      this.loadStudentsData();
-      this.loadActiveQuestionnaires();
+      this.loadDashboardData();
     } else if (role === 'student') {
       console.log(`Welcome ${role}`);
       const userId = this.authService.getUserId();
@@ -50,24 +46,12 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /**
-   * Loads the students' data.
-   */
-  loadStudentsData(): void {
-    this.dataService.getStudents().subscribe((students) => {
-      this.studentList = students;
-    });
-    this.dataService.getStudentsYetToFinish().subscribe((students) => {
-      this.studentsYetToFinish = students;
-    });
-  }
-
-  /**
-   * Loads the active questionnaires.
-   */
-  loadActiveQuestionnaires(): void {
-    this.dataService.getActiveQuestionnaires().subscribe((questionnaires) => {
-      this.activeQuestionnaires = questionnaires;
+  loadDashboardData(): void {
+    this.dataService.getDashboardData().subscribe((data) => {
+      this.studentList = data.students;
+      this.studentsYetToFinish = data.studentsYetToFinish;
+      this.activeQuestionnaires = data.activeQuestionnaires;
+      this.studentsInQuestionnaire = new Set(data.activeQuestionnaires.map(q => q.studentId));
     });
   }
 
@@ -76,29 +60,31 @@ export class DashboardComponent implements OnInit {
    * @param studentId The ID of the student to add.
    */
   addStudentToQuestionnaire(studentId: number): void {
-    this.dataService.addStudentToQuestionnaire(studentId);
-    this.loadStudentsData();
+    this.dataService.addStudentToQuestionnaire(studentId).subscribe(() => {
+      this.loadDashboardData();
+    });
   }
 
-  /**
+   /**
    * Checks if a student is in the questionnaire.
    * @param studentId The ID of the student to check.
    * @returns True if the student is in the questionnaire, false otherwise.
    */
-  isStudentInQuestionnaire(studentId: number): boolean {
-    return this.dataService.isStudentInQuestionnaire(studentId);
-  }
+    isStudentInQuestionnaire(studentId: number): boolean {
+      return this.studentsInQuestionnaire.has(studentId);
+    }
 
-  /**
+   /**
    * Creates a new active questionnaire.
    * @param studentId The ID of the student.
    * @param teacherId The ID of the teacher.
    */
-  createActiveQuestionnaire(studentId: number, teacherId: number): void {
+   createActiveQuestionnaire(studentId: number, teacherId: number): void {
     console.log('Creating new active questionnaire...');
-    const newQuestionnaire = this.dataService.createActiveQuestionnaire(studentId, teacherId);
-    console.log('New Active Questionnaire Created:', newQuestionnaire);
-    this.loadActiveQuestionnaires();
+    this.dataService.createActiveQuestionnaire(studentId, teacherId).subscribe((newQuestionnaire) => {
+      console.log('New Active Questionnaire Created:', newQuestionnaire);
+      this.loadDashboardData();
+    });
   }
 
   /**
@@ -107,9 +93,10 @@ export class DashboardComponent implements OnInit {
    */
   deleteActiveQuestionnaire(questionnaireId: string): void {
     if (questionnaireId) {
-      this.dataService.deleteActiveQuestionnaire(questionnaireId);
-      console.log(`Questionnaire with ID ${questionnaireId} deleted.`);
-      this.loadActiveQuestionnaires();
+      this.dataService.deleteActiveQuestionnaire(questionnaireId).subscribe(() => {
+        console.log(`Questionnaire with ID ${questionnaireId} deleted.`);
+        this.loadDashboardData();
+      });
     } else {
       console.error('Invalid questionnaire ID');
     }

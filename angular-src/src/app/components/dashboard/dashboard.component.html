@@ -1,4 +1,3 @@
-<!-- This section displays the list of students who have not been assigned a questionnaire -->
 @if(studentList.length > 0){
   <div class="studentList">
     <h2>Student List:</h2>
@@ -20,7 +19,6 @@
   <p>No students found.</p>
 }
 
-<!-- This section displays the list of students yet to finish the questionnaire -->
 @if(studentsYetToFinish.length > 0){
   <div class="studentList">
     <h2>Students Yet to Finish Questionnaire:</h2>
@@ -36,7 +34,6 @@
   </div>
 }
 
-<!-- This section displays the list of active questionnaires -->
 @if(activeQuestionnaires.length > 0){
   <div class="studentList">
     <h2>Active Questionnaires:</h2>
@@ -58,7 +55,6 @@
   <p>No active questionnaires found.</p>
 }
 
-<!-- Form to create a new active questionnaire -->
 <div class="studentList">
   <h3>Create New Questionnaire</h3>
     <label for="studentId">Student ID:</label>

@@ -98,7 +98,7 @@ export class QuestionareComponent implements OnInit {
       }
     });
   }
-
+  
   /**
    * Loads the questions for the user.
    */
@@ -146,9 +146,15 @@ export class QuestionareComponent implements OnInit {
   submit(): void {
     if (confirm("Will you proceed?")) {
       if (this.userId && this.activeQuestionnaireId) {
-        this.dataService.submitData(this.userId, this.role!, this.activeQuestionnaireId);
-        console.log("Data submitted!");
-        this.router.navigate(['/']);
+        this.dataService.submitData(this.userId, this.role!, this.activeQuestionnaireId).subscribe({
+          next: () => {
+            console.log("Data submitted!");
+            this.router.navigate(['/']);
+          },
+          error: (err) => {
+            console.error('Error submitting data:', err);
+          }
+        });
       } else {
         console.error('Invalid user ID or questionnaire ID');
       }
