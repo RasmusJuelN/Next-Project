@@ -38,7 +38,7 @@ export class QuestionareComponent implements OnInit {
    * @param message - A string error message to display.
    */
   private redirectToHomeErr(message: string): void {
-    console.error(message);
+    alert(message); // Display an alert message, comment out if not testing
     this.router.navigate(['/']);
   }
 

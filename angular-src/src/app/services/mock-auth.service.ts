@@ -87,7 +87,7 @@ export class MockAuthService {
     return jwtDecode(token);
   }
 
-  getUserFromToken(token: string): { userId: number, role: string } | null {
+  getUserFromToken(token: string):{ userId: number; role: string } | null {
     try {
       const decodedToken: any = this.decodeToken(token);
       const userId = decodedToken.sub;

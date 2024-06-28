@@ -50,7 +50,7 @@ export class AuthService {
    * Retrieves the user ID from the stored token.
    * @returns The user ID or null if the token is invalid or not present.
    */
-  getUserId(){
+  getUserId(): string | null {
     const token = localStorage.getItem('token');
     if (token) {
       try {
@@ -87,7 +87,7 @@ export class AuthService {
     return jwtDecode(token);
   }
 
-  getUserFromToken(token: string): { userId: number, role: string } | null {
+  getUserFromToken(token: string):{ userId: number; role: string } | null {
     try {
       const decodedToken: any = this.decodeToken(token);
       const userId = decodedToken.sub;

@@ -73,12 +73,12 @@ export class MockDataService {
    * Adds a student to the questionnaire if they exist and are not already in an active questionnaire.
    * @param studentId The ID of the student to add.
    */
-  addStudentToQuestionnaire(studentId: number): void {
+  addStudentToQuestionnaire(studentId: number, teacherID = 1): void {
     const studentExists = this.mockStudents.some(student => student.id === studentId);
     const studentAvailableForQuestionnaire = this.mockActiveQuestionnaire.some(aq => aq.studentId === studentId && !aq.isStudentFinished);
 
     if (studentExists && !studentAvailableForQuestionnaire) {
-      this.mockActiveQuestionnaire.push({ id: this.generateId(), studentId, teacherId: 1, isStudentFinished: false, isTeacherFinished: false });
+      this.mockActiveQuestionnaire.push({ id: this.generateId(), studentId, teacherId: teacherID, isStudentFinished: false, isTeacherFinished: false });
       this.saveData();
       console.log(`Student with ID ${studentId} added to questionnaire.`);
     } else {
