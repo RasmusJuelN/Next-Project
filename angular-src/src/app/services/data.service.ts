@@ -74,14 +74,6 @@ export class DataService {
   }
 
   /**
-   * Fetches the list of students who have not yet finished their questionnaires.
-   * @returns An observable containing the list of students.
-   */
-  getStudentsYetToFinish(): Observable<User[]> {
-    return this.httpClient.get<User[]>(`${this.baseUrl}/students/yet-to-finish`);
-  }
-
-  /**
    * Submits data for a user.
    * @param userId The ID of the user.
    * @param role The role of the user (student or teacher).
@@ -92,7 +84,7 @@ export class DataService {
     return this.httpClient.post<void>(`${this.baseUrl}/questionnaires/${questionnaireId}/submit`, { userId, role });
   }
 
-  /**
+  /**  
    * Creates a new active questionnaire.
    * @param studentId The ID of the student.
    * @param teacherId The ID of the teacher.

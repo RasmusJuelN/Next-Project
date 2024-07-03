@@ -1,7 +1,7 @@
 .questionnaire-container {
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
   margin: 20px;
   padding: 20px;
 }
@@ -28,6 +28,19 @@ h4 {
 .progress {
   height: 100%;
   background-color: #4caf50;
+  transition: width 0.5s ease;
+}
+
+.centered-content {
+  background-color: white; /* Change this color to your desired background color */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  min-width: 300px; /* Set your desired minimum width */
+  max-width: 600px; /* Optional: Set a maximum width to ensure it doesn't get too wide */
+  width: 100%; /* Ensure it grows with the parent container */
+  margin: 0 auto; /* Center the content horizontally */
+  text-align: center; /* Center the text inside */
 }
 
 .options-container {
@@ -36,11 +49,13 @@ h4 {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin: 0 auto; /* Center the options container */
 }
 
 .option-item {
   display: flex;
   align-items: center;
+  justify-content: center; /* Center the content inside */
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -65,11 +80,23 @@ h4 {
 
 .button-container {
   display: flex;
-  gap: 20px;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 600px;
   margin-top: 20px;
 }
 
-p{
+.button-left {
+  margin-right: auto;
+  margin-left: 10px;
+}
+
+.button-right {
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+p {
   margin: 0;
   padding: 5px;
 }
@@ -89,4 +116,14 @@ button:hover:not(:disabled) {
 button:disabled {
   background-color: #ddd;
   cursor: not-allowed;
+}
+
+.submit-button {
+  background-color: #4caf50;
+  border-color: #40a043;
+  color: white;
+}
+.submit-button:hover:not(:disabled){
+  background-color: #388e3c; /* Darker shade of #4caf50 */
+  border-color: #317a39; /* Darker shade of #40a043 */
 }

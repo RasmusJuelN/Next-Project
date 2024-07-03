@@ -117,18 +117,29 @@ export class QuestionareComponent implements OnInit {
     this.questions[this.currentQuestionIndex].selectedOption = value;
   }  
 
+  hasSelectedOption(): boolean {
+    return this.questions[this.currentQuestionIndex].selectedOption !== undefined;
+  }
+
+
   /**
    * Moves to the next question.
    * If there are no more questions, submits the answers or navigates to next question.
    */
   nextQuestion(): void {
-    if (this.currentQuestionIndex < this.questions.length - 1) {
-      this.currentQuestionIndex++;
+    if (this.hasSelectedOption()) {
+      if (this.currentQuestionIndex < this.questions.length - 1) {
+        this.currentQuestionIndex++;
+      } else {
+        // Submit the answers or navigate to another page
+        this.submit();
+      }
     } else {
-      // Submit the answers or navigate to another page
-      this.submit();
+      // Display an error message or notification to select an option
+      console.warn("Please select an option before proceeding.");
     }
   }
+
 
   /**
    * Moves to the previous question.
