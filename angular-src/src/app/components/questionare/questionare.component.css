@@ -41,7 +41,6 @@ h4 {
   width: 100%; /* Ensure it grows with the parent container */
   min-height: 500px;
   max-height: 900px;
-  height: 500px;
   margin: 0 auto; /* Center the content horizontally */
   text-align: center; /* Center the text inside */
   position: relative;
@@ -54,6 +53,7 @@ h4 {
   flex-direction: column;
   gap: 10px;
   margin: 0 auto; /* Center the options container */
+  margin-bottom: 75px;
 }
 
 .option-item {
