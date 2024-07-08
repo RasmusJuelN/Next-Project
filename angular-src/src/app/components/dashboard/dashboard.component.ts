@@ -51,7 +51,7 @@ export class DashboardComponent implements OnInit {
       this.studentList = data.students;
       this.studentsYetToFinish = data.studentsYetToFinish;
       this.activeQuestionnaires = data.activeQuestionnaires;
-      this.studentsInQuestionnaire = new Set(data.activeQuestionnaires.map(q => q.studentId));
+      this.studentsInQuestionnaire = new Set(data.activeQuestionnaires.map(q => q.student.id));
     });
   }
 

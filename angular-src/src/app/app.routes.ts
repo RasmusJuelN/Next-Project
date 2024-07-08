@@ -6,5 +6,5 @@ import { QuestionareComponent } from './components/questionare/questionare.compo
 export const routes: Routes = [
     { path: 'login-page', component: LoginPageComponent },
     { path: 'dashboard', component: DashboardComponent},
-    { path: 'answer/:id', component: QuestionareComponent},
+    { path: 'answer/:id', component: QuestionareComponent}
 ];

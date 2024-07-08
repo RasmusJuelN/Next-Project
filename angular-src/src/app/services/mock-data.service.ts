@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, delay, of, throwError } from 'rxjs';
+import { Observable, delay, map, of, throwError } from 'rxjs';
 import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../models/questionare';
 import {jwtDecode} from 'jwt-decode';
 
@@ -62,7 +62,7 @@ export class MockDataService {
     activeQuestionnaires: ActiveQuestionnaire[]
   }> {
     const studentsYetToFinish = this.mockData.mockStudents.filter(student => {
-      const studentInQ = this.mockData.mockActiveQuestionnaire.find(aq => aq.studentId === student.id);
+      const studentInQ = this.mockData.mockActiveQuestionnaire.find(aq => aq.student.id === student.id);
       return studentInQ && !studentInQ.isStudentFinished;
     });
     return of({
@@ -91,18 +91,28 @@ export class MockDataService {
    * Adds a student to the questionnaire if they exist and are not already in an active questionnaire.
    * @param studentId The ID of the student to add.
    */
-  addStudentToQuestionnaire(studentId: number, teacherID=1): Observable<void> {
-    const studentExists = this.mockData.mockStudents.some(student => student.id === studentId);
-    const studentAvailableForQuestionnaire = !this.mockData.mockActiveQuestionnaire.some(aq => aq.studentId === studentId && !aq.isStudentFinished);
-
-    if (studentExists && studentAvailableForQuestionnaire) {
-      this.mockData.mockActiveQuestionnaire.push({ id: this.generateId(), studentId, teacherId: teacherID, isStudentFinished: false, isTeacherFinished: false });
-      this.saveData();
-      return of(undefined).pipe(delay(250));
+  addStudentToQuestionnaire(studentId: number, teacherId: number = 1): Observable<void> {
+    const student = this.mockData.mockStudents.find(s => s.id === studentId);
+    const teacher = this.mockData.mockTeachers.find(t => t.id === teacherId);
+  
+    if (!student || !teacher) {
+      return throwError(() => new Error('Student or Teacher not found'));
+    }
+  
+    const studentAvailableForQuestionnaire = !this.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
+  
+    if (studentAvailableForQuestionnaire) {
+      return this.createActiveQuestionnaire(studentId, teacherId).pipe(
+        map(() => {
+          // Just return void after creation
+          return;
+        })
+      );
     } else {
-      return of(undefined).pipe(delay(250)); // Return an observable to maintain method signature
+      return throwError(() => new Error('Student is already in an active questionnaire or has finished it'));
     }
   }
+  
 
   /**
    * Retrieves the list of questions for a specific user if they exist and are part of an active questionnaire.
@@ -118,7 +128,7 @@ export class MockDataService {
    * @returns True if the student is in an active questionnaire, false otherwise.
    */
   isStudentInQuestionnaire(studentId: number): boolean {
-    return this.mockData.mockActiveQuestionnaire.some(aq => aq.studentId === studentId && !aq.isStudentFinished);
+    return this.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
   }
 
   /**
@@ -127,7 +137,7 @@ export class MockDataService {
    */
   getStudentsYetToFinish(): Observable<User[]> {
     const studentsYetToFinish = this.mockData.mockStudents.filter(student => {
-      const studentInQ = this.mockData.mockActiveQuestionnaire.find(aq => aq.studentId === student.id);
+      const studentInQ = this.mockData.mockActiveQuestionnaire.find(aq => aq.student.id === student.id);
       return studentInQ && !studentInQ.isStudentFinished;
     });
     return of(studentsYetToFinish).pipe(delay(250));
@@ -139,20 +149,21 @@ export class MockDataService {
    */
   submitData(userId: number, role: string, questionnaireId: string): Observable<void> {
     for (let activeQuestionnaire of this.mockData.mockActiveQuestionnaire) {
-      if (activeQuestionnaire.id == questionnaireId) {
-        if (role == 'student' && activeQuestionnaire.studentId == userId) {
+      if (activeQuestionnaire.id === questionnaireId) {
+        if (role === 'student' && activeQuestionnaire.student.id === userId) {
           activeQuestionnaire.isStudentFinished = true;
           this.saveData();
           return of(undefined).pipe(delay(250));
-        } else if (role == 'teacher' && activeQuestionnaire.teacherId == userId) {
+        } else if (role === 'teacher' && activeQuestionnaire.teacher.id === userId) {
           activeQuestionnaire.isTeacherFinished = true;
           this.saveData();
           return of(undefined).pipe(delay(250));
         }
       }
     }
-    return of(undefined).pipe(delay(250));
+    return throwError(() => new Error('Active questionnaire not found or user role mismatch'));
   }
+
    /**
    * Creates a new active questionnaire.
    * @param studentId The ID of the student.
@@ -160,14 +171,21 @@ export class MockDataService {
    * @returns The created active questionnaire.
    */
    createActiveQuestionnaire(studentId: number, teacherId: number): Observable<ActiveQuestionnaire> {
+    const student = this.mockData.mockStudents.find(s => s.id === studentId);
+    const teacher = this.mockData.mockTeachers.find(t => t.id === teacherId);
+  
+    if (!student || !teacher) {
+      return throwError(() => new Error('Student or Teacher not found'));
+    }
+  
     const newActiveQuestionnaire: ActiveQuestionnaire = {
       id: this.generateId(),
-      studentId: studentId,
-      teacherId: teacherId,
+      student: student,
+      teacher: teacher,
       isStudentFinished: false,
       isTeacherFinished: false
     };
-
+  
     this.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);
     this.saveData();
     return of(newActiveQuestionnaire).pipe(delay(250));

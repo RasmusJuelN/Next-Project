@@ -10,11 +10,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
 import { jwtDecode } from 'jwt-decode';
 import { MockAuthService } from '../../services/mock-auth.service';
+import { LoadingComponent } from '../loading/loading.component';
 
 @Component({
   selector: 'app-questionare',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatIconModule, MatTooltipModule],
+  imports: [FormsModule, CommonModule, MatIconModule, MatTooltipModule,LoadingComponent],
   templateUrl: './questionare.component.html',
   styleUrls: ['./questionare.component.css']
 })
@@ -76,8 +77,8 @@ export class QuestionareComponent implements OnInit {
    * @returns True if the user is authorized, false otherwise.
    */
   private isAuthorizedUser(questionnaire: ActiveQuestionnaire) {
-    return (this.role === 'student' && questionnaire.studentId == this.userId && !questionnaire.isStudentFinished) ||
-           (this.role === 'teacher' && questionnaire.teacherId == this.userId && !questionnaire.isTeacherFinished);
+    return (this.role === 'student' && questionnaire.student.id == this.userId && !questionnaire.isStudentFinished) ||
+           (this.role === 'teacher' && questionnaire.teacher.id == this.userId && !questionnaire.isTeacherFinished);
   }
 
   /**
@@ -117,10 +118,14 @@ export class QuestionareComponent implements OnInit {
     this.questions[this.currentQuestionIndex].selectedOption = value;
   }  
 
+
+  /**
+   * Checks if the current question has a selected option of the current question.
+   * @returns True if an option is selected, false otherwise.
+   */
   hasSelectedOption(): boolean {
     return this.questions[this.currentQuestionIndex].selectedOption !== undefined;
   }
-
 
   /**
    * Moves to the next question.

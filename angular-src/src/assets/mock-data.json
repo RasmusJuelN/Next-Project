@@ -128,15 +128,15 @@
   "mockActiveQuestionnaire": [
     {
       "id": "efgh",
-      "studentId": 2,
-      "teacherId": 1,
+      "student": { "id": 2, "username": "Nicklas", "role": "student" },
+      "teacher": { "id": 1, "username": "Max", "role": "teacher" },
       "isStudentFinished": false,
       "isTeacherFinished": false
     },
     {
       "id": "ijkl",
-      "studentId": 3,
-      "teacherId": 1,
+      "student": { "id": 3, "username": "Alexander", "role": "student" },
+      "teacher": { "id": 1, "username": "Max", "role": "teacher" },
       "isStudentFinished": false,
       "isTeacherFinished": false
     }

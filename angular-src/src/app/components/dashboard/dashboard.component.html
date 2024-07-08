@@ -35,14 +35,30 @@
 }
 
 @if(activeQuestionnaires.length > 0){
-  <div class="studentList">
+  <div class="questionnaireList">
     <h2>Active Questionnaires:</h2>
     <ul>
       @for(questionnaire of activeQuestionnaires; track questionnaire.id){
-        <li>
-          <p>ID: {{questionnaire.id}}</p>
-          <p>Student ID: {{questionnaire.studentId}}</p>
-          <p>Teacher ID: {{questionnaire.teacherId}}</p>
+        <li class="questionnaire-item">
+          <div class="questionnaire-header">
+            <strong>Questionnaire ID:</strong> {{questionnaire.id}}
+          </div>
+          <div class="questionnaire-details">
+            <div class="student-info">
+              <h4>Student</h4>
+              <p><strong>ID:</strong> {{questionnaire.student.id}}</p>
+              <p><strong>Name:</strong> {{questionnaire.student.username}}</p>
+              <p><strong>Role:</strong> {{questionnaire.student.role}}</p>
+              <p><strong>Status:</strong> {{questionnaire.isStudentFinished ? 'Finished' : 'Not Finished'}}</p>
+            </div>
+            <div class="teacher-info">
+              <h4>Teacher</h4>
+              <p><strong>ID:</strong> {{questionnaire.teacher.id}}</p>
+              <p><strong>Name:</strong> {{questionnaire.teacher.username}}</p>
+              <p><strong>Role:</strong> {{questionnaire.teacher.role}}</p>
+              <p><strong>Status:</strong> {{questionnaire.isTeacherFinished ? 'Finished' : 'Not Finished'}}</p>
+            </div>
+          </div>
           @if(questionnaire.id){
             <button (click)="deleteActiveQuestionnaire(questionnaire.id)">Delete</button>
           }
@@ -50,8 +66,7 @@
       }
     </ul>
   </div>
-}
-@else{
+} @else {
   <p>No active questionnaires found.</p>
 }
 

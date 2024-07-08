@@ -1,13 +1,4 @@
-/**
- * Represents Active Questionnaire
- */
-export interface ActiveQuestionnaire {
-  id?: string;
-  studentId: number;
-  teacherId: number;
-  isStudentFinished: boolean;
-  isTeacherFinished: boolean;
-}
+
 
 /**
  * Represents a user like (e.g., 'student', 'teacher', 'admin').
@@ -16,6 +7,17 @@ export interface User {
   id: number; // ID of the user from the database
   username: string; // Username of the user
   role: string; // Role for the user.
+}
+
+/**
+ * Represents Active Questionnaire
+ */
+export interface ActiveQuestionnaire {
+  id?: string;
+  student: User;
+  teacher: User;
+  isStudentFinished: boolean;
+  isTeacherFinished: boolean;
 }
 
 /**
