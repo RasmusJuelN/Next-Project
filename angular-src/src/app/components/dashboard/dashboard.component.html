@@ -40,18 +40,16 @@
     <ul>
       @for(questionnaire of activeQuestionnaires; track questionnaire.id){
         <li class="questionnaire-item">
-          <div class="questionnaire-header">
-            <strong>Questionnaire ID:</strong> {{questionnaire.id}}
-          </div>
+          <h3>Questionnaire ID: {{questionnaire.id}}</h3>
           <div class="questionnaire-details">
-            <div class="student-info">
+            <div class="user-info">
               <h4>Student</h4>
               <p><strong>ID:</strong> {{questionnaire.student.id}}</p>
               <p><strong>Name:</strong> {{questionnaire.student.username}}</p>
               <p><strong>Role:</strong> {{questionnaire.student.role}}</p>
               <p><strong>Status:</strong> {{questionnaire.isStudentFinished ? 'Finished' : 'Not Finished'}}</p>
             </div>
-            <div class="teacher-info">
+            <div class="user-info">
               <h4>Teacher</h4>
               <p><strong>ID:</strong> {{questionnaire.teacher.id}}</p>
               <p><strong>Name:</strong> {{questionnaire.teacher.username}}</p>
