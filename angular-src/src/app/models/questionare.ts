@@ -13,7 +13,7 @@ export interface User {
  * Represents Active Questionnaire
  */
 export interface ActiveQuestionnaire {
-  id?: string;
+  id: string;
   student: User;
   teacher: User;
   isStudentFinished: boolean;

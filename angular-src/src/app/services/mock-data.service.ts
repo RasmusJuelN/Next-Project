@@ -150,11 +150,13 @@ export class MockDataService {
   submitData(userId: number, role: string, questionnaireId: string): Observable<void> {
     for (let activeQuestionnaire of this.mockData.mockActiveQuestionnaire) {
       if (activeQuestionnaire.id === questionnaireId) {
-        if (role === 'student' && activeQuestionnaire.student.id === userId) {
+        console.log('Submitting data...', userId, role, questionnaireId)
+        console.log('Active Questionnaire:', activeQuestionnaire)
+        if (role === 'student' && activeQuestionnaire.student.id == userId) {
           activeQuestionnaire.isStudentFinished = true;
           this.saveData();
           return of(undefined).pipe(delay(250));
-        } else if (role === 'teacher' && activeQuestionnaire.teacher.id === userId) {
+        } else if (role === 'teacher' && activeQuestionnaire.teacher.id == userId) {
           activeQuestionnaire.isTeacherFinished = true;
           this.saveData();
           return of(undefined).pipe(delay(250));
