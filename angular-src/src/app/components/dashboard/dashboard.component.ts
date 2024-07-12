@@ -20,7 +20,6 @@ export class DashboardComponent implements OnInit {
   dataService = inject(MockDataService);
   router = inject(Router);
   studentList: User[] = [];
-  studentsYetToFinish: User[] = [];
   activeQuestionnaires: ActiveQuestionnaire[] = [];
   studentsInQuestionnaire: Set<number> = new Set<number>();
 
@@ -49,7 +48,6 @@ export class DashboardComponent implements OnInit {
   loadDashboardData(): void {
     this.dataService.getDashboardData().subscribe((data) => {
       this.studentList = data.students;
-      this.studentsYetToFinish = data.studentsYetToFinish;
       this.activeQuestionnaires = data.activeQuestionnaires;
       this.studentsInQuestionnaire = new Set(data.activeQuestionnaires.map(q => q.student.id));
     });

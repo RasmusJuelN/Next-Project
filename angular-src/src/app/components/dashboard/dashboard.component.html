@@ -1,38 +1,15 @@
-@if(studentList.length > 0){
-  <div class="studentList">
-    <h2>Student List:</h2>
-    <ul>
-       @for (student of studentList; track student.id) {
-        <li>
-          <p>ID: {{student.id}}</p>
-          <p>Username: {{student.username}}</p>
-          <p>Role: {{student.role}}</p>
-          @if(!isStudentInQuestionnaire(student.id)){
-            <button (click)="addStudentToQuestionnaire(student.id)">Add to Questionnaire</button>
-          }
-        </li>
-       }
-    </ul>
-  </div>
-}
-@else{
-  <p>No students found.</p>
-}
-
-@if(studentsYetToFinish.length > 0){
-  <div class="studentList">
-    <h2>Students Yet to Finish Questionnaire:</h2>
-    <ul>
-      @for(student of studentsYetToFinish; track student.id){
-        <li>
-          <p>ID: {{student.id}}</p>
-          <p>Username: {{student.username}}</p>
-          <p>Role: {{student.role}}</p>
-        </li>
-      }
-    </ul>
-  </div>
-}
+<div class="questionnaireList">
+  <h3>Create New Questionnaire</h3>
+    <div>
+      <label for="studentId"><strong>Student ID:</strong></label>
+      <input id="studentId" #studentId type="number" min="0" required>
+    </div>
+    <div>
+      <label for="teacherId"><strong>Teacher ID:</strong></label>
+      <input id="teacherId" #teacherId type="number" min="0" required>
+    </div>
+    <button (click)="createActiveQuestionnaire(+studentId.value, +teacherId.value)" type="submit">Create</button>
+</div>
 
 @if(activeQuestionnaires.length > 0){
   <div class="questionnaireList">
@@ -65,14 +42,30 @@
     </ul>
   </div>
 } @else {
-  <p>No active questionnaires found.</p>
+  <div class="questionnaireList">
+    <p>No active questionnaires found.</p>
+  </div>
 }
-
-<div class="studentList">
-  <h3>Create New Questionnaire</h3>
-    <label for="studentId">Student ID:</label>
-    <input id="studentId" #studentId type="number" required>
-    <label for="teacherId">Teacher ID:</label>
-    <input id="teacherId" #teacherId type="number" required>
-    <button (click)="createActiveQuestionnaire(+studentId.value, +teacherId.value)" type="submit">Create</button>
-</div>
+@if(studentList.length > 0){
+  <div class="studentList">
+    <h2>Student List:</h2>
+    <ul>
+       @for (student of studentList; track student.id) {
+        <li>
+          <p><strong>ID:</strong> {{student.id}}</p>
+          <p><strong>Username:</strong> {{student.username}}</p>
+          <p><strong>Role:</strong> {{student.role}}</p>
+          @if(!isStudentInQuestionnaire(student.id)){
+            <button (click)="addStudentToQuestionnaire(student.id)">Add to Questionnaire</button>
+          }
+        </li>
+        <hr>
+       }
+    </ul>
+  </div>
+}
+@else{
+  <div class="studentList">
+    <p>No students found.</p>
+  </div>
+}

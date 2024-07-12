@@ -26,6 +26,7 @@ export class MockDataService {
   constructor(private http: HttpClient) {
     this.loadInitialMockData();
   }
+  
   /**
    * Loads initial data either from local storage or from a mock data file.
    * If data is present in local storage, it initializes the service with that data.
@@ -49,7 +50,7 @@ export class MockDataService {
     }
   }
 
-    /**
+  /**
    * Saves the current state of mock data to local storage.
    */
   private saveData(): void {
@@ -58,16 +59,10 @@ export class MockDataService {
 
   getDashboardData(): Observable<{
     students: User[],
-    studentsYetToFinish: User[],
     activeQuestionnaires: ActiveQuestionnaire[]
   }> {
-    const studentsYetToFinish = this.mockData.mockStudents.filter(student => {
-      const studentInQ = this.mockData.mockActiveQuestionnaire.find(aq => aq.student.id === student.id);
-      return studentInQ && !studentInQ.isStudentFinished;
-    });
     return of({
       students: this.mockData.mockStudents,
-      studentsYetToFinish: studentsYetToFinish,
       activeQuestionnaires: this.mockData.mockActiveQuestionnaire
     }).pipe(delay(250));
   }
@@ -129,18 +124,6 @@ export class MockDataService {
    */
   isStudentInQuestionnaire(studentId: number): boolean {
     return this.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
-  }
-
-  /**
-   * Retrieves the list of students who have not yet finished their questionnaires.
-   * @returns An observable that emits the list of students.
-   */
-  getStudentsYetToFinish(): Observable<User[]> {
-    const studentsYetToFinish = this.mockData.mockStudents.filter(student => {
-      const studentInQ = this.mockData.mockActiveQuestionnaire.find(aq => aq.student.id === student.id);
-      return studentInQ && !studentInQ.isStudentFinished;
-    });
-    return of(studentsYetToFinish).pipe(delay(250));
   }
 
   /**

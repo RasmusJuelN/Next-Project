@@ -20,12 +20,10 @@ export class DataService {
    */
   getDashboardData(): Observable<{
     students: User[],
-    studentsYetToFinish: User[],
     activeQuestionnaires: ActiveQuestionnaire[]
   }> {
     return this.httpClient.get<{
       students: User[],
-      studentsYetToFinish: User[],
       activeQuestionnaires: ActiveQuestionnaire[]
     }>(`${this.baseUrl}/dashboard-data`);
   }
