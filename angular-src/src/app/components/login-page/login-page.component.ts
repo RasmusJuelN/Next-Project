@@ -22,6 +22,8 @@ export class LoginPageComponent {
   userName: string = "";
   password: string = "";
 
+  errorHasHapped: boolean = false;
+
   /**
    * Initializes the component and tries to redirect to the dashboard if the user is already logged in.
    */
@@ -45,6 +47,7 @@ export class LoginPageComponent {
         }
       },
       error: error => {
+        this.errorHasHapped = true;
         console.log('Login failed', error);
         this.errorMessage = 'Login failed. Please check your credentials.';
       }
