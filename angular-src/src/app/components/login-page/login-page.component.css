@@ -63,3 +63,44 @@
     border-radius: 4px;
     text-align: center;
 }
+
+
+/* New styles */
+.logged-in-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50%;
+  padding: 20px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+}
+
+.logged-in-container p {
+  font-size: 18px;
+  color: #333;
+  margin-top: 20px;
+}
+
+.logged-in-container .dashboard-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+
+}
+
+.logged-in-container .logout-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+
+}

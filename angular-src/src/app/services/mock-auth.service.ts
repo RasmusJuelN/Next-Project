@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
+import { ActiveQuestionnaire, Question, StudentTeacherAnswer, User } from '../models/questionare';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +46,41 @@ export class MockAuthService {
       );
     }
   }
+
+  checkForActiveQuestionnaire(): { hasActive: boolean, urlString: string } {
+    const role = this.getRole();
+    const idString = this.getUserId();
+    if (!idString) {
+      return { hasActive: false, urlString: '' };
+    }
+    const id = Number(idString); // Convert string to number for now
+
+    const mockData = localStorage.getItem('mockData');
+
+    if (mockData) {
+      const parsedData : {
+        mockStudents: User[],
+        mockTeachers: User[],
+        mockQuestions: Question[],
+        mockStudentTeacherAnswers: StudentTeacherAnswer[],
+        mockActiveQuestionnaire: ActiveQuestionnaire[]
+      } = JSON.parse(mockData);
+      if (role === 'student') {
+        const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire:ActiveQuestionnaire) => questionnaire.student.id == id && !questionnaire.isStudentFinished);
+        if (activeQuestionnaire) {
+          return { hasActive: true, urlString: `${activeQuestionnaire.id}` };
+        }
+      } else if (role === 'teacher') {
+        const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.teacher.id == id && !questionnaire.isTeacherFinished);
+        if (activeQuestionnaire) {
+          return { hasActive: true, urlString: `${activeQuestionnaire.id}` };
+        }
+      }
+    }
+    return { hasActive: false, urlString: '' };
+  }
+
+
 
   /**
    * Retrieves the user ID from the token stored in the local storage.

@@ -50,6 +50,29 @@ export class MockDataService {
     }
   }
 
+  getFirstActiveQuestionnaireId(): string | null {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        const userId = decodedToken.sub;
+  
+        const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => 
+          (aq.student.id == userId && !aq.isStudentFinished) || 
+          (aq.teacher.id == userId && !aq.isTeacherFinished)
+        );
+  
+        return activeQuestionnaire ? activeQuestionnaire.id : null;
+      } catch (error) {
+        console.error('Invalid token', error);
+        return null;
+      }
+    }
+    return null;
+  }
+
+
+
   /**
    * Saves the current state of mock data to local storage.
    */
@@ -133,8 +156,6 @@ export class MockDataService {
   submitData(userId: number, role: string, questionnaireId: string): Observable<void> {
     for (let activeQuestionnaire of this.mockData.mockActiveQuestionnaire) {
       if (activeQuestionnaire.id === questionnaireId) {
-        console.log('Submitting data...', userId, role, questionnaireId)
-        console.log('Active Questionnaire:', activeQuestionnaire)
         if (role === 'student' && activeQuestionnaire.student.id == userId) {
           activeQuestionnaire.isStudentFinished = true;
           this.saveData();

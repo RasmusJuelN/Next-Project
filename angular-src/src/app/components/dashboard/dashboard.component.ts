@@ -27,18 +27,14 @@ export class DashboardComponent implements OnInit {
     const role = this.authService.getRole();
     console.log('User Role:', role);
 
-    if (role === 'teacher' || role === 'admin') {
+    if (role === 'admin') {
       console.log(`Welcome ${role}`);
       this.loadDashboardData();
-    } else if (role === 'student') {
+    } else if (role === 'student' || role === 'teacher') {
       console.log(`Welcome ${role}`);
       const userId = this.authService.getUserId();
       console.log('User ID:', userId);
-      if (userId !== null) {
-        this.router.navigate(['answer', userId]);
-      } else {
-        console.error('User ID is null, cannot navigate to answer page');
-      }
+      this.router.navigate(['/']);
     } else {
       console.log('Unknown role');
       this.router.navigate(['/']);
