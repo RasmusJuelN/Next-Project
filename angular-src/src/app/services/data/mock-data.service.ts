@@ -1,14 +1,19 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, delay, map, of, throwError } from 'rxjs';
-import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../models/questionare';
+import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../../models/questionare';
+import { LocalStorageService } from '../misc/local-storage.service';
+
 import {jwtDecode} from 'jwt-decode';
+import { ErrorHandlingService } from '../error-handling.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MockDataService {
   private localStorageKey = 'mockData';
+  private localStorageService = inject(LocalStorageService)
+  private errorHandlingService = inject(ErrorHandlingService)
   private mockData: {
     mockStudents: User[],
     mockTeachers: User[],
@@ -33,25 +38,29 @@ export class MockDataService {
    * Otherwise, it fetches data from a JSON file and saves it to local storage.
    */
   private loadInitialMockData(): void {
-    const savedData = localStorage.getItem(this.localStorageKey);
+    const savedData = this.localStorageService.getData(this.localStorageKey);
     if (savedData) {
       this.mockData = JSON.parse(savedData);
     } else {
-      this.http.get('/assets/mock-data.json').subscribe((data: any) => {
-        this.mockData = {
-          mockStudents: data.mockStudents,
-          mockTeachers: data.mockTeachers,
-          mockQuestions: data.mockQuestions,
-          mockStudentTeacherAnswers: data.mockStudentTeacherAnswers,
-          mockActiveQuestionnaire: data.mockActiveQuestionnaire
-        };
-        this.saveData();
-      });
+      this.http.get('/assets/mock-data.json').subscribe(
+        (data: any) => {
+          this.mockData = {
+            mockStudents: data.mockStudents,
+            mockTeachers: data.mockTeachers,
+            mockQuestions: data.mockQuestions,
+            mockStudentTeacherAnswers: data.mockStudentTeacherAnswers,
+            mockActiveQuestionnaire: data.mockActiveQuestionnaire
+          };
+          this.saveData();
+        },
+        error => this.errorHandlingService.handleError(error, 'Failed to load mock data')
+      );
     }
   }
 
+
   getFirstActiveQuestionnaireId(): string | null {
-    const token = localStorage.getItem('token');
+    const token = this.localStorageService.getToken();
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
@@ -77,7 +86,7 @@ export class MockDataService {
    * Saves the current state of mock data to local storage.
    */
   private saveData(): void {
-    localStorage.setItem(this.localStorageKey, JSON.stringify(this.mockData));
+    this.localStorageService.saveData(this.localStorageKey, JSON.stringify(this.mockData));
   }
 
   getDashboardData(): Observable<{
@@ -149,25 +158,37 @@ export class MockDataService {
     return this.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
   }
 
+
+
+
   /**
-   * Marks a user's questionnaire as finished based on their role.
+   * Marks a user's questionnaire as finished based on their role and saves the answers.
    * @param userId The ID of the user.
+   * @param role The role of the user (e.g., 'student', 'teacher').
+   * @param questionnaireId The ID of the questionnaire.
+   * @param answers The answers to submit.
    */
-  submitData(userId: number, role: string, questionnaireId: string): Observable<void> {
-    for (let activeQuestionnaire of this.mockData.mockActiveQuestionnaire) {
-      if (activeQuestionnaire.id === questionnaireId) {
-        if (role === 'student' && activeQuestionnaire.student.id == userId) {
-          activeQuestionnaire.isStudentFinished = true;
-          this.saveData();
-          return of(undefined).pipe(delay(250));
-        } else if (role === 'teacher' && activeQuestionnaire.teacher.id == userId) {
-          activeQuestionnaire.isTeacherFinished = true;
-          this.saveData();
-          return of(undefined).pipe(delay(250));
-        }
-      }
+  submitData(userId: any, role: string, questionnaireId: string, answers: Question[]): Observable<void> {
+    const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
+    
+    if (!activeQuestionnaire) {
+      return throwError(() => new Error('Active questionnaire not found or user role mismatch'));
     }
-    return throwError(() => new Error('Active questionnaire not found or user role mismatch'));
+
+    answers.forEach(answer => {
+      // Instead of saving the results of the answer here, lets just log it.
+      console.log(`Question ID: ${answer.id}, Selected Option: ${answer.selectedOption}`);
+    });
+
+    // Mark the questionnaire as finished for the user
+    if (role === 'student' && activeQuestionnaire.student.id == userId) {
+      activeQuestionnaire.isStudentFinished = true;
+    } else if (role === 'teacher' && activeQuestionnaire.teacher.id == userId) {
+      activeQuestionnaire.isTeacherFinished = true;
+    }
+
+    this.saveData();
+    return of(undefined).pipe(delay(250));
   }
 
    /**
@@ -229,4 +250,29 @@ export class MockDataService {
     console.log('Generated ID:', result);
     return result;
   }
+
+    /**
+   * Validates if a user has access to a specific questionnaire.
+   * @param userId The ID of the user.
+   * @param role The role of the user (e.g., student, teacher).
+   * @param questionnaireId The ID of the questionnaire.
+   * @returns An observable that emits true if the user has access, false otherwise.
+   */
+    validateUserAccess(userId: any, role: string, questionnaireId: string): Observable<boolean> {
+      const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
+  
+      if (!activeQuestionnaire) {
+        return of(false); // Questionnaire not found
+      }
+  
+      if (role === 'student' && activeQuestionnaire.student.id == userId && !activeQuestionnaire.isStudentFinished) {
+        return of(true);
+      }
+  
+      if (role === 'teacher' && activeQuestionnaire.teacher.id == userId && !activeQuestionnaire.isTeacherFinished) {
+        return of(true);
+      }
+  
+      return of(false); // User does not have access
+    }
 }

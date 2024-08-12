@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
-import { ActiveQuestionnaire, Question, StudentTeacherAnswer, User } from '../models/questionare';
+import { ActiveQuestionnaire, Question, StudentTeacherAnswer, User } from '../../models/questionare';
 
 @Injectable({
   providedIn: 'root'
@@ -109,7 +109,6 @@ export class MockAuthService {
     if (token) {
       try {
         const decodedToken: any = this.decodeToken(token);
-        console.log(decodedToken);
         return decodedToken.scope || null;
       } catch (error) {
         console.error('Invalid token', error);

@@ -43,7 +43,7 @@ export interface Question {
 export interface userAnswer{
   questinareId: string;
   questionId: number;
-  userId: number;
+  userId: string;
   role: string;
   rating: number;
 }

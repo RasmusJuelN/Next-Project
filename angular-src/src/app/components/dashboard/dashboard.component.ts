@@ -1,9 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MockDataService } from '../../services/mock-data.service';
 import { Router } from '@angular/router';
 import { User, ActiveQuestionnaire } from '../../models/questionare';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+import { AppDataService } from '../../services/data/app-data.service';
+import { MockAuthService } from '../../services/auth/mock-auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,8 +16,8 @@ import { AuthService } from '../../services/auth.service';
  * Represents the dashboard component which is used display specific data for instructors and admins.
  */
 export class DashboardComponent implements OnInit {
-  authService = inject(AuthService);
-  dataService = inject(MockDataService);
+  authService = inject(MockAuthService);
+  dataService = inject(AppDataService);
   router = inject(Router);
   studentList: User[] = [];
   activeQuestionnaires: ActiveQuestionnaire[] = [];
@@ -25,18 +25,10 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const role = this.authService.getRole();
-    console.log('User Role:', role);
 
     if (role === 'admin') {
-      console.log(`Welcome ${role}`);
       this.loadDashboardData();
-    } else if (role === 'student' || role === 'teacher') {
-      console.log(`Welcome ${role}`);
-      const userId = this.authService.getUserId();
-      console.log('User ID:', userId);
-      this.router.navigate(['/']);
     } else {
-      console.log('Unknown role');
       this.router.navigate(['/']);
     }
   }

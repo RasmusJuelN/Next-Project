@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from './services/auth.service';
 import { jwtDecode } from 'jwt-decode';
+import { LocalStorageService } from './services/misc/local-storage.service';
 
 @Component({
   selector: 'app-root',
@@ -17,16 +17,17 @@ import { jwtDecode } from 'jwt-decode';
 export class AppComponent {
   tokenExists = false;
   userName: string | null = null;
+  localStorageService = inject(LocalStorageService);
 
   /**
    * Initializes the component.
    * Checks if a token exists in the local storage and retrieves the user name from the decoded token.
    */
   ngOnInit() {
-    this.tokenExists = localStorage.getItem('token') !== null;
+    this.tokenExists = this.localStorageService.getToken() !== null;
 
     if (this.tokenExists) {
-      const token = localStorage.getItem('token');
+      const token = this.localStorageService.getToken()
       if (token) {
         try {
           const decodedToken: any = jwtDecode(token);
@@ -43,7 +44,7 @@ export class AppComponent {
    * Deletes the token from the local storage and updates the tokenExists flag.
    */
   deleteToken() {
-    localStorage.removeItem('token');
+    this.localStorageService.removeData('token');
     this.tokenExists = false;
     alert('Token deleted');
   }

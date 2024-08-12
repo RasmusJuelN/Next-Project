@@ -2,7 +2,9 @@
     <div class="logged-in-container">
         @if(goToActiveQuestionnaire){
             <p>To Questionnaire?</p>
-            <button class="dashboard-button" (click)="toActiveQuestionnaire(this.activeQuestionnaireString)">Go to Questionnaire</button>
+            @if(this.activeQuestionnaireString){
+                <button class="dashboard-button" (click)="toActiveQuestionnaire(this.activeQuestionnaireString)">Go to Questionnaire</button>
+            }
         }
         @if(goToDashboard){
             <p>Go to your dashboard?</p>
@@ -38,7 +40,7 @@
         </div>
         @if(errorHasHapped){
             <div class="error-box">
-                Login failed, check your username and password
+                {{this.errorMessage}}
             </div>
         }
       </div>
