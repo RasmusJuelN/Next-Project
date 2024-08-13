@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { User, ActiveQuestionnaire } from '../../models/questionare';
 import { CommonModule } from '@angular/common';
 import { AppDataService } from '../../services/data/app-data.service';
-import { MockAuthService } from '../../services/auth/mock-auth.service';
+import { AppAuthService } from '../../services/auth/app-auth.service'; // Use AppAuthService
 
 @Component({
   selector: 'app-dashboard',
@@ -13,20 +13,19 @@ import { MockAuthService } from '../../services/auth/mock-auth.service';
   styleUrls: ['./dashboard.component.css']
 })
 /**
- * Represents the dashboard component which is used display specific data for instructors and admins.
+ * Represents the dashboard component which is used to display specific data for instructors and admins.
  */
 export class DashboardComponent implements OnInit {
-  authService = inject(MockAuthService);
-  dataService = inject(AppDataService);
-  router = inject(Router);
+  private authService = inject(AppAuthService); // Use AppAuthService
+  private dataService = inject(AppDataService);
+  private router = inject(Router);
+  
   studentList: User[] = [];
   activeQuestionnaires: ActiveQuestionnaire[] = [];
   studentsInQuestionnaire: Set<number> = new Set<number>();
 
   ngOnInit(): void {
-    const role = this.authService.getRole();
-
-    if (role === 'admin') {
+    if (this.authService.hasRole('admin')) {
       this.loadDashboardData();
     } else {
       this.router.navigate(['/']);
@@ -51,24 +50,22 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-   /**
+  /**
    * Checks if a student is in the questionnaire.
    * @param studentId The ID of the student to check.
    * @returns True if the student is in the questionnaire, false otherwise.
    */
-    isStudentInQuestionnaire(studentId: number): boolean {
-      return this.studentsInQuestionnaire.has(studentId);
-    }
+  isStudentInQuestionnaire(studentId: number): boolean {
+    return this.studentsInQuestionnaire.has(studentId);
+  }
 
-   /**
+  /**
    * Creates a new active questionnaire.
    * @param studentId The ID of the student.
    * @param teacherId The ID of the teacher.
    */
-   createActiveQuestionnaire(studentId: number, teacherId: number): void {
-    console.log('Creating new active questionnaire...');
+  createActiveQuestionnaire(studentId: number, teacherId: number): void {
     this.dataService.createActiveQuestionnaire(studentId, teacherId).subscribe((newQuestionnaire) => {
-      console.log('New Active Questionnaire Created:', newQuestionnaire);
       this.loadDashboardData();
     });
   }
@@ -80,7 +77,6 @@ export class DashboardComponent implements OnInit {
   deleteActiveQuestionnaire(questionnaireId: string): void {
     if (questionnaireId) {
       this.dataService.deleteActiveQuestionnaire(questionnaireId).subscribe(() => {
-        console.log(`Questionnaire with ID ${questionnaireId} deleted.`);
         this.loadDashboardData();
       });
     } else {

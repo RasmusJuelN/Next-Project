@@ -1,14 +1,16 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 import { ActiveQuestionnaire, Question, StudentTeacherAnswer, User } from '../../models/questionare';
+import { LocalStorageService } from '../misc/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MockAuthService {
   private mockToken: string;
+  private localStorageService = inject(LocalStorageService)
 
   constructor() {
     // This token assumes that the user is "Max" and is a teacher
@@ -45,6 +47,23 @@ export class MockAuthService {
         })
       );
     }
+  }
+
+  /**
+   * Checks if the current user has a specific role.
+   * @param role - The role to check against.
+   * @returns True if the user has the specified role, false otherwise.
+   */
+  hasRole(role: string): boolean {
+    const userRole = this.getRole();
+    return userRole === role;
+  }
+  /**
+   * Currently a simple implementation
+   * @returns true if it contains a token
+   */
+  isLoggedIn(){
+    return !!localStorage.getItem('token');
   }
 
   checkForActiveQuestionnaire(): { hasActive: boolean, urlString: string } {
@@ -116,6 +135,10 @@ export class MockAuthService {
       }
     }
     return null;
+  }
+
+  getAuthToken(){
+    return this.localStorageService.getToken();
   }
 
   decodeToken(token: string): any {

@@ -4,6 +4,7 @@ import { MockAuthService } from './auth/mock-auth.service';
 import { LocalStorageService } from './misc/local-storage.service';
 import { ErrorHandlingService } from './error-handling.service';
 import { map, Observable } from 'rxjs';
+import { AppAuthService } from './auth/app-auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class LoginPageService {
 
   constructor(
     public router: Router,
-    private authService: MockAuthService, // Use AuthService directly here
+    private authService: AppAuthService, // Use AuthService directly here
     private localStorageService: LocalStorageService,
     private errorHandlingService: ErrorHandlingService
   ) {}
@@ -22,8 +23,7 @@ export class LoginPageService {
    * @returns boolean indicating whether the user is already logged in.
    */
   checkIfLoggedIn(): boolean {
-    const token = this.localStorageService.getToken();
-    return !!token;
+    return this.authService.isLoggedIn();
   }
 
     /**
@@ -35,7 +35,7 @@ export class LoginPageService {
         goToDashboard = true;
       }
   
-      const activeQuestionnaireId = this.authService.checkForActiveQuestionnaire().urlString; 
+      const activeQuestionnaireId = this.authService.checkForActiveQuestionnaire().urlString;
       if (activeQuestionnaireId) {
         goToActiveQuestionnaire = true;
       }
@@ -50,7 +50,7 @@ export class LoginPageService {
    * Perform login action and handle navigation based on response.
    */
   login(userName: string, password: string): Observable<void> {
-    return this.authService.loginAuthentication(userName, password).pipe(
+    return this.authService.login(userName, password).pipe(
       map(response => {
         if ('access_token' in response) {
           const checkAnyActiveQuestionnaire = this.authService.checkForActiveQuestionnaire();
