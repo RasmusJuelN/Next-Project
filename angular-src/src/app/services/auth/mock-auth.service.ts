@@ -1,16 +1,17 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { jwtDecode } from 'jwt-decode';
 import { ActiveQuestionnaire, Question, StudentTeacherAnswer, User } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
+import { JWTTokenService } from './jwt-token.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MockAuthService {
   private mockToken: string;
-  private localStorageService = inject(LocalStorageService)
+  private localStorageService = inject(LocalStorageService);
+  private jwtTokenService = inject(JWTTokenService);
 
   constructor() {
     // This token assumes that the user is "Max" and is a teacher
@@ -37,7 +38,7 @@ export class MockAuthService {
       return of({ access_token: this.mockToken }).pipe(
         tap(response => {
           console.log("Login success");
-          localStorage.setItem('token', response.access_token);
+          this.jwtTokenService.setToken(response.access_token); // Use JWTTokenService to store the token
         })
       );
     } else {
@@ -58,14 +59,19 @@ export class MockAuthService {
     const userRole = this.getRole();
     return userRole === role;
   }
+
   /**
-   * Currently a simple implementation
-   * @returns true if it contains a token
+   * Checks if the user is logged in by verifying if the token is present.
+   * @returns true if the user is logged in, otherwise false.
    */
-  isLoggedIn(){
-    return !!localStorage.getItem('token');
+  isLoggedIn(): boolean {
+    return !!this.jwtTokenService.getDecodeToken();
   }
 
+  /**
+   * Checks if there is an active questionnaire for the user.
+   * @returns An object containing `hasActive` (boolean) and `urlString` (string).
+   */
   checkForActiveQuestionnaire(): { hasActive: boolean, urlString: string } {
     const role = this.getRole();
     const idString = this.getUserId();
@@ -74,23 +80,24 @@ export class MockAuthService {
     }
     const id = Number(idString); // Convert string to number for now
 
-    const mockData = localStorage.getItem('mockData');
+    const mockData = this.localStorageService.getData('mockData');
 
     if (mockData) {
-      const parsedData : {
+      const parsedData: {
         mockStudents: User[],
         mockTeachers: User[],
         mockQuestions: Question[],
         mockStudentTeacherAnswers: StudentTeacherAnswer[],
         mockActiveQuestionnaire: ActiveQuestionnaire[]
       } = JSON.parse(mockData);
+
       if (role === 'student') {
-        const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire:ActiveQuestionnaire) => questionnaire.student.id == id && !questionnaire.isStudentFinished);
+        const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.student.id === id && !questionnaire.isStudentFinished);
         if (activeQuestionnaire) {
           return { hasActive: true, urlString: `${activeQuestionnaire.id}` };
         }
       } else if (role === 'teacher') {
-        const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.teacher.id == id && !questionnaire.isTeacherFinished);
+        const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.teacher.id === id && !questionnaire.isTeacherFinished);
         if (activeQuestionnaire) {
           return { hasActive: true, urlString: `${activeQuestionnaire.id}` };
         }
@@ -99,64 +106,21 @@ export class MockAuthService {
     return { hasActive: false, urlString: '' };
   }
 
-
-
   /**
-   * Retrieves the user ID from the token stored in the local storage.
+   * Retrieves the user ID from the token stored in the JWTTokenService.
    * @returns The user ID if the token is valid, or null if the token is invalid or not found.
    */
   getUserId(): string | null {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decodedToken: any = this.decodeToken(token);
-        return decodedToken.sub || null;
-      } catch (error) {
-        console.error('Invalid token', error);
-        return null;
-      }
-    }
-    return null;
+    const decodedToken = this.jwtTokenService.getDecodeToken();
+    return decodedToken ? decodedToken['sub'] : null; // Access with ['sub'] to avoid index signature issues
   }
 
   /**
-   * Retrieves the role from the token stored in the local storage.
+   * Retrieves the role from the token stored in the JWTTokenService.
    * @returns The role if the token is valid, or null if the token is invalid or not found.
    */
   getRole(): string | null {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decodedToken: any = this.decodeToken(token);
-        return decodedToken.scope || null;
-      } catch (error) {
-        console.error('Invalid token', error);
-        return null;
-      }
-    }
-    return null;
-  }
-
-  getAuthToken(){
-    return this.localStorageService.getToken();
-  }
-
-  decodeToken(token: string): any {
-    return jwtDecode(token);
-  }
-
-  getUserFromToken(token: string):{ userId: number; role: string } | null {
-    try {
-      const decodedToken: any = this.decodeToken(token);
-      const userId = decodedToken.sub;
-      const role = decodedToken.scope;
-      if (userId && role) {
-        return { userId, role };
-      }
-      return null;
-    } catch (error) {
-      console.error('Invalid token', error);
-      return null;
-    }
+    const decodedToken = this.jwtTokenService.getDecodeToken();
+    return decodedToken ? decodedToken['scope'] : null; // Access with ['scope'] to avoid index signature issues
   }
 }

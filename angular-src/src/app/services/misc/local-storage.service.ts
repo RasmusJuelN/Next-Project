@@ -7,6 +7,10 @@ export class LocalStorageService {
 
   constructor() { }
 
+  /**
+   * 
+   * @returns Will only get a simple token.
+   */
   public getToken() {
     return localStorage.getItem('token')
   }

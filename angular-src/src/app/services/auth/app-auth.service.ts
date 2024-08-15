@@ -50,10 +50,6 @@ export class AppAuthService {
     return this.authService.getRole();
   }
 
-  getAuthToken(){
-    this.authService.getAuthToken()
-  }
-
   /**
    * Gets the current user's ID from the token.
    * @returns The ID of the user.

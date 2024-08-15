@@ -1,11 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, delay, map, of, throwError } from 'rxjs';
+import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
 import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
 
-import {jwtDecode} from 'jwt-decode';
 import { ErrorHandlingService } from '../error-handling.service';
+import { JWTTokenService } from '../auth/jwt-token.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +13,7 @@ import { ErrorHandlingService } from '../error-handling.service';
 export class MockDataService {
   private localStorageKey = 'mockData';
   private localStorageService = inject(LocalStorageService)
+  private jwtTokenService = inject(JWTTokenService);
   private errorHandlingService = inject(ErrorHandlingService)
   private mockData: {
     mockStudents: User[],
@@ -60,28 +61,31 @@ export class MockDataService {
 
 
   getFirstActiveQuestionnaireId(): string | null {
-    const token = this.localStorageService.getToken();
+    const token = this.jwtTokenService.tokenExists();
     if (token) {
       try {
-        const decodedToken: any = jwtDecode(token);
-        const userId = decodedToken.sub;
+        const decodedToken = this.jwtTokenService.getDecodeToken();
+        const userId = decodedToken ? decodedToken['sub'] : null;
   
         const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => 
-          (aq.student.id == userId && !aq.isStudentFinished) || 
-          (aq.teacher.id == userId && !aq.isTeacherFinished)
+          (aq.student.id === userId && !aq.isStudentFinished) || 
+          (aq.teacher.id === userId && !aq.isTeacherFinished)
         );
   
         return activeQuestionnaire ? activeQuestionnaire.id : null;
       } catch (error) {
-        console.error('Invalid token', error);
+        this.errorHandlingService.handleError(error, 'Invalid token');
         return null;
       }
     }
     return null;
   }
 
-
-
+  private handleError(operation = 'operation') {
+    return (error: any): Observable<never> => {
+      return this.errorHandlingService.handleError(error, `${operation} failed`);
+    };
+  }
   /**
    * Saves the current state of mock data to local storage.
    */
@@ -96,14 +100,20 @@ export class MockDataService {
     return of({
       students: this.mockData.mockStudents,
       activeQuestionnaires: this.mockData.mockActiveQuestionnaire
-    }).pipe(delay(250));
+    }).pipe(
+      delay(250),
+      catchError(this.handleError('getDashboardData'))
+    );
   }
 
 
 
   getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire | null> {
     const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => aq.id === id) || null;
-    return of(activeQuestionnaire).pipe(delay(250));
+    return of(activeQuestionnaire).pipe(
+      delay(250),
+      catchError(this.handleError('getActiveQuestionnaireById'))
+    );
   }
 
   /**
@@ -111,7 +121,10 @@ export class MockDataService {
    * @returns An observable that emits the list of mock students.
    */
   getStudents(): Observable<User[]> {
-    return of(this.mockData.mockStudents).pipe(delay(250));
+    return of(this.mockData.mockStudents).pipe(
+      delay(250),
+      catchError(this.handleError('getStudents'))
+    );
   }
 
   /**
@@ -121,22 +134,20 @@ export class MockDataService {
   addStudentToQuestionnaire(studentId: number, teacherId: number = 1): Observable<void> {
     const student = this.mockData.mockStudents.find(s => s.id === studentId);
     const teacher = this.mockData.mockTeachers.find(t => t.id === teacherId);
-  
+
     if (!student || !teacher) {
-      return throwError(() => new Error('Student or Teacher not found'));
+      return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'addStudentToQuestionnaire');
     }
-  
+
     const studentAvailableForQuestionnaire = !this.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
-  
+
     if (studentAvailableForQuestionnaire) {
       return this.createActiveQuestionnaire(studentId, teacherId).pipe(
-        map(() => {
-          // Just return void after creation
-          return;
-        })
+        map(() => {}),
+        catchError(this.handleError('addStudentToQuestionnaire'))
       );
     } else {
-      return throwError(() => new Error('Student is already in an active questionnaire or has finished it'));
+      return this.errorHandlingService.handleError(new Error('Student is already in an active questionnaire or has finished it'), 'addStudentToQuestionnaire');
     }
   }
   
@@ -172,13 +183,14 @@ export class MockDataService {
     const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
     
     if (!activeQuestionnaire) {
-      return throwError(() => new Error('Active questionnaire not found or user role mismatch'));
+      return this.errorHandlingService.handleError(new Error('Active questionnaire not found or user role mismatch'), 'submitData');
     }
 
     answers.forEach(answer => {
       // Instead of saving the results of the answer here, lets just log it.
       console.log(`Question ID: ${answer.id}, Selected Option: ${answer.selectedOption}`);
     });
+
 
     // Mark the questionnaire as finished for the user
     if (role === 'student' && activeQuestionnaire.student.id == userId) {
@@ -188,7 +200,10 @@ export class MockDataService {
     }
 
     this.saveData();
-    return of(undefined).pipe(delay(250));
+    return of(undefined).pipe(
+      delay(250),
+      catchError(this.handleError('submitData'))
+    );
   }
 
    /**
@@ -202,7 +217,7 @@ export class MockDataService {
     const teacher = this.mockData.mockTeachers.find(t => t.id === teacherId);
   
     if (!student || !teacher) {
-      return throwError(() => new Error('Student or Teacher not found'));
+      return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'createActiveQuestionnaire');
     }
   
     const newActiveQuestionnaire: ActiveQuestionnaire = {
@@ -215,7 +230,10 @@ export class MockDataService {
   
     this.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);
     this.saveData();
-    return of(newActiveQuestionnaire).pipe(delay(250));
+    return of(newActiveQuestionnaire).pipe(
+      delay(250),
+      catchError(this.handleError('createActiveQuestionnaire'))
+    );
   }
   
    /**

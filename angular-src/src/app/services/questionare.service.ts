@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AppDataService } from './data/app-data.service';
-import { Observable, of } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 import { ActiveQuestionnaire, Question, userAnswer } from '../models/questionare';
 import { MockAuthService } from './auth/mock-auth.service';
+import { ErrorHandlingService } from './error-handling.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,8 @@ import { MockAuthService } from './auth/mock-auth.service';
 export class QuestionareService {
   constructor(
     private appDataService: AppDataService,
-    private authService: MockAuthService
+    private authService: MockAuthService,
+    private errorHandlingService: ErrorHandlingService
   ) {}
 
   /**
@@ -19,15 +21,18 @@ export class QuestionareService {
    * @returns An observable of the active questionnaire.
    */
   getActiveQuestionnaire(questionnaireId: string): Observable<ActiveQuestionnaire | null> {
-    return this.appDataService.getActiveQuestionnaireById(questionnaireId);
+    return this.appDataService.getActiveQuestionnaireById(questionnaireId).pipe(
+      catchError(error => this.errorHandlingService.handleError(error, 'Failed to get active questionnaire'))
+    );
   }
-
   /**
    * Fetches the questions for the user.
    * @returns An observable of the questions.
    */
   getQuestionsForUser(): Observable<Question[]> {
-    return this.appDataService.getQuestionsForUser();
+    return this.appDataService.getQuestionsForUser().pipe(
+      catchError(error => this.errorHandlingService.handleError(error, 'Failed to get questions for user'))
+    );
   }
 
   /**
@@ -39,10 +44,11 @@ export class QuestionareService {
     const userId = this.authService.getUserId();
     const role = this.authService.getRole();
     if (role){
-      return this.appDataService.submitUserAnswers(userId, role, answers, questionnaireId);
-    }
-    else{
-      return of(undefined);
+      return this.appDataService.submitUserAnswers(userId, role, answers, questionnaireId).pipe(
+        catchError(error => this.errorHandlingService.handleError(error, 'Failed to submit answers'))
+      );
+    } else {
+      return this.errorHandlingService.handleError(new Error('Invalid role'), 'Submit Answers');
     }
   }
 
@@ -55,7 +61,9 @@ export class QuestionareService {
     const userId = this.authService.getUserId();
     const role = this.authService.getRole();
     if (role){
-      return this.appDataService.validateUserAccess(userId, role, questionnaireId);
+      return this.appDataService.validateUserAccess(userId, role, questionnaireId).pipe(
+        catchError(error => this.errorHandlingService.handleError(error, 'Failed to validate user access'))
+      );
     }
     return of(false);
   }

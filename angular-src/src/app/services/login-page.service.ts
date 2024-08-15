@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MockAuthService } from './auth/mock-auth.service';
 import { LocalStorageService } from './misc/local-storage.service';
 import { ErrorHandlingService } from './error-handling.service';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 import { AppAuthService } from './auth/app-auth.service';
 
 @Injectable({
@@ -30,19 +30,24 @@ export class LoginPageService {
    * Handle user redirection based on their role and active questionnaire status.
    */
     handleLoggedInUser(goToDashboard: boolean, goToActiveQuestionnaire: boolean): Observable<{ goToDashboard: boolean, goToActiveQuestionnaire: boolean, activeQuestionnaireString: string | null }> {
-      const role = this.authService.getRole();
-      if (role === 'admin') {
-        goToDashboard = true;
-      }
-  
-      const activeQuestionnaireId = this.authService.checkForActiveQuestionnaire().urlString;
-      if (activeQuestionnaireId) {
-        goToActiveQuestionnaire = true;
-      }
-  
       return new Observable(observer => {
-        observer.next({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString: activeQuestionnaireId });
-        observer.complete();
+        try {
+          const role = this.authService.getRole();
+          if (role === 'admin') {
+            goToDashboard = true;
+          }
+          
+          const activeQuestionnaireId = this.authService.checkForActiveQuestionnaire().urlString;
+          if (activeQuestionnaireId) {
+            goToActiveQuestionnaire = true;
+          }
+      
+          observer.next({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString: activeQuestionnaireId });
+          observer.complete();
+        } catch (error) {
+          this.errorHandlingService.handleError(error, 'Error handling logged in user');
+          observer.error(error);
+        }
       });
     }
 
@@ -62,7 +67,8 @@ export class LoginPageService {
         } else if ('error' in response) {
           this.handleLoginError(new Error(response.error));
         }
-      })
+      }),
+      catchError(error => this.errorHandlingService.handleError(error, 'Login failed'))
     );
   }
 
