@@ -1,1 +1,71 @@
-<p>admin-dashboard works!</p>
+<div class="questionnaireList">
+    <h3>Create New Questionnaire</h3>
+      <div>
+        <label for="studentId"><strong>Student ID:</strong></label>
+        <input id="studentId" #studentId type="number" min="0" required>
+      </div>
+      <div>
+        <label for="teacherId"><strong>Teacher ID:</strong></label>
+        <input id="teacherId" #teacherId type="number" min="0" required>
+      </div>
+      <button (click)="createActiveQuestionnaire(+studentId.value, +teacherId.value)" type="submit">Create</button>
+  </div>
+  
+  @if(activeQuestionnaires.length > 0){
+    <div class="questionnaireList">
+      <h2>Active Questionnaires:</h2>
+      <ul>
+        @for(questionnaire of activeQuestionnaires; track questionnaire.id){
+          <li class="questionnaire-item">
+            <h3>Questionnaire ID: {{questionnaire.id}}</h3>
+            <div class="questionnaire-details">
+              <div class="user-info">
+                <h4>Student</h4>
+                <p><strong>ID:</strong> {{questionnaire.student.id}}</p>
+                <p><strong>Name:</strong> {{questionnaire.student.username}}</p>
+                <p><strong>Role:</strong> {{questionnaire.student.role}}</p>
+                <p><strong>Status:</strong> {{questionnaire.isStudentFinished ? 'Finished' : 'Not Finished'}}</p>
+              </div>
+              <div class="user-info">
+                <h4>Teacher</h4>
+                <p><strong>ID:</strong> {{questionnaire.teacher.id}}</p>
+                <p><strong>Name:</strong> {{questionnaire.teacher.username}}</p>
+                <p><strong>Role:</strong> {{questionnaire.teacher.role}}</p>
+                <p><strong>Status:</strong> {{questionnaire.isTeacherFinished ? 'Finished' : 'Not Finished'}}</p>
+              </div>
+            </div>
+            @if(questionnaire.id){
+              <button (click)="deleteActiveQuestionnaire(questionnaire.id)">Delete</button>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  } @else {
+    <div class="questionnaireList">
+      <p>No active questionnaires found.</p>
+    </div>
+  }
+  @if(studentList.length > 0){
+    <div class="studentList">
+      <h2>Student List:</h2>
+      <ul>
+         @for (student of studentList; track student.id) {
+          <li>
+            <p><strong>ID:</strong> {{student.id}}</p>
+            <p><strong>Username:</strong> {{student.username}}</p>
+            <p><strong>Role:</strong> {{student.role}}</p>
+            @if(!isStudentInQuestionnaire(student.id)){
+              <button (click)="addStudentToQuestionnaire(student.id)">Add to Questionnaire</button>
+            }
+          </li>
+          <hr>
+         }
+      </ul>
+    </div>
+  }
+  @else{
+    <div class="studentList">
+      <p>No students found.</p>
+    </div>
+  }

@@ -1,0 +1,36 @@
+/* Admin-Specific Styles */
+
+/* Styles for individual questionnaire items */
+.questionnaire-item {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: background-color 0.2s;
+  }
+  
+  .questionnaire-item:hover {
+    background-color: #dfdfdf;
+    border-color: darkgray;
+  }
+  
+  /* Styles for delete buttons in the questionnaire list */
+  .questionnaire-item button {
+    background-color: #af4c4c;
+    color: white;
+  }
+  
+  .questionnaire-item button:hover {
+    background-color: #8f3232;
+  }
+  
+  /* Flexbox for aligning user details */
+  .questionnaire-details {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .user-info {
+    width: 45%;
+  }
+  

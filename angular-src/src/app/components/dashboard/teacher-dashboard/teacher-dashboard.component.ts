@@ -5,8 +5,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './teacher-dashboard.component.html',
-  styleUrl: './teacher-dashboard.component.css'
+  styleUrls: ['../shared-dashboard-styles.css','./teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent {
-
 }

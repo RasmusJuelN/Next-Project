@@ -32,10 +32,10 @@ export class LoginPageService {
     handleLoggedInUser(goToDashboard: boolean, goToActiveQuestionnaire: boolean): Observable<{ goToDashboard: boolean, goToActiveQuestionnaire: boolean, activeQuestionnaireString: string | null }> {
       return new Observable(observer => {
         try {
-          const role = this.authService.getRole();
-          if (role === 'admin') {
+          if(this.authService.hasRole('admin') || this.authService.hasRole('teacher')){
             goToDashboard = true;
           }
+          
           
           const activeQuestionnaireId = this.authService.checkForActiveQuestionnaire().urlString;
           if (activeQuestionnaireId) {
