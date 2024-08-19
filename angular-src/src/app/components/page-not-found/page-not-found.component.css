@@ -45,11 +45,13 @@
   .home-button:hover {
     background-color: #ff4b4b;
   }
+
+  
   
   /* Float animation for the 404 */
   @keyframes float {
     0%, 100% {
-      transform: translateY(0);
+      transform: translateX(0);
     }
     50% {
       transform: translateY(-40px);

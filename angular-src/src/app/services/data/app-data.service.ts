@@ -12,6 +12,10 @@ export class AppDataService {
     private dataService: MockDataService
   ) {}
 
+  getDashboardDataTeacher(teacherId:number){
+    return this.dataService.getDashboardDataTeacher(teacherId);
+  }
+
   // Dashboard
   getDashboardData(): Observable<{ students: User[], activeQuestionnaires: ActiveQuestionnaire[] }> {
     return this.dataService.getDashboardData();

@@ -1,0 +1,79 @@
+/* Shared Styles */
+
+/* General container styles */
+.student-status-section, .questionnaire-section {
+  background-color: #FFFFFF;
+  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  margin-bottom: 10px;
+  width: 35%;
+  padding: 20px;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+}
+
+/* Button styles */
+button {
+  margin-top: 5px;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: rgb(214, 222, 230);
+  transition: background-color 0.2s;
+}
+
+/* General text styles */
+h2, p {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* List styles */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li p {
+  margin: 0;
+}
+
+li p:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+/* Status Indicator Styles */
+.status-completed {
+  color: green;
+  font-weight: bold;
+}
+
+.status-pending {
+  color: red;
+  font-weight: bold;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 15px;
+  color: white;
+  font-size: 0.9em;
+}
+
+.badge-completed {
+  background-color: green;
+}
+
+.badge-pending {
+  background-color: red;
+}
+
+.hr-line {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}

@@ -1,1 +1,45 @@
-<p>teacher-dashboard works!</p>
+<p>Teacher Dashboard</p>
+<div class="questionnaire-section">
+  <h3>Create New Questionnaire</h3>
+  <div class="form-group">
+    <label for="studentId"><strong>Student ID:</strong></label>
+    <input id="studentIdInput" #teacherIdInput type="number" min="0" required>
+  </div>
+  <div class="form-group">
+    <label for="teacherId"><strong>Teacher ID:</strong></label>
+    <input id="teacherIdInput" #studentIdInput type="number" min="0" required>
+  </div>
+  <button (click)="createNewQuestionnaire(+studentIdInput.value, +teacherIdInput.value)" type="submit">Create</button>
+</div>
+
+<div class="student-status-section">
+  <div class="status-container">
+    <h2>Students with Active Questionnaires:</h2>
+    @if (activeQuestionnaires.length > 0) {
+      @for(questionnaire of activeQuestionnaires; track questionnaire.id){
+        <ul>
+          <li>
+            <p><strong>ID: </strong> {{ questionnaire.student.id }}</p>
+            <p><strong>Username:</strong> {{ questionnaire.student.username }}</p>
+            <p>
+              <strong>Student Status: </strong>
+              <span class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
+                {{ questionnaire.isStudentFinished ? 'Completed' : 'Pending' }}
+              </span>
+            </p>
+            <p>
+              <strong>Teacher Status: </strong>
+              <span class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
+                {{ questionnaire.isTeacherFinished ? 'Completed' : 'Pending' }}
+              </span>
+            </p>
+          </li>
+        </ul>
+        <button class="route-button">Go to teacher questionnaire</button>
+        <hr class="hr-line">
+      }
+    } @else {
+      <p>No active questionnaires available.</p>
+    }
+  </div>
+</div>

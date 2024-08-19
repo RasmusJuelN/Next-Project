@@ -9,13 +9,15 @@ import { JWTTokenService } from './jwt-token.service';
   providedIn: 'root'
 })
 export class MockAuthService {
-  private mockToken: string;
+  private adminMockToken: string;
+  private teacherMockToken: string;
   private localStorageService = inject(LocalStorageService);
   private jwtTokenService = inject(JWTTokenService);
 
   constructor() {
     // This token assumes that the user is "Max" and is a teacher
-    this.mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTYxNTE2MjY3MH0.LAlEc2_AYG1RuITP8a5LYdFCDj3j2FcEgZ6UT1C5OIM';
+    this.teacherMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTYxNTE2MjY3MH0.LAlEc2_AYG1RuITP8a5LYdFCDj3j2FcEgZ6UT1C5OIM';
+    this.adminMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJhZG1pbiIsInVzZXJuYW1lIjoiTUoiLCJleHAiOjE2MTUxNjI2NzB9.KG-epxKAUF3zWIPvKNt_rlkiHFuN0sUPYrpGLe8_MFc'
   }
 
   /**
@@ -26,6 +28,7 @@ export class MockAuthService {
    */
   loginAuthentication(userName: string, password: string): Observable<{ access_token: string } | { error: string }> {
     const premadeUsers = [
+      {userName: "Admin", password: "Pa$$w0rd" },
       { userName: "MJ", password: "Pa$$w0rd" }, // This user is a teacher
       { userName: "NH", password: "Pa$$w0rd" },
       { userName: "Alexander", password: "Pa$$w0rd" },
@@ -35,7 +38,8 @@ export class MockAuthService {
     const matchedUser = premadeUsers.find(user => user.userName === userName && user.password === password);
 
     if (matchedUser) {
-      return of({ access_token: this.mockToken }).pipe(
+      const token = matchedUser.userName === 'Admin' ? this.adminMockToken : this.teacherMockToken;
+      return of({ access_token: token }).pipe(
         tap(response => {
           console.log("Login success");
           this.jwtTokenService.setToken(response.access_token); // Use JWTTokenService to store the token

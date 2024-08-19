@@ -32,6 +32,29 @@ export class MockDataService {
   constructor(private http: HttpClient) {
     this.loadInitialMockData();
   }
+
+  //Teacher
+
+  getDashboardDataTeacher(teacherId: number): Observable<{
+    students: User[],
+    activeQuestionnaires: ActiveQuestionnaire[]
+  }> {
+    return of({
+      students: this.mockData.mockStudents,
+      activeQuestionnaires: this.mockData.mockActiveQuestionnaire
+    }).pipe(
+      map(data => ({
+        ...data,
+        activeQuestionnaires: data.activeQuestionnaires.filter(
+          questionnaire => questionnaire.teacher.id === teacherId
+        )
+      })),
+      delay(250),
+      catchError(this.handleError('getDashboardDataTeacher'))
+    );
+  }
+
+
   
   /**
    * Loads initial data either from local storage or from a mock data file.
