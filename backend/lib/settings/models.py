@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass
-class AuthSettingsObject:
+class AuthSettings:
     secret_key: str = field(default="CHANGE_ME")
     algorithm: str = field(default="HS256")
     access_token_expire_minutes: int = field(default=30)
@@ -18,8 +18,8 @@ class AuthSettingsObject:
 
 
 @dataclass
-class UserSettingsObject:
-    auth: AuthSettingsObject = field(default_factory=AuthSettingsObject)
+class AppSettings:
+    auth: AuthSettings = field(default_factory=AuthSettings)
 
 
-user_settings = UserSettingsObject()
+app_settings_as_dataclass = AppSettings()

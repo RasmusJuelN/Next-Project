@@ -1,15 +1,11 @@
-from .settings_manager import SettingsManager
-from .models import user_settings, UserSettingsObject
+from backend.lib.settings.settings_manager import SettingsManagerWithDataclass
+from backend.lib.settings.models import AppSettings, app_settings_as_dataclass
 
 
-app_settings = SettingsManager(
-    "./backend-config.yaml",
-    default_settings=user_settings,
-    use_logger=True,
-    log_file="./backend/logs/settings.log",
-    save_on_exit=True,
-)
-
-app_settings_object: UserSettingsObject = app_settings.to_object(
-    data_class=UserSettingsObject
+app_settings: SettingsManagerWithDataclass[AppSettings] = SettingsManagerWithDataclass[
+    AppSettings
+](
+    path="./backend-config.yaml",
+    default_settings=app_settings_as_dataclass,
+    autosave=True,
 )
