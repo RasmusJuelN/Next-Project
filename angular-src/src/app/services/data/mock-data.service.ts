@@ -6,6 +6,7 @@ import { LocalStorageService } from '../misc/local-storage.service';
 
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
+import { AppAuthService } from '../auth/app-auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class MockDataService {
   private localStorageService = inject(LocalStorageService)
   private jwtTokenService = inject(JWTTokenService);
   private errorHandlingService = inject(ErrorHandlingService)
+  private authService = inject(AppAuthService)
   private mockData: {
     mockStudents: User[],
     mockTeachers: User[],
@@ -35,22 +37,38 @@ export class MockDataService {
 
   //Teacher
 
-  getDashboardDataTeacher(teacherId: number): Observable<{
-    students: User[],
-    activeQuestionnaires: ActiveQuestionnaire[]
+  getDashboardDataTeacher(): Observable<{
+    finishedByStudents: ActiveQuestionnaire[],
+    notAnsweredByStudents: ActiveQuestionnaire[],
+    notAnsweredByTeacher: ActiveQuestionnaire[],
   }> {
+    const teacherId = parseInt(this.authService.getUserId()!, 10);
+
     return of({
       students: this.mockData.mockStudents,
-      activeQuestionnaires: this.mockData.mockActiveQuestionnaire
+      activeQuestionnaires: this.mockData.mockActiveQuestionnaire.filter(
+        (questionnaire) => questionnaire.teacher.id === teacherId
+      ),
     }).pipe(
-      map(data => ({
-        ...data,
-        activeQuestionnaires: data.activeQuestionnaires.filter(
-          questionnaire => questionnaire.teacher.id === teacherId
-        )
-      })),
-      delay(250),
-      catchError(this.handleError('getDashboardDataTeacher'))
+      map((data) => {
+        const finishedByStudents = data.activeQuestionnaires.filter(
+          (q) => q.isStudentFinished
+        );
+        const notAnsweredByStudents = data.activeQuestionnaires.filter(
+          (q) => !q.isStudentFinished
+        );
+        const notAnsweredByTeacher = data.activeQuestionnaires.filter(
+          (q) => !q.isTeacherFinished
+        );
+
+        return {
+          finishedByStudents,
+          notAnsweredByStudents,
+          notAnsweredByTeacher,
+        };
+      }),
+      delay(250), // Simulate data fetching delay
+      catchError(this.handleError('getDashboardDataTeacher')),
     );
   }
 

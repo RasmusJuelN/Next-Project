@@ -11,13 +11,15 @@ import { JWTTokenService } from './jwt-token.service';
 export class MockAuthService {
   private adminMockToken: string;
   private teacherMockToken: string;
+  private studentMockToken: string;
   private localStorageService = inject(LocalStorageService);
   private jwtTokenService = inject(JWTTokenService);
 
   constructor() {
     // This token assumes that the user is "Max" and is a teacher
     this.teacherMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTYxNTE2MjY3MH0.LAlEc2_AYG1RuITP8a5LYdFCDj3j2FcEgZ6UT1C5OIM';
-    this.adminMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJhZG1pbiIsInVzZXJuYW1lIjoiTUoiLCJleHAiOjE2MTUxNjI2NzB9.KG-epxKAUF3zWIPvKNt_rlkiHFuN0sUPYrpGLe8_MFc'
+    this.adminMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJhZG1pbiIsInVzZXJuYW1lIjoiTUoiLCJleHAiOjE2MTUxNjI2NzB9.KG-epxKAUF3zWIPvKNt_rlkiHFuN0sUPYrpGLe8_MFc';
+    this.studentMockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiSm9oYW4iLCJzY29wZSI6InN0dWRlbnQiLCJ1c2VybmFtZSI6IkpIIiwiZXhwIjoxNjE1MTYyNjcwfQ.drjhvu-lobOt1xInP6PEF4MT_rzKoUSV7Vw-PCHxO6g"
   }
 
   /**
@@ -28,17 +30,29 @@ export class MockAuthService {
    */
   loginAuthentication(userName: string, password: string): Observable<{ access_token: string } | { error: string }> {
     const premadeUsers = [
-      {userName: "Admin", password: "Pa$$w0rd" },
-      { userName: "MJ", password: "Pa$$w0rd" }, // This user is a teacher
-      { userName: "NH", password: "Pa$$w0rd" },
-      { userName: "Alexander", password: "Pa$$w0rd" },
-      { userName: "Johan", password: "Pa$$w0rd" }
+      { userName: "Admin", password: "Pa$$w0rd", role: 'admin' },
+      { userName: "MJ", password: "Pa$$w0rd", role: 'teacher' },
+      { userName: "NH", password: "Pa$$w0rd", role: 'student' },
+      { userName: "Alexander", password: "Pa$$w0rd", role: 'student' },
+      { userName: "Johan", password: "Pa$$w0rd", role: 'student' } 
     ];
 
     const matchedUser = premadeUsers.find(user => user.userName === userName && user.password === password);
 
     if (matchedUser) {
-      const token = matchedUser.userName === 'Admin' ? this.adminMockToken : this.teacherMockToken;
+      let token = this.studentMockToken;
+      switch (matchedUser.role) {
+        case 'admin':
+          token = this.adminMockToken;
+          break;
+        case 'student':
+          token = this.studentMockToken;
+          break;
+        case 'teacher':
+          token = this.teacherMockToken;
+          break;
+      }
+      
       return of({ access_token: token }).pipe(
         tap(response => {
           console.log("Login success");
@@ -53,6 +67,7 @@ export class MockAuthService {
       );
     }
   }
+
 
   /**
    * Checks if the current user has a specific role.

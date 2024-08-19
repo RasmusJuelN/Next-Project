@@ -12,8 +12,8 @@ export class AppDataService {
     private dataService: MockDataService
   ) {}
 
-  getDashboardDataTeacher(teacherId:number){
-    return this.dataService.getDashboardDataTeacher(teacherId);
+  getDashboardDataTeacher(){
+    return this.dataService.getDashboardDataTeacher();
   }
 
   // Dashboard

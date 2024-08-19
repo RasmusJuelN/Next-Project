@@ -17,22 +17,11 @@ export class DashboardService {
 
   // NEW
   getDashboardDataTeacher(): Observable<{
-    students: User[],
-    activeQuestionnaires: ActiveQuestionnaire[]
+    finishedByStudents: ActiveQuestionnaire[],
+    notAnsweredByStudents: ActiveQuestionnaire[],
+    notAnsweredByTeacher: ActiveQuestionnaire[],
   }> {
-    // Get the current teacher ID
-    const teacherId = parseInt(this.authService.getUserId()!, 10);
-
-    // Fetch and filter the dashboard data
-    return this.appDataService.getDashboardData().pipe(
-      map(data => ({
-        students: data.students,
-        activeQuestionnaires: data.activeQuestionnaires.filter(
-          questionnaire => questionnaire.teacher.id === teacherId
-        )
-      })),
-      catchError(error => this.errorHandlingService.handleError(error, 'Failed to get dashboard data for teacher'))
-    );
+    return this.appDataService.getDashboardDataTeacher();
   }
 
   createNewQuestionnaire(studentId:number, teacherId:number){

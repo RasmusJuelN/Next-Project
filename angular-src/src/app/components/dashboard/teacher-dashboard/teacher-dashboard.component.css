@@ -58,11 +58,13 @@ li p:not(:last-child) {
 }
 
 .status-badge {
-  display: inline-block;
+  display: inline;
   padding: 5px 10px;
   border-radius: 15px;
   color: white;
   font-size: 0.9em;
+  margin-left: 5px;
+  width: 130px;
 }
 
 .badge-completed {
