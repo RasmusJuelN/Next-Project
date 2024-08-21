@@ -6,45 +6,46 @@ import { ErrorHandlingService } from '../error-handling.service';
 import { AppAuthService } from '../auth/app-auth.service';
 
 // Define the types of sections available on the dashboard
-type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAnsweredByTeacher';
+type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAnsweredByTeacher' | 'searchResults';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TeacherDashboardService {
-  // Configurable load limits for each section (e.g., load 5 items at a time)
+  // Configurable load limits for each section
   private loadLimits: { [key in DashboardSection]: number } = {
     finishedByStudents: 5,
     notAnsweredByStudents: 5,
-    notAnsweredByTeacher: 5
+    notAnsweredByTeacher: 5,
+    searchResults: 5
   };
 
-  // Tracks whether more data is available for each section
   private noMoreData: { [key in DashboardSection]: boolean } = {
     finishedByStudents: false,
     notAnsweredByStudents: false,
-    notAnsweredByTeacher: false
+    notAnsweredByTeacher: false,
+    searchResults: false
   };
 
-  // Tracks whether data has been loaded for each section
   private hasLoaded: { [key in DashboardSection]: boolean } = {
     finishedByStudents: false,
     notAnsweredByStudents: false,
-    notAnsweredByTeacher: false
+    notAnsweredByTeacher: false,
+    searchResults: false
   };
 
-  // Tracks the collapsed (visibility) state of each section
   private collapsedState: { [key in DashboardSection]: boolean } = {
     finishedByStudents: true,
     notAnsweredByStudents: true,
-    notAnsweredByTeacher: true
+    notAnsweredByTeacher: true,
+    searchResults: true
   };
 
-  // Caches the data for each section
   private sectionData: { [key in DashboardSection]: ActiveQuestionnaire[] } = {
     finishedByStudents: [],
     notAnsweredByStudents: [],
-    notAnsweredByTeacher: []
+    notAnsweredByTeacher: [],
+    searchResults: []
   };
 
   constructor(
@@ -52,9 +53,33 @@ export class TeacherDashboardService {
     private errorHandlingService: ErrorHandlingService,
     private appAuthService: AppAuthService
   ) {}
+  
+
 
   searchActiveQuestionnaires(searchQuery: string): Observable<ActiveQuestionnaire[]> {
-    return this.appDataService.getFilteredActiveQuestionnaires(searchQuery);
+    this.collapsedState['searchResults'] = false;
+    return this.appDataService.getFilteredActiveQuestionnaires(searchQuery).pipe(
+      map(data => {
+        this.sectionData['searchResults'] = data.slice(0, this.loadLimits['searchResults']);
+        this.noMoreData['searchResults'] = data.length < this.loadLimits['searchResults'];
+        this.hasLoaded['searchResults'] = true;
+        return this.sectionData['searchResults'];
+      }),
+      catchError(error => this.errorHandlingService.handleError(error, 'Failed to search questionnaires'))
+    );
+  }
+
+  loadMoreSearchResults(searchQuery: string): Observable<ActiveQuestionnaire[]> {
+    const currentDataLength = this.sectionData['searchResults'].length;
+    return this.appDataService.getFilteredActiveQuestionnaires(searchQuery).pipe(
+      map(data => {
+        const newItems = data.slice(currentDataLength, currentDataLength + this.loadLimits['searchResults']);
+        this.sectionData['searchResults'] = [...this.sectionData['searchResults'], ...newItems];
+        this.noMoreData['searchResults'] = newItems.length < this.loadLimits['searchResults'];
+        return this.sectionData['searchResults'];
+      }),
+      catchError(error => this.errorHandlingService.handleError(error, 'Failed to load more search results'))
+    );
   }
 
   /**

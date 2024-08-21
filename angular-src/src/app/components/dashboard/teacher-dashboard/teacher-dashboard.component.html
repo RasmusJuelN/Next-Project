@@ -7,24 +7,38 @@
     </div>
 
   <!-- Section: Search Results -->
-  <div class="questionnaire-section" *ngIf="searchResults.length > 0">
-    <h3>Search Results</h3>
-    @for(questionnaire of searchResults; track questionnaire.id){
-      <ul>
-        <li>
-          <p><strong>ID: </strong>{{ questionnaire.id }}</p>
-          <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
-          <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
-          <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
-            {{ questionnaire.isStudentFinished ? 'Teacher Finished' : 'Teacher Pending' }}
-          </div>
-          <div class="status-badge badge-pending">Teacher Pending</div>
-          <button (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">Route to Teacher Component</button>
-          <hr class="hr-line">
-        </li>
-      </ul>
-    }
-  </div>
+   @if(searchResults.length > 0){
+    <div class="questionnaire-section">
+      <h3>Search Results</h3>
+      <button class="collapse-button" (click)="toggleSection('searchResults')">
+        {{ getCollapsedState('searchResults') ? '+' : '-' }}
+      </button>
+      @if(!getCollapsedState('searchResults')){
+        @for(questionnaire of searchResults; track questionnaire.id){
+          <ul>
+            <li>
+              <p><strong>ID: </strong>{{ questionnaire.id }}</p>
+              <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
+              <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
+              <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
+                {{ questionnaire.isStudentFinished ? 'Student Finished' : 'Student Pending' }}
+              </div>
+              <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
+                {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
+              </div>
+            </li>
+            @if (!questionnaire.isTeacherFinished) {
+              <button (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">Route to Teacher Component</button>
+            }
+            <hr class="hr-line">
+          </ul>
+        } 
+        @if(!hasNoMoreData('searchResults')){
+          <button (click)="loadMoreData('searchResults')">Load More</button>
+        }
+      }
+    </div>
+  }
 
   <!-- Section: Teacher Yet to Answer -->
   <div class="questionnaire-section">
@@ -43,9 +57,11 @@
               <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
               <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
               <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
-                {{ questionnaire.isStudentFinished ? 'Teacher Finished' : 'Teacher Pending' }}
+                {{ questionnaire.isStudentFinished ? 'Student Finished' : 'Student Pending' }}
               </div>
-              <div class="status-badge badge-pending">Teacher Pending</div>
+              <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
+                {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
+              </div>
             </li>
           </ul>
           @if (!questionnaire.isTeacherFinished) {
@@ -78,7 +94,9 @@
                 <p><strong>ID: </strong>{{ questionnaire.id }}</p>
                 <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
                 <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
-                <div class="status-badge badge-completed">Student Finished</div>
+                <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
+                  {{ questionnaire.isStudentFinished ? 'Student Finished' : 'Student Pending' }}
+                </div>
                 <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
                   {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
                 </div>
@@ -114,7 +132,9 @@
                 <p><strong>ID: </strong>{{ questionnaire.id }}</p>
                 <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
                 <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
-                <div class="status-badge badge-pending">Student Pending</div>
+                <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
+                  {{ questionnaire.isStudentFinished ? 'Student Finished' : 'Student Pending' }}
+                </div>
                 <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
                   {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
                 </div>

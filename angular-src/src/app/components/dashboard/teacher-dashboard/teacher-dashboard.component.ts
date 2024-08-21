@@ -6,7 +6,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Define the types of sections available on the dashboard
-type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAnsweredByTeacher';
+type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAnsweredByTeacher' | 'searchResults';
+
 
 @Component({
   selector: 'app-teacher-dashboard',
@@ -34,6 +35,12 @@ export class TeacherDashboardComponent {
         this.searchResults = data;
       });
     }
+  }
+
+  loadMoreSearchResults(): void {
+    this.teacherDashboardService.loadMoreSearchResults(this.searchQuery).subscribe(data => {
+      this.searchResults = data;
+    });
   }
 
 
