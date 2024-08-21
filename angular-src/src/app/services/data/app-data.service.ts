@@ -12,11 +12,16 @@ export class AppDataService {
     private dataService: MockDataService
   ) {}
 
-  getDashboardDataTeacher(){
-    return this.dataService.getDashboardDataTeacher();
+  getPaginatedDashboardData(section: string, offset: number, limit: number = 5){
+    return this.dataService.getPaginatedDashboardData(section, offset, limit);
   }
 
   // Dashboard
+
+  getFilteredActiveQuestionnaires(searchQuery:string){
+    return this.dataService.getFilteredActiveQuestionnaires(searchQuery);
+  }
+  
   getDashboardData(): Observable<{ students: User[], activeQuestionnaires: ActiveQuestionnaire[] }> {
     return this.dataService.getDashboardData();
   }

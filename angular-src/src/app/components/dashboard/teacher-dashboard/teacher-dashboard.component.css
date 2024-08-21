@@ -1,36 +1,47 @@
-/* Shared Styles */
-
 /* General container styles */
 .student-status-section, .questionnaire-section {
   background-color: #FFFFFF;
   font-family: Arial, sans-serif;
   margin: 0 auto;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   width: 35%;
   padding: 20px;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  position: relative; /* Allow child elements like the button to be positioned absolutely */
 }
 
-/* Button styles */
-button {
-  margin-top: 5px;
-  color: black;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: rgb(214, 222, 230);
-  transition: background-color 0.2s;
-}
-
-/* General text styles */
-h2, p {
+/* Header styles */
+.collapsible-header {
+  font-weight: 600;
   color: #333;
   margin-bottom: 20px;
 }
+
+/* Collapse/Expand button */
+.collapse-button {
+  width: 40px;
+  height: 40px; /* Adjusted height for better proportion */
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  font-size: 1.2em;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  padding: 0; /* Removes extra padding to center the content */
+}
+
+.collapse-button:hover {
+  background-color: #0056b3;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
 
 /* List styles */
 ul {
@@ -38,8 +49,16 @@ ul {
   padding: 0;
 }
 
+li {
+  padding: 15px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
 li p {
-  margin: 0;
+  margin: 5px 0;
 }
 
 li p:not(:last-child) {
@@ -47,35 +66,59 @@ li p:not(:last-child) {
 }
 
 /* Status Indicator Styles */
-.status-completed {
-  color: green;
-  font-weight: bold;
-}
-
-.status-pending {
-  color: red;
-  font-weight: bold;
-}
-
 .status-badge {
-  display: inline;
+  display: inline-block;
   padding: 5px 10px;
   border-radius: 15px;
   color: white;
   font-size: 0.9em;
-  margin-left: 5px;
-  width: 130px;
+  margin-top: 5px;
+  margin-right: 8px;
 }
 
 .badge-completed {
-  background-color: green;
+  background-color: #28a745;
 }
 
 .badge-pending {
-  background-color: red;
+  background-color: #dc3545;
 }
 
+/* Button styles */
+button {
+  margin-top: 10px;
+  color: white;
+  background-color: #007bff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+button:hover {
+  background-color: #0056b3;
+  transition: background-color 0.2s;
+}
+
+/* Divider between items */
 .hr-line {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+.search-bar {
+  margin: 20px auto;
+  width: 35%;
+  text-align: center;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { User, ActiveQuestionnaire } from '../../../models/questionare';
-import { DashboardService } from '../../../services/dashboard.service';
+import { AdminDashboardService } from '../../../services/dashboard/admin-dashboard.service';
 import { AppAuthService } from '../../../services/auth/app-auth.service';
 
 @Component({
@@ -15,7 +15,7 @@ export class AdminDashboardComponent implements OnInit {
   studentsInQuestionnaire: Set<number> = new Set<number>();
 
   private authService = inject(AppAuthService);
-  private dashboardService = inject(DashboardService);
+  private dashboardService = inject(AdminDashboardService);
   private router = inject(Router);
 
   ngOnInit(): void {

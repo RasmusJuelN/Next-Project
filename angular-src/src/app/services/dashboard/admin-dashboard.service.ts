@@ -1,39 +1,15 @@
 import { inject, Injectable } from '@angular/core';
-import { ActiveQuestionnaire, User } from '../models/questionare';
+import { ActiveQuestionnaire, User } from '../../models/questionare';
 import { catchError, map, Observable } from 'rxjs';
-import { AppDataService } from './data/app-data.service';
-import { ErrorHandlingService } from './error-handling.service';
-import { AppAuthService } from './auth/app-auth.service';
-import { Router } from '@angular/router';
+import { AppDataService } from '../data/app-data.service';
+import { ErrorHandlingService } from '../error-handling.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DashboardService {
+export class AdminDashboardService {
   private errorHandlingService = inject(ErrorHandlingService);
   private appDataService = inject(AppDataService);
-  private authService = inject(AppAuthService)
-  private router = inject(Router);
-
-  // NEW
-  getDashboardDataTeacher(): Observable<{
-    finishedByStudents: ActiveQuestionnaire[],
-    notAnsweredByStudents: ActiveQuestionnaire[],
-    notAnsweredByTeacher: ActiveQuestionnaire[],
-  }> {
-    return this.appDataService.getDashboardDataTeacher();
-  }
-
-  createNewQuestionnaire(studentId:number, teacherId:number){
-    return this.appDataService.createActiveQuestionnaire(studentId, teacherId).pipe(
-      catchError(error => this.errorHandlingService.handleError(error, 'Failed to create active questionnaire'))
-    );
-  }
-
-
-
-
-  // OLD, for admin
 
 
   /**

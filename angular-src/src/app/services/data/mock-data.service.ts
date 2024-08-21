@@ -34,44 +34,55 @@ export class MockDataService {
   constructor(private http: HttpClient) {
     this.loadInitialMockData();
   }
-
-  //Teacher
-
-  getDashboardDataTeacher(): Observable<{
-    finishedByStudents: ActiveQuestionnaire[],
-    notAnsweredByStudents: ActiveQuestionnaire[],
-    notAnsweredByTeacher: ActiveQuestionnaire[],
-  }> {
-    const teacherId = parseInt(this.authService.getUserId()!, 10);
-
-    return of({
-      students: this.mockData.mockStudents,
-      activeQuestionnaires: this.mockData.mockActiveQuestionnaire.filter(
-        (questionnaire) => questionnaire.teacher.id === teacherId
-      ),
-    }).pipe(
-      map((data) => {
-        const finishedByStudents = data.activeQuestionnaires.filter(
-          (q) => q.isStudentFinished
-        );
-        const notAnsweredByStudents = data.activeQuestionnaires.filter(
-          (q) => !q.isStudentFinished
-        );
-        const notAnsweredByTeacher = data.activeQuestionnaires.filter(
-          (q) => !q.isTeacherFinished
-        );
-
-        return {
-          finishedByStudents,
-          notAnsweredByStudents,
-          notAnsweredByTeacher,
-        };
-      }),
-      delay(250), // Simulate data fetching delay
-      catchError(this.handleError('getDashboardDataTeacher')),
+  /**
+  * Fetches paginated dashboard data for a specified section.
+  * The sections include:
+  * - 'finishedByStudents': Student finished the questionnaire, but teacher has not yet finished.
+  * - 'notAnsweredByStudents': Students who haven’t finished the questionnaire.
+  * - 'notAnsweredByTeacher': Teacher has not yet finished the questionnaire.
+  * 
+  * @param section - The section for which data is requested.
+  * @param offset - The offset used for pagination.
+  * @param limit - The maximum number of items to load (default is 5).
+  * @returns An observable containing the paginated data for the requested section.
+  */
+ getPaginatedDashboardData(section: string, offset: number, limit: number = 5): Observable<ActiveQuestionnaire[]> {
+   // Filter questionnaires based on the section type
+   const filteredQuestionnaires = this.mockData.mockActiveQuestionnaire.filter(q => {
+     switch(section) {
+       case 'finishedByStudents':
+         return q.isStudentFinished && !q.isTeacherFinished;
+       case 'notAnsweredByStudents':
+         return !q.isStudentFinished;
+       case 'notAnsweredByTeacher':
+         return !q.isTeacherFinished;
+       default:
+         return false;
+     }
+   });
+  
+    // Simulate pagination by slicing the array
+    const paginatedData = filteredQuestionnaires.slice(offset, offset + limit);
+    return of(paginatedData).pipe(
+      delay(250), // Simulate delay
+      catchError(this.handleError('getPaginatedDashboardData'))
     );
   }
 
+
+  getFilteredActiveQuestionnaires(searchQuery: string): Observable<ActiveQuestionnaire[]> {
+    const teacherId = parseInt(this.authService.getUserId()!, 10);
+    
+    const filteredData = this.mockData.mockActiveQuestionnaire.filter(q => 
+      q.teacher.id === teacherId &&
+      q.student.username.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  
+    return of(filteredData).pipe(
+      delay(250),
+      catchError(this.handleError('getFilteredActiveQuestionnaires'))
+    );
+  }
 
   
   /**

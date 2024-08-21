@@ -1,79 +1,136 @@
 <div class="teacher-dashboard">
-  <h2>Teacher Dashboard</h2>
+  <div class="teacher-dashboard">
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Search students..." (keydown.enter)="onSearch()"/>
+      <button (click)="onSearch()">Search</button>
+    </div>
 
-  <div class="questionnaire-section">
-    <h3>Teacher Yet to Answer</h3>
-    @if (notAnsweredByTeacher.length > 0) {
-      @for(questionnaire of notAnsweredByTeacher; track questionnaire.id){
-        <ul>
-          <li>
-            <p><strong>ID: </strong>{{ questionnaire.id}}</p>
-            <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
-            <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
-            <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
-              {{ questionnaire.isStudentFinished ? 'Teacher Finished' : 'Teacher Pending' }}
-            </div>
-            <div class="status-badge badge-pending">Teacher Pending</div>
-          </li>
-        </ul>
-        @if (!questionnaire.isTeacherFinished) {
+  <!-- Section: Search Results -->
+  <div class="questionnaire-section" *ngIf="searchResults.length > 0">
+    <h3>Search Results</h3>
+    @for(questionnaire of searchResults; track questionnaire.id){
+      <ul>
+        <li>
+          <p><strong>ID: </strong>{{ questionnaire.id }}</p>
+          <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
+          <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
+          <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
+            {{ questionnaire.isStudentFinished ? 'Teacher Finished' : 'Teacher Pending' }}
+          </div>
+          <div class="status-badge badge-pending">Teacher Pending</div>
           <button (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">Route to Teacher Component</button>
-        }
-        <hr class="hr-line">
-      }
-    } @else {
-      <p>No pending questionnaires for you.</p>
+          <hr class="hr-line">
+        </li>
+      </ul>
     }
+  </div>
+
+  <!-- Section: Teacher Yet to Answer -->
+  <div class="questionnaire-section">
+    <h3 class="collapsible-header">
+      Teacher Yet to Answer
+    </h3>
+    <button class="collapse-button" (click)="toggleSection('notAnsweredByTeacher')">
+      {{ getCollapsedState('notAnsweredByTeacher') ? '+' : '-' }}
+    </button>
+    @if(!getCollapsedState('notAnsweredByTeacher')){
+      @if (notAnsweredByTeacher.length > 0) {
+        @for(questionnaire of notAnsweredByTeacher; track questionnaire.id){
+          <ul>
+            <li>
+              <p><strong>ID: </strong>{{ questionnaire.id }}</p>
+              <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
+              <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
+              <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
+                {{ questionnaire.isStudentFinished ? 'Teacher Finished' : 'Teacher Pending' }}
+              </div>
+              <div class="status-badge badge-pending">Teacher Pending</div>
+            </li>
+          </ul>
+          @if (!questionnaire.isTeacherFinished) {
+            <button (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">Route to Teacher Component</button>
+          }
+          <hr class="hr-line">
+        }
+        @if(!hasNoMoreData('notAnsweredByTeacher')){
+          <button (click)="loadMoreData('notAnsweredByTeacher')">Load More</button>
+        }
+      } @else {
+        <p>No pending questionnaires for you.</p>
+      }
+    }
+  </div>
+
+  <!-- Section: Students Who Have Finished -->
+  <div class="questionnaire-section">
+    <h3 class="collapsible-header">
+      Students Who Have Finished
+    </h3>
+    <button class="collapse-button" (click)="toggleSection('finishedByStudents')">
+      {{ getCollapsedState('finishedByStudents') ? '+' : '-' }}
+    </button>
+      @if(!getCollapsedState('finishedByStudents')){
+        @if (finishedByStudents.length > 0) {
+          @for(questionnaire of finishedByStudents; track questionnaire.id){
+            <ul>
+              <li>
+                <p><strong>ID: </strong>{{ questionnaire.id }}</p>
+                <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
+                <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
+                <div class="status-badge badge-completed">Student Finished</div>
+                <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
+                  {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
+                </div>
+              </li>
+            </ul>
+            @if (!questionnaire.isTeacherFinished) {
+              <button (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">Route to Teacher Component</button>
+            }
+            <hr class="hr-line">
+          }
+          @if(!hasNoMoreData('finishedByStudents')){
+            <button (click)="loadMoreData('finishedByStudents')">Load More</button>
+          }
+        } @else {
+          <p>No students have finished yet.</p>
+        }
+      }
+  </div>
+
+  <!-- Section: Students Yet to Answer -->
+  <div class="questionnaire-section">
+    <h3 class="collapsible-header">
+      Students Who Have Finished
+      <button class="collapse-button" (click)="toggleSection('notAnsweredByStudents')">
+        {{ getCollapsedState('notAnsweredByStudents') ? '+' : '-' }}
+      </button>
+    </h3>
+      @if(!getCollapsedState('notAnsweredByStudents')){
+        @if (notAnsweredByStudents.length > 0) {
+          @for(questionnaire of notAnsweredByStudents; track questionnaire.id){
+            <ul>
+              <li>
+                <p><strong>ID: </strong>{{ questionnaire.id }}</p>
+                <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
+                <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
+                <div class="status-badge badge-pending">Student Pending</div>
+                <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
+                  {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
+                </div>
+              </li>
+            </ul>
+            @if (!questionnaire.isTeacherFinished) {
+              <button (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">Route to Teacher Component</button>
+            }
+            <hr class="hr-line">
+          }
+          @if(!hasNoMoreData('notAnsweredByStudents')){
+            <button (click)="loadMoreData('notAnsweredByStudents')">Load More</button>
+          }
+        } @else {
+          <p>All students have answered.</p>
+        }
+      }
   </div>
 </div>
-
-
-  <div class="questionnaire-section">
-    <h3>Students Who Have Finished</h3>
-    @if (finishedByStudents.length > 0) {
-      @for(questionnaire of finishedByStudents; track questionnaire.id){
-        <ul>
-          <li>
-            <p><strong>ID: </strong>{{ questionnaire.id}}</p>
-            <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
-            <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
-            <div class="status-badge badge-completed">Student Finished</div>
-            <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
-              {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
-            </div>
-          </li>
-        </ul>
-        @if (!questionnaire.isTeacherFinished) {
-          <button (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">Route to Teacher Component</button>
-        }
-        <hr class="hr-line">
-      }
-    } @else {
-      <p>No students have finished yet.</p>
-    }
-  </div>
-
-  <div class="questionnaire-section">
-    <h3>Students Yet to Answer</h3>
-    @if (notAnsweredByStudents.length > 0) {
-      @for(questionnaire of notAnsweredByStudents; track questionnaire.id){
-        <ul>
-          <li>
-            <p><strong>ID: </strong>{{ questionnaire.id}}</p>
-            <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
-            <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
-            <div class="status-badge badge-pending">Student Pending</div>
-            <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
-              {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
-            </div>
-          </li>
-        </ul>
-        @if (!questionnaire.isTeacherFinished) {
-          <button (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">Route to Teacher Component</button>
-        }
-        <hr class="hr-line">
-      }
-    } @else {
-      <p>All students have answered.</p>
-    }
-  </div>
