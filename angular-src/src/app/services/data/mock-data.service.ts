@@ -75,11 +75,9 @@ export class MockDataService {
       }
     });
 
-    console.log(filteredQuestionnaires)
   
     // Simulate pagination by slicing the array
     const paginatedData = filteredQuestionnaires.slice(offset, offset + limit);
-    console.log(paginatedData)
     return of(paginatedData).pipe(
       delay(250), // Simulate delay
       catchError(this.handleError('getPaginatedDashboardData'))

@@ -15,49 +15,58 @@ type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAns
   styleUrls: ['../shared-dashboard-styles.css', './teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent {
-  private teacherDashboardService = inject(TeacherDashboardService);
-  router = inject(Router);
+  private readonly loadLimit = this.teacherDashboardService.getLoadLimit();  
 
-  finishedByStudents: ActiveQuestionnaire[] = [];
-  notAnsweredByStudents: ActiveQuestionnaire[] = [];
-  notAnsweredByTeacher: ActiveQuestionnaire[] = [];
-  searchResults: ActiveQuestionnaire[] = [];
+
+  sectionData: { [key in DashboardSection]: ActiveQuestionnaire[] } = {
+    finishedByStudents: [],
+    notAnsweredByStudents: [],
+    notAnsweredByTeacher: [],
+    searchResults: []
+  };
+  sectionStates: { [key in DashboardSection]: { collapsed: boolean; noMoreData: boolean } } = {
+    finishedByStudents: { collapsed: true, noMoreData: false },
+    notAnsweredByStudents: { collapsed: true, noMoreData: false },
+    notAnsweredByTeacher: { collapsed: true, noMoreData: false },
+    searchResults: { collapsed: false, noMoreData: false }
+  };
+
   searchQuery: string = '';
 
+  constructor(private teacherDashboardService: TeacherDashboardService, private router: Router) {}
+
   toggleSection(section: DashboardSection): void {
-    this.teacherDashboardService.toggleSection(section).subscribe(data => {
-      this[section] = data;
-    });
+    this.sectionStates[section].collapsed = !this.sectionStates[section].collapsed;
+    if (!this.sectionStates[section].collapsed && this.sectionData[section].length === 0) {
+      this.loadMoreData(section);
+    }
   }
 
   loadMoreData(section: DashboardSection): void {
-    const currentDataLength = this[section].length;
+    const currentDataLength = this.sectionData[section].length;
     this.teacherDashboardService.loadActiveQuestionnaires(section, currentDataLength).subscribe(data => {
-      this[section] = data;
+      this.sectionData[section] = [...this.sectionData[section], ...data];
+      this.sectionStates[section].noMoreData = data.length < this.loadLimit;
     });
   }
 
   onSearch(): void {
     if (this.searchQuery.trim()) {
       this.teacherDashboardService.loadActiveQuestionnaires('searchResults', 0, this.searchQuery).subscribe(data => {
-        this.searchResults = data;
+        this.sectionData['searchResults'] = data;
+        this.sectionStates['searchResults'].noMoreData = data.length < this.loadLimit;
       });
     }
   }
-  
+
   loadMoreSearchResults(): void {
-    const currentDataLength = this.searchResults.length;
+    const currentDataLength = this.sectionData["searchResults"].length;
     this.teacherDashboardService.loadActiveQuestionnaires('searchResults', currentDataLength, this.searchQuery).subscribe(data => {
-      this.searchResults = data;
+      if (data.length > 0) {
+        this.sectionData["searchResults"] = [...this.sectionData["searchResults"], ...data];
+      }
+      this.sectionStates['searchResults'].noMoreData = data.length < this.loadLimit;
     });
-  }
-
-  getCollapsedState(section: DashboardSection): boolean {
-    return this.teacherDashboardService.getCollapsedState(section);
-  }
-
-  hasNoMoreData(section: DashboardSection): boolean {
-    return this.teacherDashboardService.hasNoMoreData(section);
   }
 
   toActiveQuestionnaire(urlString: string): void {

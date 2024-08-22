@@ -13,7 +13,7 @@ export class AppDataService {
   ) {}
 
   // Dashboard
-  getPaginatedDashboardData(section: string, offset: number, limit: number = 5, searchQuery: string | undefined){
+  getPaginatedDashboardData(section: string, offset: number, limit: number = 5, searchQuery?: string | undefined){
     return this.dataService.getPaginatedDashboardData(section, offset, limit,searchQuery);
   }
   

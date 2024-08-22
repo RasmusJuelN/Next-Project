@@ -7,14 +7,14 @@
     </div>
 
   <!-- Section: Search Results -->
-   @if(searchResults.length > 0){
+   @if(sectionData["searchResults"].length > 0){
     <div class="questionnaire-section">
       <h3>Search Results</h3>
       <button class="collapse-button" (click)="toggleSection('searchResults')">
-        {{ getCollapsedState('searchResults') ? '+' : '-' }}
+        {{ sectionStates['searchResults'].collapsed ? '+' : '-' }}
       </button>
-      @if(!getCollapsedState('searchResults')){
-        @for(questionnaire of searchResults; track questionnaire.id){
+      @if(!sectionStates['searchResults'].collapsed){
+        @for(questionnaire of sectionData["searchResults"]; track questionnaire.id){
           <ul>
             <li>
               <p><strong>ID: </strong>{{ questionnaire.id }}</p>
@@ -33,7 +33,7 @@
             <hr class="hr-line">
           </ul>
         } 
-        @if(!hasNoMoreData('searchResults')){
+        @if(!sectionStates['searchResults'].noMoreData){
           <button (click)="loadMoreSearchResults()">Load More</button>
         }
       }
@@ -46,11 +46,11 @@
       Teacher Yet to Answer
     </h3>
     <button class="collapse-button" (click)="toggleSection('notAnsweredByTeacher')">
-      {{ getCollapsedState('notAnsweredByTeacher') ? '+' : '-' }}
+      {{ sectionStates['notAnsweredByTeacher'].collapsed ? '+' : '-' }}
     </button>
-    @if(!getCollapsedState('notAnsweredByTeacher')){
-      @if (notAnsweredByTeacher.length > 0) {
-        @for(questionnaire of notAnsweredByTeacher; track questionnaire.id){
+    @if(!sectionStates['notAnsweredByTeacher'].collapsed){
+      @if (sectionData["notAnsweredByTeacher"].length > 0) {
+        @for(questionnaire of sectionData["notAnsweredByTeacher"]; track questionnaire.id){
           <ul>
             <li>
               <p><strong>ID: </strong>{{ questionnaire.id }}</p>
@@ -69,7 +69,7 @@
           }
           <hr class="hr-line">
         }
-        @if(!hasNoMoreData('notAnsweredByTeacher')){
+        @if(!sectionStates['notAnsweredByTeacher'].noMoreData){
           <button (click)="loadMoreData('notAnsweredByTeacher')">Load More</button>
         }
       } @else {
@@ -84,11 +84,11 @@
       Students Who Have Finished
     </h3>
     <button class="collapse-button" (click)="toggleSection('finishedByStudents')">
-      {{ getCollapsedState('finishedByStudents') ? '+' : '-' }}
+      {{ sectionStates['finishedByStudents'].collapsed ? '+' : '-' }}
     </button>
-      @if(!getCollapsedState('finishedByStudents')){
-        @if (finishedByStudents.length > 0) {
-          @for(questionnaire of finishedByStudents; track questionnaire.id){
+      @if(!sectionStates['finishedByStudents'].collapsed){
+        @if (sectionData["finishedByStudents"].length > 0) {
+          @for(questionnaire of sectionData["finishedByStudents"]; track questionnaire.id){
             <ul>
               <li>
                 <p><strong>ID: </strong>{{ questionnaire.id }}</p>
@@ -107,7 +107,7 @@
             }
             <hr class="hr-line">
           }
-          @if(!hasNoMoreData('finishedByStudents')){
+          @if(!sectionStates['finishedByStudents'].noMoreData){
             <button (click)="loadMoreData('finishedByStudents')">Load More</button>
           }
         } @else {
@@ -121,12 +121,12 @@
     <h3 class="collapsible-header">
       Students Who Have Finished
       <button class="collapse-button" (click)="toggleSection('notAnsweredByStudents')">
-        {{ getCollapsedState('notAnsweredByStudents') ? '+' : '-' }}
+        {{ sectionStates['notAnsweredByStudents'].collapsed ? '+' : '-' }}
       </button>
     </h3>
-      @if(!getCollapsedState('notAnsweredByStudents')){
-        @if (notAnsweredByStudents.length > 0) {
-          @for(questionnaire of notAnsweredByStudents; track questionnaire.id){
+      @if(!sectionStates['notAnsweredByStudents'].collapsed){
+        @if (sectionData["notAnsweredByStudents"].length > 0) {
+          @for(questionnaire of sectionData["notAnsweredByStudents"]; track questionnaire.id){
             <ul>
               <li>
                 <p><strong>ID: </strong>{{ questionnaire.id }}</p>
@@ -145,7 +145,7 @@
             }
             <hr class="hr-line">
           }
-          @if(!hasNoMoreData('notAnsweredByStudents')){
+          @if(!sectionStates['notAnsweredByStudents'].noMoreData){
             <button (click)="loadMoreData('notAnsweredByStudents')">Load More</button>
           }
         } @else {
