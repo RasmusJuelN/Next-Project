@@ -32,14 +32,14 @@ export class TeacherDashboardComponent {
 
   loadMoreData(section: DashboardSection): void {
     const currentDataLength = this[section].length;
-    this.teacherDashboardService.getActiveQuestionnaires(section, currentDataLength).subscribe(data => {
+    this.teacherDashboardService.loadActiveQuestionnaires(section, currentDataLength).subscribe(data => {
       this[section] = data;
     });
   }
 
   onSearch(): void {
     if (this.searchQuery.trim()) {
-      this.teacherDashboardService.getActiveQuestionnaires('searchResults', 0, this.searchQuery).subscribe(data => {
+      this.teacherDashboardService.loadActiveQuestionnaires('searchResults', 0, this.searchQuery).subscribe(data => {
         this.searchResults = data;
       });
     }
@@ -47,7 +47,7 @@ export class TeacherDashboardComponent {
   
   loadMoreSearchResults(): void {
     const currentDataLength = this.searchResults.length;
-    this.teacherDashboardService.getActiveQuestionnaires('searchResults', currentDataLength, this.searchQuery).subscribe(data => {
+    this.teacherDashboardService.loadActiveQuestionnaires('searchResults', currentDataLength, this.searchQuery).subscribe(data => {
       this.searchResults = data;
     });
   }

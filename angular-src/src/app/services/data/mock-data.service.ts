@@ -85,20 +85,6 @@ export class MockDataService {
       catchError(this.handleError('getPaginatedDashboardData'))
     );
   }
-
-  getFilteredActiveQuestionnaires(searchQuery: string): Observable<ActiveQuestionnaire[]> {
-    const teacherId = parseInt(this.authService.getUserId()!, 10);
-  
-    // Filter data based on teacher ID and search query
-    const filteredData = this.mockData.mockActiveQuestionnaire.filter(q =>
-      q.teacher.id === teacherId && q.student.username.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  
-    return of(filteredData).pipe(
-      delay(250),
-      catchError(this.handleError('getFilteredActiveQuestionnaires'))
-    );
-  }
   
 
   
