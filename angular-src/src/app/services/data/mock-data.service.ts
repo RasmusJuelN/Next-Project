@@ -8,6 +8,9 @@ import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
 import { AppAuthService } from '../auth/app-auth.service';
 
+type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAnsweredByTeacher' | 'searchResults';
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,48 +37,61 @@ export class MockDataService {
   constructor(private http: HttpClient) {
     this.loadInitialMockData();
   }
+
   /**
   * Fetches paginated dashboard data for a specified section.
-  * The sections include:
-  * - 'finishedByStudents': Student finished the questionnaire, but teacher has not yet finished.
-  * - 'notAnsweredByStudents': Students who haven’t finished the questionnaire.
-  * - 'notAnsweredByTeacher': Teacher has not yet finished the questionnaire.
-  * 
   * @param section - The section for which data is requested.
   * @param offset - The offset used for pagination.
   * @param limit - The maximum number of items to load (default is 5).
   * @returns An observable containing the paginated data for the requested section.
   */
- getPaginatedDashboardData(section: string, offset: number, limit: number = 5): Observable<ActiveQuestionnaire[]> {
-   // Filter questionnaires based on the section type
-   const filteredQuestionnaires = this.mockData.mockActiveQuestionnaire.filter(q => {
-     switch(section) {
-       case 'finishedByStudents':
-         return q.isStudentFinished && !q.isTeacherFinished;
-       case 'notAnsweredByStudents':
-         return !q.isStudentFinished;
-       case 'notAnsweredByTeacher':
-         return !q.isTeacherFinished;
-       default:
-         return false;
-     }
-   });
+  getPaginatedDashboardData(
+    section: string,
+    offset: number,
+    limit: number = 5,
+    searchQuery?: string
+  ): Observable<ActiveQuestionnaire[]> {
+    const teacherId = parseInt(this.authService.getUserId()!, 10);
+  
+    // Determine if this is a search scenario or a section-based scenario
+    let filteredQuestionnaires = this.mockData.mockActiveQuestionnaire.filter(q => {
+      if (section === 'searchResults' && searchQuery) {
+        return (
+          q.teacher.id === teacherId &&
+          q.student.username.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+  
+      // Handle section-based filtering
+      switch (section) {
+        case 'finishedByStudents':
+          return q.isStudentFinished && !q.isTeacherFinished;
+        case 'notAnsweredByStudents':
+          return !q.isStudentFinished;
+        case 'notAnsweredByTeacher':
+          return !q.isTeacherFinished;
+        default:
+          return false;
+      }
+    });
+
+    console.log(filteredQuestionnaires)
   
     // Simulate pagination by slicing the array
     const paginatedData = filteredQuestionnaires.slice(offset, offset + limit);
+    console.log(paginatedData)
     return of(paginatedData).pipe(
       delay(250), // Simulate delay
       catchError(this.handleError('getPaginatedDashboardData'))
     );
   }
 
-
   getFilteredActiveQuestionnaires(searchQuery: string): Observable<ActiveQuestionnaire[]> {
     const teacherId = parseInt(this.authService.getUserId()!, 10);
-    
-    const filteredData = this.mockData.mockActiveQuestionnaire.filter(q => 
-      q.teacher.id === teacherId &&
-      q.student.username.toLowerCase().includes(searchQuery.toLowerCase())
+  
+    // Filter data based on teacher ID and search query
+    const filteredData = this.mockData.mockActiveQuestionnaire.filter(q =>
+      q.teacher.id === teacherId && q.student.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
   
     return of(filteredData).pipe(
@@ -83,6 +99,7 @@ export class MockDataService {
       catchError(this.handleError('getFilteredActiveQuestionnaires'))
     );
   }
+  
 
   
   /**
@@ -286,14 +303,6 @@ export class MockDataService {
       delay(250),
       catchError(this.handleError('createActiveQuestionnaire'))
     );
-  }
-  
-   /**
-   * Retrieves the list of active questionnaires.
-   * @returns An observable that emits the list of active questionnaires.
-   */
-   getActiveQuestionnaires(): Observable<ActiveQuestionnaire[]> {
-    return of(this.mockData.mockActiveQuestionnaire).pipe(delay(250));
   }
 
   /**

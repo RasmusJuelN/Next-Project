@@ -12,8 +12,8 @@ export class AppDataService {
     private dataService: MockDataService
   ) {}
 
-  getPaginatedDashboardData(section: string, offset: number, limit: number = 5){
-    return this.dataService.getPaginatedDashboardData(section, offset, limit);
+  getPaginatedDashboardData(section: string, offset: number, limit: number = 5, searchQuery: string | undefined){
+    return this.dataService.getPaginatedDashboardData(section, offset, limit,searchQuery);
   }
 
   // Dashboard
