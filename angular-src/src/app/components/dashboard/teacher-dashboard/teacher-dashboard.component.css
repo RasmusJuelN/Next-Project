@@ -42,7 +42,6 @@
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-
 /* List styles */
 ul {
   list-style-type: none;
@@ -121,4 +120,42 @@ button:hover {
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1em;
+}
+
+/* Styles for Filter Dropdown */
+.filter-options select {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none; /* Removes default dropdown styling */
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px 10px;
+}
+
+.filter-options select:hover {
+  border-color: #007bff;
+}
+
+.filter-options select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border-color: #007bff;
+}
+
+/* Option styles (note: styles for individual options are limited) */
+.filter-options select option {
+  padding: 10px;
+}
+
+/* Optional: Adjust dropdown appearance on smaller screens */
+@media (max-width: 768px) {
+  .filter-options select {
+    font-size: 0.9em;
+  }
 }

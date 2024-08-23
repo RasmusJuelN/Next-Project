@@ -1,11 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { TeacherDashboardService } from '../../../services/dashboard/teacher-dashboard.service';
 import { ActiveQuestionnaire } from '../../../models/questionare';
+import { DashboardFilter } from '../../../models/dashboard';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
-type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAnsweredByTeacher' | 'searchResults';
+type LoadSection = 'generalResults' | 'searchResults';
+
+interface SectionState {
+  data: ActiveQuestionnaire[];
+  collapsed: boolean;
+  noMoreData: boolean;
+  currentOffset: number;
+}
 
 @Component({
   selector: 'app-teacher-dashboard',
@@ -15,58 +23,66 @@ type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAns
   styleUrls: ['../shared-dashboard-styles.css', './teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent {
-  private readonly loadLimit = this.teacherDashboardService.getLoadLimit();  
-
-
-  sectionData: { [key in DashboardSection]: ActiveQuestionnaire[] } = {
-    finishedByStudents: [],
-    notAnsweredByStudents: [],
-    notAnsweredByTeacher: [],
-    searchResults: []
-  };
-  sectionStates: { [key in DashboardSection]: { collapsed: boolean; noMoreData: boolean } } = {
-    finishedByStudents: { collapsed: true, noMoreData: false },
-    notAnsweredByStudents: { collapsed: true, noMoreData: false },
-    notAnsweredByTeacher: { collapsed: true, noMoreData: false },
-    searchResults: { collapsed: false, noMoreData: false }
+  // State for each section. Offset is not currently used but could be in the future.
+  sectionStates: { [key in LoadSection]: SectionState } = {
+    generalResults: { data: [], collapsed: true, noMoreData: false, currentOffset: 0 },
+    searchResults: { data: [], collapsed: false, noMoreData: false, currentOffset: 0 }
   };
 
+  selectedFilter: DashboardFilter = DashboardFilter.FinishedByStudents; // Default filter
+  filters = Object.values(DashboardFilter); // Get all filters for dropdown
   searchQuery: string = '';
 
-  constructor(private teacherDashboardService: TeacherDashboardService, private router: Router) {}
+  router = inject(Router);
 
-  toggleSection(section: DashboardSection): void {
-    this.sectionStates[section].collapsed = !this.sectionStates[section].collapsed;
-    if (!this.sectionStates[section].collapsed && this.sectionData[section].length === 0) {
-      this.loadMoreData(section);
-    }
+  constructor(private teacherDashboardService: TeacherDashboardService) {}
+
+  ngOnInit(): void {
+    this.loadResults('generalResults'); // Initial load for general results
   }
 
-  loadMoreData(section: DashboardSection): void {
-    const currentDataLength = this.sectionData[section].length;
-    this.teacherDashboardService.loadActiveQuestionnaires(section, currentDataLength).subscribe(data => {
-      this.sectionData[section] = [...this.sectionData[section], ...data];
-      this.sectionStates[section].noMoreData = data.length < this.loadLimit;
-    });
+  applyFilter(): void {
+    this.resetSection('generalResults');
+    this.loadResults('generalResults');
   }
 
   onSearch(): void {
     if (this.searchQuery.trim()) {
-      this.teacherDashboardService.loadActiveQuestionnaires('searchResults', 0, this.searchQuery).subscribe(data => {
-        this.sectionData['searchResults'] = data;
-        this.sectionStates['searchResults'].noMoreData = data.length < this.loadLimit;
-      });
+      this.resetSection('searchResults');
+      this.loadResults('searchResults');
     }
   }
 
-  loadMoreSearchResults(): void {
-    const currentDataLength = this.sectionData["searchResults"].length;
-    this.teacherDashboardService.loadActiveQuestionnaires('searchResults', currentDataLength, this.searchQuery).subscribe(data => {
-      if (data.length > 0) {
-        this.sectionData["searchResults"] = [...this.sectionData["searchResults"], ...data];
-      }
-      this.sectionStates['searchResults'].noMoreData = data.length < this.loadLimit;
+  loadResults(section: LoadSection, loadMore: boolean = false): void {
+    const { currentOffset, data } = this.sectionStates[section];
+    const limit = this.teacherDashboardService.getLoadLimit();
+
+    const loadData$ = section === 'generalResults'
+      ? this.teacherDashboardService.loadFilteredData(this.selectedFilter, currentOffset)
+      : this.teacherDashboardService.searchQuestionnaires(this.searchQuery, currentOffset);
+
+    loadData$.subscribe(newData => {
+      this.sectionStates[section].data = loadMore ? [...data, ...newData] : newData;
+      this.sectionStates[section].noMoreData = newData.length < limit;
+      if (loadMore) this.sectionStates[section].currentOffset += limit;
     });
+  }
+
+  loadMore(section: LoadSection): void {
+    this.loadResults(section, true);
+  }
+
+  toggleSection(section: LoadSection): void {
+    this.sectionStates[section].collapsed = !this.sectionStates[section].collapsed;
+    if (!this.sectionStates[section].collapsed && this.sectionStates[section].data.length === 0) {
+      this.loadResults(section);
+    }
+  }
+
+  resetSection(section: LoadSection): void {
+    this.sectionStates[section].data = [];
+    this.sectionStates[section].currentOffset = 0;
+    this.sectionStates[section].noMoreData = false;
   }
 
   toActiveQuestionnaire(urlString: string): void {

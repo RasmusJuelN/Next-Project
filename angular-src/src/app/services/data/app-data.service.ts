@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MockDataService } from './mock-data.service';
 import { Observable } from 'rxjs';
 import { ActiveQuestionnaire, Question, User } from '../../models/questionare';
+import { DashboardFilter, DashboardSection } from '../../models/dashboard';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,14 @@ export class AppDataService {
   ) {}
 
   // Dashboard
-  getPaginatedDashboardData(section: string, offset: number, limit: number = 5, searchQuery?: string | undefined){
-    return this.dataService.getPaginatedDashboardData(section, offset, limit,searchQuery);
-  }
+  getPaginatedDashboardData(
+    section: DashboardSection,
+    filter: DashboardFilter | null = null, // Filter applies only to generalResults
+    offset: number = 0,
+    limit: number = 5,
+    searchQuery?: string){
+      return this.dataService.getPaginatedDashboardData(section,filter,offset,limit,searchQuery)
+    }
   
   getDashboardData(): Observable<{ students: User[], activeQuestionnaires: ActiveQuestionnaire[] }> {
     return this.dataService.getDashboardData();

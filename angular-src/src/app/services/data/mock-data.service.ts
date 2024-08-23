@@ -7,8 +7,7 @@ import { LocalStorageService } from '../misc/local-storage.service';
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
 import { AppAuthService } from '../auth/app-auth.service';
-
-type DashboardSection = 'finishedByStudents' | 'notAnsweredByStudents' | 'notAnsweredByTeacher' | 'searchResults';
+import { DashboardFilter, DashboardSection } from '../../models/dashboard';
 
 
 @Injectable({
@@ -38,48 +37,42 @@ export class MockDataService {
     this.loadInitialMockData();
   }
 
-  /**
-  * Fetches paginated dashboard data for a specified section.
-  * @param section - The section for which data is requested.
-  * @param offset - The offset used for pagination.
-  * @param limit - The maximum number of items to load (default is 5).
-  * @returns An observable containing the paginated data for the requested section.
-  */
   getPaginatedDashboardData(
-    section: string,
-    offset: number,
+    section: DashboardSection,
+    filter: DashboardFilter | null = null, // Filter applies only to generalResults
+    offset: number = 0,
     limit: number = 5,
     searchQuery?: string
   ): Observable<ActiveQuestionnaire[]> {
     const teacherId = parseInt(this.authService.getUserId()!, 10);
   
-    // Determine if this is a search scenario or a section-based scenario
-    let filteredQuestionnaires = this.mockData.mockActiveQuestionnaire.filter(q => {
-      if (section === 'searchResults' && searchQuery) {
-        return (
-          q.teacher.id === teacherId &&
-          q.student.username.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-  
-      // Handle section-based filtering
-      switch (section) {
-        case 'finishedByStudents':
-          return q.isStudentFinished && !q.isTeacherFinished;
-        case 'notAnsweredByStudents':
-          return !q.isStudentFinished;
-        case 'notAnsweredByTeacher':
-          return !q.isTeacherFinished;
-        default:
-          return false;
-      }
-    });
+    let filteredQuestionnaires: ActiveQuestionnaire[] = [];
 
-  
+    if (section === DashboardSection.SearchResults && searchQuery) {
+      // Handle search scenario only
+      filteredQuestionnaires = this.mockData.mockActiveQuestionnaire.filter(q =>
+        q.teacher.id === teacherId && q.student.username.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    } else if (section === DashboardSection.generalResults && filter) {
+      // Handle section-based filtering for general results
+      filteredQuestionnaires = this.mockData.mockActiveQuestionnaire.filter(q => {
+        switch (filter) {
+          case DashboardFilter.FinishedByStudents:
+            return q.isStudentFinished && !q.isTeacherFinished;
+          case DashboardFilter.NotAnsweredByStudents:
+            return !q.isStudentFinished;
+          case DashboardFilter.NotAnsweredByTeacher:
+            return !q.isTeacherFinished;
+          default:
+            return false;
+        }
+      });
+    }
+    
     // Simulate pagination by slicing the array
     const paginatedData = filteredQuestionnaires.slice(offset, offset + limit);
     return of(paginatedData).pipe(
-      delay(250), // Simulate delay
+      delay(250), // Simulate delay for mock data
       catchError(this.handleError('getPaginatedDashboardData'))
     );
   }
