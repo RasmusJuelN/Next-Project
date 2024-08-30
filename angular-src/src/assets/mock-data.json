@@ -1,16 +1,15 @@
 {
-  "mockStudents": [
-    { "id": 2, "username": "Nicklas", "role": "student" },
-    { "id": 3, "username": "Alexander", "role": "student" },
-    { "id": 4, "username": "Johan", "role": "student" }
+  "mockUsers": [
+    { "id": 1, "userName": "MJ", "fullName": "Max Jacobsen", "role": "teacher" },
+    { "id": 2, "userName": "NN", "fullName": "Nicklas Nilsson", "role": "student" },
+    { "id": 3, "userName": "AS", "fullName": "Alexander Svensson", "role": "student" },
+    { "id": 4, "userName": "JW", "fullName": "Johan Wallin", "role": "student" }
   ],
-  "mockTeachers": [
-    { "id": 1, "username": "Max", "role": "teacher" }
-  ],
+
   "mockQuestions": [
     {
       "id": 1,
-      "text": "Indlæringsevne",
+      "title": "Indlæringsevne",
       "options": [
         {
           "id": 1,
@@ -41,7 +40,7 @@
     },
     {
       "id": 2,
-      "text": "Kreativitet og selvstændighed",
+      "title": "Kreativitet og selvstændighed",
       "options": [
         {
           "id": 1,
@@ -72,7 +71,7 @@
     },
     {
       "id": 3,
-      "text": "Arbejdsindsats",
+      "title": "Arbejdsindsats",
       "options": [
         { "id": 1, "value": 1, "label": "Uacceptabel" },
         { "id": 2, "value": 2, "label": "Under middel" },
@@ -83,7 +82,7 @@
     },
     {
       "id": 4,
-      "text": "Orden og omhyggelighed",
+      "title": "Orden og omhyggelighed",
       "options": [
         {
           "id": 1,

@@ -23,8 +23,8 @@ export class AppDataService {
       return this.dataService.getPaginatedDashboardData(section,filter,offset,limit,searchQuery)
     }
   
-  getDashboardData(): Observable<{ students: User[], activeQuestionnaires: ActiveQuestionnaire[] }> {
-    return this.dataService.getDashboardData();
+  getDashboardData(role:string): Observable<{ students: User[], activeQuestionnaires: ActiveQuestionnaire[] }> {
+    return this.dataService.getDashboardData(role);
   }
 
   addStudentToQuestionnaire(studentId: number): Observable<void> {

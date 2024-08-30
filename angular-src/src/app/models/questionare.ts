@@ -5,7 +5,8 @@
  */
 export interface User {
   id: number; // ID of the user from the database
-  username: string; // Username of the user
+  userName: string; // Username of the user
+  fullName: string
   role: string; // Role for the user.
 }
 
@@ -24,10 +25,10 @@ export interface ActiveQuestionnaire {
  * Represents an option for a question in a questionnaire.
  */
 export interface Option {
-  id?: number; // ID of the option from the database
-  questionId?: number; // ID of the question this option belongs to
+  id: number; // ID of the option from the database
   value: number; // Rating value (1-5)
   label: string; // Label explaining the rating
+  isCustom?: boolean; // Indicates if this option is a custom answer
 }
 
 /**
@@ -35,15 +36,16 @@ export interface Option {
  */
 export interface Question {
   id: number; // ID of the question from the database
-  text: string; // Text of the question
+  title: string; // Text of the question
   options: Option[]; // Multiple options for the question
   selectedOption?: number; // ID of the selected option, if any
+  customAnswer?: string; // The user's custom answer, if any
 }
 
 export interface userAnswer{
-  questinareId: string;
+  questionnaireId: string;
   questionId: number;
-  userId: string;
+  userId: number;
   role: string;
   rating: number;
 }
@@ -52,7 +54,7 @@ export interface userAnswer{
  * Represents a combined student and teacher answer to a question.
  */
 export interface StudentTeacherAnswer{
-  Questionnaire: string // The id of anwser collection
+  questionnaireId: string // The id of anwser collection
   student: userAnswer; // The student anwser
   teacher: userAnswer; // The teacher anwser
 }

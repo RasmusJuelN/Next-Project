@@ -2,40 +2,83 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
 import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../../models/questionare';
-import { LocalStorageService } from '../misc/local-storage.service';
 
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
 import { AppAuthService } from '../auth/app-auth.service';
 import { DashboardFilter, DashboardSection } from '../../models/dashboard';
+import { MockDbService } from '../mock/mock-db.service';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class MockDataService {
-  private localStorageKey = 'mockData';
-  private localStorageService = inject(LocalStorageService)
+  private mockDbService = inject(MockDbService);
   private jwtTokenService = inject(JWTTokenService);
   private errorHandlingService = inject(ErrorHandlingService)
   private authService = inject(AppAuthService)
-  private mockData: {
-    mockStudents: User[],
-    mockTeachers: User[],
-    mockQuestions: Question[],
-    mockStudentTeacherAnswers: StudentTeacherAnswer[],
-    mockActiveQuestionnaire: ActiveQuestionnaire[]
-  } = {
-    mockStudents: [],
-    mockTeachers: [],
-    mockQuestions: [],
-    mockStudentTeacherAnswers: [],
-    mockActiveQuestionnaire: []
-  }; 
 
   constructor(private http: HttpClient) {
-    this.loadInitialMockData();
+    this.mockDbService.loadInitialMockData();
   }
+
+  getActiveQuestionnairePage(
+    filter: any = {}, // General filter object
+    page: number = 1,
+    limit: number = 5,
+  ) {
+    let filteredQuestionnaires: ActiveQuestionnaire[] = this.mockDbService.mockData.mockActiveQuestionnaire;
+  
+    // Filter by teacherId if provided
+    if (filter.teacherId) {
+      filteredQuestionnaires = filteredQuestionnaires.filter(q =>
+        q.teacher.id === filter.teacherId
+      );
+    }
+  
+    // Filter by studentId if provided
+    if (filter.studentId) {
+      filteredQuestionnaires = filteredQuestionnaires.filter(q =>
+        q.student.id === filter.studentId
+      );
+    }
+  
+    // Filter by student's username (case insensitive)
+    if (filter.searchStudent) {
+      filteredQuestionnaires = filteredQuestionnaires.filter(q =>
+        q.student.fullName.toLowerCase().includes(filter.searchStudent.toLowerCase())
+      );
+    }
+  
+    // Filter by whether the student has finished (handling boolean values)
+    if (filter.studentIsFinished !== undefined) {
+      filteredQuestionnaires = filteredQuestionnaires.filter(q =>
+        q.isStudentFinished === filter.studentIsFinished
+      );
+    }
+  
+    // Filter by whether the teacher has finished (handling boolean values)
+    if (filter.teacherIsFinished !== undefined) {
+      filteredQuestionnaires = filteredQuestionnaires.filter(q =>
+        q.isTeacherFinished === filter.teacherIsFinished
+      );
+    }
+  
+    // Calculate the offset for pagination
+    const offset = (page - 1) * limit;
+  
+    // Slice the filtered results to get the current page
+    const pageData = filteredQuestionnaires.slice(offset, offset + limit);
+  
+    // Return the paginated and filtered data as an Observable with simulated delay
+    return of(pageData).pipe(
+      delay(250), // Simulate delay for mock data
+      catchError(this.handleError('getActiveQuestionnairePage'))
+    );
+  }
+  
+
 
   getPaginatedDashboardData(
     section: DashboardSection,
@@ -50,12 +93,12 @@ export class MockDataService {
 
     if (section === DashboardSection.SearchResults && searchQuery) {
       // Handle search scenario only
-      filteredQuestionnaires = this.mockData.mockActiveQuestionnaire.filter(q =>
-        q.teacher.id === teacherId && q.student.username.toLowerCase().includes(searchQuery.toLowerCase())
+      filteredQuestionnaires = this.mockDbService.mockData.mockActiveQuestionnaire.filter(q =>
+        q.teacher.id === teacherId && q.student.fullName.toLowerCase().includes(searchQuery.toLowerCase())
       );
     } else if (section === DashboardSection.generalResults && filter) {
       // Handle section-based filtering for general results
-      filteredQuestionnaires = this.mockData.mockActiveQuestionnaire.filter(q => {
+      filteredQuestionnaires = this.mockDbService.mockData.mockActiveQuestionnaire.filter(q => {
         switch (filter) {
           case DashboardFilter.FinishedByStudents:
             return q.isStudentFinished && !q.isTeacherFinished;
@@ -76,34 +119,6 @@ export class MockDataService {
       catchError(this.handleError('getPaginatedDashboardData'))
     );
   }
-  
-
-  
-  /**
-   * Loads initial data either from local storage or from a mock data file.
-   * If data is present in local storage, it initializes the service with that data.
-   * Otherwise, it fetches data from a JSON file and saves it to local storage.
-   */
-  private loadInitialMockData(): void {
-    const savedData = this.localStorageService.getData(this.localStorageKey);
-    if (savedData) {
-      this.mockData = JSON.parse(savedData);
-    } else {
-      this.http.get('/assets/mock-data.json').subscribe(
-        (data: any) => {
-          this.mockData = {
-            mockStudents: data.mockStudents,
-            mockTeachers: data.mockTeachers,
-            mockQuestions: data.mockQuestions,
-            mockStudentTeacherAnswers: data.mockStudentTeacherAnswers,
-            mockActiveQuestionnaire: data.mockActiveQuestionnaire
-          };
-          this.saveData();
-        },
-        error => this.errorHandlingService.handleError(error, 'Failed to load mock data')
-      );
-    }
-  }
 
 
   getFirstActiveQuestionnaireId(): string | null {
@@ -113,7 +128,7 @@ export class MockDataService {
         const decodedToken = this.jwtTokenService.getDecodeToken();
         const userId = decodedToken ? decodedToken['sub'] : null;
   
-        const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => 
+        const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => 
           (aq.student.id === userId && !aq.isStudentFinished) || 
           (aq.teacher.id === userId && !aq.isTeacherFinished)
         );
@@ -136,16 +151,18 @@ export class MockDataService {
    * Saves the current state of mock data to local storage.
    */
   private saveData(): void {
-    this.localStorageService.saveData(this.localStorageKey, JSON.stringify(this.mockData));
+    this.mockDbService.saveData();
   }
 
-  getDashboardData(): Observable<{
+  getDashboardData(role: string): Observable<{
     students: User[],
     activeQuestionnaires: ActiveQuestionnaire[]
   }> {
+    // Filter users based on role
+    const students = this.mockDbService.mockData.mockUsers.filter(user => user.role === "student");
     return of({
-      students: this.mockData.mockStudents,
-      activeQuestionnaires: this.mockData.mockActiveQuestionnaire
+      students,
+      activeQuestionnaires: this.mockDbService.mockData.mockActiveQuestionnaire
     }).pipe(
       delay(250),
       catchError(this.handleError('getDashboardData'))
@@ -155,7 +172,7 @@ export class MockDataService {
 
 
   getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire | null> {
-    const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => aq.id === id) || null;
+    const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === id) || null;
     return of(activeQuestionnaire).pipe(
       delay(250),
       catchError(this.handleError('getActiveQuestionnaireById'))
@@ -167,7 +184,8 @@ export class MockDataService {
    * @returns An observable that emits the list of mock students.
    */
   getStudents(): Observable<User[]> {
-    return of(this.mockData.mockStudents).pipe(
+    const students = this.mockDbService.mockData.mockUsers.filter(user => user.role === "students");
+    return of(students).pipe(
       delay(250),
       catchError(this.handleError('getStudents'))
     );
@@ -178,14 +196,14 @@ export class MockDataService {
    * @param studentId The ID of the student to add.
    */
   addStudentToQuestionnaire(studentId: number, teacherId: number = 1): Observable<void> {
-    const student = this.mockData.mockStudents.find(s => s.id === studentId);
-    const teacher = this.mockData.mockTeachers.find(t => t.id === teacherId);
+    const student = this.mockDbService.mockData.mockUsers.find(u => u.id === studentId && u.role === 'student');
+    const teacher = this.mockDbService.mockData.mockUsers.find(u => u.id === teacherId && u.role === 'teacher');
 
     if (!student || !teacher) {
       return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'addStudentToQuestionnaire');
     }
 
-    const studentAvailableForQuestionnaire = !this.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
+    const studentAvailableForQuestionnaire = !this.mockDbService.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
 
     if (studentAvailableForQuestionnaire) {
       return this.createActiveQuestionnaire(studentId, teacherId).pipe(
@@ -204,7 +222,7 @@ export class MockDataService {
    * @returns An observable that emits the list of questions.
    */
   getQuestionsForUser(): Observable<Question[]> {
-    return of(this.mockData.mockQuestions).pipe(delay(250));
+    return of(this.mockDbService.mockData.mockQuestions).pipe(delay(250));
   }
   /**
    * Checks if a student is currently part of an active questionnaire.
@@ -212,7 +230,7 @@ export class MockDataService {
    * @returns True if the student is in an active questionnaire, false otherwise.
    */
   isStudentInQuestionnaire(studentId: number): boolean {
-    return this.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
+    return this.mockDbService.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
   }
 
 
@@ -226,7 +244,7 @@ export class MockDataService {
    * @param answers The answers to submit.
    */
   submitData(userId: any, role: string, questionnaireId: string, answers: Question[]): Observable<void> {
-    const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
+    const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
     
     if (!activeQuestionnaire) {
       return this.errorHandlingService.handleError(new Error('Active questionnaire not found or user role mismatch'), 'submitData');
@@ -259,8 +277,8 @@ export class MockDataService {
    * @returns The created active questionnaire.
    */
    createActiveQuestionnaire(studentId: number, teacherId: number): Observable<ActiveQuestionnaire> {
-    const student = this.mockData.mockStudents.find(s => s.id === studentId);
-    const teacher = this.mockData.mockTeachers.find(t => t.id === teacherId);
+    const student = this.mockDbService.mockData.mockUsers.find(u => u.id === studentId && u.role === 'student');
+    const teacher = this.mockDbService.mockData.mockUsers.find(u => u.id === teacherId && u.role === 'teacher');
   
     if (!student || !teacher) {
       return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'createActiveQuestionnaire');
@@ -274,7 +292,7 @@ export class MockDataService {
       isTeacherFinished: false
     };
   
-    this.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);
+    this.mockDbService.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);
     this.saveData();
     return of(newActiveQuestionnaire).pipe(
       delay(250),
@@ -287,7 +305,7 @@ export class MockDataService {
    * @param id The ID of the active questionnaire to delete.
    */
   deleteActiveQuestionnaire(id: string): Observable<void> {
-    this.mockData.mockActiveQuestionnaire = this.mockData.mockActiveQuestionnaire.filter(aq => aq.id !== id);
+    this.mockDbService.mockData.mockActiveQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.filter(aq => aq.id !== id);
     this.saveData();
     return of(undefined).pipe(delay(250));
   }
@@ -315,7 +333,7 @@ export class MockDataService {
    * @returns An observable that emits true if the user has access, false otherwise.
    */
     validateUserAccess(userId: any, role: string, questionnaireId: string): Observable<boolean> {
-      const activeQuestionnaire = this.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
+      const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
   
       if (!activeQuestionnaire) {
         return of(false); // Questionnaire not found

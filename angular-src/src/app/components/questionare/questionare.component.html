@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="centered-content">
-      <h3>{{ questions[currentQuestionIndex].text }}</h3>
+      <h3>{{ questions[currentQuestionIndex].title }}</h3>
       <div class="options-container">
         @for(option of questions[currentQuestionIndex].options; track option.value)
         {

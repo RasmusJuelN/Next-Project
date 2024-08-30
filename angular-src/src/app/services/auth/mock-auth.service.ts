@@ -33,8 +33,8 @@ export class MockAuthService {
       { userName: "Admin", password: "Pa$$w0rd", role: 'admin' },
       { userName: "MJ", password: "Pa$$w0rd", role: 'teacher' },
       { userName: "NH", password: "Pa$$w0rd", role: 'student' },
-      { userName: "Alexander", password: "Pa$$w0rd", role: 'student' },
-      { userName: "Johan", password: "Pa$$w0rd", role: 'student' } 
+      { userName: "AS", password: "Pa$$w0rd", role: 'student' },
+      { userName: "JW", password: "Pa$$w0rd", role: 'student' } 
     ];
 
     const matchedUser = premadeUsers.find(user => user.userName === userName && user.password === password);

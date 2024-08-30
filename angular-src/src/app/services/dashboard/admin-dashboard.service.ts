@@ -17,7 +17,8 @@ export class AdminDashboardService {
    * @returns An observable of the dashboard data.
    */
   getDashboardData(): Observable<{ students: User[], activeQuestionnaires: ActiveQuestionnaire[] }> {
-    return this.appDataService.getDashboardData().pipe(
+    const role = "students";
+    return this.appDataService.getDashboardData(role).pipe(
       catchError(error => this.errorHandlingService.handleError(error, 'Failed to get dashboard data'))
     );
   }

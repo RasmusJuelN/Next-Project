@@ -19,7 +19,7 @@
             <li>
               <p><strong>ID: </strong>{{ questionnaire.id }}</p>
               <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
-              <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
+              <p><strong>Student Name: </strong>{{ questionnaire.student.fullName }}</p>
               <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
                 {{ questionnaire.isStudentFinished ? 'Student Finished' : 'Student Pending' }}
               </div>
@@ -57,7 +57,7 @@
           <li>
             <p><strong>ID: </strong>{{ questionnaire.id }}</p>
             <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
-            <p><strong>Student Name: </strong>{{ questionnaire.student.username }}</p>
+            <p><strong>Student Name: </strong>{{ questionnaire.student.fullName }}</p>
             <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
               {{ questionnaire.isStudentFinished ? 'Student Finished' : 'Student Pending' }}
             </div>

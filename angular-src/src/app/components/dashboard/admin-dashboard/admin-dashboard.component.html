@@ -22,14 +22,14 @@
               <div class="user-info">
                 <h4>Student</h4>
                 <p><strong>ID:</strong> {{questionnaire.student.id}}</p>
-                <p><strong>Name:</strong> {{questionnaire.student.username}}</p>
+                <p><strong>Name:</strong> {{questionnaire.student.fullName}}</p>
                 <p><strong>Role:</strong> {{questionnaire.student.role}}</p>
                 <p><strong>Status:</strong> {{questionnaire.isStudentFinished ? 'Finished' : 'Not Finished'}}</p>
               </div>
               <div class="user-info">
                 <h4>Teacher</h4>
                 <p><strong>ID:</strong> {{questionnaire.teacher.id}}</p>
-                <p><strong>Name:</strong> {{questionnaire.teacher.username}}</p>
+                <p><strong>Name:</strong> {{questionnaire.teacher.fullName}}</p>
                 <p><strong>Role:</strong> {{questionnaire.teacher.role}}</p>
                 <p><strong>Status:</strong> {{questionnaire.isTeacherFinished ? 'Finished' : 'Not Finished'}}</p>
               </div>
@@ -53,7 +53,7 @@
          @for (student of studentList; track student.id) {
           <li>
             <p><strong>ID:</strong> {{student.id}}</p>
-            <p><strong>Username:</strong> {{student.username}}</p>
+            <p><strong>Username:</strong> {{student.fullName}}</p>
             <p><strong>Role:</strong> {{student.role}}</p>
             @if(!isStudentInQuestionnaire(student.id)){
               <button (click)="addStudentToQuestionnaire(student.id)">Add to Questionnaire</button>
