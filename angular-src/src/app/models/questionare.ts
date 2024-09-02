@@ -10,15 +10,12 @@ export interface User {
   role: string; // Role for the user.
 }
 
-/**
- * Represents Active Questionnaire
- */
-export interface ActiveQuestionnaire {
-  id: string;
-  student: User;
-  teacher: User;
-  isStudentFinished: boolean;
-  isTeacherFinished: boolean;
+export interface QuestionnaireMetadata {
+  questionnaireId: string;
+  totalQuestions: number;
+  questionIds: string[];
+  currentIndex: number;
+  progress?: number;
 }
 
 /**
@@ -41,6 +38,28 @@ export interface Question {
   selectedOption?: number; // ID of the selected option, if any
   customAnswer?: string; // The user's custom answer, if any
 }
+
+export interface QuestionTemplate {
+  templateId: string;
+  title: string;
+  description: string;
+  questions: Question[];
+}
+
+export interface ActiveQuestionnaire {
+  id: string; // ID of the active questionnaire instance
+  student: User; // The student involved in the questionnaire
+  teacher: User; // The teacher involved in the questionnaire
+  isStudentFinished: boolean; // Whether the student has finished the questionnaire
+  isTeacherFinished: boolean; // Whether the teacher has finished the questionnaire
+  questionnaireTemplate: {
+    templateId: string; // ID of the template used
+    title: string; // Title of the template
+    description: string; // Description of the template
+  };
+}
+
+
 
 export interface userAnswer{
   questionnaireId: string;

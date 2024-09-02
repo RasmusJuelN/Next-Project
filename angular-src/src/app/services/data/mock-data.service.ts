@@ -216,13 +216,14 @@ export class MockDataService {
   }
   
 
-  /**
-   * Retrieves the list of questions for a specific user if they exist and are part of an active questionnaire.
-   * @param userId The ID of the user.
-   * @returns An observable that emits the list of questions.
-   */
-  getQuestionsForUser(): Observable<Question[]> {
-    return of(this.mockDbService.mockData.mockQuestions).pipe(delay(250));
+  getQuestionsForUser(templateId: string): Observable<Question[]> {
+    // Find the template by templateId
+    const template = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === templateId);
+  
+    // If template is found, return its questions; otherwise, return an empty array
+    const questions = template ? template.questions : [];
+    
+    return of(questions).pipe(delay(250)); // Simulate delay for mock data
   }
   /**
    * Checks if a student is currently part of an active questionnaire.
@@ -271,7 +272,7 @@ export class MockDataService {
   }
 
    /**
-   * Creates a new active questionnaire.
+   * Creates a new active questionnaire, whoever it uses a default template.
    * @param studentId The ID of the student.
    * @param teacherId The ID of the teacher.
    * @returns The created active questionnaire.
@@ -284,12 +285,24 @@ export class MockDataService {
       return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'createActiveQuestionnaire');
     }
   
+    // Use 'template1' as the default questionnaire template
+    const defaultTemplate = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === 'template1');
+    
+    if (!defaultTemplate) {
+      return this.errorHandlingService.handleError(new Error('Default template not found'), 'createActiveQuestionnaire');
+    }
+  
     const newActiveQuestionnaire: ActiveQuestionnaire = {
       id: this.generateId(),
       student: student,
       teacher: teacher,
       isStudentFinished: false,
-      isTeacherFinished: false
+      isTeacherFinished: false,
+      questionnaireTemplate: {
+        templateId: defaultTemplate.templateId,
+        title: defaultTemplate.title,
+        description: defaultTemplate.description
+      }
     };
   
     this.mockDbService.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);

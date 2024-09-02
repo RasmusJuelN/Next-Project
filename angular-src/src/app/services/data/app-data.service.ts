@@ -44,8 +44,8 @@ export class AppDataService {
     return this.dataService.getActiveQuestionnaireById(id);
   }
 
-  getQuestionsForUser(): Observable<Question[]> {
-    return this.dataService.getQuestionsForUser();
+  getQuestionsForUser(templateId: string): Observable<Question[]> {
+    return this.dataService.getQuestionsForUser(templateId);
   }
 
   submitUserAnswers(userId: string | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
