@@ -129,9 +129,9 @@ export class MockAuthService {
    * Retrieves the user ID from the token stored in the JWTTokenService.
    * @returns The user ID if the token is valid, or null if the token is invalid or not found.
    */
-  getUserId(): string | null {
+  getUserId(): number | null {
     const decodedToken = this.jwtTokenService.getDecodeToken();
-    return decodedToken ? decodedToken['sub'] : null; // Access with ['sub'] to avoid index signature issues
+    return decodedToken && decodedToken['sub'] ? Number(decodedToken['sub']) : null;
   }
 
   /**

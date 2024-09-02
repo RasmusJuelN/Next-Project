@@ -4,18 +4,10 @@ export enum DashboardSection {
     generalResults = 'generalResults',
     SearchResults = 'searchResults'
   }
-  
-  export enum DashboardFilter {
-    FinishedByStudents = 'finishedByStudents',
-    NotAnsweredByStudents = 'notAnsweredByStudents',
-    NotAnsweredByTeacher = 'notAnsweredByTeacher'
+  // NEW
+  export interface QuestionnaireFilter {
+    teacherId?: number;
+    searchStudent?: string;
+    studentIsFinished?: boolean;
+    teacherIsFinished?: boolean;
   }
-
-  export type LoadSection = 'generalResults' | 'searchResults';
-
-  export interface SectionState {
-    data: ActiveQuestionnaire[];
-    collapsed: boolean;
-    noMoreData: boolean;
-    currentOffset: number;
-}

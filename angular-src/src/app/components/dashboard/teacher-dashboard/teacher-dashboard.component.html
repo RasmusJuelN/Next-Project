@@ -1,79 +1,49 @@
-<div class="dashboard-container">
-
-  <!-- Search Bar -->
-  <div class="search-bar">
-    <input type="text" [(ngModel)]="searchQuery" placeholder="Search students..." (keydown.enter)="onSearch()" />
-    <button (click)="onSearch()">Search</button>
+<!-- In teacher-dashboard.component.html -->
+<div class="top-container">
+  <div class="search-and-apply">
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="filters.searchStudent" (ngModelChange)="applyFilters()" placeholder="Search by student name...">
+    </div>
+    <button class="apply-button" (click)="applyFilters()">Apply Filters</button>
   </div>
 
-  <!-- Section: Search Results -->
-  <ng-container *ngIf="sectionStates['searchResults'].data.length > 0">
-    <div class="questionnaire-section">
-      <h3>Search Results</h3>
-      <button class="collapse-button" (click)="toggleSection('searchResults')">
-        {{ sectionStates['searchResults'].collapsed ? '+' : '-' }}
-      </button>
-      <div *ngIf="!sectionStates['searchResults'].collapsed">
-        <ng-container *ngFor="let questionnaire of sectionStates['searchResults'].data;">
-          <ul>
-            <li>
-              <p><strong>ID: </strong>{{ questionnaire.id }}</p>
-              <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
-              <p><strong>Student Name: </strong>{{ questionnaire.student.fullName }}</p>
-              <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
-                {{ questionnaire.isStudentFinished ? 'Student Finished' : 'Student Pending' }}
-              </div>
-              <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
-                {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
-              </div>
-              <div>
-                <button *ngIf="!questionnaire.isTeacherFinished" (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">
-                  Go to questionnaire
-                </button>
-              </div>
-            </li>
-          </ul>
-          <hr class="hr-line">
-        </ng-container>
-        <button *ngIf="!sectionStates['searchResults'].noMoreData" (click)="loadMore('searchResults')">Load More</button>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- Section: General Results with Filter Selection -->
-  <div class="questionnaire-section">
-    <h3>Search with a filter</h3>
+  <div class="completion-filters">
     <div class="filter-options">
-      <select [(ngModel)]="selectedFilter" (change)="applyFilter()">
-        <option *ngFor="let filter of filters" [value]="filter">{{ filter }}</option>
+      <label>Student Completion:</label>
+      <select [(ngModel)]="filters.studentIsFinished" (ngModelChange)="onStudentFinishedChange($event)">
+        <option [ngValue]="undefined">All</option>
+        <option [ngValue]="true">Finished</option>
+        <option [ngValue]="false">Not Finished</option>
       </select>
     </div>
-    <button class="collapse-button" (click)="toggleSection('generalResults')">
-      {{ sectionStates['generalResults'].collapsed ? '+' : '-' }}
-    </button>
-    <div *ngIf="!sectionStates['generalResults'].collapsed">
-      <ng-container *ngFor="let questionnaire of sectionStates['generalResults'].data;">
-        <ul>
-          <li>
-            <p><strong>ID: </strong>{{ questionnaire.id }}</p>
-            <p><strong>Student ID: </strong>{{ questionnaire.student.id }}</p>
-            <p><strong>Student Name: </strong>{{ questionnaire.student.fullName }}</p>
-            <div class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
-              {{ questionnaire.isStudentFinished ? 'Student Finished' : 'Student Pending' }}
-            </div>
-            <div class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
-              {{ questionnaire.isTeacherFinished ? 'Teacher Finished' : 'Teacher Pending' }}
-            </div>
-            <div>
-              <button *ngIf="!questionnaire.isTeacherFinished" (click)="toActiveQuestionnaire(questionnaire.id)" class="route-button">
-                Go to questionnaire
-              </button>
-            </div>
-          </li>
-        </ul>
-        <hr class="hr-line">
-      </ng-container>
-      <button *ngIf="!sectionStates['generalResults'].noMoreData" (click)="loadMore('generalResults')">Load More</button>
+    <div class="filter-options">
+      <label>Teacher Completion:</label>
+      <select [(ngModel)]="filters.teacherIsFinished" (ngModelChange)="onTeacherFinishedChange($event)">
+        <option [ngValue]="undefined">All</option>
+        <option [ngValue]="true">Finished</option>
+        <option [ngValue]="false">Not Finished</option>
+      </select>
     </div>
   </div>
+  <button class="collapse-button" (click)="toggleCollapse()">{{ isCollapsed ? 'Show' : 'Hide' }} Questionnaires</button>
+</div>
+
+<div class="questionnaire-section" *ngIf="!isCollapsed">
+  <ng-container *ngFor="let questionnaire of activeQuestionnaires; let i = index">
+    <div class="questionnaire-list">
+      <p><strong>ID:</strong> {{ questionnaire.id }}</p>
+      <p><strong>Student Name:</strong> {{ questionnaire.student.fullName }}</p>
+      <div>
+        <span class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
+          Student: {{ questionnaire.isStudentFinished ? 'Completed' : 'Pending' }}
+        </span>
+        <span class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
+          Teacher: {{ questionnaire.isTeacherFinished ? 'Reviewed' : 'Pending' }}
+        </span>
+      </div>
+      <button class="route-button" (click)="toActiveQuestionnaire(questionnaire.id)">Go to Questionnaire</button>
+      <hr class="hr-line" *ngIf="i < activeQuestionnaires.length - 1">
+    </div>
+  </ng-container>
+  <button *ngIf="!noMoreData" class="load-more-button" (click)="loadMoreQuestionnaires()">Load More</button>
 </div>

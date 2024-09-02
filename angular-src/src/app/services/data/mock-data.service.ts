@@ -6,7 +6,6 @@ import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../..
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
 import { AppAuthService } from '../auth/app-auth.service';
-import { DashboardFilter, DashboardSection } from '../../models/dashboard';
 import { MockDbService } from '../mock/mock-db.service';
 
 
@@ -75,48 +74,6 @@ export class MockDataService {
     return of(pageData).pipe(
       delay(250), // Simulate delay for mock data
       catchError(this.handleError('getActiveQuestionnairePage'))
-    );
-  }
-  
-
-
-  getPaginatedDashboardData(
-    section: DashboardSection,
-    filter: DashboardFilter | null = null, // Filter applies only to generalResults
-    offset: number = 0,
-    limit: number = 5,
-    searchQuery?: string
-  ): Observable<ActiveQuestionnaire[]> {
-    const teacherId = parseInt(this.authService.getUserId()!, 10);
-  
-    let filteredQuestionnaires: ActiveQuestionnaire[] = [];
-
-    if (section === DashboardSection.SearchResults && searchQuery) {
-      // Handle search scenario only
-      filteredQuestionnaires = this.mockDbService.mockData.mockActiveQuestionnaire.filter(q =>
-        q.teacher.id === teacherId && q.student.fullName.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    } else if (section === DashboardSection.generalResults && filter) {
-      // Handle section-based filtering for general results
-      filteredQuestionnaires = this.mockDbService.mockData.mockActiveQuestionnaire.filter(q => {
-        switch (filter) {
-          case DashboardFilter.FinishedByStudents:
-            return q.isStudentFinished && !q.isTeacherFinished;
-          case DashboardFilter.NotAnsweredByStudents:
-            return !q.isStudentFinished;
-          case DashboardFilter.NotAnsweredByTeacher:
-            return !q.isTeacherFinished;
-          default:
-            return false;
-        }
-      });
-    }
-    
-    // Simulate pagination by slicing the array
-    const paginatedData = filteredQuestionnaires.slice(offset, offset + limit);
-    return of(paginatedData).pipe(
-      delay(250), // Simulate delay for mock data
-      catchError(this.handleError('getPaginatedDashboardData'))
     );
   }
 

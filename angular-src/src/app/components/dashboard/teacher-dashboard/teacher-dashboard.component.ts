@@ -1,88 +1,77 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TeacherDashboardService } from '../../../services/dashboard/teacher-dashboard.service';
 import { ActiveQuestionnaire } from '../../../models/questionare';
-import { DashboardFilter } from '../../../models/dashboard';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-
-type LoadSection = 'generalResults' | 'searchResults';
-
-interface SectionState {
-  data: ActiveQuestionnaire[];
-  collapsed: boolean;
-  noMoreData: boolean;
-  currentOffset: number;
-}
+import { AppAuthService } from '../../../services/auth/app-auth.service';
 
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './teacher-dashboard.component.html',
-  styleUrls: ['../shared-dashboard-styles.css', './teacher-dashboard.component.css']
+  styleUrls: ['./teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent {
-  // State for each section. Offset is not currently used but could be in the future.
-  sectionStates: { [key in LoadSection]: SectionState } = {
-    generalResults: { data: [], collapsed: true, noMoreData: false, currentOffset: 0 },
-    searchResults: { data: [], collapsed: false, noMoreData: false, currentOffset: 0 }
-  };
+  activeQuestionnaires: ActiveQuestionnaire[] = [];
+  filters: any;
+  isCollapsed: boolean = true;
+  currentPage: number = 1;
+  noMoreData: boolean = false;
 
-  selectedFilter: DashboardFilter = DashboardFilter.FinishedByStudents; // Default filter
-  filters = Object.values(DashboardFilter); // Get all filters for dropdown
-  searchQuery: string = '';
-
-  router = inject(Router);
-
-  constructor(private teacherDashboardService: TeacherDashboardService) {}
+  constructor(private teacherDashboardService: TeacherDashboardService, private router: Router, private authService:AppAuthService) {}
 
   ngOnInit(): void {
-    this.loadResults('generalResults'); // Initial load for general results
+    this.filters = {
+      studentIsFinished: undefined,
+      teacherIsFinished: undefined,
+      teacherId: this.authService.getUserId()
+    };
+    this.loadQuestionnaires(true);
   }
 
-  applyFilter(): void {
-    this.resetSection('generalResults');
-    this.loadResults('generalResults');
+  applyFilters(): void {
+    this.loadQuestionnaires(true);
   }
 
-  onSearch(): void {
-    if (this.searchQuery.trim()) {
-      this.resetSection('searchResults');
-      this.loadResults('searchResults');
+  loadQuestionnaires(reset: boolean = false): void {
+    if (reset) {
+      this.activeQuestionnaires = [];
+      this.currentPage = 1;
+      this.noMoreData = false;
     }
+
+    this.teacherDashboardService.loadActiveQuestionnaires(this.filters, this.currentPage).subscribe(
+      questionnaires => {
+        this.activeQuestionnaires = [...this.activeQuestionnaires, ...questionnaires];
+        this.noMoreData = questionnaires.length < this.teacherDashboardService.getLoadLimit();
+        if (!this.noMoreData) {
+          this.currentPage++;
+        }
+      },
+      error => console.error('Failed to load questionnaires:', error)
+    );
   }
 
-  loadResults(section: LoadSection, loadMore: boolean = false): void {
-    const { currentOffset, data } = this.sectionStates[section];
-    const limit = this.teacherDashboardService.getLoadLimit();
-
-    const loadData$ = section === 'generalResults'
-      ? this.teacherDashboardService.loadFilteredData(this.selectedFilter, currentOffset)
-      : this.teacherDashboardService.searchQuestionnaires(this.searchQuery, currentOffset);
-
-    loadData$.subscribe(newData => {
-      this.sectionStates[section].data = loadMore ? [...data, ...newData] : newData;
-      this.sectionStates[section].noMoreData = newData.length < limit;
-      if (loadMore) this.sectionStates[section].currentOffset += limit;
-    });
+  toggleCollapse(): void {
+    this.isCollapsed = !this.isCollapsed;
   }
 
-  loadMore(section: LoadSection): void {
-    this.loadResults(section, true);
+  onStudentFinishedChange(value: boolean | null): void {
+    this.filters.studentIsFinished = value === null ? undefined : value;
+    this.applyFilters();
   }
 
-  toggleSection(section: LoadSection): void {
-    this.sectionStates[section].collapsed = !this.sectionStates[section].collapsed;
-    if (!this.sectionStates[section].collapsed && this.sectionStates[section].data.length === 0) {
-      this.loadResults(section);
+  onTeacherFinishedChange(value: boolean | null): void {
+    this.filters.teacherIsFinished = value === null ? undefined : value;
+    this.applyFilters();
+  }
+
+  loadMoreQuestionnaires(): void {
+    if (!this.noMoreData) {
+      this.loadQuestionnaires();
     }
-  }
-
-  resetSection(section: LoadSection): void {
-    this.sectionStates[section].data = [];
-    this.sectionStates[section].currentOffset = 0;
-    this.sectionStates[section].noMoreData = false;
   }
 
   toActiveQuestionnaire(urlString: string): void {

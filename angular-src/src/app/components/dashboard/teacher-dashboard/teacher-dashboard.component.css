@@ -1,77 +1,142 @@
-/* General container styles */
-.student-status-section, .questionnaire-section {
+/* General Styles for Containers */
+.dashboard-container, .top-container, .questionnaire-section {
   background-color: #FFFFFF;
   font-family: Arial, sans-serif;
-  margin: 0 auto;
-  margin-bottom: 20px;
-  width: 35%;
-  padding: 20px;
-  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  position: relative; /* Allow child elements like the button to be positioned absolutely */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
 }
 
-/* Header styles */
-.collapsible-header {
-  font-weight: 600;
-  color: #333;
+/* Layout Adjustments for Top Container */
+.top-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Flex Layout for Search and Filter Sections */
+.search-and-apply, .completion-filters {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
   margin-bottom: 20px;
 }
 
-/* Collapse/Expand button */
-.collapse-button {
-  width: 40px;
-  height: 40px; /* Adjusted height for better proportion */
-  position: absolute;
-  top: 15px;
-  right: 15px;
+
+
+/* Search Bar Configuration */
+.search-bar {
+  flex-grow: 1;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  margin-top: 5px;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: rgb(214, 222, 230);
+  transition: background-color 0.2s;
+}
+.load-more-button, .route-button{
+  background-color: #007bff;
+  color: white;
+  margin-top: 15px;
+}
+
+.load-more-button:hover, .route-button:hover{
+  background-color: #0065d1;
+}
+
+/* Apply Button Style */
+.apply-button {
+  margin-left: 46px;
+  padding: 10px 20px;
   background-color: #007bff;
   border: none;
   color: white;
-  font-size: 1.2em;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  padding: 0; /* Removes extra padding to center the content */
 }
 
-.collapse-button:hover {
+.apply-button:hover {
   background-color: #0056b3;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* List styles */
-ul {
+/* Styling for Filters */
+.filter-options {
+  flex: 1;
+  margin-top: 10px;
+}
+
+.filter-options label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.filter-options select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .search-and-apply, .completion-filters {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .search-bar, .apply-button, .filter-options {
+    width: 100%;
+    margin-right: 0; 
+  }
+
+  .apply-button {
+    margin-top: 10px;
+  }
+}
+
+/* Questionnaire Listing Styles */
+.questionnaire-section ul {
   list-style-type: none;
   padding: 0;
 }
 
-li {
-  padding: 15px;
-  margin-bottom: 10px;
+.questionnaire-section li {
+  background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 15px;
 }
 
-li p {
+.questionnaire-section li p {
   margin: 5px 0;
 }
 
-li p:not(:last-child) {
-  margin-bottom: 10px;
-}
-
-/* Status Indicator Styles */
+/* Status Badges */
 .status-badge {
   display: inline-block;
   padding: 5px 10px;
   border-radius: 15px;
   color: white;
   font-size: 0.9em;
-  margin-top: 5px;
   margin-right: 8px;
 }
 
@@ -83,79 +148,8 @@ li p:not(:last-child) {
   background-color: #dc3545;
 }
 
-/* Button styles */
-button {
-  margin-top: 10px;
-  color: white;
-  background-color: #007bff;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9em;
-}
-
-button:hover {
-  background-color: #0056b3;
-  transition: background-color 0.2s;
-}
-
-/* Divider between items */
+/* General Divider Style */
 .hr-line {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  border: 0;
   border-top: 1px solid #eee;
-}
-
-.search-bar {
-  margin: 20px auto;
-  width: 35%;
-  text-align: center;
-}
-
-.search-bar input {
-  width: 100%;
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1em;
-}
-
-/* Styles for Filter Dropdown */
-.filter-options select {
-  width: 100%;
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1em;
-  background-color: white;
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  appearance: none; /* Removes default dropdown styling */
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 10px 10px;
-}
-
-.filter-options select:hover {
-  border-color: #007bff;
-}
-
-.filter-options select:focus {
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-  border-color: #007bff;
-}
-
-/* Option styles (note: styles for individual options are limited) */
-.filter-options select option {
-  padding: 10px;
-}
-
-/* Optional: Adjust dropdown appearance on smaller screens */
-@media (max-width: 768px) {
-  .filter-options select {
-    font-size: 0.9em;
-  }
+  margin: 20px 0;
 }

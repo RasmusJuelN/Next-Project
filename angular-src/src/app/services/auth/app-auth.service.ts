@@ -54,7 +54,7 @@ export class AppAuthService {
    * Gets the current user's ID from the token.
    * @returns The ID of the user.
    */
-  getUserId(): string | null {
+  getUserId(): number | null {
     return this.authService.getUserId();
   }
 
