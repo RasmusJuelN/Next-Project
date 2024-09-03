@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
-import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../../models/questionare';
+import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire, QuestionTemplate } from '../../models/questionare';
 
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
@@ -16,11 +16,49 @@ export class MockDataService {
   private mockDbService = inject(MockDbService);
   private jwtTokenService = inject(JWTTokenService);
   private errorHandlingService = inject(ErrorHandlingService)
-  private authService = inject(AppAuthService)
 
   constructor(private http: HttpClient) {
     this.mockDbService.loadInitialMockData();
   }
+
+
+  // Get all templates
+  getTemplates(): Observable<QuestionTemplate[]> {
+    console.log(this.mockDbService.mockData.mockQuestionTemplates)
+    return of(this.mockDbService.mockData.mockQuestionTemplates);
+  }
+
+  // Create a new template
+  createTemplate(template: QuestionTemplate): Observable<void> {
+    // Add a new template to the mock database
+    this.mockDbService.mockData.mockQuestionTemplates.push(template);
+    this.mockDbService.saveData(); // Save the updated state to local storage
+    return of();
+  }
+
+  // Update an existing template
+  updateTemplate(updatedTemplate: QuestionTemplate): Observable<void> {
+    // Find and update the existing template in the mock database
+    const templateIndex = this.mockDbService.mockData.mockQuestionTemplates.findIndex(t => t.templateId === updatedTemplate.templateId);
+    if (templateIndex !== -1) {
+      this.mockDbService.mockData.mockQuestionTemplates[templateIndex] = updatedTemplate;
+      this.mockDbService.saveData(); // Save the updated state to local storage
+    }
+    return of();
+  }
+
+  // Delete a template by ID
+  deleteTemplate(templateId: string): Observable<void> {
+    // Remove the template from the mock database
+    this.mockDbService.mockData.mockQuestionTemplates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.templateId !== templateId);
+    this.mockDbService.saveData(); // Save the updated state to local storage
+    return of();
+  }
+
+
+
+
+
 
   getActiveQuestionnairePage(
     filter: any = {}, // General filter object

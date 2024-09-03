@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ActiveQuestionnaire, Question, User } from '../models/questionare';
-import { environment } from '../../environments/environment';
+import { ActiveQuestionnaire, Question, User } from '../../models/questionare';
+import { environment } from '../../../environments/environment';
 
 /**
  * Service for handling data operations.

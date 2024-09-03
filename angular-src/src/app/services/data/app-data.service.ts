@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MockDataService } from './mock-data.service';
-import { Observable } from 'rxjs';
-import { ActiveQuestionnaire, Question, User } from '../../models/questionare';
+import { Observable, of } from 'rxjs';
+import { ActiveQuestionnaire, Question, QuestionTemplate, User } from '../../models/questionare';
 
 @Injectable({
   providedIn: 'root'
@@ -12,26 +12,31 @@ export class AppDataService {
     private dataService: MockDataService
   ) {}
 
-  // Dashboard
+  // Template Management Methods (Newly Added)
+  // Get all templates
+  getTemplates(): Observable<QuestionTemplate[]> {
+    return this.dataService.getTemplates();
+  }
 
+  // Create a new template
+  createTemplate(template: QuestionTemplate): Observable<void> {
+    return this.dataService.createTemplate(template)
+  }
+
+  // Update an existing template
+  updateTemplate(template: QuestionTemplate)  {
+    return this.dataService.updateTemplate(template)
+  }
+
+    // Delete a template by ID
+    deleteTemplate(templateId: string): Observable<void> {
+      return this.dataService.deleteTemplate(templateId)
+    }
+  
+
+  // Dashboard
   getActiveQuestionnairePage(filter: any, page: number, limit: number): Observable<ActiveQuestionnaire[]> {
     return this.dataService.getActiveQuestionnairePage(filter, page, limit);
-  }
-  
-  getDashboardData(role:string): Observable<{ students: User[], activeQuestionnaires: ActiveQuestionnaire[] }> {
-    return this.dataService.getDashboardData(role);
-  }
-
-  addStudentToQuestionnaire(studentId: number): Observable<void> {
-    return this.dataService.addStudentToQuestionnaire(studentId);
-  }
-
-  createActiveQuestionnaire(studentId: number, teacherId: number): Observable<ActiveQuestionnaire> {
-    return this.dataService.createActiveQuestionnaire(studentId, teacherId);
-  }
-
-  deleteActiveQuestionnaire(questionnaireId: string): Observable<void> {
-    return this.dataService.deleteActiveQuestionnaire(questionnaireId);
   }
 
   // Questionnaire Methods
