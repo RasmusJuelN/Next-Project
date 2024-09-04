@@ -8,6 +8,7 @@ import { TeacherDashboardComponent } from './components/dashboard/teacher-dashbo
 import { roleGuard } from './guards/role-guard.guard';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { TemplateManagerComponent } from './components/dashboard/admin-dashboard/template-manager/template-manager.component';
+import { ActiveQuestionnaireManagerComponent } from './components/dashboard/admin-dashboard/active-questionnaire-manager/active-questionnaire-manager.component';
 
 export const routes: Routes = [
     { path: '', component: LoginPageComponent },
@@ -30,6 +31,14 @@ export const routes: Routes = [
           {
             path: 'testing-templates',
             component: TemplateManagerComponent,
+            canActivate: [roleGuard],
+            data: { role: 'admin' }
+          },
+          {
+            path: 'testing-active-questionnaire',
+            component: ActiveQuestionnaireManagerComponent,
+            canActivate: [roleGuard],
+            data: { role: 'admin' }
           },
         ]
       },

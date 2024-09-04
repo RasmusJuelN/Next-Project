@@ -1,11 +1,14 @@
 <div class="template-manager">
   <h2>Manage Templates</h2>
   <button (click)="createTemplate()">Create New Template</button>
+  
   <ul>
     <li *ngFor="let template of templates">
       {{ template.title }}
-      <button (click)="editTemplate(template)">Edit</button>
-      <button (click)="deleteTemplate(template.templateId)">Delete</button>
+      <div class="actions">
+        <button (click)="editTemplate(template)">Edit</button>
+        <button (click)="deleteTemplate(template.templateId)">Delete</button>
+      </div>
     </li>
   </ul>
 
@@ -24,14 +27,17 @@
     <ul>
       <li *ngFor="let question of selectedTemplate.questions">
         {{ question.title }}
-        <button (click)="editQuestion(question)">Edit Question</button>
-        <button (click)="deleteQuestion(question.id)">Delete Question</button>
+        <div class="actions">
+          <button (click)="editQuestion(question)">Edit Question</button>
+          <button (click)="deleteQuestion(question.id)">Delete Question</button>
+        </div>
       </li>
     </ul>
-    <button (click)="addQuestion()">Add Question</button>
-
-    <button (click)="saveTemplate()">Save Template</button>
-    <button (click)="selectedTemplate = null">Cancel</button>
+    <div class="actions">
+      <button (click)="addQuestion()">Add Question</button>
+      <button (click)="saveTemplate()">Save Template</button>
+      <button (click)="selectedTemplate = null">Cancel</button>
+    </div>
   </div>
 
   <div *ngIf="selectedQuestion" class="question-editor">
@@ -59,13 +65,16 @@
         <label *ngIf="option.isCustom">
           Custom Answer Enabled
         </label>
-        <button (click)="deleteOption(option.id)">Delete Option</button>
+        <div class="actions">
+          <button (click)="deleteOption(option.id)">Delete Option</button>
+        </div>
       </li>
     </ul>
-    <button (click)="addOption()">Add Normal Option</button>
-    <button (click)="addOption(true)">Add Custom Answer Option</button>
-
-    <button (click)="saveQuestion()">Save Question</button>
-    <button (click)="selectedQuestion = null">Cancel</button>
+    <div class="actions">
+      <button (click)="addOption()">Add Normal Option</button>
+      <button (click)="addOption(true)">Add Custom Answer Option</button>
+      <button (click)="saveQuestion()">Save Question</button>
+      <button (click)="selectedQuestion = null">Cancel</button>
+    </div>
   </div>
 </div>

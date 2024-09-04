@@ -12,6 +12,17 @@ export class AppDataService {
     private dataService: MockDataService
   ) {}
 
+  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
+    return this.dataService.createActiveQuestionnaire(student,teacher,templateId)
+  }
+
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10){
+    return this.dataService.getUsersFromSearch(role,nameString,page,limit);
+  }
+  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10){
+    return this.dataService.getTemplatesFromSearch(titleString,page,limit);
+  }
+
   // Template Management Methods (Newly Added)
   // Get all templates
   getTemplates(): Observable<QuestionTemplate[]> {

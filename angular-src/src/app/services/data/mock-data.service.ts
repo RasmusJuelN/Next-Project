@@ -21,10 +21,70 @@ export class MockDataService {
     this.mockDbService.loadInitialMockData();
   }
 
+  
+  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
+    const template = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === templateId);
+
+    if (!template) {
+      throw new Error(`Template with ID ${templateId} not found.`);
+    }
+
+    const newActiveQuestionnaire: ActiveQuestionnaire = {
+      id: this.generateId(), // Generate a unique ID based on the current timestamp
+      student,
+      teacher,
+      questionnaireTemplate: {
+        templateId: template.templateId,
+        title: template.title,
+        description: template.description
+      },
+      isStudentFinished: false,
+      isTeacherFinished: false,
+      createdAt: new Date()
+    };
+
+    // Add the new ActiveQuestionnaire to the mock database
+    this.mockDbService.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);
+    this.mockDbService.saveData()
+
+    // Return the new ActiveQuestionnaire as an observable
+    return of(newActiveQuestionnaire).pipe(delay(300)); // Simulate a delay
+  }
+
+  // Active questionare
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10) {
+    // Filter users by role (student or teacher)
+    let users = this.mockDbService.mockData.mockUsers.filter(u => u.role === role);
+  
+    // Filter users by name string (case-insensitive)
+    if (nameString) {
+      users = users.filter(u => u.fullName.toLowerCase().includes(nameString.toLowerCase()));
+    }
+  
+    // Implement pagination: calculate start and end indexes
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+  
+    // Slice the array to return the correct page of results
+    const paginatedUsers = users.slice(startIndex, endIndex);
+  
+    // Return the result as an Observable (simulate async operation)
+    return of(paginatedUsers).pipe(delay(300)); // Optional delay to simulate network latency
+  }
+
+  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10){
+    const templates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.title.toLowerCase().includes(titleString.toLowerCase()))
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    const pageinatedTemplates = templates.slice(startIndex, endIndex);
+    return of(pageinatedTemplates).pipe(delay(300)); // Optional delay to simulate network latency
+  }
+
 
   // Get all templates
   getTemplates(): Observable<QuestionTemplate[]> {
-    console.log(this.mockDbService.mockData.mockQuestionTemplates)
     return of(this.mockDbService.mockData.mockQuestionTemplates);
   }
 
@@ -85,6 +145,13 @@ export class MockDataService {
     if (filter.searchStudent) {
       filteredQuestionnaires = filteredQuestionnaires.filter(q =>
         q.student.fullName.toLowerCase().includes(filter.searchStudent.toLowerCase())
+      );
+    }
+
+    // Filter by student's username (case insensitive)
+    if (filter.searchTeacher) {
+      filteredQuestionnaires = filteredQuestionnaires.filter(q =>
+        q.teacher.fullName.toLowerCase().includes(filter.searchTeacher.toLowerCase())
       );
     }
   
@@ -185,30 +252,6 @@ export class MockDataService {
       catchError(this.handleError('getStudents'))
     );
   }
-
-  /**
-   * Adds a student to the questionnaire if they exist and are not already in an active questionnaire.
-   * @param studentId The ID of the student to add.
-   */
-  addStudentToQuestionnaire(studentId: number, teacherId: number = 1): Observable<void> {
-    const student = this.mockDbService.mockData.mockUsers.find(u => u.id === studentId && u.role === 'student');
-    const teacher = this.mockDbService.mockData.mockUsers.find(u => u.id === teacherId && u.role === 'teacher');
-
-    if (!student || !teacher) {
-      return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'addStudentToQuestionnaire');
-    }
-
-    const studentAvailableForQuestionnaire = !this.mockDbService.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
-
-    if (studentAvailableForQuestionnaire) {
-      return this.createActiveQuestionnaire(studentId, teacherId).pipe(
-        map(() => {}),
-        catchError(this.handleError('addStudentToQuestionnaire'))
-      );
-    } else {
-      return this.errorHandlingService.handleError(new Error('Student is already in an active questionnaire or has finished it'), 'addStudentToQuestionnaire');
-    }
-  }
   
 
   getQuestionsForUser(templateId: string): Observable<Question[]> {
@@ -263,48 +306,6 @@ export class MockDataService {
     return of(undefined).pipe(
       delay(250),
       catchError(this.handleError('submitData'))
-    );
-  }
-
-   /**
-   * Creates a new active questionnaire, whoever it uses a default template.
-   * @param studentId The ID of the student.
-   * @param teacherId The ID of the teacher.
-   * @returns The created active questionnaire.
-   */
-   createActiveQuestionnaire(studentId: number, teacherId: number): Observable<ActiveQuestionnaire> {
-    const student = this.mockDbService.mockData.mockUsers.find(u => u.id === studentId && u.role === 'student');
-    const teacher = this.mockDbService.mockData.mockUsers.find(u => u.id === teacherId && u.role === 'teacher');
-  
-    if (!student || !teacher) {
-      return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'createActiveQuestionnaire');
-    }
-  
-    // Use 'template1' as the default questionnaire template
-    const defaultTemplate = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === 'template1');
-    
-    if (!defaultTemplate) {
-      return this.errorHandlingService.handleError(new Error('Default template not found'), 'createActiveQuestionnaire');
-    }
-  
-    const newActiveQuestionnaire: ActiveQuestionnaire = {
-      id: this.generateId(),
-      student: student,
-      teacher: teacher,
-      isStudentFinished: false,
-      isTeacherFinished: false,
-      questionnaireTemplate: {
-        templateId: defaultTemplate.templateId,
-        title: defaultTemplate.title,
-        description: defaultTemplate.description
-      }
-    };
-  
-    this.mockDbService.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);
-    this.saveData();
-    return of(newActiveQuestionnaire).pipe(
-      delay(250),
-      catchError(this.handleError('createActiveQuestionnaire'))
     );
   }
 

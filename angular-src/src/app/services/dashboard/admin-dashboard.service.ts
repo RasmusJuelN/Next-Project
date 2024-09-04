@@ -9,6 +9,20 @@ import { ErrorHandlingService } from '../error-handling.service';
 })
 export class AdminDashboardService {
   constructor(private appDataService: AppDataService) {}
+  // Active questionare Management
+  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
+    return this.appDataService.createActiveQuestionnaire(student,teacher,templateId)
+  }
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10){
+    return this.appDataService.getUsersFromSearch(role,nameString,page,limit);
+  }
+  getActiveQuestionnairePage(filter: any, page: number, limit: number){
+    return this.appDataService.getActiveQuestionnairePage(filter, page, limit)
+  }
+
+  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10){
+    return this.appDataService.getTemplatesFromSearch(titleString,page,limit);
+  }
 
   // Template Management
   getTemplates(): Observable<QuestionTemplate[]> {

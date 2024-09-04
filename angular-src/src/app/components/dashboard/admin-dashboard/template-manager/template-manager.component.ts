@@ -43,7 +43,8 @@ export class TemplateManagerComponent {
       templateId: this.generateTemplateId(),
       title: 'New Template',
       description: 'A description of the template',
-      questions: []
+      questions: [],
+      createdAt: new Date()
     };
   
     this.adminDashboardService.createTemplate(newTemplate).subscribe({
@@ -67,10 +68,16 @@ export class TemplateManagerComponent {
   saveTemplate() {
     const confirmed = window.confirm('Are you sure you want to save changes to this template?');
     if (confirmed && this.selectedTemplate) {
-      this.adminDashboardService.updateTemplate(this.selectedTemplate).subscribe(() => {
-        this.loadTemplates();
-        this.selectedTemplate = null; // Clear selection after saving
-        this.selectedQuestion = null; // Clear any selected question after saving
+      this.adminDashboardService.updateTemplate(this.selectedTemplate).subscribe({
+        error: (err) => {
+          console.error('Error updating template:', err);
+        },
+        complete: () => {
+          console.log('Update template request complete.');
+          this.loadTemplates();  // This should now be triggered
+          this.selectedTemplate = null; // Clear selection after saving
+          this.selectedQuestion = null; // Clear any selected question after saving
+        }
       });
     }
   }
@@ -78,8 +85,14 @@ export class TemplateManagerComponent {
   deleteTemplate(templateId: string) {
     const confirmed = window.confirm('Are you sure you want to delete this template? This action cannot be undone.');
     if (confirmed) {
-      this.adminDashboardService.deleteTemplate(templateId).subscribe(() => {
-        this.loadTemplates(); // Reload the list after deletion
+      this.adminDashboardService.deleteTemplate(templateId).subscribe({
+        error: (err) => {
+          console.error('Error deleting template:', err);
+        },
+        complete: () => {
+          console.log('Template deletion complete.');
+          this.loadTemplates(); // Reload the list after deletion
+        }
       });
     }
   }

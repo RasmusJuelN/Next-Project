@@ -44,6 +44,7 @@ export interface QuestionTemplate {
   title: string;
   description: string;
   questions: Question[];
+  createdAt?: Date;
 }
 
 export interface ActiveQuestionnaire {
@@ -57,6 +58,7 @@ export interface ActiveQuestionnaire {
     title: string; // Title of the template
     description: string; // Description of the template
   };
+  createdAt?: Date;
 }
 
 

@@ -54,7 +54,7 @@ export class MockDbService {
         }
       }
     ],
-    mockQuestionTemplates: [ // Question templates now include the questions directly
+    mockQuestionTemplates: [
       {
         templateId: 'template1',
         title: 'Employee Performance Review',

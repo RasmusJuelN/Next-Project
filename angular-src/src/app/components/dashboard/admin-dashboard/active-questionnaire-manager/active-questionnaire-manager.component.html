@@ -1,1 +1,86 @@
-<p>active-questionnaire-manager works!</p>
+<div class="active-questionnaire-manager">
+  <h2>Create Active Questionnaire</h2>
+
+  <!-- Search for Student -->
+  <div class="search-section">
+    <label for="student-search">Search for Student:</label>
+    <input id="student-search" #studentInput type="text" (input)="searchStudents(studentInput.value)" placeholder="Enter student name..." />
+    <ul *ngIf="searchStudentResults.length > 0" class="search-results">
+      <li *ngFor="let student of searchStudentResults" (click)="selectStudent(student)">
+        {{ student.fullName }} ({{ student.userName }})
+      </li>
+    </ul>
+    <div *ngIf="selectedStudent" class="selected-item">
+      <strong>Selected Student:</strong> {{ selectedStudent.fullName }}
+    </div>
+  </div>
+
+  <!-- Search for Teacher -->
+  <div class="search-section">
+    <label for="teacher-search">Search for Teacher:</label>
+    <input id="teacher-search" type="text" #teacherInput (input)="searchTeachers(teacherInput.value)" placeholder="Enter teacher name..." />
+    <ul *ngIf="searchTeacherResults.length > 0" class="search-results">
+      <li *ngFor="let teacher of searchTeacherResults" (click)="selectTeacher(teacher)">
+        {{ teacher.fullName }} ({{ teacher.userName }})
+      </li>
+    </ul>
+    <div *ngIf="selectedTeacher" class="selected-item">
+      <strong>Selected Teacher:</strong> {{ selectedTeacher.fullName }} ({{ selectedTeacher.userName }})
+    </div>
+  </div>
+
+  <!-- Search for Template -->
+  <div class="search-section">
+    <label for="template-search">Search for Template:</label>
+    <input id="template-search" #templateInput type="text" (input)="searchTemplates(templateInput.value)" placeholder="Enter template title..." />
+    <ul *ngIf="searchTemplateResults.length > 0" class="search-results">
+      <li *ngFor="let template of searchTemplateResults" (click)="selectTemplate(template)">
+        {{ template.title }}
+      </li>
+    </ul>
+    <div *ngIf="selectedTemplateId" class="selected-item">
+      <strong>Selected Template:</strong> {{ selectedTemplateId }}
+    </div>
+  </div>
+
+  <!-- Button to create Active Questionnaire -->
+  <div class="actions">
+    <button [disabled]="!selectedStudent || !selectedTeacher || !selectedTemplateId" (click)="createActiveQuestionnaire()">
+      Create Active Questionnaire
+    </button>
+  </div>
+
+  <!-- Search for Active Questionnaires by Student -->
+  <div class="search-section">
+    <label for="student-search">Search by Student Name:</label>
+    <input id="student-search" #SearchByTeacher type="text" (input)="onSearchStudentChange(SearchByTeacher.value)" placeholder="Enter student name..." />
+  </div>
+
+  <!-- Search for Active Questionnaires by Teacher -->
+  <div class="search-section">
+    <label for="teacher-search">Search by Teacher Name:</label>
+    <input id="teacher-search" #SearchByStudent type="text" (input)="onSearchTeacherChange(SearchByStudent.value)" placeholder="Enter teacher name..." />
+  </div>
+
+  <!-- Display Active Questionnaires -->
+  <div class="active-questionnaire-list">
+    <h3>Active Questionnaires</h3>
+    <ul *ngIf="activeQuestionnaires.length > 0">
+      <li *ngFor="let questionnaire of activeQuestionnaires">
+        <strong>Student:</strong> {{ questionnaire.student.fullName }} ({{ questionnaire.student.userName }})<br>
+        <strong>Teacher:</strong> {{ questionnaire.teacher.fullName }} ({{ questionnaire.teacher.userName }})<br>
+        <strong>Template:</strong> {{ questionnaire.questionnaireTemplate.title }}<br>
+        <strong>Description:</strong> {{ questionnaire.questionnaireTemplate.description }}<br>
+        <strong>Student Finished:</strong> {{ questionnaire.isStudentFinished ? 'Yes' : 'No' }}<br>
+        <strong>Teacher Finished:</strong> {{ questionnaire.isTeacherFinished ? 'Yes' : 'No' }}<br>
+        <strong>Created At:</strong> {{ questionnaire.createdAt | date:'short' }}<br>
+      </li>
+    </ul>
+
+    <!-- Show message if no results are found -->
+    <p *ngIf="activeQuestionnaires.length === 0">No active questionnaires found.</p>
+
+    <!-- Load More Button -->
+    <button (click)="loadMore()" *ngIf="activeQuestionnaires.length >= limit">Load More</button>
+  </div>
+</div>
