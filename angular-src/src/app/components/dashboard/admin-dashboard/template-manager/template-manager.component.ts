@@ -3,11 +3,13 @@ import { AdminDashboardService } from '../../../../services/dashboard/admin-dash
 import { Question, QuestionTemplate, Option } from '../../../../models/questionare';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TemplateEditorComponent } from './template-editor/template-editor.component';
+import { QuestionEditorComponent } from './template-editor/question-editor/question-editor.component';
 
 @Component({
   selector: 'app-template-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TemplateEditorComponent, QuestionEditorComponent],
   templateUrl: './template-manager.component.html',
   styleUrl: './template-manager.component.css'
 })
@@ -21,6 +23,25 @@ export class TemplateManagerComponent {
   ngOnInit(): void {
     this.loadTemplates();
   }
+
+
+  handleAction(actionType: string, entity: any) {
+    switch(actionType) {
+      case 'editTemplate':
+        this.editTemplate(entity);
+        break;
+      case 'deleteTemplate':
+        this.deleteTemplate(entity.templateId);
+        break;
+      case 'editQuestion':
+        this.editQuestion(entity);
+        break;
+      case 'deleteQuestion':
+        this.deleteQuestion(entity.id);
+        break;
+    }
+  }
+  
 
   loadTemplates() {
     this.adminDashboardService.getTemplates().subscribe((templates) => {
@@ -65,21 +86,27 @@ export class TemplateManagerComponent {
     }
   }
 
-  saveTemplate() {
+  saveTemplate(updatedTemplate: QuestionTemplate) {
     const confirmed = window.confirm('Are you sure you want to save changes to this template?');
-    if (confirmed && this.selectedTemplate) {
-      this.adminDashboardService.updateTemplate(this.selectedTemplate).subscribe({
-        error: (err) => {
-          console.error('Error updating template:', err);
-        },
+    if (confirmed) {
+      this.adminDashboardService.updateTemplate(updatedTemplate).subscribe({
+        error: (err) => console.error('Error updating template:', err),
         complete: () => {
-          console.log('Update template request complete.');
-          this.loadTemplates();  // This should now be triggered
-          this.selectedTemplate = null; // Clear selection after saving
-          this.selectedQuestion = null; // Clear any selected question after saving
+          console.log('Template update complete.');
+          this.loadTemplates();
+          this.clearSelectedTemplate()
         }
       });
     }
+  }
+
+  clearSelectedTemplate() {
+    this.selectedTemplate = null;
+    this.selectedQuestion = null;
+  }
+
+  clearSelectedQuestion(){
+    this.selectedQuestion = null;
   }
 
   deleteTemplate(templateId: string) {
@@ -97,18 +124,6 @@ export class TemplateManagerComponent {
     }
   }
 
-  addQuestion() {
-    if (this.selectedTemplate) {
-      const newQuestion: Question = {
-        id: this.selectedTemplate.questions.length + 1,
-        title: 'New Question',
-        options: [{id: 1, label: "option 1", value: 1},{id: 2, label: "option 2", value: 2}]
-      };
-      this.selectedTemplate.questions.push(newQuestion);
-      this.editQuestion(newQuestion);
-    }
-  }
-
   editQuestion(question: Question) {
     const confirmed = this.selectedQuestion && window.confirm('You have unsaved changes. Are you sure you want to switch questions?');
     if (!this.selectedQuestion || confirmed) {
@@ -116,13 +131,13 @@ export class TemplateManagerComponent {
     }
   }
 
-  saveQuestion() {
-    if (this.selectedTemplate && this.selectedQuestion) {
+  saveQuestion(updatedQuestion:Question) {
+    if (this.selectedTemplate) {
       const confirmed = window.confirm('Are you sure you want to save changes to this question?');
       if (confirmed) {
         const index = this.selectedTemplate.questions.findIndex(q => q.id === this.selectedQuestion!.id);
         if (index !== -1) {
-          this.selectedTemplate.questions[index] = { ...this.selectedQuestion }; // Save changes to the template's question list
+          this.selectedTemplate.questions[index] = { ...updatedQuestion }; // Save changes to the template's question list
           this.selectedQuestion = null; // Clear the selection after saving
         }
       }
@@ -134,52 +149,6 @@ export class TemplateManagerComponent {
     if (confirmed && this.selectedTemplate) {
       this.selectedTemplate.questions = this.selectedTemplate.questions.filter(q => q.id !== questionId);
       this.selectedQuestion = null; // Clear selection if deleting the edited question
-    }
-  }
-
-  addOption(isCustom: boolean = false) {
-    if (this.selectedQuestion) {
-      if (isCustom) {
-        const customOptionExists = this.selectedQuestion.options.some(o => o.isCustom);
-        if (customOptionExists) {
-          alert('A custom answer option already exists for this question.');
-          return;
-        }
-      }
-
-      const newOption: Option = {
-        id: this.selectedQuestion.options.length + 1,
-        value: isCustom ? 0 : this.selectedQuestion.options.length + 1, // Custom answer has value 0
-        label: isCustom ? 'Custom Answer' : `Option ${this.selectedQuestion.options.length + 1}`,
-        isCustom: isCustom
-      };
-
-      if (isCustom) {
-        this.selectedQuestion.options.push(newOption);
-      } else {
-        const customIndex = this.selectedQuestion.options.findIndex(o => o.isCustom);
-        if (customIndex !== -1) {
-          this.selectedQuestion.options.splice(customIndex, 0, newOption);
-        } else {
-          this.selectedQuestion.options.push(newOption);
-        }
-      }
-    }
-  }
-
-  deleteOption(optionId: number) {
-    const confirmed = window.confirm('Are you sure you want to delete this option? This action cannot be undone.');
-    if (confirmed && this.selectedQuestion) {
-      const optionToDelete = this.selectedQuestion.options.find(o => o.id === optionId);
-      const remainingOptions = this.selectedQuestion.options.filter(o => o.id !== optionId);
-      const hasCustomOption = remainingOptions.some(o => o.isCustom);
-      const ratingOptions = remainingOptions.filter(o => !o.isCustom);
-
-      if ((hasCustomOption || ratingOptions.length >= 2) && optionToDelete) {
-        this.selectedQuestion.options = remainingOptions;
-      } else {
-        alert('Cannot delete this option. Each question must have either at least two rating options or a custom answer option.');
-      }
     }
   }
 }

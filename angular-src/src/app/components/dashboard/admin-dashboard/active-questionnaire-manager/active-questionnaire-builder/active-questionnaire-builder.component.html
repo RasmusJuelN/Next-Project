@@ -1,0 +1,53 @@
+
+<h2>Create Active Questionnaire</h2>
+
+<!-- Search for Student -->
+<div class="search-section">
+  <label for="student-search">Search for Student:</label>
+  <input id="student-search" #studentInput type="text" (input)="searchStudents(studentInput.value)" placeholder="Enter student name..." />
+  <ul *ngIf="searchStudentResults.length > 0" class="search-results">
+    <li *ngFor="let student of searchStudentResults" (click)="selectStudent(student)">
+      {{ student.fullName }} ({{ student.userName }})
+    </li>
+  </ul>
+  <div *ngIf="selectedStudent" class="selected-item">
+    <strong>Selected Student:</strong> {{ selectedStudent.fullName }}
+  </div>
+</div>
+
+<!-- Search for Teacher -->
+<div class="search-section">
+  <label for="teacher-search">Search for Teacher:</label>
+  <input id="teacher-search" type="text" #teacherInput (input)="searchTeachers(teacherInput.value)" placeholder="Enter teacher name..." />
+  <ul *ngIf="searchTeacherResults.length > 0" class="search-results">
+    <li *ngFor="let teacher of searchTeacherResults" (click)="selectTeacher(teacher)">
+      {{ teacher.fullName }} ({{ teacher.userName }})
+    </li>
+  </ul>
+  <div *ngIf="selectedTeacher" class="selected-item">
+    <strong>Selected Teacher:</strong> {{ selectedTeacher.fullName }} ({{ selectedTeacher.userName }})
+  </div>
+</div>
+
+<!-- Search for Template -->
+<div class="search-section">
+  <label for="template-search">Search for Template:</label>
+  <input id="template-search" #templateInput type="text" (input)="searchTemplates(templateInput.value)" placeholder="Enter template title..." />
+  <ul *ngIf="searchTemplateResults.length > 0" class="search-results">
+    <li *ngFor="let template of searchTemplateResults" (click)="selectTemplate(template)">
+      {{ template.title }}
+    </li>
+  </ul>
+  <div *ngIf="selectedTemplateId" class="selected-item">
+    <strong>Selected Template:</strong> {{ selectedTemplateId }}
+  </div>
+</div>
+
+<!-- Button to create Active Questionnaire -->
+<div class="actions">
+  <button [disabled]="!selectedStudent || !selectedTeacher || !selectedTemplateId" (click)="createActiveQuestionnaire()">
+    Create Active Questionnaire
+  </button>
+</div>
+
+  
