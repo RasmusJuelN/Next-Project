@@ -146,7 +146,7 @@ export class QuestionnaireService {
       const questions = this.questionsSubject.value;
       const questionnaireId = this.activeQuestionnaire.id;
       const userId = this.authService.getUserId();
-      const role = this.authService.getRole();
+      const role = this.authService.getUserRole();
 
       if (role) {
         return this.appDataService.submitUserAnswers(userId, role, questions, questionnaireId).pipe(
@@ -169,7 +169,7 @@ export class QuestionnaireService {
    */
   validateUserAccess(questionnaireId: string): Observable<boolean> {
     const userId = this.authService.getUserId();
-    const role = this.authService.getRole();
+    const role = this.authService.getUserRole();
     if (role) {
       return this.appDataService.validateUserAccess(userId, role, questionnaireId).pipe(
         catchError(error => this.errorHandlingService.handleError(error, 'Failed to validate user access'))

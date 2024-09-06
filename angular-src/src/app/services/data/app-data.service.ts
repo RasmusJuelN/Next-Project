@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MockDataService } from './mock-data.service';
 import { Observable, of } from 'rxjs';
 import { ActiveQuestionnaire, Question, QuestionTemplate, User } from '../../models/questionare';
+import { DataService } from './data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -60,7 +61,7 @@ export class AppDataService {
   }
 
   submitUserAnswers(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
-    return this.dataService.submitData(userId, role, questionnaireId!, answers);
+    return this.dataService.submitData(userId, role, answers, questionnaireId!);
   }
 
   validateUserAccess(userId: any, role: string, questionnaireId: string): Observable<boolean> {

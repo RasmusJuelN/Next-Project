@@ -5,6 +5,9 @@ import { LocalStorageService } from '../misc/local-storage.service';
 @Injectable({
   providedIn: 'root'
 })
+
+
+
 export class MockDbService {
   private localStorageKey = 'mockData';
   private localStorageService = inject(LocalStorageService);

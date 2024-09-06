@@ -1,111 +1,122 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ActiveQuestionnaire, Question, User } from '../../models/questionare';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ActiveQuestionnaire, Question, QuestionTemplate, User } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
 
-/**
- * Service for handling data operations.
- */
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-  private baseUrl: string = `${environment.apiUrl}`;
-  private httpClient = inject(HttpClient);
+  private apiUrl = environment.apiUrl; 
+  private http = inject(HttpClient);
 
-  /**
-   * Fetches the dashboard data, including students, students yet to finish, and active questionnaires.
-   * @returns An observable containing the dashboard data.
-   */
-  getDashboardData(): Observable<{
-    students: User[],
-    activeQuestionnaires: ActiveQuestionnaire[]
-  }> {
-    return this.httpClient.get<{
-      students: User[],
-      activeQuestionnaires: ActiveQuestionnaire[]
-    }>(`${this.baseUrl}/dashboard-data`);
+  // Error handling function
+  private handleError(error: any): Observable<never> {
+    console.error('An error occurred:', error); // Log error to the console (or send to a logging service)
+    return throwError(() => new Error(error.message || 'Something went wrong, please try again later.'));
   }
 
-  /**
-   * Fetches an active questionnaire by its ID.
-   * @param id The ID of the active questionnaire.
-   * @returns An observable containing the active questionnaire or null.
-   */
+  // Active Questionnaire Methods
+  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire> {
+    const url = `${this.apiUrl}/questionnaire/create`;
+    const body = { student, teacher, templateId };
+    return this.http.post<ActiveQuestionnaire>(url, body)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10): Observable<User[]> {
+    const url = `${this.apiUrl}/users/search?role=${role}&name=${nameString}&page=${page}&limit=${limit}`;
+    return this.http.get<User[]>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10): Observable<QuestionTemplate[]> {
+    const url = `${this.apiUrl}/templates/search?title=${titleString}&page=${page}&limit=${limit}`;
+    return this.http.get<QuestionTemplate[]>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  // Template Management Methods
+  getTemplates(): Observable<QuestionTemplate[]> {
+    const url = `${this.apiUrl}/templates`;
+    return this.http.get<QuestionTemplate[]>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  createTemplate(template: QuestionTemplate): Observable<void> {
+    const url = `${this.apiUrl}/templates/create`;
+    return this.http.post<void>(url, template)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  updateTemplate(template: QuestionTemplate): Observable<void> {
+    const url = `${this.apiUrl}/templates/update/${template.templateId}`;
+    return this.http.put<void>(url, template)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  deleteTemplate(templateId: string): Observable<void> {
+    const url = `${this.apiUrl}/templates/delete/${templateId}`;
+    return this.http.delete<void>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  // Dashboard Methods
+  getActiveQuestionnairePage(filter: any, page: number, limit: number): Observable<ActiveQuestionnaire[]> {
+    const url = `${this.apiUrl}/questionnaire?page=${page}&limit=${limit}`;
+    return this.http.post<ActiveQuestionnaire[]>(url, filter)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire | null> {
-    return this.httpClient.get<ActiveQuestionnaire | null>(`${this.baseUrl}/active-questionnaires/${id}`);
+    const url = `${this.apiUrl}/questionnaire/${id}`;
+    return this.http.get<ActiveQuestionnaire | null>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
-  /**
-   * Fetches the list of students.
-   * @returns An observable containing the list of students.
-   */
-  getStudents(): Observable<User[]> {
-    return this.httpClient.get<User[]>(`${this.baseUrl}/students`);
+  getQuestionsForUser(templateId: string): Observable<Question[]> {
+    const url = `${this.apiUrl}/questions/${templateId}`;
+    return this.http.get<Question[]>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
-  /**
-   * Adds a student to a questionnaire.
-   * @param studentId The ID of the student to add.
-   * @returns An observable.
-   */
-  addStudentToQuestionnaire(studentId: number): Observable<void> {
-    return this.httpClient.post<void>(`${this.baseUrl}/questionnaires/add-student`, { studentId });
+  submitData(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
+    const url = `${this.apiUrl}/questionnaire/submit/${questionnaireId}`;
+    const body = { userId, role, answers };
+    return this.http.post<void>(url, body)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
-  /**
-   * Fetches the questions for the user.
-   * @returns An observable containing the list of questions.
-   */
-  getQuestionsForUser(): Observable<Question[]> {
-    return this.httpClient.get<Question[]>(`${this.baseUrl}/questions`);
-  }
-
-  /**
-   * Checks if a student is currently part of an active questionnaire.
-   * @param studentId The ID of the student.
-   * @returns An observable containing a boolean indicating if the student is in a questionnaire.
-   */
-  isStudentInQuestionnaire(studentId: number): Observable<boolean> {
-    return this.httpClient.get<boolean>(`${this.baseUrl}/questionnaires/student/${studentId}/exists`);
-  }
-
-  /**
-   * Submits data for a user.
-   * @param userId The ID of the user.
-   * @param role The role of the user (student or teacher).
-   * @param questionnaireId The ID of the questionnaire.
-   * @returns An observable.
-   */
-  submitData(userId: number, role: string, questionnaireId: string): Observable<void> {
-    return this.httpClient.post<void>(`${this.baseUrl}/questionnaires/${questionnaireId}/submit`, { userId, role });
-  }
-
-  /**  
-   * Creates a new active questionnaire.
-   * @param studentId The ID of the student.
-   * @param teacherId The ID of the teacher.
-   * @returns An observable containing the created active questionnaire.
-   */
-  createActiveQuestionnaire(studentId: number, teacherId: number): Observable<ActiveQuestionnaire> {
-    return this.httpClient.post<ActiveQuestionnaire>(`${this.baseUrl}/active-questionnaires`, { studentId, teacherId });
-  }
-
-  /**
-   * Fetches the list of active questionnaires.
-   * @returns An observable containing the list of active questionnaires.
-   */
-  getActiveQuestionnaires(): Observable<ActiveQuestionnaire[]> {
-    return this.httpClient.get<ActiveQuestionnaire[]>(`${this.baseUrl}/active-questionnaires`);
-  }
-
-  /**
-   * Deletes an active questionnaire by its ID.
-   * @param id The ID of the active questionnaire to delete.
-   * @returns An observable.
-   */
-  deleteActiveQuestionnaire(id: string): Observable<void> {
-    return this.httpClient.delete<void>(`${this.baseUrl}/active-questionnaires/${id}`);
+  validateUserAccess(userId: any, role: string, questionnaireId: string): Observable<boolean> {
+    const url = `${this.apiUrl}/questionnaire/validate`;
+    const body = { userId, role, questionnaireId };
+    return this.http.post<boolean>(url, body)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 }

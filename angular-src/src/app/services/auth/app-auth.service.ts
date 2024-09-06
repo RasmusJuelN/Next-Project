@@ -26,8 +26,7 @@ export class AppAuthService {
    * Logs out the user by removing the token from local storage and redirecting to login.
    */
   logout(): void {
-    localStorage.removeItem('token');
-    this.router.navigate(['/login']);
+    this.authService.logout()
   }
 
   /**
@@ -47,7 +46,7 @@ export class AppAuthService {
    * @returns The role of the user (e.g., 'admin', 'student', 'teacher').
    */
   getRole(): string | null {
-    return this.authService.getRole();
+    return this.authService.getUserRole();
   }
 
   /**

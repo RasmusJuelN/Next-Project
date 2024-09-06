@@ -26,11 +26,13 @@ export class LoginPageComponent {
   goToDashboard: boolean = false;
   goToActiveQuestionnaire: boolean = false;
 
+
   /**
    * Initializes the component and tries to redirect to the dashboard if the user is already logged in.
    */
   ngOnInit() {
     this.loggedInAlready = this.loginPageService.checkIfLoggedIn();
+    console.log(this.loggedInAlready)
     if (this.loggedInAlready) {
       this.loginPageService.handleLoggedInUser(this.goToDashboard, this.goToActiveQuestionnaire).subscribe({
         next: ({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString }) => {
@@ -40,6 +42,9 @@ export class LoginPageComponent {
         },
         error: err => this.errorMessage = 'Error initializing login page'
       });
+    }
+    else{
+      this.resetLoginPage();
     }
   }
 
@@ -66,10 +71,24 @@ export class LoginPageComponent {
   }
 
   toDashboard() {
+    this.resetLoginPage()
     this.loginPageService.router.navigate(['/dashboard']);
   }
 
   toActiveQuestionnaire(urlString: string) {
+    this.resetLoginPage()
     this.loginPageService.router.navigate([`/answer/${urlString}`]);
+  }
+
+  private resetLoginPage(): void {
+    // Clear form fields and reset any flags or messages
+    this.userName = '';
+    this.password = '';
+    this.errorMessage = null;
+    this.loggedInAlready = false;
+    this.goToDashboard = false;
+    this.goToActiveQuestionnaire = false;
+    this.errorHasHapped = false;
+    this.activeQuestionnaireString = null;
   }
 }

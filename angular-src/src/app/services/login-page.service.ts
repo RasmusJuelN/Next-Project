@@ -17,6 +17,7 @@ export class LoginPageService {
     private localStorageService: LocalStorageService,
     private errorHandlingService: ErrorHandlingService
   ) {}
+  
 
   /**
    * Check if the user is already logged in by verifying the token in local storage.
@@ -84,7 +85,7 @@ export class LoginPageService {
    * Logout the user by removing the token and resetting state.
    */
   logout(): void {
-    this.localStorageService.removeData('token');
+    this.authService.logout()
     alert('Token deleted');
   }
 }

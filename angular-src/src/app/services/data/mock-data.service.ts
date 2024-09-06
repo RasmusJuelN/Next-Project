@@ -12,6 +12,7 @@ import { MockDbService } from '../mock/mock-db.service';
 @Injectable({
   providedIn: 'root'
 })
+  //MockDataService is a fake dataservice that takes 
 export class MockDataService {
   private mockDbService = inject(MockDbService);
   private jwtTokenService = inject(JWTTokenService);
@@ -23,6 +24,13 @@ export class MockDataService {
 
   
   createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
+    const userRole = this.getRoleFromToken();
+  
+    // Only allow creation if the user is a teacher or admin
+    if (userRole !== 'admin') {
+      return throwError(() => new Error('Unauthorized: Only teachers or admins can create questionnaires.'));
+    }
+
     const template = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === templateId);
 
     if (!template) {
@@ -82,7 +90,6 @@ export class MockDataService {
     return of(pageinatedTemplates).pipe(delay(300)); // Optional delay to simulate network latency
   }
 
-
   // Get all templates
   getTemplates(): Observable<QuestionTemplate[]> {
     return of(this.mockDbService.mockData.mockQuestionTemplates);
@@ -114,10 +121,6 @@ export class MockDataService {
     this.mockDbService.saveData(); // Save the updated state to local storage
     return of();
   }
-
-
-
-
 
 
   getActiveQuestionnairePage(
@@ -282,7 +285,14 @@ export class MockDataService {
    * @param questionnaireId The ID of the questionnaire.
    * @param answers The answers to submit.
    */
-  submitData(userId: any, role: string, questionnaireId: string, answers: Question[]): Observable<void> {
+  submitData(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
+    const userRole = this.getRoleFromToken();
+
+    // Ensure the role matches before allowing submission
+    if (role !== userRole) {
+      return throwError(() => new Error('Unauthorized: Role mismatch.'));
+    }
+
     const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
     
     if (!activeQuestionnaire) {
@@ -301,6 +311,7 @@ export class MockDataService {
     } else if (role === 'teacher' && activeQuestionnaire.teacher.id == userId) {
       activeQuestionnaire.isTeacherFinished = true;
     }
+    
 
     this.saveData();
     return of(undefined).pipe(
@@ -319,21 +330,6 @@ export class MockDataService {
     return of(undefined).pipe(delay(250));
   }
 
-  /**
-   * Generates a random ID for purpose of testing creating new questionare on the frontend.
-   * @returns The generated ID.
-   */
-  generateId(): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-    const idLength = 4;
-    let result = '';
-    for (let i = 0; i < idLength; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    console.log('Generated ID:', result);
-    return result;
-  }
-
     /**
    * Validates if a user has access to a specific questionnaire.
    * @param userId The ID of the user.
@@ -343,19 +339,48 @@ export class MockDataService {
    */
     validateUserAccess(userId: any, role: string, questionnaireId: string): Observable<boolean> {
       const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
-  
+    
       if (!activeQuestionnaire) {
         return of(false); // Questionnaire not found
       }
-  
+    
+      // Ensure the role matches before granting access
+      const userRole = this.getRoleFromToken();
+      if (role !== userRole) {
+        return of(false); // Role mismatch, deny access
+      }
+    
       if (role === 'student' && activeQuestionnaire.student.id == userId && !activeQuestionnaire.isStudentFinished) {
         return of(true);
       }
-  
+    
       if (role === 'teacher' && activeQuestionnaire.teacher.id == userId && !activeQuestionnaire.isTeacherFinished) {
         return of(true);
       }
-  
-      return of(false); // User does not have access
+    
+      return of(false);
+    }
+
+    private getRoleFromToken(): string | null {
+      const token = this.jwtTokenService.getDecodeToken();
+      if (token) {
+        const decodedToken: any = this.jwtTokenService.getDecodeToken();
+        return decodedToken ? decodedToken['scope'] : null;
+      }
+      return null;
+    }
+   /**
+   * Generates a random ID for purpose of testing creating new questionare on the frontend.
+   * @returns The generated ID.
+   */
+    private generateId(): string {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+      const idLength = 4;
+      let result = '';
+      for (let i = 0; i < idLength; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      console.log('Generated ID:', result);
+      return result;
     }
 }
