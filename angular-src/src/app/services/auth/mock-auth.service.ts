@@ -116,11 +116,11 @@ export class MockAuthService {
    * Checks if there is an active questionnaire for the user.
    * @returns An object containing `hasActive` (boolean) and `urlString` (string).
    */
-  checkForActiveQuestionnaire(): { hasActive: boolean, urlString: string } {
+  checkForActiveQuestionnaire(): Observable<{ hasActive: boolean, urlString: string }> {
     const role = this.getUserRole();
     const idString = this.getUserId();
     if (!idString) {
-      return { hasActive: false, urlString: '' };
+      return of({ hasActive: false, urlString: '' });
     }
     const id = Number(idString); // Convert string to number for now
 
@@ -138,16 +138,16 @@ export class MockAuthService {
       if (role === 'student') {
         const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.student.id === id && !questionnaire.isStudentFinished);
         if (activeQuestionnaire) {
-          return { hasActive: true, urlString: `${activeQuestionnaire.id}` };
+          return of({ hasActive: true, urlString: `${activeQuestionnaire.id}` });
         }
       } else if (role === 'teacher') {
         const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.teacher.id === id && !questionnaire.isTeacherFinished);
         if (activeQuestionnaire) {
-          return { hasActive: true, urlString: `${activeQuestionnaire.id}` };
+          return of({ hasActive: true, urlString: `${activeQuestionnaire.id}` });
         }
       }
     }
-    return { hasActive: false, urlString: '' };
+    return of({ hasActive: false, urlString: '' });
   }
 
   /**

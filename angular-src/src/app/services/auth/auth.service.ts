@@ -4,12 +4,16 @@ import { Observable, of, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { jwtDecode } from 'jwt-decode';
+import { JWTTokenService } from './jwt-token.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   httpClient = inject(HttpClient);
+  jwtTokenService = inject(JWTTokenService)
+  router = inject(Router)
 
 
   /**
@@ -23,27 +27,34 @@ export class AuthService {
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded'
     });
-
+  
     // URL-encoded form data
     let body = new URLSearchParams();
     body.set('username', userName);
     body.set('password', password);
-
+  
     // Post request to the backend API
     return this.httpClient.post<{ access_token: string }>(`${environment.apiUrl}/auth`, body.toString(), { headers }).pipe(
       tap(response => {
         if (response && response.access_token) {
-          const token = response.access_token;
-          localStorage.setItem('token', token);
-          console.log('Login success');
+          this.jwtTokenService.setToken(response.access_token);
+          console.log('Login successful, token saved.');
+        } else {
+          console.error('Login failed: No access token received.');
         }
       }),
       catchError(error => {
-        console.error('Login error', error);
-        return throwError(() => new Error('Login failed. Please check your credentials.'));
+        console.error('Login error:', error.message || error);
+        return throwError(() => new Error('Login failed. Please check your credentials or try again later.'));
       })
     );
   }
+
+  logout(): void {
+    this.jwtTokenService.clearToken();
+    this.router.navigate(['/']); // Redirect to login page
+  }
+
 
   /**
    * Checks if the user has a specific role based on the stored token.
@@ -51,16 +62,20 @@ export class AuthService {
    * @returns true if the user has the role, otherwise false.
    */
   hasRole(role: string): boolean {
-    const userRole = this.getRole();
+    const userRole = this.getUserRole();
     return userRole === role;
   }
-
   /**
    * Checks if the user is logged in by verifying if a token exists in localStorage.
    * @returns true if logged in, otherwise false.
    */
   isLoggedIn(): boolean {
-    return !!this.getDecodedToken();
+    const existsAndNotExpired = this.jwtTokenService.tokenExists() && !this.jwtTokenService.isTokenExpired()
+    if(!existsAndNotExpired){
+      this.jwtTokenService.clearToken()
+      return existsAndNotExpired
+    }
+    return existsAndNotExpired;
   }
 
   /**
@@ -69,10 +84,10 @@ export class AuthService {
    * @returns An Observable that emits the active questionnaire status and URL string.
    */
   checkForActiveQuestionnaire(): Observable<{ hasActive: boolean, urlString: string }> {
-    const role = this.getRole();
+    const role = this.getUserRole();
     const id = this.getUserId();
     
-    if (!id) {
+    if (!id || !role) {
       return of({ hasActive: false, urlString: '' });
     }
 
@@ -89,34 +104,19 @@ export class AuthService {
    * Retrieves the user ID from the stored token.
    * @returns The user ID or null if the token is invalid or not present.
    */
-  getUserId(): string | null {
-    const token = this.getDecodedToken();
-    return token ? token.sub : null;
+  getUserId(): number | null {
+    const decodedToken = this.jwtTokenService.getDecodeToken();
+    return decodedToken && decodedToken['sub'] ? Number(decodedToken['sub']) : null;
   }
 
   /**
    * Retrieves the role of the user from the stored token.
    * @returns The user's role or null if the token is invalid or not present.
    */
-  getRole(): string | null {
-    const token = this.getDecodedToken();
-    return token ? token.scope : null;  // Scope usually contains the role
+  getUserRole(): string | null {
+    const decodedToken = this.jwtTokenService.getDecodeToken();
+    return decodedToken ? decodedToken['scope'] : null;
   }
 
-  /**
-   * Decodes the JWT token stored in localStorage.
-   * @returns The decoded token object or null if token is invalid.
-   */
-  private getDecodedToken(): any | null {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        return jwtDecode(token);
-      } catch (error) {
-        console.error('Invalid token', error);
-        return null;
-      }
-    }
-    return null;
-  }
+  
 }

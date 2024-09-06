@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { LocalStorageService } from '../misc/local-storage.service';
 import { Router } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
 import { MockAuthService } from './mock-auth.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -61,7 +61,7 @@ export class AppAuthService {
    * Checks for an active questionnaire based on the user's role.
    * @returns An object containing `hasActive` (boolean) and `urlString` (string).
    */
-  checkForActiveQuestionnaire(): { hasActive: boolean, urlString: string } {
+  checkForActiveQuestionnaire(): Observable<{hasActive: boolean; urlString: string;}> {
     return this.authService.checkForActiveQuestionnaire();
   }
 }

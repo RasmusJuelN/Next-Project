@@ -32,7 +32,6 @@ export class LoginPageComponent {
    */
   ngOnInit() {
     this.loggedInAlready = this.loginPageService.checkIfLoggedIn();
-    console.log(this.loggedInAlready)
     if (this.loggedInAlready) {
       this.loginPageService.handleLoggedInUser(this.goToDashboard, this.goToActiveQuestionnaire).subscribe({
         next: ({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString }) => {

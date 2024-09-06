@@ -20,7 +20,6 @@ export class DashboardComponent implements OnInit {
     } else {
       // Check if the user is at the base 'dashboard' route
       const currentRoute = this.router.url;
-      console.log(currentRoute)
       if (currentRoute === '/dashboard') {
         if (this.authService.hasRole('admin')) {
           this.router.navigate(['/dashboard/admin']);
