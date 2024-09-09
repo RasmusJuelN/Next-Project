@@ -1,9 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { jwtDecode } from 'jwt-decode';
 import { JWTTokenService } from './jwt-token.service';
 import { Router } from '@angular/router';
 
@@ -12,9 +11,12 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   httpClient = inject(HttpClient);
-  jwtTokenService = inject(JWTTokenService)
-  router = inject(Router)
+  jwtTokenService = inject(JWTTokenService);
+  router = inject(Router);
 
+  // BehaviorSubject to track authentication state
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable(); // Expose as observable
 
   /**
    * Authenticates the user with the provided username and password.
@@ -28,18 +30,18 @@ export class AuthService {
       'Content-Type': 'application/x-www-form-urlencoded'
     });
   
-    // URL-encoded form data
     let body = new URLSearchParams();
     body.set('username', userName);
     body.set('password', password);
   
-    // Post request to the backend API
     return this.httpClient.post<{ access_token: string }>(`${environment.apiUrl}/auth`, body.toString(), { headers }).pipe(
       tap(response => {
         if (response && response.access_token) {
           this.jwtTokenService.setToken(response.access_token);
+          this.isAuthenticatedSubject.next(true);
           console.log('Login successful, token saved.');
         } else {
+          this.isAuthenticatedSubject.next(false);
           console.error('Login failed: No access token received.');
         }
       }),
@@ -50,11 +52,34 @@ export class AuthService {
     );
   }
 
+  /**
+   * Logs out the user and clears the token.
+   */
   logout(): void {
     this.jwtTokenService.clearToken();
+    this.isAuthenticatedSubject.next(false); // Update auth state on logout
     this.router.navigate(['/']); // Redirect to login page
   }
 
+  /**
+   * Checks if the user has a valid token (exists and is not expired).
+   * @returns true if the user is logged in, otherwise false.
+   */
+  hasValidToken(): boolean {
+    const existsAndNotExpired = this.jwtTokenService.tokenExists() && !this.jwtTokenService.isTokenExpired();
+    
+    if (!existsAndNotExpired) {
+      this.jwtTokenService.clearToken();
+      // Check if isAuthenticatedSubject is initialized before calling .next()
+      if (this.isAuthenticatedSubject) {
+        this.isAuthenticatedSubject.next(false);
+      } else {
+        console.error('isAuthenticatedSubject is not initialized');
+      }
+    }
+    
+    return existsAndNotExpired;
+  }
 
   /**
    * Checks if the user has a specific role based on the stored token.
@@ -64,18 +89,6 @@ export class AuthService {
   hasRole(role: string): boolean {
     const userRole = this.getUserRole();
     return userRole === role;
-  }
-  /**
-   * Checks if the user is logged in by verifying if a token exists in localStorage.
-   * @returns true if logged in, otherwise false.
-   */
-  isLoggedIn(): boolean {
-    const existsAndNotExpired = this.jwtTokenService.tokenExists() && !this.jwtTokenService.isTokenExpired()
-    if(!existsAndNotExpired){
-      this.jwtTokenService.clearToken()
-      return existsAndNotExpired
-    }
-    return existsAndNotExpired;
   }
 
   /**
@@ -91,7 +104,6 @@ export class AuthService {
       return of({ hasActive: false, urlString: '' });
     }
 
-    // Backend request to check for active questionnaires (example URL)
     return this.httpClient.get<{ hasActive: boolean, urlString: string }>(`${environment.apiUrl}/questionnaires/active/${role}/${id}`).pipe(
       catchError(error => {
         console.error('Error checking for active questionnaire', error);
@@ -117,6 +129,4 @@ export class AuthService {
     const decodedToken = this.jwtTokenService.getDecodeToken();
     return decodedToken ? decodedToken['scope'] : null;
   }
-
-  
 }

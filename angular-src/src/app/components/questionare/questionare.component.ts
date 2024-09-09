@@ -7,20 +7,21 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { LoadingComponent } from '../loading/loading.component';
-import { AppAuthService } from '../../services/auth/app-auth.service';
+import { AuthService } from '../../services/auth/auth.service';
+import { QuestionComponent } from './question/question.component';
 
 @Component({
   selector: 'app-questionare',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatIconModule, LoadingComponent],
+  imports: [FormsModule, CommonModule, MatIconModule, LoadingComponent, QuestionComponent],
   templateUrl: './questionare.component.html',
   styleUrls: ['./questionare.component.css']
 })
 export class QuestionareComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private questionnaireService = inject(QuestionnaireService);
-  private authService = inject(AppAuthService);
+  questionnaireService = inject(QuestionnaireService);
+  private authService = inject(AuthService);
 
   metadata: QuestionnaireMetadata | null = null;
   questions: Question[] = [];
@@ -28,17 +29,21 @@ export class QuestionareComponent implements OnInit {
   isLoading: boolean = true;
 
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/']); // Redirect to login if token is missing or expired
-    } else {
-      const questionnaireId = this.route.snapshot.paramMap.get('id');
-      if (questionnaireId) {
-        this.loadQuestionnaireData(questionnaireId);
+    // Subscribe to the authentication state observable
+    this.authService.isAuthenticated$.subscribe((isAuthenticated: boolean) => {
+      if (!isAuthenticated) {
+        this.router.navigate(['/']);
       } else {
-        this.errorMessage = 'Invalid questionnaire ID';
-        this.isLoading = false;
+        // If authenticated, check for the questionnaire ID in the route
+        const questionnaireId = this.route.snapshot.paramMap.get('id');
+        if (questionnaireId) {
+          this.loadQuestionnaireData(questionnaireId);
+        } else {
+          this.errorMessage = 'Invalid questionnaire ID';
+          this.isLoading = false;
+        }
       }
-    }
+    });
   }
 
   private loadQuestionnaireData(questionnaireId: string): void {
@@ -78,8 +83,8 @@ export class QuestionareComponent implements OnInit {
     this.questionnaireService.previousQuestion();
   }
 
-  selectOption(value: any): void {
-    this.questionnaireService.selectOption(value);
+  selectOption(optionId: any): void {
+    this.questionnaireService.selectOption(optionId);
   }
 
   hasSelectedOption(): boolean {

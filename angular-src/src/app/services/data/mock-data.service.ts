@@ -5,7 +5,6 @@ import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire, QuestionTemp
 
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
-import { AppAuthService } from '../auth/app-auth.service';
 import { MockDbService } from '../mock/mock-db.service';
 
 
@@ -285,7 +284,7 @@ export class MockDataService {
    * @param questionnaireId The ID of the questionnaire.
    * @param answers The answers to submit.
    */
-  submitData(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
+  submitUserAnswers(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
     const userRole = this.getRoleFromToken();
 
     // Ensure the role matches before allowing submission

@@ -1,43 +1,43 @@
 import { inject, Injectable } from '@angular/core';
 import { ActiveQuestionnaire, QuestionTemplate, User } from '../../models/questionare';
 import { catchError, map, Observable } from 'rxjs';
-import { AppDataService } from '../data/app-data.service';
 import { ErrorHandlingService } from '../error-handling.service';
+import { DataService } from '../data/data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminDashboardService {
-  constructor(private appDataService: AppDataService) {}
+  constructor(private dataService: DataService) {}
   // Active questionare Management
   createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
-    return this.appDataService.createActiveQuestionnaire(student,teacher,templateId)
+    return this.dataService.createActiveQuestionnaire(student,teacher,templateId)
   }
   getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10){
-    return this.appDataService.getUsersFromSearch(role,nameString,page,limit);
+    return this.dataService.getUsersFromSearch(role,nameString,page,limit);
   }
   getActiveQuestionnairePage(filter: any, page: number, limit: number){
-    return this.appDataService.getActiveQuestionnairePage(filter, page, limit)
+    return this.dataService.getActiveQuestionnairePage(filter, page, limit)
   }
 
   getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10){
-    return this.appDataService.getTemplatesFromSearch(titleString,page,limit);
+    return this.dataService.getTemplatesFromSearch(titleString,page,limit);
   }
 
   // Template Management
   getTemplates(): Observable<QuestionTemplate[]> {
-    return this.appDataService.getTemplates();
+    return this.dataService.getTemplates();
   }
 
   createTemplate(template:QuestionTemplate): Observable<void> {
-    return this.appDataService.createTemplate(template);
+    return this.dataService.createTemplate(template);
   }
 
   updateTemplate(template:QuestionTemplate): Observable<void> {
-    return this.appDataService.updateTemplate(template);
+    return this.dataService.updateTemplate(template);
   }
 
   deleteTemplate(templateId: string): Observable<void> {
-    return this.appDataService.deleteTemplate(templateId);
+    return this.dataService.deleteTemplate(templateId);
   }
 }

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoginPageService } from '../../services/login-page.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 
 /**
@@ -15,7 +16,8 @@ import { LoginPageService } from '../../services/login-page.service';
 })
 export class LoginPageComponent {
   private loginPageService = inject(LoginPageService);
-
+  private authService = inject(AuthService)
+  
   errorMessage: string | null = null;
   userName: string = '';
   password: string = '';
@@ -30,21 +32,27 @@ export class LoginPageComponent {
   /**
    * Initializes the component and tries to redirect to the dashboard if the user is already logged in.
    */
-  ngOnInit() {
-    this.loggedInAlready = this.loginPageService.checkIfLoggedIn();
-    if (this.loggedInAlready) {
-      this.loginPageService.handleLoggedInUser(this.goToDashboard, this.goToActiveQuestionnaire).subscribe({
-        next: ({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString }) => {
-          this.goToDashboard = goToDashboard;
-          this.goToActiveQuestionnaire = goToActiveQuestionnaire;
-          this.activeQuestionnaireString = activeQuestionnaireString;
-        },
-        error: err => this.errorMessage = 'Error initializing login page'
-      });
-    }
-    else{
-      this.resetLoginPage();
-    }
+  ngOnInit(): void {
+    // Subscribe to the authentication status observable
+    this.authService.isAuthenticated$.subscribe((isAuthenticated: boolean) => {
+      this.loggedInAlready = isAuthenticated;
+
+      if (this.loggedInAlready) {
+        // If the user is logged in, handle the navigation
+        this.loginPageService.handleLoggedInUser(this.goToDashboard, this.goToActiveQuestionnaire)
+          .subscribe({
+            next: ({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString }) => {
+              this.goToDashboard = goToDashboard;
+              this.goToActiveQuestionnaire = goToActiveQuestionnaire;
+              this.activeQuestionnaireString = activeQuestionnaireString;
+            },
+            error: err => this.errorMessage = 'Error initializing login page'
+          });
+      } else {
+        // Reset the login page if the user is not logged in
+        this.resetLoginPage();
+      }
+    });
   }
 
   /**

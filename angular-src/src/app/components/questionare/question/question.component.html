@@ -1,0 +1,12 @@
+<div *ngIf="question">
+    <h3>{{ question.title }}</h3>
+    <div class="options-container">
+    <div *ngFor="let option of question.options"
+            class="option-item"
+            [class.selected]="selectedOption === option.id"
+            (click)="selectOption(option.id)">
+        <p>{{ option.label }}</p>
+    </div>
+    </div>
+  </div>
+  

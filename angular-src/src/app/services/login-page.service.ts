@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { MockAuthService } from './auth/mock-auth.service';
 import { LocalStorageService } from './misc/local-storage.service';
 import { ErrorHandlingService } from './error-handling.service';
 import { catchError, map, mergeMap, Observable, of, throwError } from 'rxjs';
-import { AppAuthService } from './auth/app-auth.service';
+import { AuthService } from './auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,19 +12,9 @@ export class LoginPageService {
 
   constructor(
     public router: Router,
-    private authService: AppAuthService, // Use AuthService directly here
-    private localStorageService: LocalStorageService,
+    private authService: AuthService,
     private errorHandlingService: ErrorHandlingService
   ) {}
-  
-
-  /**
-   * Check if the user is already logged in by verifying the token in local storage.
-   * @returns boolean indicating whether the user is already logged in.
-   */
-  checkIfLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
-  }
 
     /**
    * Handle user redirection based on their role and active questionnaire status.
@@ -64,7 +53,7 @@ export class LoginPageService {
    * Perform login action and handle navigation based on response.
    */
   login(userName: string, password: string): Observable<void> {
-    return this.authService.login(userName, password).pipe(
+    return this.authService.loginAuthentication(userName, password).pipe(
       mergeMap((response) => {
         if ('access_token' in response) {
           return this.authService.checkForActiveQuestionnaire().pipe(

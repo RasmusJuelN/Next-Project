@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ActiveQuestionnaire, Question, QuestionnaireMetadata } from '../models/questionare';
-import { AppDataService } from './data/app-data.service';
 import { MockAuthService } from './auth/mock-auth.service';
 import { ErrorHandlingService } from './error-handling.service';
+import { DataService } from './data/data.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +15,7 @@ export class QuestionnaireService {
   private activeQuestionnaire: ActiveQuestionnaire | null = null;
 
   constructor(
-    private appDataService: AppDataService,
+    private dataService: DataService,
     private authService: MockAuthService,
     private errorHandlingService: ErrorHandlingService
   ) {}
@@ -35,7 +35,7 @@ export class QuestionnaireService {
    * @returns An observable of the active questionnaire.
    */
   getActiveQuestionnaire(questionnaireId: string): Observable<ActiveQuestionnaire | null> {
-    return this.appDataService.getActiveQuestionnaireById(questionnaireId).pipe(
+    return this.dataService.getActiveQuestionnaireById(questionnaireId).pipe(
       catchError(error => this.errorHandlingService.handleError(error, 'Failed to get active questionnaire'))
     );
   }
@@ -59,7 +59,7 @@ export class QuestionnaireService {
    * @returns An observable of the questions.
    */
   getQuestionsForUser(templateId: string): Observable<Question[]> {
-    return this.appDataService.getQuestionsForUser(templateId).pipe(
+    return this.dataService.getQuestionsForUser(templateId).pipe(
       catchError(error => this.errorHandlingService.handleError(error, 'Failed to get questions for user'))
     );
   }
@@ -149,7 +149,7 @@ export class QuestionnaireService {
       const role = this.authService.getUserRole();
 
       if (role) {
-        return this.appDataService.submitUserAnswers(userId, role, questions, questionnaireId).pipe(
+        return this.dataService.submitUserAnswers(userId, role, questions, questionnaireId).pipe(
           catchError(error => this.errorHandlingService.handleError(error, 'Failed to submit answers'))
         );
       } else {
@@ -160,21 +160,5 @@ export class QuestionnaireService {
         observer.error('No active questionnaire found');
       });
     }
-  }
-
-  /**
-   * Validates if the user has access to the questionnaire.
-   * @param questionnaireId The ID of the questionnaire.
-   * @returns True if the user has access, false otherwise.
-   */
-  validateUserAccess(questionnaireId: string): Observable<boolean> {
-    const userId = this.authService.getUserId();
-    const role = this.authService.getUserRole();
-    if (role) {
-      return this.appDataService.validateUserAccess(userId, role, questionnaireId).pipe(
-        catchError(error => this.errorHandlingService.handleError(error, 'Failed to validate user access'))
-      );
-    }
-    return of(false);
   }
 }

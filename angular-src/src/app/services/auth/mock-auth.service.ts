@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ActiveQuestionnaire, Question, StudentTeacherAnswer, User } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
@@ -16,6 +16,10 @@ export class MockAuthService {
   private localStorageService = inject(LocalStorageService);
   private jwtTokenService = inject(JWTTokenService);
   private router = inject(Router)
+
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable(); 
+  
 
   constructor() {
     // This token assumes that the user is "Max" and is a teacher
@@ -77,6 +81,7 @@ export class MockAuthService {
         tap(response => {
           console.log("Login success");
           this.jwtTokenService.setToken(response.access_token); // Use JWTTokenService to store the token
+          this.isAuthenticatedSubject.next(true);
         })
       );
     } else {
@@ -99,18 +104,6 @@ export class MockAuthService {
     return userRole === role;
   }
 
-  /**
-   * Checks if the user is logged in by verifying if the token is present.
-   * @returns true if the user is logged in, otherwise false.
-   */
-  isLoggedIn(): boolean {
-    const existsAndNotExpired = this.jwtTokenService.tokenExists() && !this.jwtTokenService.isTokenExpired()
-    if(!existsAndNotExpired){
-      this.jwtTokenService.clearToken()
-      return existsAndNotExpired
-    }
-    return existsAndNotExpired;
-  }
 
   /**
    * Checks if there is an active questionnaire for the user.
@@ -170,6 +163,24 @@ export class MockAuthService {
 
   logout(): void {
     this.jwtTokenService.clearToken();
+    this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/']); // Redirect to login page
   }
+
+  hasValidToken(): boolean {
+    const existsAndNotExpired = this.jwtTokenService.tokenExists() && !this.jwtTokenService.isTokenExpired();
+    
+    if (!existsAndNotExpired) {
+      this.jwtTokenService.clearToken();
+      // Check if isAuthenticatedSubject is initialized before calling .next()
+      if (this.isAuthenticatedSubject) {
+        this.isAuthenticatedSubject.next(false);
+      } else {
+        console.error('isAuthenticatedSubject is not initialized');
+      }
+    }
+    
+    return existsAndNotExpired;
+  }
+
 }

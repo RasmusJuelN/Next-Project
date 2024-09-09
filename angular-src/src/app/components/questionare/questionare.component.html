@@ -10,18 +10,13 @@
       </div>
     </div>
     <div class="centered-content">
-      <h3>{{ questions[metadata.currentIndex].title }}</h3>
-      <div class="options-container">
-        @for(option of questions[metadata.currentIndex].options; track option.value)
-        {
-          <!-- if the selected option equals the option value, set "option-item.selected" as class -->
-          <div class="option-item" 
-               [class.selected]="questions[metadata.currentIndex].selectedOption === option.value"
-               (click)="selectOption(option.value)">
-            <p>{{ option.label }}</p>
-          </div>
-        }
-      </div>
+      <app-question
+        [question]="questions[metadata.currentIndex]"
+        [selectedOption]="questions[metadata.currentIndex].selectedOption"
+        (optionSelected)="selectOption($event)">
+      </app-question>
+
+      
       <div class="button-container">
         <!-- Goes to the next and previous until the last one -->
         <button (click)="previousQuestion()" [disabled]="metadata.currentIndex === 0">Tilbage</button>

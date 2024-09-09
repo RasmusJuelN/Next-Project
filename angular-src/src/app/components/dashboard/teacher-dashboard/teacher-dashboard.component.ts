@@ -4,7 +4,7 @@ import { ActiveQuestionnaire } from '../../../models/questionare';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AppAuthService } from '../../../services/auth/app-auth.service';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-teacher-dashboard',
@@ -20,7 +20,7 @@ export class TeacherDashboardComponent {
   currentPage: number = 1;
   noMoreData: boolean = false;
 
-  constructor(private teacherDashboardService: TeacherDashboardService, private router: Router, private authService:AppAuthService) {}
+  constructor(private teacherDashboardService: TeacherDashboardService, private router: Router, private authService:AuthService) {}
 
   ngOnInit(): void {
     this.filters = {

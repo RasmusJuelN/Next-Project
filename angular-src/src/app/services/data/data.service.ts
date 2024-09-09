@@ -102,7 +102,7 @@ export class DataService {
       );
   }
 
-  submitData(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
+  submitUserAnswers(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
     const url = `${this.apiUrl}/questionnaire/submit/${questionnaireId}`;
     const body = { userId, role, answers };
     return this.http.post<void>(url, body)

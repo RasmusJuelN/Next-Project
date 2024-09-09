@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AppAuthService } from '../../services/auth/app-auth.service'; // Use AppAuthService
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,24 +11,28 @@ import { AppAuthService } from '../../services/auth/app-auth.service'; // Use Ap
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  private authService = inject(AppAuthService); // Use AppAuthService
+  private authService = inject(AuthService); // Use AppAuthService
   private router = inject(Router);
 
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/']); // Redirect to login if token is missing or expired
-    } else {
-      // Check if the user is at the base 'dashboard' route
-      const currentRoute = this.router.url;
-      if (currentRoute === '/dashboard') {
-        if (this.authService.hasRole('admin')) {
-          this.router.navigate(['/dashboard/admin']);
-        } else if (this.authService.hasRole('teacher')) {
-          this.router.navigate(['/dashboard/teacher']);
-        } else {
-          this.router.navigate(['/']);
+    // Subscribe to isAuthenticated$ to check the authentication status
+    this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+      if (!isAuthenticated) {
+        // Redirect to login if the user is not authenticated
+        this.router.navigate(['/']);
+      } else {
+        // User is authenticated, handle role-based redirection
+        const currentRoute = this.router.url;
+        if (currentRoute === '/dashboard') {
+          if (this.authService.hasRole('admin')) {
+            this.router.navigate(['/dashboard/admin']);
+          } else if (this.authService.hasRole('teacher')) {
+            this.router.navigate(['/dashboard/teacher']);
+          } else {
+            this.router.navigate(['/']);
+          }
         }
       }
-    }
+    });
   }
 }

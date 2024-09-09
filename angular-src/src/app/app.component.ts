@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { LocalStorageService } from './services/misc/local-storage.service';
-import { AppAuthService } from './services/auth/app-auth.service';
+import { AuthService } from './services/auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +19,7 @@ export class AppComponent {
   tokenExists = false;
   userName: string | null = null;
   localStorageService = inject(LocalStorageService);
-  authService = inject(AppAuthService)
+  authService = inject(AuthService)
 
   /**
    * Initializes the component.
