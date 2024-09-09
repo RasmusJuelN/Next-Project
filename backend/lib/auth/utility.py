@@ -5,7 +5,7 @@ from ldap3 import Server, Connection, SASL, DIGEST_MD5, ALL
 from datetime import datetime, timedelta, UTC
 from uuid import UUID
 
-from .constants import ALGORITHM, SECRET_KEY, LDAP_SERVER, SCOPES
+from backend import app_settings
 from .dependencies import oauth2_scheme
 
 
@@ -22,7 +22,11 @@ async def decode_token(token: str) -> dict[str, Any]:
     Raises:
         Refer to `jwt.decode` for possible exceptions.
     """
-    return jwt.decode(token=token, key=SECRET_KEY, algorithms=[ALGORITHM])
+    return jwt.decode(
+        token=token,
+        key=app_settings.settings.auth.secret_key,
+        algorithms=[app_settings.settings.auth.algorithm],
+    )
 
 
 async def encode_token(data: dict) -> str:
@@ -38,7 +42,11 @@ async def encode_token(data: dict) -> str:
     Raises:
         Refer to `jwt.encode` for possible exceptions.
     """
-    return jwt.encode(claims=data, key=SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(
+        claims=data,
+        key=app_settings.settings.auth.secret_key,
+        algorithm=app_settings.settings.auth.algorithm,
+    )
 
 
 @overload
@@ -222,7 +230,7 @@ async def authenticate_user_ldap(username: str, password: str) -> Connection:
     Raises:
         LDAPException: If the connection fails for any reason. Use specific exceptions for more granular error handling.
     """
-    server = Server(host=LDAP_SERVER, get_info=ALL)
+    server = Server(host=app_settings.settings.auth.ldap_base_dn, get_info=ALL)
 
     conn = Connection(
         server=server,
@@ -312,8 +320,8 @@ async def determine_scope_from_groups(groups: List[str]) -> str:
     groups = [group.split(",")[0].split("=")[1] for group in groups]
 
     for group in groups:
-        if group in SCOPES:
-            return SCOPES[group]
+        if group in app_settings.settings.auth.scopes:
+            return app_settings.settings.auth.scopes[group]
 
     raise ValueError("No matching scopes found")
 

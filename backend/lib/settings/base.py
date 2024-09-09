@@ -9,7 +9,10 @@ from typing import (
     Tuple,
     Generic,
     TypeVar,
+    Set,
+    Type,
 )
+from collections.abc import Iterable
 from json import load, dump
 from configparser import ConfigParser
 from atexit import register
@@ -39,6 +42,35 @@ T = TypeVar("T")
 
 
 class SettingsManagerBase(ABC, Generic[T]):
+    """
+    Base class for managing settings.
+
+    This class provides functionality for managing settings data, including loading, saving, and sanitizing settings.
+    Supports type parameterization to help IDEs and type checkers infer which settings object is being used and how it can be used.
+
+    args:
+        path (Optional[str]): The path to the settings file. Defaults to None.
+        autosave (bool): Flag indicating whether to automatically save the settings after any changes. Defaults to False.
+        auto_sanitize (bool): Flag indicating whether to automatically sanitize the settings after loading or saving. Defaults to False.
+        config_format (Optional[str]): The format of the settings file. Defaults to None.
+        default_settings (T): The default settings data. Must be provided.
+        read_path (Optional[str]): The path to read the settings file from. Defaults to None.
+        write_path (Optional[str]): The path to write the settings file to. Defaults to None.
+        autosave_on_exit (bool): Flag indicating whether to automatically save the settings when the program exits. Defaults to False.
+        auto_sanitize_on_load (bool): Flag indicating whether to automatically sanitize the settings after loading. Defaults to False.
+        auto_sanitize_on_save (bool): Flag indicating whether to automatically sanitize the settings before saving. Defaults to False.
+        ValueError: If default_settings is not provided.
+
+    Attributes:
+        settings (T): The current settings data.
+
+    Methods:
+        save(): Save the settings data to a file.
+        autosave(): A context manager that allows you to save the settings data to a file within a context block.
+        load(): Load the settings from the specified file into the internal data attribute.
+        sanitize_settings(): Sanitizes the settings data by applying the default settings and removing any invalid or unnecessary values.
+    """
+
     def __init__(
         self,
         path: Optional[str] = None,
@@ -69,6 +101,8 @@ class SettingsManagerBase(ABC, Generic[T]):
             msg=f"\n=========== Initializing SettingsManager ===========\nSystem info: {system()} {version()} {architecture()[0]} Python {python_version()}\n"
         )
         logger.debug(msg=f"args: {filter_locals(locals_dict=locals())}")
+
+        self.detect_invalid_types(obj=default_settings, types=[Set, tuple])
 
         if YAML_INSTALLED:
             logger.debug(msg="YAML module is installed, importing...")
@@ -134,7 +168,7 @@ class SettingsManagerBase(ABC, Generic[T]):
 
     def _first_time_load(self) -> None:
         """
-        Loads the settings from the file if it exists, otherwise applies default settings and saves them to the file.
+        Loads the settings from the file if it exists, otherwise applies default settings and saves them to the file. Skips sanitization if the default settings are applied for the first time.
         """
         if self._read_path.exists():
             logger.info(
@@ -146,21 +180,27 @@ class SettingsManagerBase(ABC, Generic[T]):
                 msg=f"Could not find settings file {self._read_path}; applying default settings and saving to new file."
             )
             self.settings = deepcopy(x=self._default_settings)
-            self.save()  # Save the default settings to the file
+            logger.debug(
+                msg="Skipping sanitization on first-time load because default settings were applied."
+            )
+            self.save(skip_sanitize=True)  # Save the default settings to the file
 
-    def save(self) -> None:
+    def save(self, skip_sanitize: bool = False) -> None:
         """
         Save the settings data to a file.
 
-        If the auto_sanitize flag is set to True, the settings will be sanitized before saving.
+        If enabled, the settings will be sanitized before being saved.
+
+        Args:
+            skip_sanitize (bool): Flag indicating whether to skip the sanitization process before saving. Defaults to False.
 
         Raises:
             SaveError: If there is an error while writing the settings to the file.
         """
-        logger.debug(msg=f"Save requested by {get_caller_stack(instance=self)}...")
-        settings_data: Dict[str, Any] = self._to_dict(obj=self.settings)
-        if self._auto_sanitize_on_save:
+        logger.debug(msg=f"Save requested by {get_caller_stack(instances=[self])}...")
+        if self._auto_sanitize_on_save and not skip_sanitize:
             self.sanitize_settings()
+        settings_data: Dict[str, Any] = self._to_dict(obj=self.settings)
         if self._format == "ini" and not self.valid_ini_format(data=settings_data):
             logger.error(
                 msg="The INI format requires top-level keys to be sections, with settings as nested dictionaries. Please ensure your data follows this structure."
@@ -168,20 +208,20 @@ class SettingsManagerBase(ABC, Generic[T]):
             raise IniFormatError(
                 "The INI format requires top-level keys to be sections, with settings as nested dictionaries. Please ensure your data follows this structure."
             )
-        with open(file=self._write_path, mode="w") as file:
-            try:
+        try:
+            with open(file=self._write_path, mode="w") as file:
                 self._write(data=settings_data, file=file)
                 logger.debug(msg=f"Settings saved to {self._write_path}.")
-            except IOError as e:
-                logger.exception(msg="Error while writing settings to file.")
-                raise SaveError("Error while writing settings to file.") from e
+        except IOError as e:
+            logger.exception(msg="Error trying to write settings to file.")
+            raise SaveError("Error trying to write settings to file.") from e
 
     @contextmanager
     def autosave(self) -> Generator[None, Any, None]:
         """
         A context manager that allows you to save the settings data to a file within a context block.
 
-        If the auto_sanitize flag is set to True, the settings will be sanitized before saving.
+        If enabled, the settings will be sanitized before being saved.
 
         Yields:
             None: The context manager yields None.
@@ -235,25 +275,33 @@ class SettingsManagerBase(ABC, Generic[T]):
             config[section] = settings
         config.write(fp=file)
 
-    def load(self) -> None:
+    def load(self, skip_sanitize: bool = False) -> None:
         """
-        Load the settings from the specified file into the internal data attribute. autosave_on_change is not triggered by this method.
+        Load the settings from the specified file, and wrap them into the settings object.
 
-        If the auto_sanitize flag is set to True, the settings will be sanitized after reading.
+        If enabled, the settings will be sanitized before being applied.
+
+        Args:
+            skip_sanitize (bool): Flag indicating whether to skip the sanitization process after loading. Defaults to False.
 
         Raises:
-            LoadError: If there is an error while reading the settings from the file.
+            LoadError: If there is an error while reading the settings from the file. The original exception is preserved.
         """
-        logger.debug(msg=f"Load requested by {get_caller_stack(instance=self)}...")
-        with open(file=self._read_path, mode="r") as f:
-            try:
+        logger.debug(msg=f"Load requested by {get_caller_stack(instances=[self])}...")
+        try:
+            with open(file=self._read_path, mode="r") as f:
                 self.settings = self._from_dict(data=self._read(file=f))
-                if self._auto_sanitize_on_load:
+                if not self.settings:
+                    logger.warning(
+                        msg="Settings file is empty or could not be read. Applying default settings."
+                    )
+                    self.settings = deepcopy(x=self._default_settings)
+                if self._auto_sanitize_on_load and not skip_sanitize:
                     self.sanitize_settings()
                 logger.debug(msg=f"Settings loaded from {self._read_path}.")
-            except IOError as e:
-                logger.exception(msg="Error while reading settings from file.")
-                raise LoadError("Error while reading settings from file.") from e
+        except Exception as e:
+            logger.exception(msg="Error trying to read settings from file.")
+            raise LoadError("Error trying to read settings from file.") from e
 
     def _read(self, file: IO) -> Dict[str, Any]:
         """
@@ -264,9 +312,6 @@ class SettingsManagerBase(ABC, Generic[T]):
 
         Returns:
             Dict[str, Any]: The settings data read from the file.
-
-        Raises:
-            UnsupportedFormatError: If the format is not in the list of supported formats.
         """
         format_to_function: Dict[str, Callable[[IO], Dict[str, Any]]] = {
             "json": self._read_as_json,
@@ -293,23 +338,25 @@ class SettingsManagerBase(ABC, Generic[T]):
     def _read_as_ini(self, file: IO) -> Dict[str, Any]:
         config = ConfigParser(allow_no_value=True)
         config.read_file(f=file)
-        return {
-            section: dict(config.items(section=section))
-            for section in config.sections()
-        }
+
+        converted_config: Dict[str, Any] = {}
+        for section in config.sections():
+            converted_config[section] = {}
+            for key, value in config.items(section=section):
+                converted_config[section][key] = self._convert_value(value=value)
+
+        return converted_config
 
     def sanitize_settings(self) -> None:
         """
-        Sanitizes the settings data by applying the default settings and removing any invalid or unnecessary values.
-
-        The sanitization process is directly applied to the internal data attribute.
+        Sanitizes the settings data by comparing it to the default settings and removing any invalid or unnecessary values.
 
         Raises:
             SanitizationError: If an error occurs while sanitizing the settings.
 
         """
         logger.debug(
-            msg=f"Sanitization requested by {get_caller_stack(instance=self)}..."
+            msg=f"Sanitization requested by {get_caller_stack(instances=[self])}..."
         )
         settings: Dict[str, Any] = self._to_dict(obj=self.settings)
         default_settings: Dict[str, Any] = self._to_dict(obj=self._default_settings)
@@ -330,11 +377,13 @@ class SettingsManagerBase(ABC, Generic[T]):
 
             for key in keys_to_remove:
                 logger.debug(msg=f"Removing key: {key}")
-                self._remove_key(key=key)
+                self._remove_key(settings=settings, key=key)
 
             for key, value in keys_to_add.items():
                 logger.debug(msg=f"Adding key: {key} with value: {value}")
-                self._add_key(key=key, value=value)
+                self._add_key(settings=settings, key=key, value=value)
+
+            self.settings = self._from_dict(data=settings)
         except SanitizationError as e:
             logger.exception(msg="Error while sanitizing settings.")
             raise e
@@ -345,6 +394,17 @@ class SettingsManagerBase(ABC, Generic[T]):
         default_settings: Dict[str, Any],
         dict_path: str,
     ) -> Tuple[List[str], Dict[str, Any]]:
+        """
+        Sanitizes the settings dictionary by removing keys that are not present in the default settings and adding missing keys from the default settings.
+
+        Args:
+            settings (Dict[str, Any]): The settings dictionary to be sanitized.
+            default_settings (Dict[str, Any]): The default settings dictionary.
+            dict_path (str): The current dictionary path.
+
+        Returns:
+            Tuple[List[str], Dict[str, Any]]: A tuple containing the list of keys to remove and the dictionary of keys to add.
+        """
 
         keys_to_remove: List[str] = []
         keys_to_add: Dict[str, Any] = {}
@@ -382,7 +442,7 @@ class SettingsManagerBase(ABC, Generic[T]):
 
         return keys_to_remove, keys_to_add
 
-    def _remove_key(self, key: str) -> None:
+    def _remove_key(self, settings: Dict[str, Any], key: str) -> None:
         """
         Removes the key from the settings data.
 
@@ -390,7 +450,6 @@ class SettingsManagerBase(ABC, Generic[T]):
             key (str): The key to remove from the settings data.
         """
         keys: List[str] = key.split(sep=".")
-        settings: Dict[str, Any] = self._to_dict(obj=self.settings)
         current_dict: Dict[str, Any] = settings
 
         # Traverse the settings data to the parent of the key to remove
@@ -407,10 +466,7 @@ class SettingsManagerBase(ABC, Generic[T]):
         # Since 'current_dict' and the nested dictionary in 'settings' are still the same object in memory,
         # deleting the key from 'current_dict' also deletes it from the corresponding dictionary inside 'settings'.
 
-        # Update the settings data with the modified dictionary
-        self.settings = self._from_dict(data=settings)
-
-    def _add_key(self, key: str, value: Any) -> None:
+    def _add_key(self, settings: Dict[str, Any], key: str, value: Any) -> None:
         """
         Adds the key with the specified value to the settings data.
 
@@ -419,16 +475,12 @@ class SettingsManagerBase(ABC, Generic[T]):
             value (Any): The value to associate with the key.
         """
         keys: List[str] = key.split(sep=".")
-        settings: Dict[str, Any] = self._to_dict(obj=self.settings)
         current_dict: Dict[str, Any] = settings
 
         # Traverse the settings data to the parent of the key to add
         for key in keys[:-1]:
             current_dict = current_dict[key]
         current_dict[keys[-1]] = value
-
-        # Update the settings data with the modified dictionary
-        self.settings = self._from_dict(data=settings)
 
     @staticmethod
     def valid_ini_format(data: Dict[str, Any]) -> bool:
@@ -445,6 +497,12 @@ class SettingsManagerBase(ABC, Generic[T]):
             if not isinstance(settings, dict):
                 return False
         return True
+
+    def restore_defaults(self) -> None:
+        """
+        Restores the stored settings to the default settings by copying the default settings that were initially provided at startup. Only the settings object is restored; manual saving is required to update the settings file.
+        """
+        self.settings = deepcopy(x=self._default_settings)
 
     @abstractmethod
     def _to_dict(self, obj: Any) -> Dict[str, Any]:
@@ -465,3 +523,104 @@ class SettingsManagerBase(ABC, Generic[T]):
         It is the subclass's responsibility to implement this method to correctly handle and convert the dictionary data to the settings object.
         """
         ...
+
+    def detect_invalid_types(self, obj: Any, types: List[Type[Any]] = [Set]) -> None:
+        """
+        Recursively detects if the given object contains any of the specified types.
+
+        Args:
+            obj (Any): The object to check.
+            types (List[Type[Any]]): The list of types to detect. Defaults to [Set].
+
+        Raises:
+            TypeError: If the object contains any of the specified types.
+        """
+        logger.debug(msg=f'Object to check: "{obj}"\nTypes to detect: "{types}"')
+        if self._detect_invalid_types(obj=obj, types=types):
+            raise TypeError(
+                f'The object cannot contain any of the specified types: "{types}"'
+            )
+
+    def _detect_invalid_types(self, obj: Any, types: List[Type[Any]] = [set]) -> bool:
+        """
+        Recursively detects if the given object contains any of the specified types.
+
+        Args:
+            obj (Any): The object to check.
+            types (List[Type[Any]]): The list of types to detect. Defaults to [set].
+
+        Returns:
+            bool: True if the object contains any of the specified types, False otherwise.
+        """
+        logger.debug(msg=f'Checking object/value: "{obj}"...')
+        if isinstance(obj, tuple(types)):
+            return True
+
+        if isinstance(obj, dict):
+            logger.debug(msg="Object is a dictionary; checking keys and values...")
+            for key, value in obj.items():
+                if self._detect_invalid_types(obj=key, types=types):
+                    logger.debug(msg=f'Found type "{type(key)}" in key: "{key}".')
+                    return True
+                elif self._detect_invalid_types(obj=value, types=types):
+                    logger.debug(msg=f'Found type "{type(value)}" in value: "{value}".')
+                    return True
+
+        elif isinstance(obj, Iterable) and not isinstance(obj, (str, bytes)):
+            logger.debug(msg="Object is an iterable; checking items...")
+            for item in obj:
+                if self._detect_invalid_types(obj=item, types=types):
+                    logger.debug(msg=f'Found type "{type(item)}" in item: "{item}".')
+                    return True
+
+        elif hasattr(obj, "__dict__"):  # Check if the object is a class instance
+            logger.debug(msg="Object is a class instance; checking attributes...")
+            for attr_name in dir(obj):
+                if attr_name.startswith("__"):
+                    logger.debug(
+                        msg=f'Skipping attribute: "{attr_name}"; Reason: Dunder method.'
+                    )
+                    continue
+
+                attr_value = getattr(obj, attr_name)
+
+                if callable(attr_value):
+                    logger.debug(
+                        msg=f'Skipping attribute: "{attr_name}"; Reason: Callable.'
+                    )
+                    continue
+
+                if self._detect_invalid_types(obj=attr_value, types=types):
+                    logger.debug(
+                        msg=f'Found type "{type(attr_value)}" in attribute: "{attr_name}".'
+                    )
+                    return True
+
+        logger.debug(msg=f'Object "{obj}" is not of any of the specified types.')
+        return False
+
+    def _convert_value(self, value: str) -> Any:
+        """
+        Convert a string value to its respective type.
+
+        Used to by the INI format to convert string values to their respective types.
+
+        Args:
+            value (str): The string value to convert.
+
+        Returns:
+            Any: The converted value.
+        """
+        if value == "":
+            return None
+        if value.lower() in {"true", "false"}:
+            return value.lower() == "true"
+        try:
+            return int(value)
+        except ValueError:
+            pass
+        try:
+            return float(value)
+        except ValueError:
+            pass
+        return value

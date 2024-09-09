@@ -20,6 +20,3 @@ class AuthSettings:
 @dataclass
 class AppSettings:
     auth: AuthSettings = field(default_factory=AuthSettings)
-
-
-app_settings_as_dataclass = AppSettings()

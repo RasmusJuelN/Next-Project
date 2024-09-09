@@ -1,1 +1,3 @@
-SUPPORTED_FORMATS: list[str] = ["json", "yaml", "toml", "ini"]
+from typing import List
+
+SUPPORTED_FORMATS: List[str] = ["json", "yaml", "toml", "ini"]

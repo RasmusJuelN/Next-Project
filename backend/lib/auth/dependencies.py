@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 
 from .models import TokenData
-from .constants import ALGORITHM, SECRET_KEY, SCOPES
+from backend import app_settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
 
@@ -43,7 +43,9 @@ class RoleChecker:
 
     async def __call__(self, token: str = Depends(dependency=oauth2_scheme)) -> None:
         payload: dict[str, Any] = jwt.decode(
-            token=token, key=SECRET_KEY, algorithms=[ALGORITHM]
+            token=token,
+            key=app_settings.settings.auth.secret_key,
+            algorithms=[app_settings.settings.auth.algorithm],
         )
         scope: Union[str, None] = payload.get("scope")
         if scope is None:
@@ -59,9 +61,9 @@ class RoleChecker:
             )
 
 
-is_admin = RoleChecker(role=SCOPES["admin"])
-is_student = RoleChecker(role=SCOPES["student"])
-is_teacher = RoleChecker(role=SCOPES["teacher"])
+is_admin = RoleChecker(role=app_settings.settings.auth.scopes["admin"])
+is_student = RoleChecker(role=app_settings.settings.auth.scopes["student"])
+is_teacher = RoleChecker(role=app_settings.settings.auth.scopes["teacher"])
 
 
 async def get_token_data(
@@ -77,7 +79,9 @@ async def get_token_data(
         TokenData: An instance of the TokenData class containing the decoded token data.
     """
     payload: dict[str, Any] = jwt.decode(
-        token=token, key=SECRET_KEY, algorithms=[ALGORITHM]
+        token=token,
+        key=app_settings.settings.auth.secret_key,
+        algorithms=[app_settings.settings.auth.algorithm],
     )
     return TokenData(
         username=payload.get("username"),
@@ -103,7 +107,9 @@ async def validate_token(
         HTTPException: If the token is invalid or missing a username.
     """
     payload: dict[str, Any] = jwt.decode(
-        token=token, key=SECRET_KEY, algorithms=[ALGORITHM]
+        token=token,
+        key=app_settings.settings.auth.secret_key,
+        algorithms=[app_settings.settings.auth.algorithm],
     )
     username: Union[str, None] = payload.get("sub")
 

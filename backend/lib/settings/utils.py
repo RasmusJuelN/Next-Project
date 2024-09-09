@@ -1,5 +1,5 @@
 from types import FrameType
-from typing import Dict, Optional, overload, Tuple, TypeVar
+from typing import Dict, Iterable, Optional, overload, Tuple, TypeVar, List
 from pathlib import Path
 from inspect import FrameInfo, stack, getmembers, currentframe
 
@@ -20,7 +20,7 @@ def set_file_paths(
     path: Optional[str] = None,
     read_path: Optional[str] = None,
     write_path: Optional[str] = None,
-) -> tuple[Path, Path]:
+) -> Tuple[Path, Path]:
     """
     Attempts to resolve any relative paths and returns the Path objects for the read and write paths.
 
@@ -52,8 +52,11 @@ def set_file_paths(
     if path:
         read_path = path
         write_path = path
-    assert read_path is not None and write_path is not None
-    return Path(read_path).resolve(), Path(write_path).resolve()
+
+    if read_path is not None and write_path is not None:
+        return Path(read_path).resolve(), Path(write_path).resolve()
+    else:
+        raise MissingPathError("You must provide both a read_path and write_path.")
 
 
 @overload
@@ -167,7 +170,7 @@ def _determine_format_from_file_extension(
         return extension_to_format[read_path_suffix]
     else:
         raise UnsupportedFormatError(
-            f"Trying to determine format from file extension, got {read_path_suffix} but only {', '.join(SUPPORTED_FORMATS)} are supported."
+            f"Trying to determine format from file extension, got {read_path_suffix} but only {', '.join(SUPPORTED_FORMATS)} is supported."
         )
 
 
@@ -221,34 +224,32 @@ def filter_locals(locals_dict: Dict[str, T]) -> Dict[str, T]:
     return {key: value for key, value in locals_dict.items() if not key.startswith("_")}
 
 
-def get_caller_stack(instance: Optional[object] = None) -> str:
+def get_caller_stack(instances: Optional[Iterable[object]] = None) -> str:
     """
     Gets a stack of callers leading up to the caller of the function, if available.
 
-    Optionally, the instance of the class that called can be provided to filter out method names and potentially provide a more accurate stack of callers.
+    Optionally, an iterable of instances that should be considered local methods and crawled, can be provided.
 
     Args:
-        instance (Optional[object]): The instance of the class that called the function. Defaults to None.
+        instances (Optional[Iterable[object]]): An iterable of instances that should be considered local methods and crawled.
 
     Returns:
-        str: The name of the caller of the function. If no caller can be determined, returns "Unknown".
+        str: The name or names of the caller(s) leading up to the caller of the function. If the caller is not found, "Unknown" is returned.
 
     Examples:
         >>> get_caller_stack()
         'run'
 
     """
-    _stack: list[FrameInfo] = stack()[:10]  # Limit the stack to 10 frames.
+    _stack: List[FrameInfo] = stack()[:10]  # Limit the stack to 10 frames.
     if len(_stack) < 3:
         return "Unknown"
 
-    method_names: list[str] = []
-    if instance:
-        method_names = [
-            method_name
-            for method_name, _ in getmembers(object=instance, predicate=callable)
-            if not method_name.startswith("__")
-        ]
+    method_names: List[str] = []
+    for item in instances or []:
+        for method_name, _ in getmembers(object=item, predicate=callable):
+            if not method_name.startswith("__") and method_name not in method_names:
+                method_names.append(method_name)
 
     frame_length: int = len(_stack) - 1
     caller_stack: str = ""
@@ -260,8 +261,8 @@ def get_caller_stack(instance: Optional[object] = None) -> str:
 
     for index, frame in enumerate(iterable=_stack[2:frame_length]):
         func_name: str = frame.function
-        # If the function name is a dunder method, skip it.
-        if func_name.startswith("__"):
+        # If the function name is a dunder method or the code is top-level, skip it.
+        if func_name.startswith("__") or func_name == "<module>":
             continue
         # if the function name is not in the list of local methods (if provided) and is not the current function, assume we've found the caller and return the stack.
         elif func_name not in method_names and func_name != current_function_name:

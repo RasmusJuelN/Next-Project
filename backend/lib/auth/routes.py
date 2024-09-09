@@ -15,7 +15,7 @@ from .utility import (
     get_uuid_from_ldap,
     determine_scope_from_groups,
 )
-from .constants import ACCESS_TOKEN_EXPIRE_MINUTES
+from backend import app_settings
 from .utility import authenticate_user_ldap, create_access_token
 
 
@@ -51,7 +51,9 @@ async def authenticate_user(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(
+        minutes=app_settings.settings.auth.access_token_expire_minutes
+    )
     full_name: str = await get_full_name_from_ldap(
         connection=conn, username=form_data.username
     )
