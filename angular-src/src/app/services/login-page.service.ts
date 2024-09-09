@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MockAuthService } from './auth/mock-auth.service';
 import { LocalStorageService } from './misc/local-storage.service';
 import { ErrorHandlingService } from './error-handling.service';
-import { catchError, map, Observable } from 'rxjs';
+import { catchError, map, mergeMap, Observable, of, throwError } from 'rxjs';
 import { AppAuthService } from './auth/app-auth.service';
 
 @Injectable({
@@ -17,6 +17,7 @@ export class LoginPageService {
     private localStorageService: LocalStorageService,
     private errorHandlingService: ErrorHandlingService
   ) {}
+  
 
   /**
    * Check if the user is already logged in by verifying the token in local storage.
@@ -29,26 +30,34 @@ export class LoginPageService {
     /**
    * Handle user redirection based on their role and active questionnaire status.
    */
-    handleLoggedInUser(goToDashboard: boolean, goToActiveQuestionnaire: boolean): Observable<{ goToDashboard: boolean, goToActiveQuestionnaire: boolean, activeQuestionnaireString: string | null }> {
-      return new Observable(observer => {
-        try {
-          if(this.authService.hasRole('admin') || this.authService.hasRole('teacher')){
+    handleLoggedInUser(
+      goToDashboard: boolean,
+      goToActiveQuestionnaire: boolean
+    ): Observable<{ goToDashboard: boolean; goToActiveQuestionnaire: boolean; activeQuestionnaireString: string | null }> {
+      return this.authService.checkForActiveQuestionnaire().pipe(
+        map((activeQuestionnaireResponse) => {
+          const activeQuestionnaireId = activeQuestionnaireResponse.urlString;
+          goToActiveQuestionnaire = !!activeQuestionnaireId;
+  
+          if (this.authService.hasRole('admin') || this.authService.hasRole('teacher')) {
             goToDashboard = true;
           }
-          
-          
-          const activeQuestionnaireId = this.authService.checkForActiveQuestionnaire().urlString;
-          if (activeQuestionnaireId) {
-            goToActiveQuestionnaire = true;
-          }
-      
-          observer.next({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString: activeQuestionnaireId });
-          observer.complete();
-        } catch (error) {
+  
+          return {
+            goToDashboard,
+            goToActiveQuestionnaire,
+            activeQuestionnaireString: activeQuestionnaireId,
+          };
+        }),
+        catchError((error) => {
           this.errorHandlingService.handleError(error, 'Error handling logged in user');
-          observer.error(error);
-        }
-      });
+          return of({
+            goToDashboard: false,
+            goToActiveQuestionnaire: false,
+            activeQuestionnaireString: null,
+          });
+        })
+      );
     }
 
   /**
@@ -56,19 +65,28 @@ export class LoginPageService {
    */
   login(userName: string, password: string): Observable<void> {
     return this.authService.login(userName, password).pipe(
-      map(response => {
+      mergeMap((response) => {
         if ('access_token' in response) {
-          const checkAnyActiveQuestionnaire = this.authService.checkForActiveQuestionnaire();
-          if (checkAnyActiveQuestionnaire.hasActive) {
-            this.router.navigate([`/answer/${checkAnyActiveQuestionnaire.urlString}`]);
-          } else {
-            this.router.navigate(['/dashboard']);
-          }
+          return this.authService.checkForActiveQuestionnaire().pipe(
+            map((activeQuestionnaireResponse) => {
+              if (activeQuestionnaireResponse.hasActive) {
+                this.router.navigate([`/answer/${activeQuestionnaireResponse.urlString}`]);
+              } else {
+                this.router.navigate(['/dashboard']);
+              }
+            })
+          );
         } else if ('error' in response) {
           this.handleLoginError(new Error(response.error));
+          return throwError(() => new Error(response.error));
         }
+        return throwError(() => new Error('Unexpected login response'));
+
       }),
-      catchError(error => this.errorHandlingService.handleError(error, 'Login failed'))
+      catchError((error) => {
+        this.errorHandlingService.handleError(error, 'Login failed');
+        return throwError(() => error); 
+      })
     );
   }
 
@@ -84,7 +102,7 @@ export class LoginPageService {
    * Logout the user by removing the token and resetting state.
    */
   logout(): void {
-    this.localStorageService.removeData('token');
+    this.authService.logout()
     alert('Token deleted');
   }
 }

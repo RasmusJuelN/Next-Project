@@ -15,15 +15,20 @@ export class DashboardComponent implements OnInit {
   private router = inject(Router);
 
   ngOnInit(): void {
-    if(this.authService.hasRole('admin')){
-      this.router.navigate(['/dashboard/admin']);
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/']); // Redirect to login if token is missing or expired
+    } else {
+      // Check if the user is at the base 'dashboard' route
+      const currentRoute = this.router.url;
+      if (currentRoute === '/dashboard') {
+        if (this.authService.hasRole('admin')) {
+          this.router.navigate(['/dashboard/admin']);
+        } else if (this.authService.hasRole('teacher')) {
+          this.router.navigate(['/dashboard/teacher']);
+        } else {
+          this.router.navigate(['/']);
+        }
+      }
     }
-    else if (this.authService.hasRole('teacher')){
-      this.router.navigate(['/dashboard/teacher']);
-    }
-    else{
-      this.router.navigate(['/']);
-    }
-
   }
 }

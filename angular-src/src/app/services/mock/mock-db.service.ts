@@ -5,6 +5,9 @@ import { LocalStorageService } from '../misc/local-storage.service';
 @Injectable({
   providedIn: 'root'
 })
+
+
+
 export class MockDbService {
   private localStorageKey = 'mockData';
   private localStorageService = inject(LocalStorageService);
@@ -54,7 +57,7 @@ export class MockDbService {
         }
       }
     ],
-    mockQuestionTemplates: [ // Question templates now include the questions directly
+    mockQuestionTemplates: [
       {
         templateId: 'template1',
         title: 'Employee Performance Review',

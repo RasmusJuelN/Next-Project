@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { LoadingComponent } from '../loading/loading.component';
+import { AppAuthService } from '../../services/auth/app-auth.service';
 
 @Component({
   selector: 'app-questionare',
@@ -18,7 +19,8 @@ import { LoadingComponent } from '../loading/loading.component';
 export class QuestionareComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private questionnaireService = inject(QuestionnaireService);  // Updated service injection
+  private questionnaireService = inject(QuestionnaireService);
+  private authService = inject(AppAuthService);
 
   metadata: QuestionnaireMetadata | null = null;
   questions: Question[] = [];
@@ -26,12 +28,16 @@ export class QuestionareComponent implements OnInit {
   isLoading: boolean = true;
 
   ngOnInit(): void {
-    const questionnaireId = this.route.snapshot.paramMap.get('id');
-    if (questionnaireId) {
-      this.loadQuestionnaireData(questionnaireId);
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/']); // Redirect to login if token is missing or expired
     } else {
-      this.errorMessage = 'Invalid questionnaire ID';
-      this.isLoading = false;
+      const questionnaireId = this.route.snapshot.paramMap.get('id');
+      if (questionnaireId) {
+        this.loadQuestionnaireData(questionnaireId);
+      } else {
+        this.errorMessage = 'Invalid questionnaire ID';
+        this.isLoading = false;
+      }
     }
   }
 

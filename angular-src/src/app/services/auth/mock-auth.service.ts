@@ -4,6 +4,7 @@ import { tap } from 'rxjs/operators';
 import { ActiveQuestionnaire, Question, StudentTeacherAnswer, User } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
 import { JWTTokenService } from './jwt-token.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +15,32 @@ export class MockAuthService {
   private studentMockToken: string;
   private localStorageService = inject(LocalStorageService);
   private jwtTokenService = inject(JWTTokenService);
+  private router = inject(Router)
 
   constructor() {
     // This token assumes that the user is "Max" and is a teacher
-    this.teacherMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTYxNTE2MjY3MH0.LAlEc2_AYG1RuITP8a5LYdFCDj3j2FcEgZ6UT1C5OIM';
-    this.adminMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJhZG1pbiIsInVzZXJuYW1lIjoiTUoiLCJleHAiOjE2MTUxNjI2NzB9.KG-epxKAUF3zWIPvKNt_rlkiHFuN0sUPYrpGLe8_MFc';
-    this.studentMockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiSm9oYW4iLCJzY29wZSI6InN0dWRlbnQiLCJ1c2VybmFtZSI6IkpIIiwiZXhwIjoxNjE1MTYyNjcwfQ.drjhvu-lobOt1xInP6PEF4MT_rzKoUSV7Vw-PCHxO6g"
+    this.teacherMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTc2NzIyNTYwMH0.sK5gcVr4AZBccqR7sRzHmsqCTFL2H8YzPKRmruH77w0';
+    this.adminMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiQWRtaW4iLCJzY29wZSI6ImFkbWluIiwidXNlcm5hbWUiOiJBZG1pbiIsImV4cCI6MTc2NzIyNTYwMH0.rm4eMTa8ZoRS0unm013ZsjCloZWwcy9bZ7kpOFmtFHQ';
+    this.studentMockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiSm9oYW4iLCJzY29wZSI6InN0dWRlbnQiLCJ1c2VybmFtZSI6IkpIIiwiZXhwIjoxNzY3MjI1NjAwfQ.dMZMGyAE2wGT05WhTOInMZCQqj2XH24LElRC7aZ5MiI"
   }
+
+  refreshUserData(): void {
+    const token = this.jwtTokenService.getDecodeToken();
+    if (token) {
+      const decodedToken: any = this.jwtTokenService.getDecodeToken();
+      if (decodedToken) {
+        const role = decodedToken['scope'];
+        if (role === 'admin') {
+          this.jwtTokenService.setToken(this.adminMockToken);
+        } else if (role === 'teacher') {
+          this.jwtTokenService.setToken(this.teacherMockToken);
+        } else if (role === 'student') {
+          this.jwtTokenService.setToken(this.studentMockToken);
+        }
+      }
+    }
+  }
+
 
   /**
    * Authenticates the user login using mock data.
@@ -75,7 +95,7 @@ export class MockAuthService {
    * @returns True if the user has the specified role, false otherwise.
    */
   hasRole(role: string): boolean {
-    const userRole = this.getRole();
+    const userRole = this.getUserRole();
     return userRole === role;
   }
 
@@ -84,18 +104,23 @@ export class MockAuthService {
    * @returns true if the user is logged in, otherwise false.
    */
   isLoggedIn(): boolean {
-    return !!this.jwtTokenService.getDecodeToken();
+    const existsAndNotExpired = this.jwtTokenService.tokenExists() && !this.jwtTokenService.isTokenExpired()
+    if(!existsAndNotExpired){
+      this.jwtTokenService.clearToken()
+      return existsAndNotExpired
+    }
+    return existsAndNotExpired;
   }
 
   /**
    * Checks if there is an active questionnaire for the user.
    * @returns An object containing `hasActive` (boolean) and `urlString` (string).
    */
-  checkForActiveQuestionnaire(): { hasActive: boolean, urlString: string } {
-    const role = this.getRole();
+  checkForActiveQuestionnaire(): Observable<{ hasActive: boolean, urlString: string }> {
+    const role = this.getUserRole();
     const idString = this.getUserId();
     if (!idString) {
-      return { hasActive: false, urlString: '' };
+      return of({ hasActive: false, urlString: '' });
     }
     const id = Number(idString); // Convert string to number for now
 
@@ -113,16 +138,16 @@ export class MockAuthService {
       if (role === 'student') {
         const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.student.id === id && !questionnaire.isStudentFinished);
         if (activeQuestionnaire) {
-          return { hasActive: true, urlString: `${activeQuestionnaire.id}` };
+          return of({ hasActive: true, urlString: `${activeQuestionnaire.id}` });
         }
       } else if (role === 'teacher') {
         const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.teacher.id === id && !questionnaire.isTeacherFinished);
         if (activeQuestionnaire) {
-          return { hasActive: true, urlString: `${activeQuestionnaire.id}` };
+          return of({ hasActive: true, urlString: `${activeQuestionnaire.id}` });
         }
       }
     }
-    return { hasActive: false, urlString: '' };
+    return of({ hasActive: false, urlString: '' });
   }
 
   /**
@@ -138,8 +163,13 @@ export class MockAuthService {
    * Retrieves the role from the token stored in the JWTTokenService.
    * @returns The role if the token is valid, or null if the token is invalid or not found.
    */
-  getRole(): string | null {
+  getUserRole(): string | null {
     const decodedToken = this.jwtTokenService.getDecodeToken();
-    return decodedToken ? decodedToken['scope'] : null; // Access with ['scope'] to avoid index signature issues
+    return decodedToken ? decodedToken['scope'] : null;
+  }
+
+  logout(): void {
+    this.jwtTokenService.clearToken();
+    this.router.navigate(['/']); // Redirect to login page
   }
 }

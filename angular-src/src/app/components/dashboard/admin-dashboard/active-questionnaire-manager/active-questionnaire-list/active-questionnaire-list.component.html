@@ -1,0 +1,33 @@
+  <!-- Search for Active Questionnaires by Student -->
+  <div class="search-section">
+    <label for="student-search">Search by Student Name:</label>
+    <input id="student-search" #SearchByTeacher type="text" (input)="onSearchStudentChange(SearchByTeacher.value)" placeholder="Enter student name..." />
+  </div>
+
+  <!-- Search for Active Questionnaires by Teacher -->
+  <div class="search-section">
+    <label for="teacher-search">Search by Teacher Name:</label>
+    <input id="teacher-search" #SearchByStudent type="text" (input)="onSearchTeacherChange(SearchByStudent.value)" placeholder="Enter teacher name..." />
+  </div>
+
+  <!-- Display Active Questionnaires -->
+  <div class="active-questionnaire-list">
+    <h3>Active Questionnaires</h3>
+    <ul *ngIf="activeQuestionnaires.length > 0">
+      <li *ngFor="let questionnaire of activeQuestionnaires">
+        <strong>Student:</strong> {{ questionnaire.student.fullName }} ({{ questionnaire.student.userName }})<br>
+        <strong>Teacher:</strong> {{ questionnaire.teacher.fullName }} ({{ questionnaire.teacher.userName }})<br>
+        <strong>Template:</strong> {{ questionnaire.questionnaireTemplate.title }}<br>
+        <strong>Description:</strong> {{ questionnaire.questionnaireTemplate.description }}<br>
+        <strong>Student Finished:</strong> {{ questionnaire.isStudentFinished ? 'Yes' : 'No' }}<br>
+        <strong>Teacher Finished:</strong> {{ questionnaire.isTeacherFinished ? 'Yes' : 'No' }}<br>
+        <strong>Created At:</strong> {{ questionnaire.createdAt | date:'short' }}<br>
+      </li>
+    </ul>
+
+    <!-- Show message if no results are found -->
+    <p *ngIf="activeQuestionnaires.length === 0">No active questionnaires found.</p>
+
+    <!-- Load More Button -->
+    <button (click)="loadMore()" *ngIf="activeQuestionnaires.length >= limit">Load More</button>
+  </div>

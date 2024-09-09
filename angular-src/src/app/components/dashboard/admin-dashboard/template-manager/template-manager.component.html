@@ -1,0 +1,30 @@
+<div class="template-manager">
+  <h2>Manage Templates</h2>
+  <button (click)="createTemplate()">Create New Template</button>
+  
+  <ul>
+    <li *ngFor="let template of templates">
+      {{ template.title }}
+      <div class="actions">
+        <button (click)="handleAction('editTemplate', template)">Edit</button>
+        <button (click)="handleAction('deleteTemplate', template)">Delete</button>
+      </div>
+    </li>
+  </ul>
+
+  <!-- Template Editor Component -->
+  <app-template-editor
+    *ngIf="selectedTemplate"
+    [template]="selectedTemplate"
+    (save)="saveTemplate($event)"
+    (cancel)="clearSelectedTemplate()">
+  </app-template-editor>
+
+  <!-- Question Editor Component -->
+  <app-question-editor
+    *ngIf="selectedQuestion"
+    [question]="selectedQuestion"
+    (save)="saveQuestion($event)"
+    (cancel)="clearSelectedQuestion()">
+  </app-question-editor>
+</div>

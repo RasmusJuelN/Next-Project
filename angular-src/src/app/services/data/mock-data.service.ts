@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
-import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire } from '../../models/questionare';
+import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire, QuestionTemplate } from '../../models/questionare';
 
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
@@ -12,15 +12,116 @@ import { MockDbService } from '../mock/mock-db.service';
 @Injectable({
   providedIn: 'root'
 })
+  //MockDataService is a fake dataservice that takes 
 export class MockDataService {
   private mockDbService = inject(MockDbService);
   private jwtTokenService = inject(JWTTokenService);
   private errorHandlingService = inject(ErrorHandlingService)
-  private authService = inject(AppAuthService)
 
   constructor(private http: HttpClient) {
     this.mockDbService.loadInitialMockData();
   }
+
+  
+  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
+    const userRole = this.getRoleFromToken();
+  
+    // Only allow creation if the user is a teacher or admin
+    if (userRole !== 'admin') {
+      return throwError(() => new Error('Unauthorized: Only teachers or admins can create questionnaires.'));
+    }
+
+    const template = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === templateId);
+
+    if (!template) {
+      throw new Error(`Template with ID ${templateId} not found.`);
+    }
+
+    const newActiveQuestionnaire: ActiveQuestionnaire = {
+      id: this.generateId(), // Generate a unique ID based on the current timestamp
+      student,
+      teacher,
+      questionnaireTemplate: {
+        templateId: template.templateId,
+        title: template.title,
+        description: template.description
+      },
+      isStudentFinished: false,
+      isTeacherFinished: false,
+      createdAt: new Date()
+    };
+
+    // Add the new ActiveQuestionnaire to the mock database
+    this.mockDbService.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);
+    this.mockDbService.saveData()
+
+    // Return the new ActiveQuestionnaire as an observable
+    return of(newActiveQuestionnaire).pipe(delay(300)); // Simulate a delay
+  }
+
+  // Active questionare
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10) {
+    // Filter users by role (student or teacher)
+    let users = this.mockDbService.mockData.mockUsers.filter(u => u.role === role);
+  
+    // Filter users by name string (case-insensitive)
+    if (nameString) {
+      users = users.filter(u => u.fullName.toLowerCase().includes(nameString.toLowerCase()));
+    }
+  
+    // Implement pagination: calculate start and end indexes
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+  
+    // Slice the array to return the correct page of results
+    const paginatedUsers = users.slice(startIndex, endIndex);
+  
+    // Return the result as an Observable (simulate async operation)
+    return of(paginatedUsers).pipe(delay(300)); // Optional delay to simulate network latency
+  }
+
+  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10){
+    const templates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.title.toLowerCase().includes(titleString.toLowerCase()))
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    const pageinatedTemplates = templates.slice(startIndex, endIndex);
+    return of(pageinatedTemplates).pipe(delay(300)); // Optional delay to simulate network latency
+  }
+
+  // Get all templates
+  getTemplates(): Observable<QuestionTemplate[]> {
+    return of(this.mockDbService.mockData.mockQuestionTemplates);
+  }
+
+  // Create a new template
+  createTemplate(template: QuestionTemplate): Observable<void> {
+    // Add a new template to the mock database
+    this.mockDbService.mockData.mockQuestionTemplates.push(template);
+    this.mockDbService.saveData(); // Save the updated state to local storage
+    return of();
+  }
+
+  // Update an existing template
+  updateTemplate(updatedTemplate: QuestionTemplate): Observable<void> {
+    // Find and update the existing template in the mock database
+    const templateIndex = this.mockDbService.mockData.mockQuestionTemplates.findIndex(t => t.templateId === updatedTemplate.templateId);
+    if (templateIndex !== -1) {
+      this.mockDbService.mockData.mockQuestionTemplates[templateIndex] = updatedTemplate;
+      this.mockDbService.saveData(); // Save the updated state to local storage
+    }
+    return of();
+  }
+
+  // Delete a template by ID
+  deleteTemplate(templateId: string): Observable<void> {
+    // Remove the template from the mock database
+    this.mockDbService.mockData.mockQuestionTemplates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.templateId !== templateId);
+    this.mockDbService.saveData(); // Save the updated state to local storage
+    return of();
+  }
+
 
   getActiveQuestionnairePage(
     filter: any = {}, // General filter object
@@ -47,6 +148,13 @@ export class MockDataService {
     if (filter.searchStudent) {
       filteredQuestionnaires = filteredQuestionnaires.filter(q =>
         q.student.fullName.toLowerCase().includes(filter.searchStudent.toLowerCase())
+      );
+    }
+
+    // Filter by student's username (case insensitive)
+    if (filter.searchTeacher) {
+      filteredQuestionnaires = filteredQuestionnaires.filter(q =>
+        q.teacher.fullName.toLowerCase().includes(filter.searchTeacher.toLowerCase())
       );
     }
   
@@ -147,30 +255,6 @@ export class MockDataService {
       catchError(this.handleError('getStudents'))
     );
   }
-
-  /**
-   * Adds a student to the questionnaire if they exist and are not already in an active questionnaire.
-   * @param studentId The ID of the student to add.
-   */
-  addStudentToQuestionnaire(studentId: number, teacherId: number = 1): Observable<void> {
-    const student = this.mockDbService.mockData.mockUsers.find(u => u.id === studentId && u.role === 'student');
-    const teacher = this.mockDbService.mockData.mockUsers.find(u => u.id === teacherId && u.role === 'teacher');
-
-    if (!student || !teacher) {
-      return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'addStudentToQuestionnaire');
-    }
-
-    const studentAvailableForQuestionnaire = !this.mockDbService.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
-
-    if (studentAvailableForQuestionnaire) {
-      return this.createActiveQuestionnaire(studentId, teacherId).pipe(
-        map(() => {}),
-        catchError(this.handleError('addStudentToQuestionnaire'))
-      );
-    } else {
-      return this.errorHandlingService.handleError(new Error('Student is already in an active questionnaire or has finished it'), 'addStudentToQuestionnaire');
-    }
-  }
   
 
   getQuestionsForUser(templateId: string): Observable<Question[]> {
@@ -201,7 +285,14 @@ export class MockDataService {
    * @param questionnaireId The ID of the questionnaire.
    * @param answers The answers to submit.
    */
-  submitData(userId: any, role: string, questionnaireId: string, answers: Question[]): Observable<void> {
+  submitData(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
+    const userRole = this.getRoleFromToken();
+
+    // Ensure the role matches before allowing submission
+    if (role !== userRole) {
+      return throwError(() => new Error('Unauthorized: Role mismatch.'));
+    }
+
     const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
     
     if (!activeQuestionnaire) {
@@ -220,53 +311,12 @@ export class MockDataService {
     } else if (role === 'teacher' && activeQuestionnaire.teacher.id == userId) {
       activeQuestionnaire.isTeacherFinished = true;
     }
+    
 
     this.saveData();
     return of(undefined).pipe(
       delay(250),
       catchError(this.handleError('submitData'))
-    );
-  }
-
-   /**
-   * Creates a new active questionnaire, whoever it uses a default template.
-   * @param studentId The ID of the student.
-   * @param teacherId The ID of the teacher.
-   * @returns The created active questionnaire.
-   */
-   createActiveQuestionnaire(studentId: number, teacherId: number): Observable<ActiveQuestionnaire> {
-    const student = this.mockDbService.mockData.mockUsers.find(u => u.id === studentId && u.role === 'student');
-    const teacher = this.mockDbService.mockData.mockUsers.find(u => u.id === teacherId && u.role === 'teacher');
-  
-    if (!student || !teacher) {
-      return this.errorHandlingService.handleError(new Error('Student or Teacher not found'), 'createActiveQuestionnaire');
-    }
-  
-    // Use 'template1' as the default questionnaire template
-    const defaultTemplate = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === 'template1');
-    
-    if (!defaultTemplate) {
-      return this.errorHandlingService.handleError(new Error('Default template not found'), 'createActiveQuestionnaire');
-    }
-  
-    const newActiveQuestionnaire: ActiveQuestionnaire = {
-      id: this.generateId(),
-      student: student,
-      teacher: teacher,
-      isStudentFinished: false,
-      isTeacherFinished: false,
-      questionnaireTemplate: {
-        templateId: defaultTemplate.templateId,
-        title: defaultTemplate.title,
-        description: defaultTemplate.description
-      }
-    };
-  
-    this.mockDbService.mockData.mockActiveQuestionnaire.push(newActiveQuestionnaire);
-    this.saveData();
-    return of(newActiveQuestionnaire).pipe(
-      delay(250),
-      catchError(this.handleError('createActiveQuestionnaire'))
     );
   }
 
@@ -280,21 +330,6 @@ export class MockDataService {
     return of(undefined).pipe(delay(250));
   }
 
-  /**
-   * Generates a random ID for purpose of testing creating new questionare on the frontend.
-   * @returns The generated ID.
-   */
-  generateId(): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-    const idLength = 4;
-    let result = '';
-    for (let i = 0; i < idLength; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    console.log('Generated ID:', result);
-    return result;
-  }
-
     /**
    * Validates if a user has access to a specific questionnaire.
    * @param userId The ID of the user.
@@ -304,19 +339,48 @@ export class MockDataService {
    */
     validateUserAccess(userId: any, role: string, questionnaireId: string): Observable<boolean> {
       const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
-  
+    
       if (!activeQuestionnaire) {
         return of(false); // Questionnaire not found
       }
-  
+    
+      // Ensure the role matches before granting access
+      const userRole = this.getRoleFromToken();
+      if (role !== userRole) {
+        return of(false); // Role mismatch, deny access
+      }
+    
       if (role === 'student' && activeQuestionnaire.student.id == userId && !activeQuestionnaire.isStudentFinished) {
         return of(true);
       }
-  
+    
       if (role === 'teacher' && activeQuestionnaire.teacher.id == userId && !activeQuestionnaire.isTeacherFinished) {
         return of(true);
       }
-  
-      return of(false); // User does not have access
+    
+      return of(false);
+    }
+
+    private getRoleFromToken(): string | null {
+      const token = this.jwtTokenService.getDecodeToken();
+      if (token) {
+        const decodedToken: any = this.jwtTokenService.getDecodeToken();
+        return decodedToken ? decodedToken['scope'] : null;
+      }
+      return null;
+    }
+   /**
+   * Generates a random ID for purpose of testing creating new questionare on the frontend.
+   * @returns The generated ID.
+   */
+    private generateId(): string {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+      const idLength = 4;
+      let result = '';
+      for (let i = 0; i < idLength; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      console.log('Generated ID:', result);
+      return result;
     }
 }
