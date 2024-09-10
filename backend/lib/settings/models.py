@@ -7,6 +7,7 @@ class AuthSettings:
     algorithm: str = field(default="HS256")
     access_token_expire_minutes: int = field(default=30)
     domain: str = field(default="localhost")
+    ldap_server: str = field(default="ldap://localhost")
     ldap_base_dn: str = field(default="dc=example,dc=com")
     scopes: dict[str, str] = field(
         default_factory=lambda: {
