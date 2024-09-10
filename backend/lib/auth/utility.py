@@ -230,7 +230,7 @@ async def authenticate_user_ldap(username: str, password: str) -> Connection:
     Raises:
         LDAPException: If the connection fails for any reason. Use specific exceptions for more granular error handling.
     """
-    server = Server(host=app_settings.settings.auth.ldap_base_dn, get_info=ALL)
+    server = Server(host=app_settings.settings.auth.ldap_server, get_info=ALL)
 
     conn = Connection(
         server=server,
