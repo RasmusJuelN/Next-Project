@@ -9,14 +9,14 @@ from ldap3.core.exceptions import LDAPInvalidCredentialsResult  # type: ignore
 from logging import Logger, DEBUG, INFO
 
 from backend.lib._logger import LogHelper
-from .utility import (
+from backend.lib.api.auth.utility import (
     get_full_name_from_ldap,
     get_member_of_from_ldap,
     get_uuid_from_ldap,
     determine_scope_from_groups,
 )
 from backend import app_settings
-from .utility import authenticate_user_ldap, create_access_token
+from backend.lib.api.auth.utility import authenticate_user_ldap, create_access_token
 
 
 logger: Logger = LogHelper.create_logger(

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, UTC
 from uuid import UUID
 
 from backend import app_settings
-from .dependencies import oauth2_scheme
+from backend.lib.api.auth.dependencies import oauth2_scheme
 
 
 async def decode_token(token: str) -> dict[str, Any]:
