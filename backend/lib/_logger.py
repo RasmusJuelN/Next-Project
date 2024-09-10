@@ -77,6 +77,7 @@ class LogHelper:
         file_log_level: int = logging.INFO,
         stream_log_level: int = logging.ERROR,
         rotate_logs: Literal[False] = False,
+        ignore_existing: bool = False,
     ) -> logging.Logger:
         """
         Factory method to create a logger with a file handler and a stream handler, or, optionally, a rotating file handler.
@@ -108,6 +109,7 @@ class LogHelper:
         when: str = "midnight",
         interval: int = 1,
         backup_count: int = 7,
+        ignore_existing: bool = False,
     ) -> logging.Logger:
         """
         Factory method to create a logger with a rotating file handler and a stream handler.
@@ -141,6 +143,7 @@ class LogHelper:
         when: str = "midnight",
         interval: int = 1,
         backup_count: int = 7,
+        ignore_existing: bool = False,
     ) -> logging.Logger:
         log_creator = LogHelper(
             logger_name=logger_name,
@@ -155,7 +158,7 @@ class LogHelper:
         if not Path(log_file).parent.exists():
             log_creator.create_log_dir(log_dir=Path(log_file).parent.as_posix())
 
-        if log_creator.logger_exists():
+        if not ignore_existing and log_creator.logger_exists():
             return logging.getLogger(name=logger_name)
 
         logger: logging.Logger = logging.getLogger(name=logger_name)
