@@ -62,20 +62,20 @@ export interface ActiveQuestionnaire {
 }
 
 
-
-export interface userAnswer{
-  questionnaireId: string;
+export interface Answer {
   questionId: number;
-  userId: number;
-  role: string;
-  rating: number;
+  selectedOptionId?: number;
+  customAnswer?: string;
 }
 
-/**
- * Represents a combined student and teacher answer to a question.
- */
-export interface StudentTeacherAnswer{
-  questionnaireId: string // The id of anwser collection
-  student: userAnswer; // The student anwser
-  teacher: userAnswer; // The teacher anwser
+export interface UserAnswerSheet {
+  user: User; // Reference to the User object instead of just ID
+  answers: Answer[];
+  answeredAt: Date;
+}
+
+export interface AnswerSession {
+  questionnaireId: string;
+  studentAnswers: UserAnswerSheet;
+  teacherAnswers: UserAnswerSheet;
 }

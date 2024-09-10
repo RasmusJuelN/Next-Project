@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ActiveQuestionnaire, Question, QuestionTemplate, User } from '../../models/questionare';
+import { ActiveQuestionnaire, AnswerSession, Question, QuestionTemplate, User } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -12,6 +12,26 @@ export class DataService {
   private apiUrl = environment.apiUrl; 
   private http = inject(HttpClient);
 
+  getResults(activeQuestionnaireId: string): Observable<AnswerSession> {
+    console.error("WIP, NOT YET IMPLIMENTED")
+
+    const url = "WIP, NOT YET IMPLIMENTED"
+        // Placeholder for real HTTP call
+    return this.http.get<AnswerSession>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
+    
+  }
+
+
+  getOptionLabel(activeQuestionnaireId: string, questionId: number, selectedOptionId: number): Observable<string | null> {
+    console.error("WIP, NOT YET IMPLIMENTED")
+
+    const url = "WIP, NOT YET IMPLIMENTED"
+        // Placeholder for real HTTP call
+    return this.http.get<string | null>(`/WIP, NOT YET IMPLIMENTED`);
+  }
   // Error handling function
   private handleError(error: any): Observable<never> {
     console.error('An error occurred:', error); // Log error to the console (or send to a logging service)

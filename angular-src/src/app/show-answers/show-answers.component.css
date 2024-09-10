@@ -1,0 +1,124 @@
+/* General layout */
+.answer-session {
+  font-family: 'Arial', sans-serif;
+  margin: 20px;
+}
+
+h2, h3 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Compact answers layout with inline display */
+.answers-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  padding: 0;
+}
+
+.answer {
+  width: 48%;
+  font-size: 0.9em;
+  padding: 10px;
+  border-left: 4px solid #ddd;
+}
+
+
+.user-info-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f5f5f5; /* Light grey background */
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.user-info-section p {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-info-section .info-item {
+  display: inline-block;
+  width: 45%;
+  padding: 8px;
+}
+
+.user-info-section .info-item strong {
+  color: #007bff; /* Blue for emphasis */
+  font-size: 1.05em;
+}
+
+
+.student-answer {
+  background-color: #e3f2fd; /* Light blue for student */
+}
+
+.teacher-answer {
+  background-color: #ffebee; /* Light red for teacher */
+}
+
+.user-info {
+  font-weight: bold;
+  font-size: 0.95em;
+  margin-bottom: 3px;
+  color: #333;
+}
+
+/* Minimalist answer styling */
+.answer p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #000;
+}
+
+/* Compact comparison note */
+.comparison-note {
+  background-color: #fff9c4; /* Light yellow */
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 0.85em;
+  color: #555;
+  margin-top: 5px;
+}
+
+@media print {
+
+  .user-info-section {
+    background-color: #fff !important;
+}
+
+.student-info {
+    background-color: #e3f2fd !important; 
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.teacher-info {
+    background-color: #ffebee !important; 
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+  /* Ensure background colors are printed */
+  .student-answer {
+      background-color: #e3f2fd !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+  }
+
+  .teacher-answer {
+      background-color: #ffebee !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+  }
+
+  .comparison-note {
+      background-color: #fff9c4 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+  }
+}

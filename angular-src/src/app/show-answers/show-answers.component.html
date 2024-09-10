@@ -1,0 +1,34 @@
+<div class="answer-session">
+
+  <h2>Questionnaire: {{ answerSession.questionnaireId }}</h2>
+  <!-- Student and Teacher Info at the top -->
+  <div class="user-info-section">
+    <div class="info-item student-info">
+        <p><strong>Student:</strong> {{ answerSession.studentAnswers.user.fullName }} ({{ answerSession.studentAnswers.user.role }})</p>
+    </div>
+    <div class="info-item teacher-info">
+        <p><strong>Teacher:</strong> {{ answerSession.teacherAnswers.user.fullName }} ({{ answerSession.teacherAnswers.user.role }})</p>
+    </div>
+</div>
+  <!-- Questions and Answers below -->
+  <div *ngFor="let studentAnswer of answerSession.studentAnswers.answers; let i = index" class="question-answer">
+      <h3>{{ i + 1 }}. {{ getQuestionTitle(studentAnswer.questionId) }}</h3>
+
+      <div class="answers-container">
+          <!-- Student's Answer -->
+          <div class="answer student-answer">
+              <p>{{ displayAnswer(studentAnswer) }}</p>
+          </div>
+
+          <!-- Teacher's Answer -->
+          <div class="answer teacher-answer">
+              <p>{{ displayAnswer(answerSession.teacherAnswers.answers[i]) }}</p>
+          </div>
+      </div>
+
+      <!-- Comparison Notes -->
+      <div *ngIf="showComparison(studentAnswer, answerSession.teacherAnswers.answers[i]) !== 'Both answered the same.'">
+          <p class="comparison-note">{{ showComparison(studentAnswer, answerSession.teacherAnswers.answers[i]) }}</p>
+      </div>
+  </div>
+</div>

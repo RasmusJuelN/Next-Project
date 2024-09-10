@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { ActiveQuestionnaire, Question, StudentTeacherAnswer, User } from '../../models/questionare';
+import { ActiveQuestionnaire, Question, User } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
 import { JWTTokenService } from './jwt-token.service';
 import { Router } from '@angular/router';
@@ -124,7 +124,6 @@ export class MockAuthService {
         mockStudents: User[],
         mockTeachers: User[],
         mockQuestions: Question[],
-        mockStudentTeacherAnswers: StudentTeacherAnswer[],
         mockActiveQuestionnaire: ActiveQuestionnaire[]
       } = JSON.parse(mockData);
 

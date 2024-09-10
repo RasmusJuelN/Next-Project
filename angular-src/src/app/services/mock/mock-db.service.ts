@@ -1,20 +1,38 @@
 import { inject, Injectable } from '@angular/core';
-import { ActiveQuestionnaire, StudentTeacherAnswer, User, QuestionTemplate } from '../../models/questionare';
+import { ActiveQuestionnaire, User, QuestionTemplate } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
+
+
+
+interface Answer {
+  questionId: number;
+  selectedOptionId?: number;
+  customAnswer?: string;
+}
+
+interface UserAnswerSheet {
+  user: User; // Reference to the User object instead of just ID
+  answers: Answer[];
+  answeredAt: Date;
+}
+
+interface AnswerSession {
+  questionnaireId: string;
+  studentAnswers: UserAnswerSheet;
+  teacherAnswers: UserAnswerSheet;
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
-
-
-
 export class MockDbService {
   private localStorageKey = 'mockData';
   private localStorageService = inject(LocalStorageService);
 
   private predefinedMockData: {
     mockUsers: User[],
-    mockStudentTeacherAnswers: StudentTeacherAnswer[],
+    mockAnswers: AnswerSession[],
     mockActiveQuestionnaire: ActiveQuestionnaire[],
     mockQuestionTemplates: QuestionTemplate[]
   } = {
@@ -24,11 +42,28 @@ export class MockDbService {
       { id: 3, userName: "AS", fullName: "Alexander Svensson", role: "student" },
       { id: 4, userName: "JW", fullName: "Johan Wallin", role: "student" }
     ],
-    mockStudentTeacherAnswers: [
-      {
-        questionnaireId: "efgh",
-        student: { questionnaireId: "efgh", questionId: 1, userId: 2, role: "student", rating: 5 },
-        teacher: { questionnaireId: "efgh", questionId: 1, userId: 1, role: "teacher", rating: 5 }
+    mockAnswers:[
+      {questionnaireId: "efgh",
+        studentAnswers: {
+          user: { id: 2, userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
+          answers: [
+            { questionId: 1, selectedOptionId: 1 },
+            { questionId: 2, selectedOptionId: 2 },
+            { questionId: 3, customAnswer: 'More interactive activities would be great!' },
+            { questionId: 4, selectedOptionId: 2 },
+          ],
+          answeredAt: new Date()
+        },
+        teacherAnswers: {
+          user: { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
+          answers: [
+            { questionId: 1, selectedOptionId: 2 },
+            { questionId: 2, selectedOptionId: 1 },
+            { questionId: 3, customAnswer: 'Better resources and tools for students are needed.' },
+            { questionId: 4, selectedOptionId: 2 },
+          ],
+          answeredAt: new Date()
+        }
       }
     ],
     mockActiveQuestionnaire: [

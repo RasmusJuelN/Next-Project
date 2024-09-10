@@ -1,11 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
-import { User, Question, StudentTeacherAnswer, ActiveQuestionnaire, QuestionTemplate } from '../../models/questionare';
-
+import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession } from '../../models/questionare';
+import { Option } from '../../models/questionare';
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
 import { MockDbService } from '../mock/mock-db.service';
+import { AuthService } from '../auth/auth.service';
 
 
 @Injectable({
@@ -16,10 +17,98 @@ export class MockDataService {
   private mockDbService = inject(MockDbService);
   private jwtTokenService = inject(JWTTokenService);
   private errorHandlingService = inject(ErrorHandlingService)
-
+  private authService = inject(AuthService)
   constructor(private http: HttpClient) {
     this.mockDbService.loadInitialMockData();
   }
+
+
+  getResults(activeQuestionnaireId: string): Observable<AnswerSession>  {
+    // Step 1: Find the active questionnaire
+    const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(
+      (aq: ActiveQuestionnaire) => aq.id === activeQuestionnaireId
+    );
+  
+    if (!activeQuestionnaire) {
+      return throwError(() => new Error('Active questionnaire not found'));
+    }
+  
+    // Step 2: Find the corresponding answer session
+    const answerSession = this.mockDbService.mockData.mockAnswers?.find(
+      (session: AnswerSession) => session.questionnaireId === activeQuestionnaireId
+    );
+    
+  
+    if (!answerSession) {
+      return throwError(() => new Error('Answer session not found'));
+    }
+  
+    // Step 3: Check if the current user is a teacher
+    const userId = this.authService.getUserId();
+    const user = this.mockDbService.mockData.mockUsers.find(u => u.id === userId);
+  
+    if (!user || user.role !== 'teacher') {
+      return throwError(() => new Error('User is not authorized as a teacher'));
+    }
+    // Step 4: Return the active questionnaire and the answer session
+    return of(answerSession).pipe(
+      delay(500), // Simulate async behavior with a delay
+      catchError((error) => throwError(() => new Error(error)))
+    );
+  }
+  
+
+  getOptionLabel(activeQuestionnaireId: string, questionId: number, selectedOptionId: number): Observable<string | null> {
+    // Step 1: Simulate async behavior using an observable
+    return new Observable<string | null>(observer => {
+      // Step 1: Find the active questionnaire by activeQuestionnaireId
+      const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(
+        (aq: ActiveQuestionnaire) => aq.id === activeQuestionnaireId
+      );
+  
+      if (!activeQuestionnaire) {
+        // Simulate HTTP error if the active questionnaire is not found
+        observer.error(new Error(`Active questionnaire with ID ${activeQuestionnaireId} not found.`));
+        return;
+      }
+  
+      // Step 2: Get the questionnaire template associated with the active questionnaire
+      const templateId = activeQuestionnaire.questionnaireTemplate.templateId;
+      const template = this.mockDbService.mockData.mockQuestionTemplates.find(
+        (t: QuestionTemplate) => t.templateId === templateId
+      );
+  
+      if (!template) {
+        // Simulate HTTP error if the template is not found
+        observer.error(new Error(`Template with ID ${templateId} not found.`));
+        return;
+      }
+  
+      // Step 3: Find the question by questionId in the template
+      const question = template.questions.find((q: Question) => q.id === questionId);
+  
+      if (!question) {
+        // Simulate HTTP error if the question is not found
+        observer.error(new Error(`Question with ID ${questionId} not found in template ${templateId}.`));
+        return;
+      }
+  
+      // Step 4: Find the option by selectedOptionId in the question
+      const option = question.options.find((o: Option) => o.id === selectedOptionId);
+      if (!option) {
+        // Simulate HTTP error if the option is not found
+        observer.error(new Error(`Option with ID ${selectedOptionId} not found in question ${questionId}.`));
+        return;
+      }
+      
+      // Simulate a successful HTTP response with delay
+      observer.next(option.label);
+      observer.complete();
+    }).pipe(
+      delay(500) // Simulate delay to mock async behavior
+    );
+  }
+  
 
   
   createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
