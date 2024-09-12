@@ -1,12 +1,18 @@
 <div *ngIf="question">
     <h3>{{ question.title }}</h3>
+    
     <div class="options-container">
-    <div *ngFor="let option of question.options"
-            class="option-item"
-            [class.selected]="selectedOption === option.id"
-            (click)="selectOption(option.id)">
+      <div *ngFor="let option of question.options"
+           class="option-item"
+           [class.selected]="selectedOption === option.id"
+           (click)="selectOption(option.id, option.isCustom)">
         <p>{{ option.label }}</p>
+      </div>
     </div>
+  
+    <!-- Custom input field for options with isCustom: true -->
+    <div *ngIf="isCustomInput">
+      <textarea [(ngModel)]="customAnswer" (ngModelChange)="handleCustomInput($event)" placeholder="Enter your custom answer"></textarea>
     </div>
   </div>
   

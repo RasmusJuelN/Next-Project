@@ -8,14 +8,29 @@ import { Question } from '../../../models/questionare';
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './question.component.html',
-  styleUrl: './question.component.css'
+  styleUrls: ['./question.component.css']
 })
 export class QuestionComponent {
-  @Input() question: Question | null = null;
-  @Input() selectedOption: number | undefined = undefined;
-  @Output() optionSelected = new EventEmitter<number>();
+  @Input() question: Question | null = null; // The question input
+  @Input() selectedOption: number | undefined = undefined; // Selected option ID
+  @Output() optionSelected = new EventEmitter<{ optionId: number | undefined, customAnswer?: string }>();
 
-  selectOption(optionId: number): void {
-    this.optionSelected.emit(optionId);
+  customAnswer: string | undefined = undefined; // Store custom answer text (string | undefined)
+  isCustomInput: boolean = false; // Track if custom input is selected
+
+  // Select option or enable custom input if needed
+  selectOption(optionId: number | undefined, isCustom: boolean | undefined) {
+    this.selectedOption = optionId;
+    this.isCustomInput = !!isCustom; // Set isCustomInput based on the selected option's isCustom flag
+
+    if (!isCustom) {
+      this.optionSelected.emit({ optionId: optionId, customAnswer: undefined }); // Emit selected option
+    }
+  }
+
+  // Handle custom input
+  handleCustomInput(value: string) {
+    this.customAnswer = value;
+    this.optionSelected.emit({ optionId: undefined, customAnswer: value }); // Emit custom answer
   }
 }

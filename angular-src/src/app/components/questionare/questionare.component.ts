@@ -83,8 +83,8 @@ export class QuestionareComponent implements OnInit {
     this.questionnaireService.previousQuestion();
   }
 
-  selectOption(optionId: any): void {
-    this.questionnaireService.selectOption(optionId);
+  selectOption(optionData: { optionId: number | undefined, customAnswer?: string }): void {
+    this.questionnaireService.selectOption(optionData);
   }
 
   hasSelectedOption(): boolean {

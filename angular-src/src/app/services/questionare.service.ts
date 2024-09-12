@@ -128,11 +128,23 @@ export class QuestionnaireService {
    * Selects an option for the current question.
    * @param value The value of the selected option.
    */
-  selectOption(value: any): void {
+  selectOption(optionData:{ optionId: number | undefined, customAnswer?: string }): void {
     const metadata = this.metadataSubject.value;
     if (metadata) {
       const questions = this.questionsSubject.value;
-      questions[metadata.currentIndex].selectedOption = value;
+      const currentQuestion = questions[metadata.currentIndex];
+  
+      if (typeof optionData.optionId === 'number') {
+        // Handle predefined option selected (optionId)
+        currentQuestion.selectedOption = optionData.optionId; // Update selectedOption ID
+        currentQuestion.customAnswer = undefined; // Clear custom answer if option is selected
+      } else if (typeof optionData.customAnswer === 'string') {
+        // Handle custom answer input
+        currentQuestion.customAnswer = optionData.customAnswer; // Update custom answer
+        currentQuestion.selectedOption = undefined; // Clear selected option ID if custom answer is used
+      }
+  
+      // Push the updated question list to the subject
       this.questionsSubject.next(questions);
     }
   }
