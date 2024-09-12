@@ -64,7 +64,18 @@ export class TemplateManagerComponent {
       templateId: this.generateTemplateId(),
       title: 'New Template',
       description: 'A description of the template',
-      questions: [],
+      questions: [
+        {
+          id: 1,
+          title: 'New Question 1',
+          options: [{id: 1, label: "option 1", value: 1},{id: 2, label: "option 2", value: 2}]
+        },
+        {
+          id: 2,
+          title: 'New Question 2',
+          options: [{id: 1, label: "option 1", value: 1},{id: 2, label: "option 2", value: 2}]
+        }
+      ],
       createdAt: new Date()
     };
   
@@ -110,7 +121,8 @@ export class TemplateManagerComponent {
   }
 
   deleteTemplate(templateId: string) {
-    const confirmed = window.confirm('Are you sure you want to delete this template? This action cannot be undone.');
+    alert('Are you sure you want to delete this template? This action cannot be undone.')
+    const confirmed = window.confirm('Remember, this is perment');
     if (confirmed) {
       this.adminDashboardService.deleteTemplate(templateId).subscribe({
         error: (err) => {

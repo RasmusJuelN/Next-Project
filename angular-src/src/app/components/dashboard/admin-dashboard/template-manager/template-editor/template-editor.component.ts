@@ -37,7 +37,7 @@ export class TemplateEditorComponent {
   }
 
   selectQuestionToEdit(question: Question) {
-    this.selectedQuestion = { ...question }; // Edit a copy of the question
+    this.selectedQuestion = JSON.parse(JSON.stringify(question));; // Edit a copy of the question
   }
 
   editQuestion(question: Question) {
@@ -48,22 +48,30 @@ export class TemplateEditorComponent {
   }
   
   deleteQuestion(questionId: number) {
-    const confirmed = window.confirm('Are you sure you want to delete this question? This action cannot be undone.');
-    if(confirmed){
+    if (this.template.questions.length <= 2) {
+      alert("You need at least two questions");
+      return;
+    }
+  
+    if (window.confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
       this.template.questions = this.template.questions.filter(q => q.id !== questionId);
-      this.selectedQuestion = null;  // Clear selection if the deleted question was being edited 
+      this.selectedQuestion = null;  // Clear selection if the deleted question was being edited
     }
   }
+  
 
-  saveQuestion(updatedQuestion:Question) {
-    const confirmed = window.confirm('Are you sure you want to save changes to this question?');
-    if (confirmed) {
-      const index = this.template.questions.findIndex(q => q.id === this.selectedQuestion!.id);
+  saveQuestion(updatedQuestion: Question) {
+    if (window.confirm('Are you sure you want to save changes to this question?')) {
+      const index = this.template.questions.findIndex(q => q.id === this.selectedQuestion?.id);
+      
       if (index !== -1) {
-        this.clearSelectedQuestion();  // Clear selection after saving
+        // Update the question in the array
+        this.template.questions[index] = updatedQuestion;
+        
+        // Clear the selected question after saving
+        this.clearSelectedQuestion();
       }
     }
-    
   }
 
   clearSelectedQuestion() {

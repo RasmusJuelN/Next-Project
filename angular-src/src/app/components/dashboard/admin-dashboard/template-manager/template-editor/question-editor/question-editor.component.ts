@@ -53,20 +53,20 @@ export class QuestionEditorComponent {
   
 
   deleteOption(optionId: number) {
-    const confirmed = window.confirm('Are you sure you want to delete this option? This action cannot be undone.');
-    if(confirmed){
-      const optionToDelete = this.question.options.find(o => o.id === optionId);
-      const remainingOptions = this.question.options.filter(o => o.id !== optionId);
-      const hasCustomOption = remainingOptions.some(o => o.isCustom);
-      const ratingOptions = remainingOptions.filter(o => !o.isCustom);
-
-      if ((hasCustomOption || ratingOptions.length >= 2) && optionToDelete) {
+    const remainingOptions = this.question.options.filter(o => o.id !== optionId);
+    const hasCustomOption = remainingOptions.some(o => o.isCustom);
+    const ratingOptionsCount = remainingOptions.filter(o => !o.isCustom).length;
+  
+    // Check first if the option can be deleted
+    if (hasCustomOption || ratingOptionsCount >= 2) {
+      if (window.confirm('Are you sure you want to delete this option? This action cannot be undone.')) {
         this.question.options = remainingOptions;
-      } else {
-        alert('Cannot delete this option. Each question must have either at least two rating options or a custom answer option.');
       }
+    } else {
+      alert('Cannot delete this option. Each question must have either at least two rating options or a custom answer option.');
     }
   }
+  
 
   saveQuestion() {
     this.save.emit(this.question);
