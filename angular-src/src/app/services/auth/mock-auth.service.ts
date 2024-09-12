@@ -25,7 +25,7 @@ export class MockAuthService {
     // This token assumes that the user is "Max" and is a teacher
     this.teacherMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTc2NzIyNTYwMH0.sK5gcVr4AZBccqR7sRzHmsqCTFL2H8YzPKRmruH77w0';
     this.adminMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiQWRtaW4iLCJzY29wZSI6ImFkbWluIiwidXNlcm5hbWUiOiJBZG1pbiIsImV4cCI6MTc2NzIyNTYwMH0.rm4eMTa8ZoRS0unm013ZsjCloZWwcy9bZ7kpOFmtFHQ';
-    this.studentMockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiSm9oYW4iLCJzY29wZSI6InN0dWRlbnQiLCJ1c2VybmFtZSI6IkpIIiwiZXhwIjoxNzY3MjI1NjAwfQ.dMZMGyAE2wGT05WhTOInMZCQqj2XH24LElRC7aZ5MiI"
+    this.studentMockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwiZnVsbF9uYW1lIjoiSm9oYW4iLCJzY29wZSI6InN0dWRlbnQiLCJ1c2VybmFtZSI6IkpIIiwiZXhwIjoxNzY3MjI1NjAwfQ.3fSMXJMA3eDEs9X0TUNTkVRmeEU3w_6prcmOc9K9EIc"
   }
 
   refreshUserData(): void {

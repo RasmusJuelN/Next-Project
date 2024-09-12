@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
-import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession } from '../../models/questionare';
+import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession, Answer } from '../../models/questionare';
 import { Option } from '../../models/questionare';
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
@@ -22,90 +22,139 @@ export class MockDataService {
     this.mockDbService.loadInitialMockData();
   }
 
+  submitUserAnswers(role: string, answers: Answer[], questionnaireId: string | null) {
+    // Step 1: Check if the user's role matches the role passed as an argument
+    const userRole = this.getRoleFromToken();
+    if (role !== userRole) {
+      return throwError(() => new Error('Unauthorized: Role mismatch.'));
+    }
+  
+    // Step 2: Find the active questionnaire by its ID
+    const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
+    if (!activeQuestionnaire) {
+      return this.errorHandlingService.handleError(new Error('Active questionnaire not found'), 'submitData');
+    }
+  
+    // Step 3: Find or create an answer session for the questionnaire
+    let answerSession = this.mockDbService.mockData.mockAnswers.find(as => as.questionnaireId === questionnaireId);
+  
+    if (!answerSession) {
+      // Fetch user data by ID to be used in the new session
+      const studentUser = this.getUserById(activeQuestionnaire.student.id);
+      const teacherUser = this.getUserById(activeQuestionnaire.teacher.id);
+  
+      if (!studentUser || !teacherUser) {
+        return throwError(() => new Error('Student or teacher user not found.'));
+      }
+  
+      // Create a new AnswerSession if none exists
+      const newAnswerSession: AnswerSession = {
+        questionnaireId: questionnaireId!,
+        studentAnswers: { user: studentUser, answers: [], answeredAt: new Date() },
+        teacherAnswers: { user: teacherUser, answers: [], answeredAt: new Date() },
+      };
+      this.mockDbService.mockData.mockAnswers.push(newAnswerSession);
+      answerSession = newAnswerSession; // Assign the newly created session
+    }
+  
+    // Step 4: Save the answers based on the user's role
+    if (role === 'student') {
+      // Update student answers
+      answerSession.studentAnswers.answers = answers;
+      answerSession.studentAnswers.answeredAt = new Date();
+    } else if (role === 'teacher') {
+      // Update teacher answers
+      answerSession.teacherAnswers.answers = answers;
+      answerSession.teacherAnswers.answeredAt = new Date();
+    } else {
+      return throwError(() => new Error('Unknown role.'));
+    }
 
-  getResults(activeQuestionnaireId: string): Observable<AnswerSession>  {
-    // Step 1: Find the active questionnaire
+    if (role === 'student') {
+      activeQuestionnaire.isStudentFinished = true;
+    } else if (role === 'teacher') {
+      activeQuestionnaire.isTeacherFinished = true;
+    }
+  
+    this.saveData();
+    return of(undefined).pipe(
+      delay(250),
+      catchError(this.handleError('submitData'))
+    );
+  }
+
+  private getUserById(userId: number | null) {
+    if (!userId) {
+      return null;
+    }
+    const user = this.mockDbService.mockData.mockUsers.find(u => u.id === userId);
+    return user ? user : null;
+  }
+
+  // can only be used by teachers for now
+  getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }> {
+    // Helper function to process answer labels
+    const getOptionLabel = (answer: Answer | undefined, question: Question): string => {
+      if (!answer) return 'No answer provided';
+      const selectedOptionId = answer.selectedOptionId;
+      if (selectedOptionId !== undefined && selectedOptionId !== null) {
+        const optionType = question.options.find((opt: any) => opt.id === selectedOptionId);
+        return optionType ? optionType.label : 'No label found';
+      } else if (answer.customAnswer) {
+        return answer.customAnswer;
+      }
+      return 'No answer provided';
+    };
+  
+    // Step 1: Find the active questionnaire and answer session
     const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(
       (aq: ActiveQuestionnaire) => aq.id === activeQuestionnaireId
     );
+    if (!activeQuestionnaire) return throwError(() => new Error('Active questionnaire not found'));
   
-    if (!activeQuestionnaire) {
-      return throwError(() => new Error('Active questionnaire not found'));
-    }
-  
-    // Step 2: Find the corresponding answer session
     const answerSession = this.mockDbService.mockData.mockAnswers?.find(
       (session: AnswerSession) => session.questionnaireId === activeQuestionnaireId
     );
-    
+    if (!answerSession) return throwError(() => new Error('Answer session not found'));
   
-    if (!answerSession) {
-      return throwError(() => new Error('Answer session not found'));
-    }
-  
-    // Step 3: Check if the current user is a teacher
+    // Step 2: Ensure the user is a teacher
     const userId = this.authService.getUserId();
     const user = this.mockDbService.mockData.mockUsers.find(u => u.id === userId);
+    if (!user || user.role !== 'teacher') return throwError(() => new Error('User is not authorized as a teacher'));
   
-    if (!user || user.role !== 'teacher') {
-      return throwError(() => new Error('User is not authorized as a teacher'));
-    }
-    // Step 4: Return the active questionnaire and the answer session
-    return of(answerSession).pipe(
-      delay(500), // Simulate async behavior with a delay
-      catchError((error) => throwError(() => new Error(error)))
+    // Step 3: Find the corresponding question template
+    const template = this.mockDbService.mockData.mockQuestionTemplates.find(
+      qt => qt.templateId === activeQuestionnaire.questionnaireTemplate.templateId
     );
-  }
+    if (!template) return throwError(() => new Error('Question template not found'));
   
-
-  getOptionLabel(activeQuestionnaireId: string, questionId: number, selectedOptionId: number): Observable<string | null> {
-    // Step 1: Simulate async behavior using an observable
-    return new Observable<string | null>(observer => {
-      // Step 1: Find the active questionnaire by activeQuestionnaireId
-      const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(
-        (aq: ActiveQuestionnaire) => aq.id === activeQuestionnaireId
-      );
-  
-      if (!activeQuestionnaire) {
-        // Simulate HTTP error if the active questionnaire is not found
-        observer.error(new Error(`Active questionnaire with ID ${activeQuestionnaireId} not found.`));
-        return;
-      }
-  
-      // Step 2: Get the questionnaire template associated with the active questionnaire
-      const templateId = activeQuestionnaire.questionnaireTemplate.templateId;
-      const template = this.mockDbService.mockData.mockQuestionTemplates.find(
-        (t: QuestionTemplate) => t.templateId === templateId
-      );
-  
-      if (!template) {
-        // Simulate HTTP error if the template is not found
-        observer.error(new Error(`Template with ID ${templateId} not found.`));
-        return;
-      }
-  
-      // Step 3: Find the question by questionId in the template
-      const question = template.questions.find((q: Question) => q.id === questionId);
+    // Step 4: Process student and teacher answers
+    const questionDetails = answerSession.studentAnswers.answers.map((studentAnswer, index) => {
+      const questionId = studentAnswer.questionId;
+      const question = template.questions.find(q => q.id === questionId);
   
       if (!question) {
-        // Simulate HTTP error if the question is not found
-        observer.error(new Error(`Question with ID ${questionId} not found in template ${templateId}.`));
-        return;
+        return {
+          questionId: String(questionId),
+          title: 'Question not found',
+          studentOptionLabel: 'Question not found',
+          teacherOptionLabel: 'Question not found',
+        };
       }
   
-      // Step 4: Find the option by selectedOptionId in the question
-      const option = question.options.find((o: Option) => o.id === selectedOptionId);
-      if (!option) {
-        // Simulate HTTP error if the option is not found
-        observer.error(new Error(`Option with ID ${selectedOptionId} not found in question ${questionId}.`));
-        return;
-      }
-      
-      // Simulate a successful HTTP response with delay
-      observer.next(option.label);
-      observer.complete();
-    }).pipe(
-      delay(500) // Simulate delay to mock async behavior
+      const teacherAnswer = answerSession.teacherAnswers.answers[index];
+      return {
+        questionId: String(questionId),
+        title: question.title,
+        studentOptionLabel: getOptionLabel(studentAnswer, question), // Process student answer
+        teacherOptionLabel: getOptionLabel(teacherAnswer, question), // Process teacher answer
+      };
+    });
+  
+    // Step 5: Return the answer session and question details
+    return of({ answerSession, questionDetails }).pipe(
+      delay(500), // Simulate async behavior with a delay
+      catchError((error) => throwError(() => new Error(error.message)))
     );
   }
   
@@ -361,51 +410,6 @@ export class MockDataService {
    */
   isStudentInQuestionnaire(studentId: number): boolean {
     return this.mockDbService.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
-  }
-
-
-
-
-  /**
-   * Marks a user's questionnaire as finished based on their role and saves the answers.
-   * @param userId The ID of the user.
-   * @param role The role of the user (e.g., 'student', 'teacher').
-   * @param questionnaireId The ID of the questionnaire.
-   * @param answers The answers to submit.
-   */
-  submitUserAnswers(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
-    const userRole = this.getRoleFromToken();
-
-    // Ensure the role matches before allowing submission
-    if (role !== userRole) {
-      return throwError(() => new Error('Unauthorized: Role mismatch.'));
-    }
-
-    const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === questionnaireId);
-    
-    if (!activeQuestionnaire) {
-      return this.errorHandlingService.handleError(new Error('Active questionnaire not found or user role mismatch'), 'submitData');
-    }
-
-    answers.forEach(answer => {
-      // Instead of saving the results of the answer here, lets just log it.
-      console.log(`Question ID: ${answer.id}, Selected Option: ${answer.selectedOption}`);
-    });
-
-
-    // Mark the questionnaire as finished for the user
-    if (role === 'student' && activeQuestionnaire.student.id == userId) {
-      activeQuestionnaire.isStudentFinished = true;
-    } else if (role === 'teacher' && activeQuestionnaire.teacher.id == userId) {
-      activeQuestionnaire.isTeacherFinished = true;
-    }
-    
-
-    this.saveData();
-    return of(undefined).pipe(
-      delay(250),
-      catchError(this.handleError('submitData'))
-    );
   }
 
   /**

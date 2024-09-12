@@ -41,7 +41,8 @@
           Teacher: {{ questionnaire.isTeacherFinished ? 'Reviewed' : 'Pending' }}
         </span>
       </div>
-      <button *ngIf="!questionnaire.isTeacherFinished" class="route-button" (click)="toActiveQuestionnaire(questionnaire.id)">Go to Questionnaire</button>
+      <button *ngIf="!questionnaire.isTeacherFinished" class="route-button"  (click)="navigateTo(questionnaire.id, 'answer')">Go to Questionnaire</button>
+      <button *ngIf="questionnaire.isTeacherFinished && questionnaire.isStudentFinished" class="route-button" (click)="navigateTo(questionnaire.id, 'results')">Go to results</button>
       <hr class="hr-line" *ngIf="i < activeQuestionnaires.length - 1">
     </div>
   </ng-container>

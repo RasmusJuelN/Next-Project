@@ -71,8 +71,8 @@ export class MockDbService {
         id: "efgh",
         student: { id: 2, userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
         teacher: { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
-        isStudentFinished: false,
-        isTeacherFinished: false,
+        isStudentFinished: true,
+        isTeacherFinished: true,
         questionnaireTemplate: {
           templateId: 'template1',
           title: 'Employee Performance Review',

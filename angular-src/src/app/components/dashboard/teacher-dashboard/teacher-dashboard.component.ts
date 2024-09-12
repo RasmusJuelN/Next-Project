@@ -74,7 +74,7 @@ export class TeacherDashboardComponent {
     }
   }
 
-  toActiveQuestionnaire(urlString: string): void {
-    this.router.navigate([`/answer/${urlString}`]);
+  navigateTo(urlString: string, type: 'answer' | 'results'): void {
+    this.router.navigate([`/${type}/${urlString}`]);
   }
 }

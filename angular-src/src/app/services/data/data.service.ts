@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ActiveQuestionnaire, AnswerSession, Question, QuestionTemplate, User } from '../../models/questionare';
+import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionTemplate, User } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -12,26 +12,12 @@ export class DataService {
   private apiUrl = environment.apiUrl; 
   private http = inject(HttpClient);
 
-  getResults(activeQuestionnaireId: string): Observable<AnswerSession> {
+  getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }> {
     console.error("WIP, NOT YET IMPLIMENTED")
-
-    const url = "WIP, NOT YET IMPLIMENTED"
-        // Placeholder for real HTTP call
-    return this.http.get<AnswerSession>(url)
-      .pipe(
-        catchError(this.handleError)
-      );
+    return throwError(() => new Error('WIP, NOT YET IMPLIMENTED'));
     
   }
-
-
-  getOptionLabel(activeQuestionnaireId: string, questionId: number, selectedOptionId: number): Observable<string | null> {
-    console.error("WIP, NOT YET IMPLIMENTED")
-
-    const url = "WIP, NOT YET IMPLIMENTED"
-        // Placeholder for real HTTP call
-    return this.http.get<string | null>(`/WIP, NOT YET IMPLIMENTED`);
-  }
+  
   // Error handling function
   private handleError(error: any): Observable<never> {
     console.error('An error occurred:', error); // Log error to the console (or send to a logging service)
@@ -122,9 +108,9 @@ export class DataService {
       );
   }
 
-  submitUserAnswers(userId: number | null, role: string, answers: Question[], questionnaireId: string | null): Observable<void> {
+  submitUserAnswers(role: string, answers: Answer[], questionnaireId: string | null): Observable<void> {
     const url = `${this.apiUrl}/questionnaire/submit/${questionnaireId}`;
-    const body = { userId, role, answers };
+    const body = {role, answers };
     return this.http.post<void>(url, body)
       .pipe(
         catchError(this.handleError)

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ActiveQuestionnaire, Question, QuestionnaireMetadata } from '../models/questionare';
+import { ActiveQuestionnaire, Answer, Question, QuestionnaireMetadata } from '../models/questionare';
 import { MockAuthService } from './auth/mock-auth.service';
 import { ErrorHandlingService } from './error-handling.service';
 import { DataService } from './data/data.service';
@@ -143,13 +143,13 @@ export class QuestionnaireService {
    */
   submitAnswers(): Observable<void> {
     if (this.activeQuestionnaire) {
-      const questions = this.questionsSubject.value;
       const questionnaireId = this.activeQuestionnaire.id;
-      const userId = this.authService.getUserId();
       const role = this.authService.getUserRole();
 
       if (role) {
-        return this.dataService.submitUserAnswers(userId, role, questions, questionnaireId).pipe(
+        const answers = this.createAnswers(); // Generate the answers
+
+        return this.dataService.submitUserAnswers(role, answers, questionnaireId).pipe(
           catchError(error => this.errorHandlingService.handleError(error, 'Failed to submit answers'))
         );
       } else {
@@ -160,5 +160,29 @@ export class QuestionnaireService {
         observer.error('No active questionnaire found');
       });
     }
+  }
+
+  private createAnswers(): Answer[] {
+    const questions = this.questionsSubject.value;
+    const answers: Answer[] = [];
+
+    // Iterate through each question and generate the Answer objects
+    questions.forEach((question) => {
+      if (question.selectedOption) {
+        const answer: Answer = {
+          questionId: question.id,
+          selectedOptionId: question.selectedOption, // Assuming selectedOption is the ID of the selected option
+        };
+        answers.push(answer);
+      } else if (question.customAnswer) {
+        const answer: Answer = {
+          questionId: question.id,
+          customAnswer: question.customAnswer, // Handling custom answers
+        };
+        answers.push(answer);
+      }
+    });
+
+    return answers;
   }
 }
