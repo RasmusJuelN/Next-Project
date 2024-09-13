@@ -155,7 +155,7 @@ export class MockAuthService {
    * Retrieves the role from the token stored in the JWTTokenService.
    * @returns The role if the token is valid, or null if the token is invalid or not found.
    */
-  getUserRole(): string | null {
+  public getUserRole(): string | null {
     const decodedToken = this.jwtTokenService.getDecodeToken();
     return decodedToken ? decodedToken['scope'] : null;
   }

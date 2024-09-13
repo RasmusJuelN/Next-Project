@@ -28,7 +28,7 @@ export class QuestionEditorComponent {
   
       // Create a new option
       const newOption: Option = {
-        id: this.question.options.length + 1,
+        id: 0,
         value: isCustom ? 0 : this.question.options.length + 1, // Custom answer has value 0
         label: isCustom ? 'Custom Answer' : `Option ${this.question.options.length + 1}`,
         isCustom: isCustom

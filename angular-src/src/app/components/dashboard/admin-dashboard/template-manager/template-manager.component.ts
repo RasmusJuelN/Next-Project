@@ -100,16 +100,35 @@ export class TemplateManagerComponent {
   saveTemplate(updatedTemplate: QuestionTemplate) {
     const confirmed = window.confirm('Are you sure you want to save changes to this template?');
     if (confirmed) {
-      this.adminDashboardService.updateTemplate(updatedTemplate).subscribe({
+      // Prepare the template data to send to the backend
+      const templateToSave = {
+        ...updatedTemplate,
+        questions: updatedTemplate.questions.map(question => {
+          return {
+            ...question,
+            options: question.options.map(option => {
+              return {
+                ...option,
+                isNew: option.id === 0 ? true : false
+              };
+            }),
+            isNew: question.id === 0 ? true : false
+          };
+        })
+      };
+  
+      // Send the updated template to the backend
+      this.adminDashboardService.updateTemplate(templateToSave).subscribe({
         error: (err) => console.error('Error updating template:', err),
         complete: () => {
           console.log('Template update complete.');
           this.loadTemplates();
-          this.clearSelectedTemplate()
+          this.clearSelectedTemplate();
         }
       });
     }
   }
+  
 
   clearSelectedTemplate() {
     this.selectedTemplate = null;

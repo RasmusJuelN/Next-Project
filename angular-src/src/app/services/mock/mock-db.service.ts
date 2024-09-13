@@ -42,15 +42,16 @@ export class MockDbService {
       { id: 3, userName: "AS", fullName: "Alexander Svensson", role: "student" },
       { id: 4, userName: "JW", fullName: "Johan Wallin", role: "student" }
     ],
-    mockAnswers:[
-      {questionnaireId: "efgh",
+    mockAnswers: [
+      {
+        questionnaireId: "efgh",
         studentAnswers: {
           user: { id: 2, userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
           answers: [
             { questionId: 1, selectedOptionId: 1 },
-            { questionId: 2, selectedOptionId: 2 },
+            { questionId: 2, selectedOptionId: 7 },
             { questionId: 3, customAnswer: 'More interactive activities would be great!' },
-            { questionId: 4, selectedOptionId: 2 },
+            { questionId: 4, selectedOptionId: 16 },
           ],
           answeredAt: new Date()
         },
@@ -58,9 +59,9 @@ export class MockDbService {
           user: { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
           answers: [
             { questionId: 1, selectedOptionId: 2 },
-            { questionId: 2, selectedOptionId: 1 },
+            { questionId: 2, selectedOptionId: 6 },
             { questionId: 3, customAnswer: 'Better resources and tools for students are needed.' },
-            { questionId: 4, selectedOptionId: 2 },
+            { questionId: 4, selectedOptionId: 16 },
           ],
           answeredAt: new Date()
         }
@@ -99,7 +100,7 @@ export class MockDbService {
         description: 'A template for assessing employee performance in various aspects of their job.',
         questions: [
           {
-            id: 1,
+            id: 1,  // Unique ID for each question
             title: 'Indlæringsevne',
             options: [
               { id: 1, value: 1, label: 'Viser lidt eller ingen forståelse for arbejdsopgaverne' },
@@ -110,42 +111,43 @@ export class MockDbService {
             ]
           },
           {
-            id: 2,
+            id: 2,  // Unique ID for each question
             title: 'Kreativitet og selvstændighed',
             options: [
-              { id: 1, value: 1, label: 'Viser intet initiativ. Er passiv, uinteresseret og uselvstændig' },
-              { id: 2, value: 2, label: 'Viser ringe initiativ. Kommer ikke med løsningsforslag. Viser ingen interesse i at tilægge eget arbejde.' },
-              { id: 3, value: 3, label: 'Viser normalt initiativ. Kommer selv med løsningsforslag. Tilrettelægger eget arbejde.' },
-              { id: 4, value: 4, label: 'Meget initiativrig. Kommer selv med løsningsforslag. Gode evner for at tilrettelægge eget og andres arbejde.' },
-              { id: 5, value: 5, label: 'Overordentlig initiativrig. Løser selv problemerne. Tilrettelægger selvstændigt arbejdet for mig selv og andre.' }
+              { id: 6, value: 1, label: 'Viser intet initiativ. Er passiv, uinteresseret og uselvstændig' },
+              { id: 7, value: 2, label: 'Viser ringe initiativ. Kommer ikke med løsningsforslag. Viser ingen interesse i at tilægge eget arbejde.' },
+              { id: 8, value: 3, label: 'Viser normalt initiativ. Kommer selv med løsningsforslag. Tilrettelægger eget arbejde.' },
+              { id: 9, value: 4, label: 'Meget initiativrig. Kommer selv med løsningsforslag. Gode evner for at tilrettelægge eget og andres arbejde.' },
+              { id: 10, value: 5, label: 'Overordentlig initiativrig. Løser selv problemerne. Tilrettelægger selvstændigt arbejdet for mig selv og andre.' }
             ]
           },
           {
-            id: 3,
+            id: 3,  // Unique ID for each question
             title: 'Arbejdsindsats',
             options: [
-              { id: 1, value: 1, label: 'Uacceptabel' },
-              { id: 2, value: 2, label: 'Under middel' },
-              { id: 3, value: 3, label: 'Middel' },
-              { id: 4, value: 4, label: 'Over middel' },
-              { id: 5, value: 5, label: 'Særdeles god' }
+              { id: 11, value: 1, label: 'Uacceptabel' },
+              { id: 12, value: 2, label: 'Under middel' },
+              { id: 13, value: 3, label: 'Middel' },
+              { id: 14, value: 4, label: 'Over middel' },
+              { id: 15, value: 5, label: 'Særdeles god' }
             ]
           },
           {
-            id: 4,
+            id: 4,  // Unique ID for each question
             title: 'Orden og omhyggelighed',
             options: [
-              { id: 1, value: 1, label: 'Omgås materialer, maskiner og værktøj på en sløset og ligegyldig måde. Holder ikke sin arbejdsplads ordentlig.' },
-              { id: 2, value: 2, label: 'Bruger maskiner og værktøj uden megen omtanke. Mindre god orden og omhyggelighed.' },
-              { id: 3, value: 3, label: 'Bruger maskiner, materialer og værktøj med påpasselighed og omhyggelighed middel. Rimelig god orden.' },
-              { id: 4, value: 4, label: 'Meget påpasselig både i praktik og teori. God orden.' },
-              { id: 5, value: 5, label: 'I høj grad påpasselig. God forståelse for materialevalg. Særdeles god orden.' }
+              { id: 16, value: 1, label: 'Omgås materialer, maskiner og værktøj på en sløset og ligegyldig måde. Holder ikke sin arbejdsplads ordentlig.' },
+              { id: 17, value: 2, label: 'Bruger maskiner og værktøj uden megen omtanke. Mindre god orden og omhyggelighed.' },
+              { id: 18, value: 3, label: 'Bruger maskiner, materialer og værktøj med påpasselighed og omhyggelighed middel. Rimelig god orden.' },
+              { id: 19, value: 4, label: 'Meget påpasselig både i praktik og teori. God orden.' },
+              { id: 20, value: 5, label: 'I høj grad påpasselig. God forståelse for materialevalg. Særdeles god orden.' }
             ]
-          },
+          }
         ]
       }
     ]
   };
+  
 
   public mockData = { ...this.predefinedMockData };
 

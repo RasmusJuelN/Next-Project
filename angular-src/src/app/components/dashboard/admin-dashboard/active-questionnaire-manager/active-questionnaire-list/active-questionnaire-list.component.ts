@@ -30,12 +30,13 @@ export class ActiveQuestionnaireListComponent {
       searchStudent: this.searchActiveQuestionnaireStudent,
       searchTeacher: this.searchActiveQuestionnaireTeacher
     };
-
+  
+    // Fetch active questionnaires from the service
     this.adminDashboardService.getActiveQuestionnairePage(filter, this.page, this.limit)
       .subscribe({
-        next: (results) => {
+        next: (results: ActiveQuestionnaire[]) => {
           if (this.page === 1) {
-            this.activeQuestionnaires = results; // Replace results on first page
+            this.activeQuestionnaires = results; // Replace results on the first page
           } else {
             this.activeQuestionnaires = [...this.activeQuestionnaires, ...results]; // Append for subsequent pages
           }

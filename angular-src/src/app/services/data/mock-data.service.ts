@@ -22,7 +22,7 @@ export class MockDataService {
     this.mockDbService.loadInitialMockData();
   }
 
-  submitUserAnswers(role: string, answers: Answer[], questionnaireId: string | null) {
+  submitUserAnswers(role: string, answers: Answer[], questionnaireId: string | null): Observable<void> {
     // Step 1: Check if the user's role matches the role passed as an argument
     const userRole = this.getRoleFromToken();
     if (role !== userRole) {
@@ -77,10 +77,14 @@ export class MockDataService {
     }
   
     this.saveData();
-    return of(undefined).pipe(
-      delay(250),
-      catchError(this.handleError('submitData'))
-    );
+    return of(undefined).pipe(delay(250), catchError(this.handleError('submitUserAnswers')));
+
+  }
+
+  // Handle pagination for users or templates
+  private paginate<T>(items: T[], page: number, limit: number): T[] {
+    const startIndex = (page - 1) * limit;
+    return items.slice(startIndex, startIndex + limit);
   }
 
   private getUserById(userId: number | null) {
@@ -197,36 +201,20 @@ export class MockDataService {
   }
 
   // Active questionare
-  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10) {
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10): Observable<User[]> {
     // Filter users by role (student or teacher)
     let users = this.mockDbService.mockData.mockUsers.filter(u => u.role === role);
-  
-    // Filter users by name string (case-insensitive)
-    if (nameString) {
-      users = users.filter(u => u.fullName.toLowerCase().includes(nameString.toLowerCase()));
+    if(nameString){
+      users = users.filter(u => u.fullName.toLowerCase().includes(nameString.toLowerCase()))
     }
-  
-    // Implement pagination: calculate start and end indexes
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-  
-    // Slice the array to return the correct page of results
-    const paginatedUsers = users.slice(startIndex, endIndex);
-  
-    // Return the result as an Observable (simulate async operation)
-    return of(paginatedUsers).pipe(delay(300)); // Optional delay to simulate network latency
+    // Paginate the results
+    return of(this.paginate(users, page, limit)).pipe(delay(300));
   }
 
-  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10){
-    const templates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.title.toLowerCase().includes(titleString.toLowerCase()))
-
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-
-    const pageinatedTemplates = templates.slice(startIndex, endIndex);
-    return of(pageinatedTemplates).pipe(delay(300)); // Optional delay to simulate network latency
+  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10): Observable<QuestionTemplate[]> {
+    let templates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.title.toLowerCase().includes(titleString.toLowerCase()));
+    return of(this.paginate(templates, page, limit)).pipe(delay(300));
   }
-
   // Get all templates
   getTemplates(): Observable<QuestionTemplate[]> {
     return of(this.mockDbService.mockData.mockQuestionTemplates);
@@ -234,29 +222,76 @@ export class MockDataService {
 
   // Create a new template
   createTemplate(template: QuestionTemplate): Observable<void> {
-    // Add a new template to the mock database
-    this.mockDbService.mockData.mockQuestionTemplates.push(template);
-    this.mockDbService.saveData(); // Save the updated state to local storage
-    return of();
+    const newTemplateId = 'template' + this.generateUniqueId('template');
+    const newTemplate = { ...template, templateId: newTemplateId };
+    
+    // Add the new template to mock data
+    this.mockDbService.mockData.mockQuestionTemplates.push(newTemplate);
+    this.saveData();
+    
+    return of(undefined).pipe(delay(300)); // Simulate delay
+  }
+
+  private generateUniqueId(type: 'template' | 'question' | 'option'): number {
+    const mockData = this.mockDbService.mockData;
+    
+    let maxId = 0;
+    if (type === 'template') {
+      maxId = Math.max(...mockData.mockQuestionTemplates.map(t => Number(t.templateId.replace('template', ''))), 0);
+    } else if (type === 'question') {
+      maxId = Math.max(...mockData.mockQuestionTemplates.flatMap(t => t.questions.map(q => q.id)), 0);
+    } else if (type === 'option') {
+      maxId = Math.max(...mockData.mockQuestionTemplates.flatMap(t => t.questions.flatMap(q => q.options.map(o => o.id))), 0);
+    }
+    return maxId + 1;
   }
 
   // Update an existing template
   updateTemplate(updatedTemplate: QuestionTemplate): Observable<void> {
-    // Find and update the existing template in the mock database
-    const templateIndex = this.mockDbService.mockData.mockQuestionTemplates.findIndex(t => t.templateId === updatedTemplate.templateId);
-    if (templateIndex !== -1) {
-      this.mockDbService.mockData.mockQuestionTemplates[templateIndex] = updatedTemplate;
-      this.mockDbService.saveData(); // Save the updated state to local storage
+    const existingTemplateIndex = this.mockDbService.mockData.mockQuestionTemplates.findIndex(t => t.templateId === updatedTemplate.templateId);
+    
+    if (existingTemplateIndex !== -1) {
+      const existingTemplate = this.mockDbService.mockData.mockQuestionTemplates[existingTemplateIndex];
+  
+      // Update questions and assign unique IDs where necessary
+      const updatedQuestions = updatedTemplate.questions.map(question => {
+        // Assign unique ID if the question is new
+        if (!question.id || question.id === 0) {
+          question.id = this.generateUniqueId('question');
+        }
+  
+        // Update options for the question and assign IDs for new options
+        question.options = question.options.map(option => {
+          if (!option.id || option.id === 0) {
+            option.id = this.generateUniqueId('option');
+          }
+          return option;
+        });
+  
+        return question;
+      });
+  
+      // Now, update the existing template with the new title, description, and questions
+      existingTemplate.title = updatedTemplate.title; // Update title
+      existingTemplate.description = updatedTemplate.description; // Update description
+      existingTemplate.questions = updatedQuestions; // Update questions with any new ones
+  
+      // Save the updated template in mock data
+      this.mockDbService.mockData.mockQuestionTemplates[existingTemplateIndex] = existingTemplate;
+      this.saveData(); // Persist changes
     }
-    return of();
+  
+    return of(undefined).pipe(delay(300)); // Simulate delay
   }
+  
+  
 
   // Delete a template by ID
   deleteTemplate(templateId: string): Observable<void> {
-    // Remove the template from the mock database
     this.mockDbService.mockData.mockQuestionTemplates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.templateId !== templateId);
-    this.mockDbService.saveData(); // Save the updated state to local storage
-    return of();
+    this.saveData();
+    
+    return of(undefined).pipe(delay(300)); // Simulate delay
   }
 
 
@@ -422,6 +457,7 @@ export class MockDataService {
     return of(undefined).pipe(delay(250));
   }
 
+  
     /**
    * Validates if a user has access to a specific questionnaire.
    * @param userId The ID of the user.
