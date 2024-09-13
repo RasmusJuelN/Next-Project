@@ -4,8 +4,9 @@ from typing import Optional, Literal
 
 @dataclass
 class DatabaseSettings:
-    driver: Literal["sqlite", "postgresql", "mysql", "mssql"] = field(default="sqlite")
-    database: str = field(default="program.db")
+    database_type: Literal["sqlite", "mysql", "mssql"] = field(default="sqlite")
+    database_driver: Optional[str] = field(default=None)
+    db_name: str = field(default="program.db")
     host: Optional[str] = field(default=None)
     user: Optional[str] = field(default=None)
     password: Optional[str] = field(default=None)
@@ -21,7 +22,7 @@ class DatabaseSettings:
 
 @dataclass
 class AuthSettings:
-    secret_key: str = field(default="CHANGE_ME")
+    secret_key: Optional[None] = field(default=None)
     algorithm: str = field(default="HS256")
     access_token_expire_minutes: int = field(default=30)
     domain: str = field(default="localhost")
