@@ -11,6 +11,7 @@ ldap3 = "*"
 python-jose = "*"
 pycryptodome = "*"
 dacite = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 types-python-jose = "*"
