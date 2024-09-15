@@ -12,6 +12,7 @@ python-jose = "*"
 pycryptodome = "*"
 dacite = "*"
 sqlalchemy = "*"
+aiosqlite = "*"
 
 [dev-packages]
 types-python-jose = "*"
@@ -20,6 +21,7 @@ types-pyyaml = "*"
 types-toml = "*"
 pyyaml = "*"
 toml = "*"
+pre-commit = "*"
 
 [requires]
 python_version = "3.12"
