@@ -4,20 +4,28 @@ from typing import Dict, Any, Literal
 from backend import app_settings
 
 
-def build_sqlite_connection_args() -> Dict[str, Any]:
+def build_sqlite_connection_args(async_driver: bool) -> Dict[str, Any]:
     # dialect+driver:///<database path and name>
     dialect = "sqlite"
-    driver: str = app_settings.settings.database.database_driver or "aiosqlite"
+    driver: str = (
+        app_settings.settings.database.database_driver or "aiosqlite"
+        if async_driver
+        else "pysqlite"
+    )
     db_name: str = app_settings.settings.database.db_name
     return {
         "url": f"{dialect}+{driver}:///{db_name}",
     }
 
 
-def build_mysql_connection_args() -> Dict[str, Any]:
+def build_mysql_connection_args(async_driver: bool) -> Dict[str, Any]:
     # dialect+driver://<username>:<password>@<host>:<port>/<database>
     dialect = "mysql"
-    driver: str = app_settings.settings.database.database_driver or "aiomysql"
+    driver: str = (
+        app_settings.settings.database.database_driver or "aiomysql"
+        if async_driver
+        else "pymysql"
+    )
     user: str = app_settings.settings.database.user or "root"
     password: str = parse.quote_plus(
         string=app_settings.settings.database.password or ""
@@ -43,10 +51,14 @@ def build_mysql_connection_args() -> Dict[str, Any]:
     }
 
 
-def build_mssql_connection_args() -> Dict[str, Any]:
+def build_mssql_connection_args(async_driver: bool) -> Dict[str, Any]:
     # dialect+driver://<username>:<password>@<dsn_name>
     dialect = "mssql"
-    driver: str = app_settings.settings.database.database_driver or "aioodbc"
+    driver: str = (
+        app_settings.settings.database.database_driver or "aioodbc"
+        if async_driver
+        else "pyodbc"
+    )
     user: str = app_settings.settings.database.user or "sa"
     password: str = parse.quote_plus(
         string=app_settings.settings.database.password or ""
@@ -60,15 +72,15 @@ def build_mssql_connection_args() -> Dict[str, Any]:
     }
 
 
-def build_db_connection_args() -> Dict[str, Any]:
+def build_db_connection_args(async_driver: bool = False) -> Dict[str, Any]:
     database_type: Literal["sqlite"] | Literal["mysql"] | Literal["mssql"] = (
         app_settings.settings.database.database_type
     )
     if database_type == "sqlite":
-        return build_sqlite_connection_args()
+        return build_sqlite_connection_args(async_driver=async_driver)
     elif database_type == "mysql":
-        return build_mysql_connection_args()
+        return build_mysql_connection_args(async_driver=async_driver)
     elif database_type == "mssql":
-        return build_mssql_connection_args()
+        return build_mssql_connection_args(async_driver=async_driver)
     else:
         raise ValueError(f"Unsupported database type: {database_type}")
