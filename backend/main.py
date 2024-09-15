@@ -22,6 +22,8 @@ from backend.lib.api.auth.dependencies import (
 from backend.lib.questions import questionnaire
 from backend.lib.models import Question, AllQuestions
 from backend.lib.i18n_middleware import I18nMiddleware, Translator
+from backend.lib.sql.database import engine
+from backend.lib.sql.models import Base
 
 # noqa: W291 (trailing whitespace) prevents Flake8 from complaining about trailing whitespace. Used for docstrings.
 # fmt: off/on (black formatting) disables/enables Black formatting for the code block. Used for docstrings.
@@ -32,6 +34,10 @@ logger: Logger = LogHelper.create_logger(
     file_log_level=DEBUG,
     stream_log_level=INFO,
 )
+
+# Create the database tables if they do not exist. We're using the non-async engine here because Base.metadata.create_all() does not (yet) support async engines.
+Base.metadata.create_all(bind=engine, checkfirst=True)
+
 
 app = FastAPI(root_path="/api/v1")
 
