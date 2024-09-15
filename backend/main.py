@@ -11,6 +11,7 @@ from typing import Dict, Union, List
 
 from backend.lib._logger import LogHelper
 from backend.lib.api.auth.routes import router as auth_router
+from backend.lib.api.questionnaire.routes import router as questionnaire_router
 from backend.lib.api.auth.models import TokenData
 from backend.lib.api.auth.dependencies import (
     get_token_data,
@@ -43,6 +44,7 @@ app.add_middleware(
 )
 
 app.include_router(router=auth_router)
+app.include_router(router=questionnaire_router)
 app.add_middleware(middleware_class=I18nMiddleware)
 
 
