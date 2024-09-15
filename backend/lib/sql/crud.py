@@ -2,13 +2,13 @@ from typing import Tuple, Optional
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.lib.sql import models, schemas
+from backend.lib.sql import schemas, models
 from backend.lib.sql.exceptions import TemplateNotFoundException
 
 
 async def get_template_by_id(
     db: AsyncSession, template: schemas.QuestionTemplateBase
-) -> Optional[models.QuestionTemplate]:
+) -> Optional[schemas.QuestionTemplate]:
     """
     Retrieve a question template by its ID from the database.
 
@@ -17,11 +17,11 @@ async def get_template_by_id(
         template (schemas.QuestionTemplateBase): The template schema containing the ID of the template to retrieve.
 
     Returns:
-        Optional[models.QuestionTemplate]: The question template if found, otherwise None.
+        Optional[schemas.QuestionTemplate]: The question template if found, otherwise None.
     """
     await db.flush()
-    result: Result[Tuple[models.QuestionTemplate]] = await db.execute(
-        statement=select(models.QuestionTemplate).where(
+    result: Result[Tuple[schemas.QuestionTemplate]] = await db.execute(
+        statement=select(schemas.QuestionTemplate).where(
             models.QuestionTemplate.template_id == template.template_id
         )
     )
@@ -30,7 +30,7 @@ async def get_template_by_id(
 
 async def add_template(
     db: AsyncSession, template: schemas.QuestionTemplateCreate
-) -> models.QuestionTemplate:
+) -> schemas.QuestionTemplateCreate:
     """
     Asynchronously adds a new question template to the database.
 
@@ -39,12 +39,13 @@ async def add_template(
         template (schemas.QuestionTemplateCreate): The template data to be added.
 
     Returns:
-        models.QuestionTemplate: The newly created question template instance.
+        schemas.QuestionTemplateCreate: The newly created question template instance.
     """
-    new_template = models.QuestionTemplate(
+    new_template = schemas.QuestionTemplateCreate(
         template_id=template.template_id,
         title=template.title,
         description=template.description,
+        questions=template.questions,
         created_at=template.created_at,
     )
     db.add(instance=new_template)
@@ -55,7 +56,7 @@ async def add_template(
 
 async def update_template(
     db: AsyncSession, template: schemas.QuestionTemplateUpdate
-) -> models.QuestionTemplate:
+) -> schemas.QuestionTemplate:
     """
     Update an existing question template in the database.
 
@@ -69,7 +70,7 @@ async def update_template(
     Raises:
         TemplateNotFoundException: If the template with the given ID does not exist.
     """
-    updated_template: Optional[models.QuestionTemplate] = await get_template_by_id(
+    updated_template: Optional[schemas.QuestionTemplate] = await get_template_by_id(
         db=db, template=template
     )
     if not updated_template:
@@ -77,7 +78,7 @@ async def update_template(
 
     updated_template.title = template.title
     updated_template.description = template.description
-    updated_template.createdAt = template.created_at
+    updated_template.created_at = template.created_at
     await db.commit()
     await db.flush()
     return updated_template
@@ -85,7 +86,7 @@ async def update_template(
 
 async def delete_template(
     db: AsyncSession, template: schemas.QuestionTemplateBase
-) -> models.QuestionTemplate:
+) -> schemas.QuestionTemplate:
     """
     Deletes a question template from the database.
 
@@ -105,7 +106,7 @@ async def delete_template(
         TemplateNotFoundException: If the template with the given ID is not found.
     """
     await db.flush()
-    deleted_template: Optional[models.QuestionTemplate] = await get_template_by_id(
+    deleted_template: Optional[schemas.QuestionTemplate] = await get_template_by_id(
         db=db, template=template
     )
     if not deleted_template:

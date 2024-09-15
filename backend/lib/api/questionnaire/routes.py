@@ -16,11 +16,10 @@ logger: Logger = LogHelper.create_logger(
 router = APIRouter()
 
 
-@router.post(path="/templates/create", tags=["questionnaire"])
-def create_template(
+@router.post(path="/templates/create", tags=["questionnaire"], response_model=schemas.QuestionTemplateCreate)
+async def create_template(
     request: Request,
-    template: schemas.QuestionTemplate,
+    template: schemas.QuestionTemplateCreate,
     db: AsyncSession = Depends(dependency=get_db),
-) -> schemas.QuestionTemplate:
-    template = crud.add_template(db=db, template=template)
-    return template
+) -> schemas.QuestionTemplateCreate:
+    return await crud.add_template(db=db, template=template)

@@ -38,10 +38,12 @@ class Question(Base):
 
     # Validate that either selected_option or custom_answer is provided, but not both
     # NOTE: The pydantic model used by FastAPI already validates this, but it is good to have it in the database model as well.
-    # See: backend/lib/api/questionnaire/models.py#Question.validate_selected_or_custom
-    __table_args__ = CheckConstraint(
-        sqltext="(selected_option IS NULL AND custom_answer IS NOT NULL) OR (selected_option IS NOT NULL AND custom_answer IS NULL)",
-        name="selected_option_xor_custom",
+    # See: backend/lib/sql/schemas.py#QuestionBase.validate_selected_or_custom
+    __table_args__ = (
+        CheckConstraint(
+            sqltext="(selected_option IS NULL AND custom_answer IS NOT NULL) OR (selected_option IS NOT NULL AND custom_answer IS NULL)",
+            name="selected_option_xor_custom",
+        ),
     )
 
 
