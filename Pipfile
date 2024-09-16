@@ -13,6 +13,7 @@ pycryptodome = "*"
 dacite = "*"
 sqlalchemy = "*"
 aiosqlite = "*"
+python-multipart = "*"
 
 [dev-packages]
 types-python-jose = "*"
