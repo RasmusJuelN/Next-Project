@@ -1,6 +1,7 @@
 from fastapi import Request, APIRouter, Depends
 from logging import Logger, DEBUG, INFO
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Sequence
 
 from backend.lib._logger import LogHelper
 from backend.lib.sql.dependencies import get_db
@@ -16,10 +17,25 @@ logger: Logger = LogHelper.create_logger(
 router = APIRouter()
 
 
-@router.post(path="/templates/create", tags=["questionnaire"], response_model=schemas.QuestionTemplateCreate)
+@router.post(
+    path="/templates/create",
+    tags=["questionnaire"],
+    response_model=schemas.QuestionTemplateCreate,
+)
 async def create_template(
     request: Request,
     template: schemas.QuestionTemplateCreate,
     db: AsyncSession = Depends(dependency=get_db),
 ) -> schemas.QuestionTemplateCreate:
     return await crud.add_template(db=db, template=template)
+
+
+@router.get(
+    path="/templates",
+    tags=["questionnaire"],
+    response_model=Sequence[schemas.QuestionTemplate],
+)
+async def get_templates(
+    request: Request, db: AsyncSession = Depends(dependency=get_db)
+) -> Sequence[schemas.QuestionTemplate]:
+    return await crud.get_templates(db=db)

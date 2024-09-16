@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Sequence, List
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,16 +21,35 @@ async def get_template_by_id(
     """
     await db.flush()
     result: Result[Tuple[schemas.QuestionTemplate]] = await db.execute(
-        statement=select(schemas.QuestionTemplate).where(
-            models.QuestionTemplate.template_id == template.template_id
+        statement=select(models.QuestionTemplate).where(
+            models.QuestionTemplate.templateId == template.templateId
         )
     )
     return result.scalars().first()
 
 
+async def get_templates(
+    db: AsyncSession,
+) -> Sequence[schemas.QuestionTemplate]:
+    """
+    Retrieve all question templates from the database.
+
+    Args:
+        db (AsyncSession): The database session to use for the query.
+
+    Returns:
+        Sequence[schemas.QuestionTemplate]: A sequence, typically a list, of all question templates in the database. If no templates are found, an empty sequence is returned.
+    """
+    await db.flush()
+    result: Result[Tuple[schemas.QuestionTemplate]] = await db.execute(
+        statement=select(models.QuestionTemplate)
+    )
+    return result.scalars().all()
+
+
 async def add_template(
     db: AsyncSession, template: schemas.QuestionTemplateCreate
-) -> schemas.QuestionTemplateCreate:
+) -> models.QuestionTemplate:
     """
     Asynchronously adds a new question template to the database.
 
@@ -41,16 +60,37 @@ async def add_template(
     Returns:
         schemas.QuestionTemplateCreate: The newly created question template instance.
     """
-    new_template = schemas.QuestionTemplateCreate(
-        template_id=template.template_id,
-        title=template.title,
-        description=template.description,
-        questions=template.questions,
-        created_at=template.created_at,
-    )
-    db.add(instance=new_template)
-    await db.flush()
-    await db.commit()
+    new_template = models.QuestionTemplate()
+
+    new_template.templateId = template.templateId
+    new_template.title = template.title
+    new_template.description = template.description
+    new_template.createdAt = template.createdAt
+
+    try:
+        # start a transaction so that we can rollback if an error occurs
+        async with db.begin():
+
+            db.add(instance=new_template)
+            await db.flush()
+
+        # Create the questions for the template
+        new_questions: List[models.Question] = []
+        for index, question in enumerate(iterable=template.questions):
+            new_question = models.Question(
+                templateId=new_template.templateId,
+                questionId=index,
+                questionText=question.questionText,
+                questionType=question.questionType,
+                questionOptions=question.questionOptions,
+            )
+            new_questions.append(new_question)
+
+    except Exception as e:
+        # rollback on error
+        await db.rollback()
+        raise e
+
     return new_template
 
 
@@ -74,11 +114,11 @@ async def update_template(
         db=db, template=template
     )
     if not updated_template:
-        raise TemplateNotFoundException(template_id=template.template_id)
+        raise TemplateNotFoundException(template_id=template.templateId)
 
     updated_template.title = template.title
     updated_template.description = template.description
-    updated_template.created_at = template.created_at
+    updated_template.createdAt = template.createdAt
     await db.commit()
     await db.flush()
     return updated_template
@@ -110,7 +150,7 @@ async def delete_template(
         db=db, template=template
     )
     if not deleted_template:
-        raise TemplateNotFoundException(template_id=template.template_id)
+        raise TemplateNotFoundException(template_id=template.templateId)
 
     await db.delete(instance=deleted_template)
     await db.commit()

@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 class OptionBase(BaseModel):
     value: int
     label: str
-    is_custom: bool
+    isCustom: bool = False
 
 
 class OptionCreate(OptionBase):
@@ -26,20 +26,8 @@ class Option(OptionBase):
 
 class QuestionBase(BaseModel):
     title: str
-    selected_option: Optional[int] = None
-    custom_answer: Optional[str] = None
-
-    # Validate that either selectedOption or customAnswer is provided, but not both
-    @model_validator(mode="after")
-    def validate_selected_or_custom(self) -> Self:
-        selected_option: Optional[int] = self.selected_option
-        custom_answer: Optional[str] = self.custom_answer
-
-        if selected_option is None and custom_answer is None:
-            raise ValueError("Either selectedOption or customAnswer must be provided.")
-        elif selected_option is not None and custom_answer is not None:
-            raise ValueError("Both selectedOption and customAnswer cannot be provided.")
-        return self
+    selectedOption: Optional[int] = None
+    customAnswer: Optional[str] = None
 
 
 class QuestionCreate(QuestionBase):
@@ -58,14 +46,14 @@ class Question(QuestionCreate):
 
 
 class QuestionTemplateBase(BaseModel):
-    template_id: str
+    templateId: str
 
 
 class QuestionTemplateCreate(QuestionTemplateBase):
     title: str
     description: str
     questions: List[QuestionCreate]
-    created_at: datetime
+    createdAt: datetime
 
 
 class QuestionTemplateUpdate(QuestionTemplateCreate):
