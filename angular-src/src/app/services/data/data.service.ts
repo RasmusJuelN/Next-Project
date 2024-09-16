@@ -22,8 +22,11 @@ export class DataService {
 
   // Placeholder for a not implemented method
   getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }> {
-    console.error("WIP, NOT YET IMPLEMENTED");
-    return throwError(() => new Error('WIP, NOT YET IMPLEMENTED'));
+    const url = `${this.apiUrl}/results/${activeQuestionnaireId}`;
+    return this.http.get<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }>(url)
+      .pipe(
+        catchError(this.handleError<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }>('getResults'))
+      );
   }
 
   // Active Questionnaire Methods
@@ -98,8 +101,19 @@ export class DataService {
 
   // Dashboard Methods
   getActiveQuestionnairePage(filter: any, page: number, limit: number): Observable<ActiveQuestionnaire[]> {
-    const url = `${this.apiUrl}/questionnaire?page=${page}&limit=${limit}`;
-    return this.http.post<ActiveQuestionnaire[]>(url, filter)
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+  
+    // Dynamically add filter properties to query parameters
+    Object.keys(filter).forEach(key => {
+      if (filter[key] !== null && filter[key] !== undefined) {
+        params = params.set(key, filter[key].toString());
+      }
+    });
+  
+    const url = `${this.apiUrl}/questionnaire`;
+    return this.http.get<ActiveQuestionnaire[]>(url, { params })
       .pipe(
         catchError(this.handleError<ActiveQuestionnaire[]>('getActiveQuestionnairePage', []))
       );

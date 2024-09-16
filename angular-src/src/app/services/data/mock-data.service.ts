@@ -252,29 +252,12 @@ export class MockDataService {
     
     if (existingTemplateIndex !== -1) {
       const existingTemplate = this.mockDbService.mockData.mockQuestionTemplates[existingTemplateIndex];
-  
-      // Update questions and assign unique IDs where necessary
-      const updatedQuestions = updatedTemplate.questions.map(question => {
-        // Assign unique ID if the question is new
-        if (!question.id || question.id === 0) {
-          question.id = this.generateUniqueId('question');
-        }
-  
-        // Update options for the question and assign IDs for new options
-        question.options = question.options.map(option => {
-          if (!option.id || option.id === 0) {
-            option.id = this.generateUniqueId('option');
-          }
-          return option;
-        });
-  
-        return question;
-      });
+
   
       // Now, update the existing template with the new title, description, and questions
       existingTemplate.title = updatedTemplate.title; // Update title
       existingTemplate.description = updatedTemplate.description; // Update description
-      existingTemplate.questions = updatedQuestions; // Update questions with any new ones
+      existingTemplate.questions = updatedTemplate.questions; // Update questions with any new ones
   
       // Save the updated template in mock data
       this.mockDbService.mockData.mockQuestionTemplates[existingTemplateIndex] = existingTemplate;

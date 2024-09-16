@@ -28,9 +28,9 @@ export class TemplateEditorComponent {
 
   addQuestion() {
     const newQuestion: Question = {
-      id: 0,
+      id: this.template.questions.length +1,
       title: 'New Question',
-      options: [{id: 0, label: "option 1", value: 1},{id: 0, label: "option 2", value: 2}]
+      options: [{id: 1, label: "option 1", value: 1},{id: 2, label: "option 2", value: 2}]
     };
     this.template.questions.push(newQuestion);
     this.selectQuestionToEdit(newQuestion);

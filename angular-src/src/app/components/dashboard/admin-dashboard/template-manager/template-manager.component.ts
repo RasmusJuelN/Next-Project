@@ -15,6 +15,7 @@ import { QuestionEditorComponent } from './template-editor/question-editor/quest
 })
 export class TemplateManagerComponent {
   templates: QuestionTemplate[] = [];
+
   selectedTemplate: QuestionTemplate | null = null;
   selectedQuestion: Question | null = null;
 
@@ -52,18 +53,18 @@ export class TemplateManagerComponent {
   hasCustomOption(): boolean {
     return this.selectedQuestion ? this.selectedQuestion.options.some(o => o.isCustom) : false;
   }
-
-  generateTemplateId(): string {
+  // OLd, might get removed
+  private generateTemplateId(): string {
     const prefix = 'template';
     const timestamp = new Date().getTime(); // Current timestamp in milliseconds
     return `${prefix}_${timestamp}`;
   }
 
-  createTemplate() {
-    const newTemplate: QuestionTemplate = {
-      templateId: this.generateTemplateId(),
+  createNewTemplate() {
+    const tempTemplate: QuestionTemplate = {
+      templateId: "template", // ID 0 indicates it's a new unsaved template
       title: 'New Template',
-      description: 'A description of the template',
+      description: '',
       questions: [
         {
           id: 1,
@@ -73,20 +74,12 @@ export class TemplateManagerComponent {
         {
           id: 2,
           title: 'New Question 2',
-          options: [{id: 1, label: "option 1", value: 1},{id: 2, label: "option 2", value: 2}]
+          options: [{id: 1, label: "option 1", value: 1},{id: 1, label: "option 2", value: 2}]
         }
       ],
       createdAt: new Date()
     };
-  
-    this.adminDashboardService.createTemplate(newTemplate).subscribe({
-      complete: () => {
-        this.loadTemplates();
-      },
-      error: (err) => {
-        console.error('Error creating template:', err);
-      }
-    });
+    this.selectedTemplate = tempTemplate;  // Set the current template to the new temp one
   }
 
   editTemplate(template: QuestionTemplate) {
@@ -97,35 +90,32 @@ export class TemplateManagerComponent {
     }
   }
 
-  saveTemplate(updatedTemplate: QuestionTemplate) {
+  saveTemplate(newOrUpdatedTemplate: QuestionTemplate) {
     const confirmed = window.confirm('Are you sure you want to save changes to this template?');
     if (confirmed) {
-      // Prepare the template data to send to the backend
-      const templateToSave = {
-        ...updatedTemplate,
-        questions: updatedTemplate.questions.map(question => {
-          return {
-            ...question,
-            options: question.options.map(option => {
-              return {
-                ...option,
-                isNew: option.id === 0 ? true : false
-              };
-            }),
-            isNew: question.id === 0 ? true : false
-          };
-        })
-      };
-  
-      // Send the updated template to the backend
-      this.adminDashboardService.updateTemplate(templateToSave).subscribe({
-        error: (err) => console.error('Error updating template:', err),
-        complete: () => {
-          console.log('Template update complete.');
-          this.loadTemplates();
-          this.clearSelectedTemplate();
+      if(newOrUpdatedTemplate){
+        if (newOrUpdatedTemplate.templateId === "template") {
+          this.adminDashboardService.createTemplate(newOrUpdatedTemplate).subscribe({
+            complete: () => {
+              this.loadTemplates();
+              this.clearSelectedTemplate();
+            },
+            error: (err) => {
+              console.error('Error creating template:', err);
+            }
+          });
+        } else {
+        // Send the updated template to the backend
+         this.adminDashboardService.updateTemplate(newOrUpdatedTemplate).subscribe({
+          error: (err) => console.error('Error updating template:', err),
+          complete: () => {
+            console.log('Template update complete.');
+            this.loadTemplates();
+            this.clearSelectedTemplate();
+          }
+        });
         }
-      });
+      }
     }
   }
   
