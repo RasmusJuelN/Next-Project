@@ -3,6 +3,12 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Debug both",
+            "configurations": ["Frontend: Angular", "Python Debugger: FastAPI"]
+        }
+    ],
     "configurations": [
         {
             "name": "Python Debugger: FastAPI",
@@ -11,9 +17,18 @@
             "module": "uvicorn",
             "args": [
                 "backend.main:app",
-                "--reload"
+                "--port", "8000"
             ],
             "jinja": true
+        },
+        {
+            "name": "Frontend: Angular",
+            "type": "msedge",
+            "request": "launch",
+            "url": "http://localhost:4200",
+            "webRoot": "${workspaceFolder}/frontend",
+            "sourceMaps": true,
+            "preLaunchTask": "npm: start"
         }
     ]
 }
