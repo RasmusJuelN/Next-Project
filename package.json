@@ -6,7 +6,7 @@
     "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
     "start-backend": "pipenv run uvicorn backend.main:app --host 127.0.0.1 --port 8000",
     "start-frontend": "cd angular-src && ng serve --proxy-config proxy.conf.json",
-    "install-dependencies": "npm install && cd angular-src && npm install && cd ../ && pip install -r requirements.txt"
+    "install-dependencies": "npm install && cd angular-src && npm install && cd ../ && pip install pipenv && pipenv install"
   },
   "keywords": [],
   "author": "",
