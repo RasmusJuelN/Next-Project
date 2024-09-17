@@ -1,4 +1,5 @@
-from dataclasses import dataclass, field
+from dataclasses import field
+from pydantic.dataclasses import dataclass
 from typing import Optional, Literal
 
 
