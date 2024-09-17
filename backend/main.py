@@ -12,6 +12,7 @@ from typing import Dict, Union, List
 from backend.lib._logger import LogHelper
 from backend.lib.api.auth.routes import router as auth_router
 from backend.lib.api.questionnaire.routes import router as questionnaire_router
+from backend.lib.api.settings.routes import router as settings_router
 from backend.lib.api.auth.models import TokenData
 from backend.lib.api.auth.dependencies import (
     get_token_data,
@@ -51,11 +52,15 @@ app.add_middleware(
 
 app.include_router(router=auth_router)
 app.include_router(router=questionnaire_router)
+app.include_router(router=settings_router)
 app.add_middleware(middleware_class=I18nMiddleware)
 
 
 @app.exception_handler(exc_class_or_status_code=HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    logger.error(
+        msg=f"HTTPException occurred: {exc.status_code} - {exc.detail}",
+    )
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail},
