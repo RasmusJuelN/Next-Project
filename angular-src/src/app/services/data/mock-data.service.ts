@@ -7,6 +7,7 @@ import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
 import { MockDbService } from '../mock/mock-db.service';
 import { AuthService } from '../auth/auth.service';
+import { AppSettings } from '../../models/setting-models';
 
 
 @Injectable({
@@ -20,6 +21,14 @@ export class MockDataService {
   private authService = inject(AuthService)
   constructor(private http: HttpClient) {
     this.mockDbService.loadInitialMockData();
+  }
+
+  getSettings(): Observable<AppSettings>  {
+    return of(this.mockDbService.mockData.mockAppSettings)
+  }
+  updateSettings(updatedSettings: AppSettings): Observable<any>{
+    this.mockDbService.mockData.mockAppSettings = updatedSettings;
+    return of({ success: true });
   }
 
   submitUserAnswers(role: string, answers: Answer[], questionnaireId: string | null): Observable<void> {

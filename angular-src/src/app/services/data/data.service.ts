@@ -4,6 +4,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionTemplate, User } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
+import { AppSettings } from '../../models/setting-models';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,18 @@ export class DataService {
       return throwError(() => new Error(`${operation} failed: ${error.message}`));
     };
   }
+
+  // Fetch the settings data from the backend
+  getSettings(): Observable<AppSettings> {
+    return this.http.get<AppSettings>(`${this.apiUrl}/settings/get`);
+    ``
+  }
+
+  // Update the settings data by sending it to the backend
+  updateSettings(updatedSettings: AppSettings): Observable<any> {
+    return this.http.put(`${this.apiUrl}/settings/update`, updatedSettings);
+  }
+
 
   // Placeholder for a not implemented method
   getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }> {

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ActiveQuestionnaire, User, QuestionTemplate } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
-
+import { AppSettings } from '../../models/setting-models';
 
 
 interface Answer {
@@ -34,7 +34,8 @@ export class MockDbService {
     mockUsers: User[],
     mockAnswers: AnswerSession[],
     mockActiveQuestionnaire: ActiveQuestionnaire[],
-    mockQuestionTemplates: QuestionTemplate[]
+    mockQuestionTemplates: QuestionTemplate[],
+    mockAppSettings: AppSettings
   } = {
     mockUsers: [
       { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
@@ -145,7 +146,39 @@ export class MockDbService {
           }
         ]
       }
-    ]
+    ],
+    mockAppSettings: {
+      auth: {
+        accessTokenExpireMinutes: 30,
+        algorithm: 'HS256',
+        domain: 'localhost',
+        ldapBaseDn: 'dc=example,dc=com',
+        ldapServer: 'ldap://localhost',
+        scopes: {
+          admin: 'admin',
+          student: 'student',
+          teacher: 'teacher'
+        },
+        secretKey: null
+      },
+      database: {
+        databaseDriver: null,
+        databaseType: 'sqlite',
+        dbName: 'program.db',
+        host: null,
+        maxConnections: null,
+        minConnections: null,
+        password: null,
+        port: null,
+        sslCaCertFile: null,
+        sslCertFile: null,
+        sslKeyFile: null,
+        timeout: null,
+        useSsl: false,
+        user: null
+      }
+    }
+
   };
   
 

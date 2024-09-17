@@ -11,6 +11,7 @@ import { TemplateManagerComponent } from './components/dashboard/admin-dashboard
 import { ActiveQuestionnaireManagerComponent } from './components/dashboard/admin-dashboard/active-questionnaire-manager/active-questionnaire-manager.component';
 import { authGuard } from './gurads and interceptors/auth.guard';
 import { ShowResultsComponent } from './components/show-results/show-results.component';
+import { SettingsComponent } from './components/dashboard/admin-dashboard/settings/settings.component';
 
 export const routes: Routes = [
     { path: '', component: LoginPageComponent },
@@ -43,6 +44,12 @@ export const routes: Routes = [
             canActivate: [roleGuard],
             data: { roles: ['admin'] } // Single role as array
           },
+          {
+            path: 'settings',
+            component: SettingsComponent,
+            canActivate: [roleGuard],
+            data: { roles: ['admin'] } // Single role as array
+          }
         ]
       },
       { 
