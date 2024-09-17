@@ -24,7 +24,7 @@ router = APIRouter()
 async def get_settings(
     request: Request,
 ) -> AppSettings:
-    return AppSettings()
+    return app_settings.settings
 
 
 @router.post(
