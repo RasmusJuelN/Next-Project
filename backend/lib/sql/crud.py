@@ -108,7 +108,15 @@ def add_template(
 
     Returns:
         schemas.QuestionTemplateCreate: The newly created question template instance.
+
+    Raises:
+        TemplateAlreadyExistsException: If a template with the given ID already exists.
     """
+    existing_template: Optional[schemas.QuestionTemplate] = get_template_by_id(
+        db=db, template=template
+    )
+    if existing_template:
+        raise TemplateAlreadyExistsException(template_id=template.template_id)
 
     try:
         # start a transaction so that we can rollback if an error occurs
