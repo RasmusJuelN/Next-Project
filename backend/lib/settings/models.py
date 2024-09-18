@@ -1,9 +1,20 @@
 from dataclasses import field
 from pydantic.dataclasses import dataclass
+from pydantic import AliasGenerator, ConfigDict
+from pydantic.alias_generators import to_camel
 from typing import Optional, Literal
 
 
-@dataclass
+config = ConfigDict(
+    alias_generator=AliasGenerator(
+        validation_alias=to_camel,
+        serialization_alias=to_camel,
+    ),
+    populate_by_name=True,
+)
+
+
+@dataclass(config=config)
 class DatabaseSettings:
     database_type: Literal["sqlite", "mysql", "mssql"] = field(default="sqlite")
     database_driver: Optional[str] = field(default=None)
@@ -21,7 +32,7 @@ class DatabaseSettings:
     min_connections: Optional[int] = field(default=None)
 
 
-@dataclass
+@dataclass(config=config)
 class AuthSettings:
     secret_key: Optional[str] = field(default=None)
     algorithm: str = field(default="HS256")
@@ -38,7 +49,7 @@ class AuthSettings:
     )
 
 
-@dataclass
+@dataclass(config=config)
 class AppSettings:
     auth: AuthSettings = field(default_factory=AuthSettings)
     database: DatabaseSettings = field(default_factory=DatabaseSettings)
