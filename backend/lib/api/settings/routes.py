@@ -27,7 +27,7 @@ async def get_settings(
     return app_settings.settings
 
 
-@router.post(
+@router.put(
     path="/settings/update",
     tags=["settings"],
     response_model=AppSettings,
