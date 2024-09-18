@@ -36,7 +36,9 @@ logger: Logger = LogHelper.create_logger(
     stream_log_level=INFO,
 )
 
-# Create the database tables if they do not exist. We're using the non-async engine here because Base.metadata.create_all() does not (yet) support async engines.
+# Drop and recreate the database tables.
+# TODO: This is only for development purposes. Remove this in production.
+Base.metadata.drop_all(bind=engine, checkfirst=True)
 Base.metadata.create_all(bind=engine, checkfirst=True)
 
 
