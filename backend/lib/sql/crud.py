@@ -1,84 +1,85 @@
 from typing import Tuple, Optional, Sequence, List, overload
 from sqlalchemy import Result, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from backend.lib.sql import schemas, models
 from backend.lib.sql.exceptions import TemplateNotFoundException
 
 
-async def get_template_by_id(
-    db: AsyncSession, template: schemas.QuestionTemplateBase
+def get_template_by_id(
+    db: Session, template: schemas.QuestionTemplateBase
 ) -> Optional[schemas.QuestionTemplate]:
     """
     Retrieve a question template by its ID from the database.
 
     Args:
-        db (AsyncSession): The database session to use for the query.
+        db (Session): The database session to use for the query.
         template (schemas.QuestionTemplateBase): The template schema containing the ID of the template to retrieve.
 
     Returns:
         Optional[schemas.QuestionTemplate]: The question template if found, otherwise None.
     """
-    await db.flush()
-    result: Result[Tuple[schemas.QuestionTemplate]] = await db.execute(
+    db.flush()
+    result: Result[Tuple[schemas.QuestionTemplate]] = db.execute(
         statement=select(models.QuestionTemplate).where(
-            models.QuestionTemplate.templateId == template.templateId
+            models.QuestionTemplate.template_id == template.template_id
         )
     )
     return result.scalars().first()
 
 
-async def get_templates(
-    db: AsyncSession,
+def get_templates(
+    db: Session,
 ) -> Sequence[schemas.QuestionTemplate]:
     """
     Retrieve all question templates from the database.
 
     Args:
-        db (AsyncSession): The database session to use for the query.
+        db (Session): The database session to use for the query.
 
     Returns:
         Sequence[schemas.QuestionTemplate]: A sequence, typically a list, of all question templates in the database. If no templates are found, an empty sequence is returned.
     """
-    await db.flush()
-    result: Result[Tuple[schemas.QuestionTemplate]] = await db.execute(
+    db.flush()
+    result: Result[Tuple[schemas.QuestionTemplate]] = db.execute(
         statement=select(models.QuestionTemplate)
     )
     return result.scalars().all()
 
 
-async def add_template(
-    db: AsyncSession, template: schemas.QuestionTemplateCreate
-) -> models.QuestionTemplate:
+def add_template(
+    db: Session, template: schemas.QuestionTemplateCreate
+) -> schemas.QuestionTemplate:
     """
-    Asynchronously adds a new question template to the database.
+    Adds a new question template to the database.
 
     Args:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         template (schemas.QuestionTemplateCreate): The template data to be added.
 
     Returns:
         schemas.QuestionTemplateCreate: The newly created question template instance.
     """
-    new_template = models.QuestionTemplate(
-        templateId=template.templateId,
-        title=template.title,
-        description=template.description,
-        createdAt=template.createdAt,
-    )
 
     try:
         # start a transaction so that we can rollback if an error occurs
-        async with db.begin():
+        with db.begin_nested():
+            new_template = models.QuestionTemplate(
+                template_id=template.template_id,
+                title=template.title,
+                description=template.description,
+                created_at=template.created_at,
+                questions=[],
+            )
 
             db.add(instance=new_template)
-            await db.flush()
+            db.flush()
 
         # Create the questions for the template and add them to the database
         new_questions: List[models.Question] = []
         for question in template.questions:
-            new_question: models.Question = await add_question(
-                db=db, question=question, template_id=new_template.templateId
+            new_question: models.Question = add_question(
+                db=db, question=question, template_id=new_template.template_id
             )
             new_questions.append(new_question)
 
@@ -89,7 +90,7 @@ async def add_template(
         for index, question in enumerate(iterable=template.questions):
             new_options: List[models.Option] = []
             for option in question.options:
-                new_option: models.Option = await add_option(
+                new_option: models.Option = add_option(
                     db=db, option=option, question_id=new_questions[index].id
                 )
                 new_options.append(new_option)
@@ -97,26 +98,26 @@ async def add_template(
             # Add the options to the questions. This is only for the response object.
             new_template.questions[index].options.extend(new_options)
 
-        await db.commit()
-        await db.flush()
+        db.commit()
+        db.flush()
 
     except Exception as e:
         # rollback on error
-        await db.rollback()
+        db.rollback()
         raise e
 
     # Return the newly created template
-    return new_template
+    return schemas.QuestionTemplate.model_validate(obj=new_template)
 
 
-async def update_template(
-    db: AsyncSession, template: schemas.QuestionTemplateUpdate
+def update_template(
+    db: Session, template: schemas.QuestionTemplateUpdate
 ) -> schemas.QuestionTemplate:
     """
     Update an existing question template in the database.
 
     Args:
-        db (AsyncSession): The database session.
+        db (Session): The database session.
         template (schemas.QuestionTemplateUpdate): The template data to update.
 
     Returns:
@@ -125,22 +126,22 @@ async def update_template(
     Raises:
         TemplateNotFoundException: If the template with the given ID does not exist.
     """
-    updated_template: Optional[schemas.QuestionTemplate] = await get_template_by_id(
+    updated_template: Optional[schemas.QuestionTemplate] = get_template_by_id(
         db=db, template=template
     )
     if not updated_template:
-        raise TemplateNotFoundException(template_id=template.templateId)
+        raise TemplateNotFoundException(template_id=template.template_id)
 
     updated_template.title = template.title
     updated_template.description = template.description
-    updated_template.createdAt = template.createdAt
-    await db.commit()
-    await db.flush()
+    updated_template.created_at = template.created_at
+    db.commit()
+    db.flush()
     return updated_template
 
 
-async def delete_template(
-    db: AsyncSession, template: schemas.QuestionTemplateBase
+def delete_template(
+    db: Session, template: schemas.QuestionTemplateBase
 ) -> schemas.QuestionTemplate:
     """
     Deletes a question template from the database.
@@ -151,7 +152,7 @@ async def delete_template(
     exists, it is deleted from the database and the session is committed.
 
     Args:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         template (schemas.QuestionTemplateBase): The template data containing the ID of the template to delete.
 
     Returns:
@@ -160,27 +161,27 @@ async def delete_template(
     Raises:
         TemplateNotFoundException: If the template with the given ID is not found.
     """
-    await db.flush()
-    deleted_template: Optional[schemas.QuestionTemplate] = await get_template_by_id(
+    db.flush()
+    deleted_template: Optional[schemas.QuestionTemplate] = get_template_by_id(
         db=db, template=template
     )
     if not deleted_template:
-        raise TemplateNotFoundException(template_id=template.templateId)
+        raise TemplateNotFoundException(template_id=template.template_id)
 
-    await db.delete(instance=deleted_template)
-    await db.commit()
+    db.delete(instance=deleted_template)
+    db.commit()
     return deleted_template
 
 
 @overload
-async def add_question(
-    db: AsyncSession, question: schemas.QuestionCreate, *, template_id: str
+def add_question(
+    db: Session, question: schemas.QuestionCreate, *, template_id: str
 ) -> models.Question:
     """
-    Asynchronously adds a new question to the database.
+    Adds a new question to the database.
 
     Args:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         question (schemas.QuestionCreate): The question data to be added.
         template_id (str): The ID of the template to which the question belongs.
 
@@ -191,17 +192,14 @@ async def add_question(
 
 
 @overload
-async def add_question(
-    db: AsyncSession,
-    question: schemas.QuestionCreate,
-    *,
-    template: models.QuestionTemplate
+def add_question(
+    db: Session, question: schemas.QuestionCreate, *, template: models.QuestionTemplate
 ) -> models.Question:
     """
-    Asynchronously adds a new question to the database.
+    Adds a new question to the database.
 
     Args:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         question (schemas.QuestionCreate): The question data to be added.
         template (models.QuestionTemplate): The template which contains the ID to associate the question with.
 
@@ -211,25 +209,25 @@ async def add_question(
     ...
 
 
-async def add_question(
-    db: AsyncSession,
+def add_question(
+    db: Session,
     question: schemas.QuestionCreate,
     *,
     template_id: Optional[str] = None,
     template: Optional[models.QuestionTemplate] = None
 ) -> models.Question:
     """
-    Asynchronously adds a new question to the database.
+    Adds a new question to the database.
 
     Accepts either a template ID or a template object to associate the question with.
 
     Overload 1:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         question (schemas.QuestionCreate): The question data to be added.
         template_id (Optional[str]): The ID of the template to associate the question with.
 
     Overload 2:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         question (schemas.QuestionCreate): The question data to be added.
         template (Optional[models.QuestionTemplate]): The template which contains the ID to associate the question with.
 
@@ -241,34 +239,35 @@ async def add_question(
     """
     template_ref_id: str = ""
     if template is not None:
-        template_ref_id = template.templateId
+        template_ref_id = template.template_id
     elif template_id is not None:
         template_ref_id = template_id
     else:
         raise ValueError("Either template or template_id must be provided.")
 
     new_question = models.Question(
-        templateReferenceId=template_ref_id,
+        template_reference_id=template_ref_id,
         title=question.title,
-        selectedOption=question.selectedOption,
-        customAnswer=question.customAnswer,
+        selected_option=question.selected_option,
+        custom_answer=question.custom_answer,
+        options=[],
     )
 
     db.add(instance=new_question)
-    await db.flush()
+    db.flush()
 
     return new_question
 
 
 @overload
-async def add_option(
-    db: AsyncSession, option: schemas.OptionCreate, *, question_id: int
+def add_option(
+    db: Session, option: schemas.OptionCreate, *, question_id: int
 ) -> models.Option:
     """
-    Asynchronously adds a new option to the database.
+    Adds a new option to the database.
 
     Args:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         option (schemas.OptionCreate): The option data to be added.
         question_id (int): The ID of the question to which the option belongs.
 
@@ -279,14 +278,14 @@ async def add_option(
 
 
 @overload
-async def add_option(
-    db: AsyncSession, option: schemas.OptionCreate, *, question: models.Question
+def add_option(
+    db: Session, option: schemas.OptionCreate, *, question: models.Question
 ) -> models.Option:
     """
-    Asynchronously adds a new option to the database.
+    Adds a new option to the database.
 
     Args:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         option (schemas.OptionCreate): The option data to be added.
         question (models.Question): The question to which the option belongs.
 
@@ -296,25 +295,25 @@ async def add_option(
     ...
 
 
-async def add_option(
-    db: AsyncSession,
+def add_option(
+    db: Session,
     option: schemas.OptionCreate,
     *,
     question_id: Optional[int] = None,
     question: Optional[models.Question] = None
 ) -> models.Option:
     """
-    Asynchronously adds a new option to the database.
+    Adds a new option to the database.
 
     Accepts either a question ID or a question object to associate the option with.
 
     Overload 1:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         option (schemas.OptionCreate): The option data to be added.
         question_id (Optional[int]): The ID of the question to associate the option with.
 
     Overload 2:
-        db (AsyncSession): The database session to use for the operation.
+        db (Session): The database session to use for the operation.
         option (schemas.OptionCreate): The option data to be added.
         question (Optional[models.Question]): The question which contains the ID to associate the option with.
 
@@ -333,13 +332,13 @@ async def add_option(
         raise ValueError("Either question or question_id must be provided.")
 
     new_option = models.Option(
-        questionId=question_ref_id,
+        question_id=question_ref_id,
         value=option.value,
         label=option.label,
-        isCustom=option.isCustom,
+        is_custom=option.is_custom,
     )
 
     db.add(instance=new_option)
-    await db.flush()
+    db.flush()
 
     return new_option

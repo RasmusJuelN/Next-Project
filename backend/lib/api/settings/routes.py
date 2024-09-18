@@ -21,7 +21,7 @@ router = APIRouter()
     tags=["settings"],
     response_model=AppSettings,
 )
-async def get_settings(
+def get_settings(
     request: Request,
 ) -> AppSettings:
     return app_settings.settings
@@ -32,7 +32,7 @@ async def get_settings(
     tags=["settings"],
     response_model=AppSettings,
 )
-async def update_settings(
+def update_settings(
     request: Request,
     settings: AppSettings,
 ) -> AppSettings:

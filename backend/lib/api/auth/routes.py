@@ -32,7 +32,7 @@ router = APIRouter()
 
 
 @router.post(path="/auth", tags=["auth"])
-async def authenticate_user(
+def authenticate_user(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> dict[str, str]:
@@ -55,18 +55,16 @@ async def authenticate_user(
     access_token_expires = timedelta(
         minutes=app_settings.settings.auth.access_token_expire_minutes
     )
-    full_name: str = await get_full_name_from_ldap(
+    full_name: str = get_full_name_from_ldap(
         connection=conn, username=form_data.username
     )
     try:
-        encoded_jwt: str = await create_access_token(
+        encoded_jwt: str = create_access_token(
             data={
-                "sub": await get_uuid_from_ldap(
-                    connection=conn, username=form_data.username
-                ),
+                "sub": get_uuid_from_ldap(connection=conn, username=form_data.username),
                 "full_name": full_name,
-                "scope": await determine_scope_from_groups(
-                    groups=await get_member_of_from_ldap(
+                "scope": determine_scope_from_groups(
+                    groups=get_member_of_from_ldap(
                         connection=conn, username=form_data.username
                     )
                 ),

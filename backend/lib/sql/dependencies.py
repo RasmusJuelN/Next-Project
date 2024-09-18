@@ -1,18 +1,21 @@
-from typing import AsyncGenerator
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any, Generator
+from sqlalchemy.orm.session import Session
 
-from backend.lib.sql.database import AsyncSessionLocal
+from backend.lib.sql.database import sessionLocal
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+def get_db() -> Generator[Session, Any, None]:
     """
-    Get the database session.
+    Dependency that provides a SQLAlchemy database session.
 
-    Returns:
-        AsyncSession: The database session.
+    Yields:
+        Generator[Session, Any, None]: A SQLAlchemy Session object.
+
+    This function is used as a dependency in FastAPI routes to provide a database session.
+    It ensures that the session is properly closed after the request is processed.
     """
-    db: AsyncSession = AsyncSessionLocal()
+    db: Session = sessionLocal()
     try:
         yield db
     finally:
-        await db.close()
+        db.close()

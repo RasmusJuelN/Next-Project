@@ -12,12 +12,12 @@ class Option(Base):
     __tablename__: str = "options"
 
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, index=True)
-    questionId: Mapped[int] = mapped_column(
+    question_id: Mapped[int] = mapped_column(
         type_=Integer, __type_pos=ForeignKey(column="questions.id")
     )
     value: Mapped[int] = mapped_column(type_=Integer, index=True)
     label: Mapped[str] = mapped_column(type_=String, index=True)
-    isCustom: Mapped[bool] = mapped_column(type_=Boolean, index=False)
+    is_custom: Mapped[bool] = mapped_column(type_=Boolean, index=False, default=False)
     question: Mapped["Question"] = relationship(back_populates="options")
 
 
@@ -25,15 +25,15 @@ class Question(Base):
     __tablename__: str = "questions"
 
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, index=True)
-    templateReferenceId: Mapped[str] = mapped_column(
-        type_=String, __type_pos=ForeignKey(column="question_templates.templateId")
+    template_reference_id: Mapped[str] = mapped_column(
+        type_=String, __type_pos=ForeignKey(column="question_templates.template_id")
     )
     title: Mapped[str] = mapped_column(type_=String, index=True)
 
-    selectedOption: Mapped[int] = mapped_column(
+    selected_option: Mapped[int] = mapped_column(
         type_=Integer, index=False, nullable=True
     )
-    customAnswer: Mapped[str] = mapped_column(type_=String, index=False, nullable=True)
+    custom_answer: Mapped[str] = mapped_column(type_=String, index=False, nullable=True)
     template: Mapped["QuestionTemplate"] = relationship(back_populates="questions")
     options: Mapped[List["Option"]] = relationship(back_populates="question")
 
@@ -42,8 +42,8 @@ class QuestionTemplate(Base):
     __tablename__: str = "question_templates"
 
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, index=True)
-    templateId: Mapped[str] = mapped_column(type_=String, index=True)
+    template_id: Mapped[str] = mapped_column(type_=String, index=True, unique=True)
     title: Mapped[str] = mapped_column(type_=String, index=True)
     description: Mapped[str] = mapped_column(type_=String, index=False)
-    createdAt: Mapped[datetime] = mapped_column(type_=DateTime, index=False)
+    created_at: Mapped[datetime] = mapped_column(type_=DateTime, index=False)
     questions: Mapped[List["Question"]] = relationship(back_populates="template")

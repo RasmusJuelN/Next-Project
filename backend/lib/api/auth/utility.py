@@ -9,7 +9,7 @@ from backend import app_settings
 from backend.lib.api.auth.dependencies import oauth2_scheme
 
 
-async def decode_token(token: str) -> dict[str, Any]:
+def decode_token(token: str) -> dict[str, Any]:
     """
     Convenience function to decode a token. Wraps around `jwt.decode`.
 
@@ -29,7 +29,7 @@ async def decode_token(token: str) -> dict[str, Any]:
     )
 
 
-async def encode_token(data: dict) -> str:
+def encode_token(data: dict) -> str:
     """
     Convenience function to encode a token. Wraps around `jwt.encode`.
 
@@ -50,7 +50,7 @@ async def encode_token(data: dict) -> str:
 
 
 @overload
-async def encode_or_decode_token(*, token: str) -> dict[str, Any]:
+def encode_or_decode_token(*, token: str) -> dict[str, Any]:
     """
     Decode the provided token and return the payload.
 
@@ -67,7 +67,7 @@ async def encode_or_decode_token(*, token: str) -> dict[str, Any]:
 
 
 @overload
-async def encode_or_decode_token(*, data: dict) -> str:
+def encode_or_decode_token(*, data: dict) -> str:
     """
     Encode the provided data and return the token.
 
@@ -83,7 +83,7 @@ async def encode_or_decode_token(*, data: dict) -> str:
     ...
 
 
-async def encode_or_decode_token(
+def encode_or_decode_token(
     *, token: Optional[str] = None, data: Optional[dict] = None
 ) -> Union[str, dict[str, Any]]:
     """
@@ -101,14 +101,14 @@ async def encode_or_decode_token(
         Refer to `jwt.decode` and `jwt.encode` for possible exceptions.
     """
     if token is not None and data is None:
-        return await decode_token(token=token)
+        return decode_token(token=token)
     elif token is None and data is not None:
-        return await encode_token(data=data)
+        return encode_token(data=data)
     else:
         raise ValueError("Either `token` or `data` must be provided, but not both.")
 
 
-async def get_full_name_from_token(
+def get_full_name_from_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> str:
     """
@@ -123,7 +123,7 @@ async def get_full_name_from_token(
     Raises:
         HTTPException: If the token is invalid or does not contain a full name.
     """
-    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    payload: dict[str, Any] = encode_or_decode_token(token=token)
     full_name: Union[str, None] = payload.get("full_name")
     if full_name is None:
         raise HTTPException(
@@ -134,7 +134,7 @@ async def get_full_name_from_token(
     return full_name
 
 
-async def get_uuid_from_token(
+def get_uuid_from_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> str:
     """
@@ -149,7 +149,7 @@ async def get_uuid_from_token(
     Raises:
         HTTPException: If the token is invalid or does not contain a UUID.
     """
-    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    payload: dict[str, Any] = encode_or_decode_token(token=token)
     uuid: Union[str, None] = payload.get("uuid")
     if uuid is None:
         raise HTTPException(
@@ -160,7 +160,7 @@ async def get_uuid_from_token(
     return uuid
 
 
-async def get_scope_from_token(
+def get_scope_from_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> str:
     """
@@ -175,7 +175,7 @@ async def get_scope_from_token(
     Raises:
         HTTPException: If the token is invalid or does not contain a scope.
     """
-    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    payload: dict[str, Any] = encode_or_decode_token(token=token)
     scope: Union[str, None] = payload.get("scope")
     if scope is None:
         raise HTTPException(
@@ -186,7 +186,7 @@ async def get_scope_from_token(
     return scope
 
 
-async def get_username_from_token(
+def get_username_from_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> str:
     """
@@ -201,7 +201,7 @@ async def get_username_from_token(
     Raises:
         HTTPException: If the token is invalid or does not contain a username.
     """
-    payload: dict[str, Any] = await encode_or_decode_token(token=token)
+    payload: dict[str, Any] = encode_or_decode_token(token=token)
     username: Union[str, None] = payload.get("sub")
     if username is None:
         raise HTTPException(
@@ -212,7 +212,7 @@ async def get_username_from_token(
     return username
 
 
-async def authenticate_user_ldap(username: str, password: str) -> Connection:
+def authenticate_user_ldap(username: str, password: str) -> Connection:
     """
     Low-level function to authenticate a user against an LDAP server.
 
@@ -244,9 +244,7 @@ async def authenticate_user_ldap(username: str, password: str) -> Connection:
     return conn
 
 
-async def create_access_token(
-    data: dict, expires_delta: Optional[timedelta] = None
-) -> str:
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
     Create an access token with the provided data and expiration delta.
 
@@ -264,11 +262,11 @@ async def create_access_token(
     else:
         expire = datetime.now(tz=UTC) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt: str = await encode_or_decode_token(data=to_encode)
+    encoded_jwt: str = encode_or_decode_token(data=to_encode)
     return encoded_jwt
 
 
-async def get_object_by_uuid(
+def get_object_by_uuid(
     connection: Connection,
     uuid: str,
 ) -> str:
@@ -303,7 +301,7 @@ async def get_object_by_uuid(
     raise ValueError("The 'sAMAccountName' attribute was not found")
 
 
-async def determine_scope_from_groups(groups: List[str]) -> str:
+def determine_scope_from_groups(groups: List[str]) -> str:
     """
     Determines the scope of a user based on the groups they are a member of.
 
@@ -326,7 +324,7 @@ async def determine_scope_from_groups(groups: List[str]) -> str:
     raise ValueError("No matching scopes found")
 
 
-async def get_uuid_from_ldap(
+def get_uuid_from_ldap(
     connection: Connection,
     username: str,
 ) -> str:
@@ -363,7 +361,7 @@ async def get_uuid_from_ldap(
     raise ValueError("The 'objectGUID' attribute was not found")
 
 
-async def get_member_of_from_ldap(
+def get_member_of_from_ldap(
     connection: Connection,
     username: str,
 ) -> List[str]:
@@ -398,7 +396,7 @@ async def get_member_of_from_ldap(
     raise ValueError("The 'memberOf' attribute was not found")
 
 
-async def get_full_name_from_ldap(
+def get_full_name_from_ldap(
     connection: Connection,
     username: str,
 ) -> str:
@@ -418,7 +416,7 @@ async def get_full_name_from_ldap(
     Notes:
         Refer to return_first_non_empty_attribute for more information.
     """
-    return await return_first_non_empty_attribute(
+    return return_first_non_empty_attribute(
         connection=connection,
         username=username,
         attributes=[
@@ -430,7 +428,7 @@ async def get_full_name_from_ldap(
     )
 
 
-async def return_first_non_empty_attribute(
+def return_first_non_empty_attribute(
     connection: Connection, username: str, *, attributes: List[str]
 ) -> str:
     """

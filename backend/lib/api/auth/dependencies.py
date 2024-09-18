@@ -24,7 +24,7 @@ class RoleChecker:
         is_admin = RoleChecker(SCOPES["admin"])
 
         @router.get("/admin", dependencies=[Depends(is_admin)])
-        async def admin_only_route():
+        def admin_only_route():
             return {"message": "You are an admin."}
         ```
 
@@ -33,7 +33,7 @@ class RoleChecker:
         is_admin = RoleChecker(SCOPES["admin"])
 
         @router.get("/admin")
-        async def admin_only_route(_ = Depends(is_admin)):
+        def admin_only_route(_ = Depends(is_admin)):
             return {"message": "You are an admin."}
         ```
     """
@@ -41,7 +41,7 @@ class RoleChecker:
     def __init__(self, role: str) -> None:
         self.role: str = role
 
-    async def __call__(self, token: str = Depends(dependency=oauth2_scheme)) -> None:
+    def __call__(self, token: str = Depends(dependency=oauth2_scheme)) -> None:
         payload: dict[str, Any] = jwt.decode(
             token=token,
             key=app_settings.settings.auth.secret_key,
@@ -66,7 +66,7 @@ is_student = RoleChecker(role=app_settings.settings.auth.scopes["student"])
 is_teacher = RoleChecker(role=app_settings.settings.auth.scopes["teacher"])
 
 
-async def get_token_data(
+def get_token_data(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> TokenData:
     """
@@ -91,7 +91,7 @@ async def get_token_data(
     )
 
 
-async def validate_token(
+def validate_token(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> TokenData:
     """

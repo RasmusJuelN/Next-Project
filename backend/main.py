@@ -59,7 +59,7 @@ app.add_middleware(middleware_class=I18nMiddleware)
 
 
 @app.exception_handler(exc_class_or_status_code=HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     logger.error(
         msg=f"HTTPException occurred: {exc.status_code} - {exc.detail}",
     )
@@ -70,7 +70,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 
 @app.exception_handler(exc_class_or_status_code=LDAPException)
-async def ldap_exception_handler(request: Request, exc: LDAPException) -> JSONResponse:
+def ldap_exception_handler(request: Request, exc: LDAPException) -> JSONResponse:
     if isinstance(exc, LDAPSocketOpenError):
         logger.exception(
             msg="Timed out trying to connect to server.",
@@ -91,7 +91,7 @@ async def ldap_exception_handler(request: Request, exc: LDAPException) -> JSONRe
 
 
 @app.exception_handler(exc_class_or_status_code=JWTError)
-async def jwt_exception_handler(request: Request, exc: JWTError) -> JSONResponse:
+def jwt_exception_handler(request: Request, exc: JWTError) -> JSONResponse:
     if isinstance(exc, ExpiredSignatureError):
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -105,7 +105,7 @@ async def jwt_exception_handler(request: Request, exc: JWTError) -> JSONResponse
 
 
 @app.get(path="/", include_in_schema=False)
-async def read_root() -> RedirectResponse:
+def read_root() -> RedirectResponse:
     return RedirectResponse(url="/docs")
 
 
@@ -115,7 +115,7 @@ async def read_root() -> RedirectResponse:
     tags=["users"],
     response_description="The token data",
 )
-async def read_protected(
+def read_protected(
     token_data: TokenData = Depends(dependency=get_token_data),
 ) -> dict[str, str]:
     # fmt: off
@@ -142,7 +142,7 @@ async def read_protected(
     response_description="The token data",
     dependencies=[Depends(dependency=is_student)],
 )
-async def read_protected_student(
+def read_protected_student(
     token_data: TokenData = Depends(dependency=get_token_data),
 ) -> dict[str, str]:
     # fmt: off
@@ -170,7 +170,7 @@ async def read_protected_student(
     response_description="The token data",
     dependencies=[Depends(dependency=is_teacher)],
 )
-async def read_protected_teacher(
+def read_protected_teacher(
     token_data: TokenData = Depends(dependency=get_token_data),
 ) -> dict[str, str]:
     # fmt: off
@@ -197,7 +197,7 @@ async def read_protected_teacher(
     response_description="The token data",
     dependencies=[Depends(dependency=is_admin)],
 )
-async def read_protected_admin(
+def read_protected_admin(
     token_data: TokenData = Depends(dependency=get_token_data),
 ) -> dict[str, str]:
     # fmt: off
@@ -221,7 +221,7 @@ async def read_protected_admin(
     path="/questions/",
     response_model=Question,
 )
-async def read_question(
+def read_question(
     id: int,
     request: Request,
 ) -> Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]:
@@ -248,7 +248,7 @@ async def read_question(
     path="/questions/all",
     response_model=AllQuestions,
 )
-async def read_questions(
+def read_questions(
     request: Request,
 ) -> Dict[str, List[Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]]]:
     """
