@@ -39,3 +39,19 @@ def get_templates(
     request: Request, db: Session = Depends(dependency=get_db)
 ) -> Sequence[schemas.QuestionTemplate]:
     return crud.get_templates(db=db)
+
+
+@router.put(
+    path="/templates/update/{template_id}",
+    tags=["questionnaire"],
+    response_model=schemas.QuestionTemplate,
+)
+def update_template(
+    request: Request,
+    template_id: str,  # The ID of the template the client wishes to update
+    template: schemas.QuestionTemplateUpdate,  # The updated template data
+    db: Session = Depends(dependency=get_db),
+) -> schemas.QuestionTemplate:
+    return crud.update_template(
+        db=db, existing_template_id=template_id, updated_question_template=template
+    )

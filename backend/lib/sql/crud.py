@@ -168,7 +168,9 @@ def add_template(
 
 
 def update_template(
-    db: Session, template: schemas.QuestionTemplateUpdate
+    db: Session,
+    existing_template_id: str,
+    updated_question_template: schemas.QuestionTemplateUpdate,
 ) -> schemas.QuestionTemplate:
     """
     Update an existing question template in the database.
@@ -182,19 +184,82 @@ def update_template(
 
     Raises:
         TemplateNotFoundException: If the template with the given ID does not exist.
+        TemplateIdMismatchException: If the template ID in the request body does not match the existing template ID.
     """
-    updated_template: Optional[schemas.QuestionTemplate] = get_template_by_id(
-        db=db, template=template
+    current_template: Optional[schemas.QuestionTemplate] = get_template_by_id(
+        db=db, template_id=existing_template_id
     )
-    if not updated_template:
-        raise TemplateNotFoundException(template_id=template.template_id)
+    if not current_template:
+        raise TemplateNotFoundException(
+            template_id=updated_question_template.template_id
+        )
+    if existing_template_id != updated_question_template.template_id:
+        raise TemplateIdMismatchException(
+            existing_template_id=existing_template_id,
+            updated_template_id=updated_question_template.template_id,
+        )
 
-    updated_template.title = template.title
-    updated_template.description = template.description
-    updated_template.created_at = template.created_at
+    current_template.title = updated_question_template.title
+    current_template.description = updated_question_template.description
+    current_template.created_at = updated_question_template.created_at
+
+    existing_questions: dict[int, models.Question] = {
+        q.id: q for q in current_template.questions
+    }
+    for updated_question in updated_question_template.questions:
+        if updated_question.id in existing_questions:
+            # Update existing question
+            existing_question = existing_questions[updated_question.id]
+            existing_question.title = updated_question.title
+            # Update options
+            existing_options = {o.id: o for o in existing_question.options}
+            for updated_option in updated_question.options:
+                if updated_option.id in existing_options:
+                    # Update existing option
+                    existing_option = existing_options[updated_option.id]
+                    existing_option.value = updated_option.value
+                    existing_option.label = updated_option.label
+                    existing_option.is_custom = updated_option.is_custom
+                else:
+                    # Add new option
+                    new_option = models.Option(
+                        value=updated_option.value,
+                        label=updated_option.label,
+                        is_custom=updated_option.is_custom,
+                        question_id=existing_question.id,
+                    )
+                    db.add(new_option)
+                    existing_question.options.append(new_option)
+            # Remove options that are not in the updated question
+            for option_id in list(existing_options.keys()):
+                if option_id not in {o.id for o in updated_question.options}:
+                    db.delete(existing_options[option_id])
+        else:
+            # Add new question
+            new_question = models.Question(
+                title=updated_question.title,
+                template_id=current_template.id,
+            )
+            db.add(new_question)
+            current_template.questions.append(new_question)
+            # Add options for the new question
+            for updated_option in updated_question.options:
+                new_option = models.Option(
+                    value=updated_option.value,
+                    label=updated_option.label,
+                    is_custom=updated_option.is_custom,
+                    question_id=new_question.id,
+                )
+                db.add(new_option)
+                new_question.options.append(new_option)
+    # Remove questions that are not in the updated template
+    for question_id in list(existing_questions.keys()):
+        if question_id not in {q.id for q in updated_question_template.questions}:
+            db.delete(existing_questions[question_id])
+
     db.commit()
     db.flush()
-    return updated_template
+    return current_template
 
 
 def delete_template(
