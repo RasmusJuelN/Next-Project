@@ -61,26 +61,39 @@ export class TemplateManagerComponent {
   }
 
   createNewTemplate() {
+    // Helper function to generate a unique ID
+    const generateUniqueId = () => {
+      return 'template_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    };
+  
     const tempTemplate: QuestionTemplate = {
-      templateId: "template", // ID 0 indicates it's a new unsaved template
+      templateId: generateUniqueId(), // Generate unique template ID
       title: 'New Template',
       description: '',
       questions: [
         {
           id: 1,
           title: 'New Question 1',
-          options: [{id: 1, label: "option 1", value: 1},{id: 2, label: "option 2", value: 2}]
+          options: [
+            { id: 1, label: "option 1", value: 1 },
+            { id: 2, label: "option 2", value: 2 }
+          ]
         },
         {
           id: 2,
           title: 'New Question 2',
-          options: [{id: 1, label: "option 1", value: 1},{id: 1, label: "option 2", value: 2}]
+          options: [
+            { id: 1, label: "option 1", value: 1 },
+            { id: 2, label: "option 2", value: 2 }
+          ]
         }
       ],
       createdAt: new Date()
     };
+  
     this.selectedTemplate = tempTemplate;  // Set the current template to the new temp one
   }
+  
 
   editTemplate(template: QuestionTemplate) {
     const confirmed = this.selectedTemplate && window.confirm('You have unsaved changes. Are you sure you want to switch templates?');

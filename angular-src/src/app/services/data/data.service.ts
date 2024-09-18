@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionTemplate, User } from '../../models/questionare';
+import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionDetails, QuestionTemplate, User } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
 import { AppSettings } from '../../models/setting-models';
 
@@ -34,11 +34,11 @@ export class DataService {
 
 
   // Placeholder for a not implemented method
-  getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }> {
+  getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: QuestionDetails[] }> {
     const url = `${this.apiUrl}/results/${activeQuestionnaireId}`;
-    return this.http.get<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }>(url)
+    return this.http.get<{ answerSession: AnswerSession, questionDetails: QuestionDetails[] }>(url)
       .pipe(
-        catchError(this.handleError<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }>('getResults'))
+        catchError(this.handleError<{ answerSession: AnswerSession, questionDetails: QuestionDetails[] }>('getResults'))
       );
   }
 

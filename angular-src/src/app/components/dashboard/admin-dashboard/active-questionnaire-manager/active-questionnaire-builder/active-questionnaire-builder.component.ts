@@ -9,7 +9,7 @@ import { ActiveQuestionnaire, QuestionTemplate, User } from '../../../../../mode
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './active-questionnaire-builder.component.html',
-styleUrls: ['../active-questionnaire-manager.component.css','./active-questionnaire-builder.component.css']
+  styleUrls: ['../active-questionnaire-manager.component.css','./active-questionnaire-builder.component.css']
 })
 export class ActiveQuestionnaireBuilderComponent {
   // State for search results and selected entities

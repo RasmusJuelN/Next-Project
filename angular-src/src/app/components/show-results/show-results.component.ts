@@ -4,7 +4,7 @@ import { DataService } from '../../services/data/data.service';
 import { catchError } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { Answer, AnswerSession } from '../../models/questionare';
+import { Answer, AnswerSession, QuestionDetails } from '../../models/questionare';
 
 @Component({
   selector: 'app-show-results',
@@ -19,7 +19,7 @@ export class ShowResultsComponent implements OnInit {
 
   answerSession: AnswerSession | null = null; // Holds the fetched answer session data
   errorMessage: string | null = null;
-  questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] = []; // Combined question and option data for both student and teacher
+  questionDetails: QuestionDetails[] = []; // Combined question and option data for both student and teacher
 
   ngOnInit(): void {
     const questionnaireId = this.route.snapshot.paramMap.get('id');
@@ -48,16 +48,16 @@ export class ShowResultsComponent implements OnInit {
   }
 
   displayAnswer(questionId: number, role: 'student' | 'teacher'): string {
-    const questionDetail = this.questionDetails.find(q => q.questionId === String(questionId));
+    const questionDetail = this.questionDetails.find(q => q.questionId === questionId);
     if (!questionDetail) return 'No Answer';
   
-    return role === 'student' ? questionDetail.studentOptionLabel : questionDetail.teacherOptionLabel;
+    return role === 'student' ? questionDetail.studentAnswer : questionDetail.teacherAnswer;
   }
   
 
   // Helper function to get the question title by its ID
   getQuestionTitle(questionId: number): string {
-    const questionDetail = this.questionDetails.find(q => q.questionId === String(questionId));
-    return questionDetail ? questionDetail.title : 'Unknown question';
+    const questionDetail = this.questionDetails.find(q => q.questionId === questionId);
+    return questionDetail ? questionDetail.questionTitle : 'Unknown question';
   }
 }

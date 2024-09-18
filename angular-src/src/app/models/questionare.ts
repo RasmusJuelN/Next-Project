@@ -79,3 +79,12 @@ export interface AnswerSession {
   studentAnswers: UserAnswerSheet;
   teacherAnswers: UserAnswerSheet;
 }
+
+
+// Used to display details of the question.
+export interface QuestionDetails {
+  questionId: number;
+  questionTitle: string;
+  studentAnswer: string;
+  teacherAnswer: string;
+}

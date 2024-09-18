@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
-import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession, Answer } from '../../models/questionare';
+import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession, Answer, QuestionDetails } from '../../models/questionare';
 import { Option } from '../../models/questionare';
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
@@ -105,7 +105,7 @@ export class MockDataService {
   }
 
   // can only be used by teachers for now
-  getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: { questionId: string, title: string, studentOptionLabel: string, teacherOptionLabel: string }[] }> {
+  getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: QuestionDetails[] }> {
     // Helper function to process answer labels
     const getOptionLabel = (answer: Answer | undefined, question: Question): string => {
       if (!answer) return 'No answer provided';
@@ -142,34 +142,35 @@ export class MockDataService {
     if (!template) return throwError(() => new Error('Question template not found'));
   
     // Step 4: Process student and teacher answers
-    const questionDetails = answerSession.studentAnswers.answers.map((studentAnswer, index) => {
+    const questionDetails: QuestionDetails[] = answerSession.studentAnswers.answers.map((studentAnswer, index) => {
       const questionId = studentAnswer.questionId;
       const question = template.questions.find(q => q.id === questionId);
   
       if (!question) {
         return {
-          questionId: String(questionId),
-          title: 'Question not found',
-          studentOptionLabel: 'Question not found',
-          teacherOptionLabel: 'Question not found',
+          questionId: questionId,  // Include questionId here
+          questionTitle: 'Question not found',
+          studentAnswer: 'Question not found',
+          teacherAnswer: 'Question not found',
         };
       }
   
       const teacherAnswer = answerSession.teacherAnswers.answers[index];
       return {
-        questionId: String(questionId),
-        title: question.title,
-        studentOptionLabel: getOptionLabel(studentAnswer, question), // Process student answer
-        teacherOptionLabel: getOptionLabel(teacherAnswer, question), // Process teacher answer
+        questionId: questionId,  // Include questionId here
+        questionTitle: question.title,  // Use correct property questionTitle
+        studentAnswer: getOptionLabel(studentAnswer, question), // Process student answer
+        teacherAnswer: getOptionLabel(teacherAnswer, question), // Process teacher answer
       };
     });
   
-    // Step 5: Return the answer session and question details
+    // Return the answer session and question details
     return of({ answerSession, questionDetails }).pipe(
       delay(500), // Simulate async behavior with a delay
       catchError((error) => throwError(() => new Error(error.message)))
     );
   }
+  
   
 
   
@@ -231,11 +232,9 @@ export class MockDataService {
 
   // Create a new template
   createTemplate(template: QuestionTemplate): Observable<void> {
-    const newTemplateId = 'template' + this.generateUniqueId('template');
-    const newTemplate = { ...template, templateId: newTemplateId };
     
     // Add the new template to mock data
-    this.mockDbService.mockData.mockQuestionTemplates.push(newTemplate);
+    this.mockDbService.mockData.mockQuestionTemplates.push(template);
     this.saveData();
     
     return of(undefined).pipe(delay(300)); // Simulate delay

@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './question-editor.component.html',
-  styleUrl: './question-editor.component.css'
+  styleUrls: ['./question-editor.component.css']
 })
 export class QuestionEditorComponent {
   @Input() question!: Question;
