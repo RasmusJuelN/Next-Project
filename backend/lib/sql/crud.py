@@ -3,11 +3,16 @@ from sqlalchemy import Result, select
 from sqlalchemy.orm import Session
 
 from backend.lib.sql import schemas, models
-from backend.lib.sql.exceptions import TemplateNotFoundException
+from backend.lib.sql.exceptions import (
+    TemplateNotFoundException,
+    TemplateIdMismatchException,
+    TemplateAlreadyExistsException,
+)
 
 
+@overload
 def get_template_by_id(
-    db: Session, template: schemas.QuestionTemplateBase
+    db: Session, *, template: schemas.QuestionTemplateBase
 ) -> Optional[schemas.QuestionTemplate]:
     """
     Retrieve a question template by its ID from the database.
@@ -19,10 +24,54 @@ def get_template_by_id(
     Returns:
         Optional[schemas.QuestionTemplate]: The question template if found, otherwise None.
     """
+    ...
+
+
+@overload
+def get_template_by_id(
+    db: Session, *, template_id: str
+) -> Optional[schemas.QuestionTemplate]:
+    """
+    Retrieve a question template by its ID from the database.
+
+    Args:
+        db (Session): The database session to use for the query.
+        template_id (str): The ID of the template to retrieve.
+
+    Returns:
+        Optional[schemas.QuestionTemplate]: The question template if found, otherwise None.
+    """
+    ...
+
+
+def get_template_by_id(
+    db: Session,
+    *,
+    template: Optional[schemas.QuestionTemplateBase] = None,
+    template_id: Optional[str] = None
+) -> Optional[schemas.QuestionTemplate]:
+    """
+    Retrieve a question template by its ID from the database.
+
+    Args:
+        db (Session): The database session to use for the query.
+        template (schemas.QuestionTemplateBase): The template schema containing the ID of the template to retrieve.
+
+    Returns:
+        Optional[schemas.QuestionTemplate]: The question template if found, otherwise None.
+    """
+    template_ref_id: str = ""
+    if template is not None:
+        template_ref_id = template.template_id
+    elif template_id is not None:
+        template_ref_id = template_id
+    else:
+        raise ValueError("Either template or template_id must be provided.")
+
     db.flush()
     result: Result[Tuple[schemas.QuestionTemplate]] = db.execute(
         statement=select(models.QuestionTemplate).where(
-            models.QuestionTemplate.template_id == template.template_id
+            models.QuestionTemplate.template_id == template_ref_id
         )
     )
     return result.scalars().first()
