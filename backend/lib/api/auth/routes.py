@@ -5,7 +5,8 @@ This module contains the authentication logic for the FastAPI application.
 from datetime import timedelta
 from fastapi import Depends, HTTPException, status, Request, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
-from ldap3.core.exceptions import LDAPInvalidCredentialsResult  # type: ignore
+from ldap3.core.exceptions import LDAPInvalidCredentialsResult
+from ldap3 import Connection
 from logging import Logger, DEBUG, INFO
 
 from backend.lib._logger import LogHelper
@@ -36,7 +37,7 @@ async def authenticate_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> dict[str, str]:
     try:
-        conn = await authenticate_user_ldap(
+        conn: Connection = authenticate_user_ldap(
             username=form_data.username, password=form_data.password
         )
     except LDAPInvalidCredentialsResult:
