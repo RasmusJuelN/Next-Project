@@ -2,8 +2,8 @@ from logging import DEBUG, INFO, Logger
 from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-from jose import JWTError, ExpiredSignatureError  # type: ignore
-from ldap3.core.exceptions import (  # type: ignore
+from jose import JWTError, ExpiredSignatureError
+from ldap3.core.exceptions import (
     LDAPException,
     LDAPSocketOpenError,
 )
