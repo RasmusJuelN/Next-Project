@@ -20,38 +20,38 @@ router = APIRouter()
 @router.post(
     path="/templates/create",
     tags=["questionnaire"],
-    response_model=schemas.QuestionTemplateCreate,
+    response_model=schemas.CreateQuestionTemplateModel,
 )
 def create_template(
     request: Request,
-    template: schemas.QuestionTemplateCreate,
+    template: schemas.CreateQuestionTemplateModel,
     db: Session = Depends(dependency=get_db),
-) -> schemas.QuestionTemplate:
+) -> schemas.QuestionTemplateModel:
     return crud.add_template(db=db, template=template)
 
 
 @router.get(
     path="/templates",
     tags=["questionnaire"],
-    response_model=Sequence[schemas.QuestionTemplate],
+    response_model=Sequence[schemas.QuestionTemplateModel],
 )
 def get_templates(
     request: Request, db: Session = Depends(dependency=get_db)
-) -> Sequence[schemas.QuestionTemplate]:
+) -> Sequence[schemas.QuestionTemplateModel]:
     return crud.get_templates(db=db)
 
 
 @router.put(
     path="/templates/update/{template_id}",
     tags=["questionnaire"],
-    response_model=schemas.QuestionTemplate,
+    response_model=schemas.QuestionTemplateModel,
 )
 def update_template(
     request: Request,
     template_id: str,  # The ID of the template the client wishes to update
-    template: schemas.QuestionTemplateUpdate,  # The updated template data
+    template: schemas.UpdateQuestionTemplateModel,  # The updated template data
     db: Session = Depends(dependency=get_db),
-) -> schemas.QuestionTemplate:
+) -> schemas.QuestionTemplateModel:
     return crud.update_template(
-        db=db, existing_template_id=template_id, updated_question_template=template
+        db=db, existing_template_id=template_id, updated_template=template
     )

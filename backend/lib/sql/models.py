@@ -35,7 +35,9 @@ class Question(Base):
     )
     custom_answer: Mapped[str] = mapped_column(type_=String, index=False, nullable=True)
     template: Mapped["QuestionTemplate"] = relationship(back_populates="questions")
-    options: Mapped[List["Option"]] = relationship(back_populates="question")
+    options: Mapped[List["Option"]] = relationship(
+        back_populates="question", cascade="all, delete-orphan"
+    )
 
 
 class QuestionTemplate(Base):
@@ -46,4 +48,6 @@ class QuestionTemplate(Base):
     title: Mapped[str] = mapped_column(type_=String, index=True)
     description: Mapped[str] = mapped_column(type_=String, index=False)
     created_at: Mapped[datetime] = mapped_column(type_=DateTime, index=False)
-    questions: Mapped[List["Question"]] = relationship(back_populates="template")
+    questions: Mapped[List["Question"]] = relationship(
+        back_populates="template", cascade="all, delete-orphan"
+    )
