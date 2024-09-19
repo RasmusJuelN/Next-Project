@@ -20,3 +20,10 @@ class TemplateIdMismatchException(Exception):
             f"Template ID {existing_template_id} does not match the ID {updated_template_id} in the request body."
         )
         super().__init__(self.message)
+
+
+class TemplateCreationError(Exception):
+    def __init__(self, template_id: str) -> None:
+        self.template_id: str = template_id
+        self.message: str = f"Error creating template with ID {template_id}."
+        super().__init__(self.message)
