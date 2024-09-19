@@ -1,7 +1,13 @@
 from urllib import parse
-from typing import Dict, Any, Literal
+from typing import Dict, Any, Literal, LiteralString
+from random import choice
+from string import ascii_letters, digits
+from sqlalchemy.orm import Session
 
 from backend import app_settings
+from backend.lib.sql import models
+
+URL_FRIENDLY_BASE64: LiteralString = ascii_letters + digits + "-_"
 
 
 def build_sqlite_connection_args() -> Dict[str, Any]:
@@ -72,3 +78,38 @@ def build_db_connection_args() -> Dict[str, Any]:
         return build_mssql_connection_args()
     else:
         raise ValueError(f"Unsupported database type: {database_type}")
+
+
+def generate_random_string(
+    length: int = 10, char_set: str = URL_FRIENDLY_BASE64
+) -> str:
+    """
+    Generate a random string of a specified length from a given character set.
+
+    Args:
+        length (int): The length of the random string to generate. Default is 10.
+        char_set (str): The set of characters to use for generating the random string. Default is URL_FRIENDLY_BASE64.
+
+    Returns:
+        str: A randomly generated string of the specified length.
+
+    Note:
+        `URL_FRIENDLY_BASE64` is ascii_letters + digits + "-_". Ascii_letters is A-Z and a-z.
+    """
+    return "".join(choice(seq=char_set) for _ in range(length))
+
+
+def id_exists(db: Session, id: str) -> bool:
+    """
+    Check if a given template ID exists in the database.
+
+    Args:
+        db: The database session.
+        id (str): The template ID to check for in the database.
+
+    Returns:
+        bool: True if the template ID exists in the database, False otherwise.
+    """
+    return (
+        db.query(models.QuestionTemplate).filter_by(template_id=id).first() is not None
+    )
