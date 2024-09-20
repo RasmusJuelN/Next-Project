@@ -24,7 +24,7 @@ export class MockDataService {
   }
 
 
-  getLogs(logTypes: string[], logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<string[]> {
+  getLogs(logSeverity: string, logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<string[]> {
     // Retrieve logs for the specified logFileType
     const logs = this.mockDbService.mockData.mockLogs[logFileType];
     
@@ -33,33 +33,46 @@ export class MockDataService {
       return of([]);
     }
   
-    // If no logTypes are provided, return all logs
+    // If no logSeverity is provided, return all logs
     let filteredLogs = logs;
   
-    if (logTypes && logTypes.length > 0) {
-      // Filter logs by log severity types (logTypes) if any are provided
+    if (logSeverity) {
+      // Filter logs by log severity (logSeverity) if provided
+      const severityLevels = ["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"];
+      const severityIndex = severityLevels.indexOf(logSeverity.toUpperCase());
+  
+      if (severityIndex === -1) {
+        console.error(`Invalid severity level '${logSeverity}'`);
+        return of([]);
+      }
+  
       filteredLogs = logs.filter(log => {
-        // Check if any of the provided logTypes (info, warn, debug) are present in the log entry
-        return logTypes.some(type => log.includes(`[${type.toUpperCase()}]`));
+        // Extract the severity level from the log message (e.g., "[DEBUG]", "[INFO]", etc.)
+        const logLevelMatch = log.match(/\[(DEBUG|INFO|WARN|ERROR|CRITICAL)\]/);
+        if (logLevelMatch) {
+          const logLevel = logLevelMatch[1];
+          return severityLevels.indexOf(logLevel) >= severityIndex;
+        }
+        return false; // Ignore logs without a matching severity level
       });
     }
   
     // Adjust indices for zero-based array
     const adjustedStartIndex = Math.max(0, startLine - 1);
-    
-    // Calculate end index (exclusive)
     const adjustedEndIndex = Math.min(adjustedStartIndex + lineCount, filteredLogs.length);
-    
+  
     // Slice the logs based on startLine and lineCount
     let selectedLogs = filteredLogs.slice(adjustedStartIndex, adjustedEndIndex);
-    
+  
     // Reverse the logs if needed
     if (reverse) {
       selectedLogs = selectedLogs.reverse();
     }
   
-    return of(selectedLogs);
+    return of(selectedLogs).pipe(delay(250), catchError(this.handleError('getLogs')));
   }
+  
+  
   
 
   getSettings(): Observable<AppSettings>  {

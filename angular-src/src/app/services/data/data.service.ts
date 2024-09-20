@@ -21,24 +21,19 @@ export class DataService {
     };
   }
 
-  getLogs(logType: string[], logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<string[]> {
+  getLogs(logSeverity: string, logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<string[]> {
     // Create HttpParams object to build query parameters
     let params = new HttpParams()
       .set('log_name', logFileType) // log_name maps to logFileType
       .set('start_line', startLine.toString()) // start_line maps to startLine
       .set('amount', lineCount.toString()) // amount maps to lineCount
-      .set('order', reverse ? 'desc' : 'asc'); // order is "desc" for reverse, "asc" otherwise
-  
-    // Append logType array as a single comma-separated string or skip it if empty (to return all logs)
-    if (logType.length > 0) {
-      params = params.set('log_severity', logType.join(','));
-    } else {
-      params = params.set('log_severity', ''); // Optional: Send empty string or skip depending on backend implementation
-    }
+      .set('order', reverse ? 'desc' : 'asc') // order is "desc" for reverse, "asc" otherwise
+      .set('log_severity', logSeverity); // Set log severity level
   
     // Use HttpParams in the GET request
     return this.http.get<string[]>('/api/logs/get', { params });
   }
+  
   
   
   // Fetch the settings data from the backend
