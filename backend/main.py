@@ -38,7 +38,7 @@ logger: Logger = LogHelper.create_logger(
 
 # Drop and recreate the database tables.
 # TODO: This is only for development purposes. Remove this in production.
-Base.metadata.drop_all(bind=engine, checkfirst=True)
+# Base.metadata.drop_all(bind=engine, checkfirst=True)
 Base.metadata.create_all(bind=engine, checkfirst=True)
 
 

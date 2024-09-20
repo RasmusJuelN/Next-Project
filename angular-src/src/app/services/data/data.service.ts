@@ -31,7 +31,10 @@ export class DataService {
       .set('log_severity', logSeverity); // Set log severity level
   
     // Use HttpParams in the GET request
-    return this.http.get<string[]>('/api/logs/get', { params });
+    return this.http.get<string[]>('/api/logs/get', { params })
+    .pipe(
+      catchError(this.handleError<string[]>('getLogs'))
+    );
   }
   
   
