@@ -1,0 +1,56 @@
+<!-- Log Type Selection -->
+<div class="form-group">
+  <label for="logType" class="form-label">Log Type:</label>
+  <select [(ngModel)]="selectedLogFileType" name="logType" id="logType" class="form-select">
+    <option *ngFor="let type of logFileTypes" [value]="type">{{ type | titlecase }}</option>
+  </select>
+</div>
+
+<!-- Log Severity Type Selection -->
+<div class="form-group">
+  <label for="logSeverityTypes" class="form-label">Log Severity:</label>
+  <div *ngFor="let severity of logSeverityTypes">
+    <label>
+      <input 
+        type="checkbox" 
+        [value]="severity" 
+        (change)="onSeverityChange($event, severity)" 
+        [checked]="selectedSeverityTypes.includes(severity)" 
+      /> 
+      {{ severity | titlecase }}
+    </label>
+  </div>
+</div>
+
+<!-- Start Line and Limit Inputs -->
+<div class="form-group">
+  <label for="startLine" class="form-label">Start Line:</label>
+  <input type="number" [(ngModel)]="startLine" id="startLine" class="form-input" min="1" />
+
+  <label for="lineCount" class="form-label">Number of Lines:</label>
+  <input type="number" [(ngModel)]="lineCount" id="lineCount" class="form-input" min="1" />
+
+  <button (click)="onUpdateLines()" class="btn btn-primary">Fetch Logs</button>
+</div>
+
+<!-- Reverse Logs Checkbox -->
+<div class="form-group">
+  <label for="reverseLogs" class="form-label">Reverse Logs:</label>
+  <input type="checkbox" [(ngModel)]="reverseLogs" id="reverseLogs" class="form-check-input" />
+</div>
+
+<!-- Display Logs in a Scrollable Area -->
+<div *ngIf="isLoading" class="loading-indicator">Loading logs...</div>
+<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+<div *ngIf="!isLoading && logs.length > 0" class="log-display-container">
+  <div *ngFor="let log of logs" class="log-line">
+    <pre>{{ log }}</pre>
+  </div>
+</div>
+
+<!-- Pagination Controls -->
+<div class="pagination-controls">
+  <button (click)="onPageChange(false)" [disabled]="startLine <= 0" class="btn btn-secondary">Previous</button>
+  <button (click)="onPageChange(true)" class="btn btn-secondary">Next</button>
+</div>

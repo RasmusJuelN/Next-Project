@@ -35,7 +35,8 @@ export class MockDbService {
     mockAnswers: AnswerSession[],
     mockActiveQuestionnaire: ActiveQuestionnaire[],
     mockQuestionTemplates: QuestionTemplate[],
-    mockAppSettings: AppSettings
+    mockAppSettings: AppSettings,
+    mockLogs: { [key: string]: string[] } 
   } = {
     mockUsers: [
       { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
@@ -163,7 +164,7 @@ export class MockDbService {
       },
       database: {
         databaseDriver: null,
-        databaseType: 'sqlite',
+        databaseType: 'mysql',
         dbName: 'program.db',
         host: null,
         maxConnections: null,
@@ -177,7 +178,31 @@ export class MockDbService {
         useSsl: false,
         user: null
       }
+    },
+    mockLogs: {
+      sql: [
+        '[2024-09-20 09:53:54] [DEBUG] sqlalchemy.orm.mapper.Mapper: (Option|options) _configure_property(options, _RelationshipDeclared)',
+        '[2024-09-20 09:53:54] [DEBUG] sqlalchemy.orm.mapper.Mapper: (QuestionTemplate|question_templates) Col (\'cid\', \'name\', \'type\', \'notnull\', \'dflt_value\', \'pk\')',
+        '[2024-09-20 09:53:54] [INFO] sqlalchemy.orm.mapper.Mapper: (Question|questions) BEGIN (implicit)',
+        '[2024-09-20 09:53:55] [INFO] sqlalchemy.orm.mapper.Mapper: (Question|questions) Identified primary key columns',
+        '[2024-09-20 09:53:55] [DEBUG] sqlalchemy.orm.mapper.Mapper: (Option|options) PRAGMA main.table_info("options")'
+      ],
+      backend: [
+        '[2024-09-20 09:53:56] [DEBUG] backend.service.Service: Initiating request to /api/questions',
+        '[2024-09-20 09:53:56] [INFO] backend.database.Connection: Created new connection to backend database',
+        '[2024-09-20 09:53:57] [WARN] backend.cache.CacheManager: Cache miss for key "question_list"',
+        '[2024-09-20 09:53:57] [DEBUG] backend.service.Service: Response received from /api/questions with status 200',
+        '[2024-09-20 09:53:58] [INFO] backend.database.Transaction: Transaction committed'
+      ],
+      settingsManager: [
+        '[2024-09-20 09:53:59] [INFO] settings.Manager: Loading configuration from file settings.yaml',
+        '[2024-09-20 09:53:59] [DEBUG] settings.Validator: Validating setting "max_connections"',
+        '[2024-09-20 09:54:00] [INFO] settings.Manager: Applying new settings for max_connections=10',
+        '[2024-09-20 09:54:01] [DEBUG] settings.Manager: Saving configuration to file settings.yaml',
+        '[2024-09-20 09:54:02] [WARN] settings.Validator: Invalid value for "timeout", using default of 30 seconds'
+      ]
     }
+    
 
   };
   

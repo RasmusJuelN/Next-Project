@@ -23,6 +23,45 @@ export class MockDataService {
     this.mockDbService.loadInitialMockData();
   }
 
+
+  getLogs(logTypes: string[], logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<string[]> {
+    // Retrieve logs for the specified logFileType
+    const logs = this.mockDbService.mockData.mockLogs[logFileType];
+    
+    if (!logs) {
+      console.error(`Log file type '${logFileType}' not found`);
+      return of([]);
+    }
+  
+    // If no logTypes are provided, return all logs
+    let filteredLogs = logs;
+  
+    if (logTypes && logTypes.length > 0) {
+      // Filter logs by log severity types (logTypes) if any are provided
+      filteredLogs = logs.filter(log => {
+        // Check if any of the provided logTypes (info, warn, debug) are present in the log entry
+        return logTypes.some(type => log.includes(`[${type.toUpperCase()}]`));
+      });
+    }
+  
+    // Adjust indices for zero-based array
+    const adjustedStartIndex = Math.max(0, startLine - 1);
+    
+    // Calculate end index (exclusive)
+    const adjustedEndIndex = Math.min(adjustedStartIndex + lineCount, filteredLogs.length);
+    
+    // Slice the logs based on startLine and lineCount
+    let selectedLogs = filteredLogs.slice(adjustedStartIndex, adjustedEndIndex);
+    
+    // Reverse the logs if needed
+    if (reverse) {
+      selectedLogs = selectedLogs.reverse();
+    }
+  
+    return of(selectedLogs);
+  }
+  
+
   getSettings(): Observable<AppSettings>  {
     return of(this.mockDbService.mockData.mockAppSettings)
   }

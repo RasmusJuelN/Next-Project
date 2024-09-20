@@ -1,6 +1,6 @@
 // Define the types for DatabaseSettings and AuthSettings
 
-type DatabaseType = 'sqlite' | 'mysql' | 'mssql';
+export type DatabaseType = 'sqlite' | 'mysql' | 'mssql';
 
 // Database settings interface
 export interface DatabaseSettings {

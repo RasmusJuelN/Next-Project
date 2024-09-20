@@ -12,6 +12,7 @@ import { ActiveQuestionnaireManagerComponent } from './components/dashboard/admi
 import { authGuard } from './gurads and interceptors/auth.guard';
 import { ShowResultsComponent } from './components/show-results/show-results.component';
 import { SettingsComponent } from './components/dashboard/admin-dashboard/settings/settings.component';
+import { ShowLogsComponent } from './components/dashboard/admin-dashboard/show-logs/show-logs.component';
 
 export const routes: Routes = [
     { path: '', component: LoginPageComponent },
@@ -36,26 +37,32 @@ export const routes: Routes = [
             path: 'templates',
             component: TemplateManagerComponent,
             canActivate: [roleGuard],
-            data: { roles: ['admin'] } // Single role as array
+            data: { roles: ['admin'] }
           },
           {
             path: 'active-questionnaire',
             component: ActiveQuestionnaireManagerComponent,
             canActivate: [roleGuard],
-            data: { roles: ['admin'] } // Single role as array
+            data: { roles: ['admin'] }
           },
           {
             path: 'settings',
             component: SettingsComponent,
             canActivate: [roleGuard],
-            data: { roles: ['admin'] } // Single role as array
+            data: { roles: ['admin'] }
+          },
+          {
+            path: 'logs',
+            component: ShowLogsComponent,
+            canActivate: [roleGuard],
+            data: { roles: ['admin'] }
           }
         ]
       },
       { 
         path: 'answer/:id', 
         canActivate: [authGuard, roleGuard],
-        data: { roles: ['teacher', 'student'] }, // Allow both "teacher" and "student"
+        data: { roles: ['teacher', 'student'] },
         component: QuestionareComponent
       },
       {path:"results/:id", 

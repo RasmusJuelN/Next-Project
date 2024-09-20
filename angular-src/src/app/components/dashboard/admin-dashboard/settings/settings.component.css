@@ -29,7 +29,8 @@ label {
 
 input[type="text"],
 input[type="number"],
-input[type="checkbox"] {
+input[type="checkbox"],
+select {
   padding: 8px;
   margin: 5px 0 15px 0;
   border: 1px solid #ccc;
@@ -81,3 +82,40 @@ input[type="checkbox"] {
   width: auto;
 }
 
+/* Specific styling for the select element (Database Type) */
+select {
+  padding: 8px;
+  margin: 5px 0 15px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  background-color: white;
+  appearance: none; /* Removes default dropdown arrow */
+  -webkit-appearance: none; /* Safari and Chrome */
+  -moz-appearance: none; /* Firefox */
+  position: relative;
+}
+
+select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+select::-ms-expand {
+  display: none; /* Hide the default dropdown arrow for IE */
+}
+
+/* To add a custom arrow for the select */
+.select-container {
+  position: relative;
+}
+
+.select-container::after {
+  content: '▼';
+  font-size: 12px;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* Prevents click on the arrow */
+}

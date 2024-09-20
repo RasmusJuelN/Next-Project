@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http'; // Future use for sending requests
-import { AppSettings } from '../../../../models/setting-models';
+import { AppSettings, DatabaseType } from '../../../../models/setting-models';
 import { DataService } from '../../../../services/data/data.service';
 import { CommonModule } from '@angular/common';
 
@@ -17,6 +17,9 @@ export class SettingsComponent {
   private fb = inject(FormBuilder)
   private dataService = inject(DataService)
   settingsForm: FormGroup;
+
+  databaseTypes: DatabaseType[] = ['sqlite', 'mysql', 'mssql'];
+  
   constructor() {
     this.settingsForm = this.fb.group({
       auth: this.fb.group({
