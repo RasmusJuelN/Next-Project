@@ -13,6 +13,7 @@ from backend.lib._logger import LogHelper
 from backend.lib.api.auth.routes import router as auth_router
 from backend.lib.api.questionnaire.routes import router as questionnaire_router
 from backend.lib.api.settings.routes import router as settings_router
+from backend.lib.api.logs.routes import router as logs_router
 from backend.lib.api.auth.models import TokenData
 from backend.lib.api.auth.dependencies import (
     get_token_data,
@@ -55,6 +56,7 @@ app.add_middleware(
 app.include_router(router=auth_router)
 app.include_router(router=questionnaire_router)
 app.include_router(router=settings_router)
+app.include_router(router=logs_router)
 app.add_middleware(middleware_class=I18nMiddleware)
 
 
