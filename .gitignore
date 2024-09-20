@@ -2,7 +2,7 @@
 /front-end
 
 # Ignore logs from backend
-logs/
+backend/logs/
 
 node_modules
 
