@@ -11,28 +11,34 @@ import { AuthService } from '../../services/auth/auth.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  private authService = inject(AuthService); // Use AppAuthService
-  private router = inject(Router);
+  private authService = inject(AuthService); // Inject the AuthService
+  private router = inject(Router); // Inject the Router service
 
   ngOnInit(): void {
-    // Subscribe to isAuthenticated$ to check the authentication status
+    // Subscribe to the isAuthenticated$ observable to track the authentication status
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {
       if (!isAuthenticated) {
-        // Redirect to login if the user is not authenticated
+        // If the user is not authenticated, navigate to the login/home route
         this.router.navigate(['/']);
       } else {
-        // User is authenticated, handle role-based redirection
-        const currentRoute = this.router.url;
-        if (currentRoute === '/dashboard') {
-          if (this.authService.hasRole('admin')) {
-            this.router.navigate(['/dashboard/admin']);
-          } else if (this.authService.hasRole('teacher')) {
-            this.router.navigate(['/dashboard/teacher']);
-          } else {
-            this.router.navigate(['/']);
-          }
-        }
+        // If the user is authenticated, handle role-based redirection
+        this.redirectBasedOnRole();
       }
     });
+  }
+
+  private redirectBasedOnRole(): void {
+    const currentRoute = this.router.url;
+    
+    if (currentRoute === '/dashboard') {
+      if (this.authService.hasRole('admin')) {
+        this.router.navigate(['/dashboard/admin'], { replaceUrl: true });
+      } else if (this.authService.hasRole('teacher')) {
+        this.router.navigate(['/dashboard/teacher'], { replaceUrl: true });
+      } else {
+        // If the user doesn't have a valid role, send them to the homepage
+        this.router.navigate(['/']);
+      }
+    }
   }
 }

@@ -1,15 +1,159 @@
+/* General Layout for Buttons */
 button {
     background-color: aliceblue;
     border-radius: 5px;
-    padding: 5px;
+    padding: 8px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
 }
 
+button:hover {
+    background-color: #e0f7fa;
+}
+
+/* Top Section */
 .top {
     display: flex;
-    align-items:center;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #007bff;
 }
 
 .top h1 {
     margin: 0;
-    margin-right: 10px; /*Just a little space*/
+    font-size: 1.2rem;
+}
+
+/* Ensure the welcome message, token management, and navigation buttons are on the same line */
+.welcome-section {
+    flex-grow: 1;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.nav-buttons button {
+    background-color: #007bff;
+    color: white;
+    margin-left: 8px;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.nav-buttons button:hover {
+    background-color: #0056b3;
+}
+
+/* Token Management Section */
+.token-management {
+    margin-left: 10px;
+}
+
+.delete-token {
+    background-color: #ff4c4c;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.delete-token:hover {
+    background-color: #ff1c1c;
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+    .top {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .welcome-section {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .nav-buttons {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .nav-buttons button {
+        width: auto;
+        margin: 5px 0;
+    }
+
+    .delete-token {
+        width: auto;
+        margin: 5px 0;
+    }
+}
+
+/* Printer-Friendly Design */
+@media print {
+    .top {
+        display: none; /* Hide the top section when printing */
+    }
+
+    body {
+        background-color: white;
+        color: black;
+        font-size: 12pt;
+        margin: 0; /* Remove default margin */
+        padding: 0; /* Remove padding to fit content properly */
+    }
+
+    /* Remove unnecessary margins/padding */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Hide interactive elements like buttons during print */
+    button, .delete-token {
+        display: none;
+    }
+
+    .nav-buttons {
+        display: none;
+    }
+
+    /* Avoid page breaks inside elements */
+    div, p, h1, h2, h3, h4, h5, h6 {
+        page-break-inside: avoid;
+    }
+
+    /* Avoid unnecessary page breaks */
+    .router-outlet {
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+
+    /* Make sure the content fills the page */
+    html, body {
+        height: auto;
+    }
+
+    /* Reduce potential overflow and ensure content fits in a single page */
+    .container {
+        height: auto;
+        overflow: hidden;
+        page-break-inside: avoid;
+    }
 }

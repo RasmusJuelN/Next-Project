@@ -1,35 +1,44 @@
 <div class="answer-session" *ngIf="answerSession">
   <h2>Questionnaire: {{ answerSession.questionnaireId }}</h2>
 
-  <!-- Student and Teacher Info at the top -->
+  <!-- User Info Section -->
   <div class="user-info-section">
     <div class="info-item student-info">
-      <p><strong>Student:</strong> {{ answerSession.studentAnswers.user.fullName }} ({{ answerSession.studentAnswers.user.role }})</p>
+      <span class="user-role-label">Student:</span>
+      <span class="user-name">{{ answerSession.studentAnswers.user.fullName }}</span>
+      <span> {{ answerSession.studentAnswers.answeredAt | date: 'dd/MM/yyyy' }}</span>
     </div>
     <div class="info-item teacher-info">
-      <p><strong>Teacher:</strong> {{ answerSession.teacherAnswers.user.fullName }} ({{ answerSession.teacherAnswers.user.role }})</p>
+      <span class="user-role-label">Teacher:</span>
+      <span class="user-name">{{ answerSession.teacherAnswers.user.fullName }}</span>
+      <span> {{ answerSession.teacherAnswers.answeredAt | date: 'dd/MM/yyyy' }}</span>
     </div>
   </div>
 
-  <!-- Questions and Answers below -->
-  <div *ngFor="let studentAnswer of answerSession.studentAnswers.answers; let i = index" class="question-answer">
-    <h3>{{ i + 1 }}. {{ getQuestionTitle(studentAnswer.questionId) }}</h3>
+  <!-- Questions and Answers Section -->
+  <div class="questions-section">
+    <div *ngFor="let studentAnswer of answerSession.studentAnswers.answers; let i = index" class="question-answer-pair">
+      <h3 class="question-title">{{ i + 1 }}. {{ getQuestionTitle(studentAnswer.questionId) }}</h3>
 
-    <div class="answers-container">
-      <!-- Student's Answer -->
-      <div class="answer student-answer">
-        <p><strong>Student:</strong> {{ displayAnswer(studentAnswer.questionId, 'student') }}</p>
-      </div>
+      <div class="answers-comparison">
+        <!-- Student's Answer -->
+        <div class="answer-container student-answer">
+          <span class="answer-label">Student:</span>
+          <p class="answer-text">{{ displayAnswer(studentAnswer.questionId, 'student') }}</p>
+        </div>
 
-      <!-- Teacher's Answer -->
-      <div class="answer teacher-answer">
-        <p><strong>Teacher:</strong> {{ displayAnswer(studentAnswer.questionId, 'teacher') }}</p>
+        <!-- Teacher's Answer -->
+        <div class="answer-container teacher-answer">
+          <span class="answer-label">Teacher:</span>
+          <p class="answer-text">{{ displayAnswer(studentAnswer.questionId, 'teacher') }}</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Error Message -->
-<div *ngIf="errorMessage">
+<div *ngIf="errorMessage" class="error-message">
   <p>{{ errorMessage }}</p>
 </div>
+

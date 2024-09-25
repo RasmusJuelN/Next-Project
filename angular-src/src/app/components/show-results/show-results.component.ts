@@ -16,7 +16,7 @@ import { Answer, AnswerSession, QuestionDetails } from '../../models/questionare
 export class ShowResultsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dataService = inject(DataService);
-
+  private router = inject(Router)
   answerSession: AnswerSession | null = null; // Holds the fetched answer session data
   errorMessage: string | null = null;
   questionDetails: QuestionDetails[] = []; // Combined question and option data for both student and teacher
@@ -53,7 +53,7 @@ export class ShowResultsComponent implements OnInit {
   
     return role === 'student' ? questionDetail.studentAnswer : questionDetail.teacherAnswer;
   }
-  
+
 
   // Helper function to get the question title by its ID
   getQuestionTitle(questionId: number): string {
