@@ -1,0 +1,156 @@
+/* General Styles for Containers */
+.dashboard-container, .top-container, .questionnaire-section {
+    background-color: #FFFFFF;
+    font-family: Arial, sans-serif;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+  }
+  
+  /* Layout Adjustments for Top Container */
+  .top-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Flex Layout for Search and Filter Sections */
+  .search-and-apply, .completion-filters {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  
+  
+  /* Search Bar Configuration */
+  .search-bar {
+    flex-grow: 1;
+  }
+  
+  .search-bar input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  button {
+    margin-top: 5px;
+    color: black;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: rgb(214, 222, 230);
+    transition: background-color 0.2s;
+  }
+  .load-more-button, .route-button{
+    background-color: #007bff;
+    color: white;
+    margin-top: 15px;
+  }
+  
+  .load-more-button:hover, .route-button:hover{
+    background-color: #0065d1;
+  }
+  
+  /* Apply Button Style */
+  .apply-button {
+    margin-left: 46px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .apply-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Styling for Filters */
+  .filter-options {
+    flex: 1;
+    margin-top: 10px;
+  }
+  
+  .filter-options label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .filter-options select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .search-and-apply, .completion-filters {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .search-bar, .apply-button, .filter-options {
+      width: 100%;
+      margin-right: 0; 
+    }
+  
+    .apply-button {
+      margin-top: 10px;
+    }
+  }
+  
+  /* Questionnaire Listing Styles */
+  .questionnaire-section ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .questionnaire-section li {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
+  }
+  
+  .questionnaire-section li p {
+    margin: 5px 0;
+  }
+  
+  /* Status Badges */
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    color: white;
+    font-size: 0.9em;
+    margin-right: 8px;
+  }
+  
+  .badge-completed {
+    background-color: #28a745;
+  }
+  
+  .badge-pending {
+    background-color: #dc3545;
+  }
+  
+  /* General Divider Style */
+  .hr-line {
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+  }
+  

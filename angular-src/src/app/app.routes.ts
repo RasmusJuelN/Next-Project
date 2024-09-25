@@ -3,8 +3,6 @@ import { LoginPageComponent } from './components/login-page/login-page.component
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { QuestionareComponent } from './components/questionare/questionare.component';
 import { ErrorComponent } from './components/error/error.component';
-import { AdminDashboardComponent } from './components/dashboard/admin-dashboard/admin-dashboard.component';
-import { TeacherDashboardComponent } from './components/dashboard/teacher-dashboard/teacher-dashboard.component';
 import { roleGuard } from './gurads and interceptors/role-guard.guard';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { TemplateManagerComponent } from './components/dashboard/admin-dashboard/template-manager/template-manager.component';
@@ -13,6 +11,8 @@ import { authGuard } from './gurads and interceptors/auth.guard';
 import { ShowResultsComponent } from './components/show-results/show-results.component';
 import { SettingsComponent } from './components/dashboard/admin-dashboard/settings/settings.component';
 import { ShowLogsComponent } from './components/dashboard/admin-dashboard/show-logs/show-logs.component';
+import { TeacherGeneralOverviewComponent } from './components/dashboard/teacher-dashboard/teacher-general-overview/teacher-general-overview.component';
+import { CompNavigatorComponent } from './components/dashboard/comp-navigator/comp-navigator.component';
 
 export const routes: Routes = [
     { path: '', component: LoginPageComponent },
@@ -22,16 +22,16 @@ export const routes: Routes = [
         canActivate: [authGuard],
         children: [
           {
-            path: 'admin',
-            component: AdminDashboardComponent,
+            path: 'nav',
+            component: CompNavigatorComponent,
             canActivate: [roleGuard],
-            data: { roles: ['admin'] }
+            data: { roles: ['admin', 'teacher'] }
           },
-          {
-            path: 'teacher',
-            component: TeacherDashboardComponent,
-            canActivate: [roleGuard],
-            data: { roles: ['teacher']}
+          { 
+            path: 'overview', 
+            canActivate: [authGuard, roleGuard],
+            data: { roles: ['teacher'] },
+            component: TeacherGeneralOverviewComponent
           },
           {
             path: 'templates',

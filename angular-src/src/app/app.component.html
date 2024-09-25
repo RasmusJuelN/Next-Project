@@ -1,22 +1,23 @@
 <div style="background-color: white; height: 100vh;">
-    <div class="top">
-        <!-- Welcome Section -->
-        <div class="welcome-section">
-            <h1 *ngIf="userName">Welcome {{ userName }} </h1>
-            <h1 *ngIf="!userName">User is not logged in</h1>
-        </div>
-
-        <!-- Navigation Buttons (on the same line) -->
-        <div class="nav-buttons">
-            <button routerLink="/">Home</button>
-            <button routerLink="/dashboard">Dashboard</button>
-        </div>
-
-        <!-- Token Management -->
-        <div class="token-management">
-            <button *ngIf="tokenExists" class="delete-token" (click)="deleteToken()">Delete Token</button>
-        </div>
+    <div class="header">
+      <!-- Welcome Section -->
+      <div class="welcome">
+        <h1 *ngIf="userName" class="header-title">Welcome {{ userName }}</h1>
+        <h1 *ngIf="!userName" class="header-title">User is not logged in</h1>
+      </div>
+  
+      <!-- Navigation Buttons -->
+      <div class="nav">
+        <button class="btn btn-primary" routerLink="/">Home</button>
+        <button class="btn btn-primary" routerLink="/dashboard/nav" *ngIf="isAuthenticated$ | async">Dashboard</button>
+      </div>
+  
+      <!-- Token Management -->
+      <div class="token-actions">
+        <button *ngIf="isAuthenticated$ | async" class="btn btn-danger" (click)="logout()">Logout</button>
+      </div>
     </div>
-
+  
     <router-outlet></router-outlet>
-</div>
+  </div>
+  

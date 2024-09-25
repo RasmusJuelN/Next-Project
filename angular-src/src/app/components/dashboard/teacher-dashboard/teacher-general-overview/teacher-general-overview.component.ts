@@ -1,19 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { TeacherDashboardService } from '../../../services/dashboard/teacher-dashboard.service';
-import { ActiveQuestionnaire } from '../../../models/questionare';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../services/auth/auth.service';
+import { ActiveQuestionnaire } from '../../../../models/questionare';
+import { TeacherDashboardService } from '../../../../services/dashboard/teacher-dashboard.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 @Component({
-  selector: 'app-teacher-dashboard',
+  selector: 'app-teacher-general-overview',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './teacher-dashboard.component.html',
-  styleUrls: ['./teacher-dashboard.component.css']
+  templateUrl: './teacher-general-overview.component.html',
+  styleUrl: './teacher-general-overview.component.css'
 })
-export class TeacherDashboardComponent {
+export class TeacherGeneralOverviewComponent {
   activeQuestionnaires: ActiveQuestionnaire[] = [];
   filters: any;
   isCollapsed: boolean = true;

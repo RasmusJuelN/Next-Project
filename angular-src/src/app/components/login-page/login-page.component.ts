@@ -78,9 +78,11 @@ export class LoginPageComponent {
   }
 
   toDashboard() {
-    this.resetLoginPage()
-    this.loginPageService.router.navigate(['/dashboard']);
+    this.resetLoginPage();
+  
+    this.loginPageService.router.navigate(['/dashboard/nav']);
   }
+  
 
   toActiveQuestionnaire(urlString: string) {
     this.resetLoginPage()

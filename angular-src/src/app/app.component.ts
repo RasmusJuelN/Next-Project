@@ -1,54 +1,56 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
-import { jwtDecode } from 'jwt-decode';
-import { LocalStorageService } from './services/misc/local-storage.service';
 import { AuthService } from './services/auth/auth.service';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, CommonModule, RouterLink, RouterModule],
   templateUrl: 'app.component.html',
-  styleUrl: 'app.component.css'
+  styleUrls: ['app.component.css']
 })
-/**
- * Represents the root component of the application.
- */
-export class AppComponent {
-  tokenExists = false;
+export class AppComponent implements OnInit {
+  isAuthenticated$: Observable<boolean> = of(false);
   userName: string | null = null;
-  localStorageService = inject(LocalStorageService);
-  authService = inject(AuthService)
+  authService = inject(AuthService);  // Inject AuthService
+
+  ngOnInit() {
+    this.isAuthenticated$ = this.authService.isAuthenticated$;
+    this.isAuthenticated$.subscribe((isAuthenticated) => {
+      if (isAuthenticated) {
+        // If authenticated, get the token and decode it to retrieve the user's name
+        this.setUserNameFromToken();
+      } else {
+        this.userName = null;
+      }
+    });
+  }
 
   /**
-   * Initializes the component.
-   * Checks if a token exists in the local storage and retrieves the user name from the decoded token.
+   * Decodes the JWT token and retrieves the user's name.
    */
-  ngOnInit() {
-    this.tokenExists = this.localStorageService.getToken() !== null;
-
-    if (this.tokenExists) {
-      const token = this.localStorageService.getToken()
-      if (token) {
-        try {
-          const decodedToken: any = jwtDecode(token);
-          // Scope refers to the role of the user
-          this.userName = decodedToken.full_name || null;
-        } catch (error) {
-          console.error('Invalid token', error);
-        }
+  private setUserNameFromToken(): void {
+    const token = this.authService.jwtTokenService.getToken();
+    if (token) {
+      try {
+        const decodedToken: any = this.authService.jwtTokenService.getDecodeToken();
+        this.userName = decodedToken.full_name || 'User'; // Fallback to 'User' if no name is present
+      } catch (error) {
+        console.error('Error decoding token', error);
+        this.userName = null;
       }
+    } else {
+      this.userName = null;
     }
   }
 
   /**
-   * Deletes the token from the local storage and updates the tokenExists flag.
+   * Logs out the user and clears the user state.
    */
-  deleteToken() {
-    this.authService.logout()
-    this.userName = null;
-    this.tokenExists = false;
-    alert('Token deleted');
+  logout() {
+    this.authService.logout();
+    this.userName = null;  // Clear the username on logout
   }
 }

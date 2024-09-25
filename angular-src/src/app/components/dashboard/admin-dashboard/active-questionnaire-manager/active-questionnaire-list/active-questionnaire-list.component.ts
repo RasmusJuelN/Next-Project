@@ -16,7 +16,7 @@ export class ActiveQuestionnaireListComponent {
   searchActiveQuestionnaireStudent: string = ""; // For searching by student name
   searchActiveQuestionnaireTeacher: string = ""; // For searching by teacher name
   page: number = 1; // Pagination current page
-  limit: number = 10; // Results per page
+  limit: number = 8; // Results per page
 
   constructor(private adminDashboardService: AdminDashboardService) {}
 

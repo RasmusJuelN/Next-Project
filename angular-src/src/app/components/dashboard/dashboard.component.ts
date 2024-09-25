@@ -22,23 +22,8 @@ export class DashboardComponent implements OnInit {
         this.router.navigate(['/']);
       } else {
         // If the user is authenticated, handle role-based redirection
-        this.redirectBasedOnRole();
+        this.router.navigate(['/dashboard/nav'], { replaceUrl: true });
       }
     });
-  }
-
-  private redirectBasedOnRole(): void {
-    const currentRoute = this.router.url;
-    
-    if (currentRoute === '/dashboard') {
-      if (this.authService.hasRole('admin')) {
-        this.router.navigate(['/dashboard/admin'], { replaceUrl: true });
-      } else if (this.authService.hasRole('teacher')) {
-        this.router.navigate(['/dashboard/teacher'], { replaceUrl: true });
-      } else {
-        // If the user doesn't have a valid role, send them to the homepage
-        this.router.navigate(['/']);
-      }
-    }
   }
 }

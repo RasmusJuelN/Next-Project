@@ -1,0 +1,56 @@
+.dashboard-container {
+    max-width: 900px; /* Keeps the max width consistent */
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .dashboard-container h2 {
+    text-align: center;
+    color: #343a40;
+    margin-bottom: 30px;
+    font-size: 2em;
+  }
+  
+  .dashboard-nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping of items */
+    justify-content: flex-start; /* Align items to the left */
+    gap: 20px; /* Adds space between items */
+  }
+  
+  .dashboard-nav li {
+    flex: 1 1 calc(33.33% - 20px); /* Each item takes up one-third of the row, accounting for gaps */
+    max-width: calc(33.33% - 20px); /* Ensure a max width for each item */
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    background-color: #007bff;
+    color: #fff;
+    padding: 15px 30px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    font-size: 1.1em;
+    text-align: center;
+    display: block;
+  }
+  
+  .nav-link:hover {
+    background-color: #0056b3;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+  }
+  

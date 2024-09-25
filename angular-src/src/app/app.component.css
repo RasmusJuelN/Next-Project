@@ -1,5 +1,5 @@
-/* General Layout for Buttons */
-button {
+/* General Button Styles */
+.btn {
     background-color: aliceblue;
     border-radius: 5px;
     padding: 8px;
@@ -7,115 +7,109 @@ button {
     border: none;
     cursor: pointer;
     font-size: 0.9rem;
+    transition: background-color 0.3s;
 }
 
-button:hover {
+.btn:hover {
     background-color: #e0f7fa;
 }
 
-/* Top Section */
-.top {
+/* Specific Button Variants */
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 16px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-danger {
+    background-color: #ff4c4c;
+    color: white;
+    padding: 8px 16px;
+}
+
+.btn-danger:hover {
+    background-color: #ff1c1c;
+}
+
+/* Layout for the Top Section */
+.header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 5px 10px;
     background-color: #f8f9fa;
     border-bottom: 2px solid #007bff;
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensures the header stays on top of other content */
 }
 
-.top h1 {
+.header-title {
     margin: 0;
     font-size: 1.2rem;
 }
 
-/* Ensure the welcome message, token management, and navigation buttons are on the same line */
-.welcome-section {
+.welcome {
     flex-grow: 1;
 }
 
-.nav-buttons {
+.nav {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
     margin-left: 10px;
 }
 
-.nav-buttons button {
-    background-color: #007bff;
-    color: white;
+.nav .btn {
     margin-left: 8px;
-    padding: 8px 16px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    text-align: center;
 }
 
-.nav-buttons button:hover {
-    background-color: #0056b3;
-}
-
-/* Token Management Section */
-.token-management {
+.token-actions {
     margin-left: 10px;
 }
 
-.delete-token {
-    background-color: #ff4c4c;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-left: 8px;
-}
-
-.delete-token:hover {
-    background-color: #ff1c1c;
-}
-
-/* Responsive Design for Mobile */
+/* Responsive Design */
 @media (max-width: 768px) {
-    .top {
+    .header {
         flex-direction: column;
         align-items: flex-start;
         padding: 10px;
     }
 
-    .welcome-section {
+    .welcome {
         width: 100%;
         text-align: center;
         margin-bottom: 10px;
     }
 
-    .nav-buttons {
+    .nav {
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
         margin-top: 10px;
     }
 
-    .nav-buttons button {
-        width: auto;
-        margin: 5px 0;
-    }
-
-    .delete-token {
-        width: auto;
+    .nav .btn, 
+    .token-actions .btn {
         margin: 5px 0;
     }
 }
 
 /* Printer-Friendly Design */
 @media print {
-    .top {
-        display: none; /* Hide the top section when printing */
+    .header {
+        display: none; /* Hide the header section when printing */
     }
 
     body {
         background-color: white;
         color: black;
         font-size: 12pt;
-        margin: 0; /* Remove default margin */
-        padding: 0; /* Remove padding to fit content properly */
+        margin: 0;
+        padding: 0;
     }
 
     /* Remove unnecessary margins/padding */
@@ -125,12 +119,8 @@ button:hover {
         box-sizing: border-box;
     }
 
-    /* Hide interactive elements like buttons during print */
-    button, .delete-token {
-        display: none;
-    }
-
-    .nav-buttons {
+    /* Hide interactive elements */
+    .btn {
         display: none;
     }
 
@@ -139,18 +129,11 @@ button:hover {
         page-break-inside: avoid;
     }
 
-    /* Avoid unnecessary page breaks */
-    .router-outlet {
-        page-break-before: avoid;
-        page-break-after: avoid;
-    }
-
-    /* Make sure the content fills the page */
+    /* Ensure content fills the page */
     html, body {
         height: auto;
     }
 
-    /* Reduce potential overflow and ensure content fits in a single page */
     .container {
         height: auto;
         overflow: hidden;
