@@ -3,11 +3,12 @@ This module contains the authentication logic for the FastAPI application.
 """
 
 from datetime import timedelta
-from fastapi import Depends, HTTPException, status, Request, APIRouter
+from fastapi import Depends, HTTPException, status, Request, APIRouter, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from ldap3.core.exceptions import LDAPInvalidCredentialsResult
 from ldap3 import Connection
 from logging import Logger, DEBUG, INFO
+from typing import Sequence
 
 from backend.lib._logger import LogHelper
 from backend.lib.api.auth.utility import (
@@ -15,9 +16,11 @@ from backend.lib.api.auth.utility import (
     get_member_of_from_ldap,
     get_uuid_from_ldap,
     determine_scope_from_groups,
+    authenticate_user_ldap,
+    create_access_token,
 )
+from backend.lib.api.auth.models import User
 from backend import app_settings
-from backend.lib.api.auth.utility import authenticate_user_ldap, create_access_token
 
 
 logger: Logger = LogHelper.create_logger(
@@ -26,7 +29,6 @@ logger: Logger = LogHelper.create_logger(
     file_log_level=DEBUG,
     stream_log_level=INFO,
 )
-
 
 router = APIRouter()
 
@@ -81,3 +83,14 @@ def authenticate_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return {"access_token": encoded_jwt, "token_type": "bearer"}
+
+
+@router.get(path="/users", tags=["auth"], response_model=Sequence[User])
+def query_for_users(
+    request: Request,
+    role: str,
+    search_query: str,
+    page: int,
+    limit: int = Query(default=..., le=10),
+) -> Sequence[User]:
+    raise NotImplementedError
