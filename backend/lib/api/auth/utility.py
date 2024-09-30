@@ -7,6 +7,7 @@ from uuid import UUID
 
 from backend import app_settings
 from backend.lib.api.auth.dependencies import oauth2_scheme
+from backend.lib.api.auth.exceptions import MissingSecretKeyError
 
 
 def decode_token(token: str) -> dict[str, Any]:
@@ -22,6 +23,8 @@ def decode_token(token: str) -> dict[str, Any]:
     Raises:
         Refer to `jwt.decode` for possible exceptions.
     """
+    if app_settings.settings.auth.secret_key is None:
+        raise MissingSecretKeyError()
     return jwt.decode(
         token=token,
         key=app_settings.settings.auth.secret_key,
@@ -42,6 +45,8 @@ def encode_token(data: dict) -> str:
     Raises:
         Refer to `jwt.encode` for possible exceptions.
     """
+    if app_settings.settings.auth.secret_key is None:
+        raise MissingSecretKeyError()
     return jwt.encode(
         claims=data,
         key=app_settings.settings.auth.secret_key,
