@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Sequence, overload, Union, Protocol
+from typing import Tuple, Optional, Sequence, overload, Union, Protocol, TypeAlias
 from sqlalchemy import Result, select
 from sqlalchemy.orm import Session
 
@@ -7,8 +7,11 @@ from backend.lib.sql.utils import generate_random_string, id_exists
 from backend.lib.sql.exceptions import TemplateNotFoundException, TemplateCreationError
 
 
-class HasTemplateID(Protocol):
+class ObjectHasTemplateID(Protocol):
     template_id: str
+
+
+HasTemplateID: TypeAlias = Union[ObjectHasTemplateID, str]
 
 
 @overload
@@ -16,7 +19,7 @@ def get_template_by_id(
     db: Session,
     *,
     template: HasTemplateID,
-) -> Optional[schemas.QuestionTemplateModel]:
+) -> Optional[models.QuestionTemplate]:
     """
     Retrieve a question template by its ID from the database.
 
@@ -25,7 +28,7 @@ def get_template_by_id(
         template (HasTemplateID): The template schema containing the ID of the template to retrieve.
 
     Returns:
-        Optional[schemas.QuestionTemplateModel]: The question template if found, otherwise None.
+        Optional[models.QuestionTemplate]: The question template if found, otherwise None.
     """
     ...
 
@@ -33,7 +36,7 @@ def get_template_by_id(
 @overload
 def get_template_by_id(
     db: Session, *, template_id: str
-) -> Optional[schemas.QuestionTemplateModel]:
+) -> Optional[models.QuestionTemplate]:
     """
     Retrieve a question template by its ID from the database.
 
@@ -42,7 +45,7 @@ def get_template_by_id(
         template_id (str): The ID of the template to retrieve.
 
     Returns:
-        Optional[schemas.QuestionTemplateModel]: The question template if found, otherwise None.
+        Optional[models.QuestionTemplate]: The question template if found, otherwise None.
     """
     ...
 
@@ -52,7 +55,7 @@ def get_template_by_id(
     *,
     template: Optional[HasTemplateID] = None,
     template_id: Optional[str] = None,
-) -> Optional[schemas.QuestionTemplateModel]:
+) -> Optional[models.QuestionTemplate]:
     """
     Retrieve a question template by its ID from the database.
 
@@ -61,18 +64,21 @@ def get_template_by_id(
         template (Optional[HasTemplateID]): The template schema containing the ID of the template to retrieve.
 
     Returns:
-        Optional[schemas.QuestionTemplateModel]: The question template if found, otherwise None.
+        Optional[models.QuestionTemplate]: The question template if found, otherwise None.
     """
     template_ref_id: str = ""
     if template is not None:
-        template_ref_id = template.template_id
+        if isinstance(template, str):
+            template_ref_id = template
+        else:
+            template_ref_id = template.template_id
     elif template_id is not None:
         template_ref_id = template_id
     else:
         raise ValueError("Either template or template_id must be provided.")
 
     db.flush()
-    result: Result[Tuple[schemas.QuestionTemplateModel]] = db.execute(
+    result: Result[Tuple[models.QuestionTemplate]] = db.execute(
         statement=select(models.QuestionTemplate).where(
             models.QuestionTemplate.template_id == template_ref_id
         )
@@ -82,7 +88,7 @@ def get_template_by_id(
 
 def get_templates(
     db: Session,
-) -> Sequence[schemas.QuestionTemplateModel]:
+) -> Sequence[models.QuestionTemplate]:
     """
     Retrieve all question templates from the database.
 
@@ -90,10 +96,10 @@ def get_templates(
         db (Session): The database session to use for the query.
 
     Returns:
-        Sequence[schemas.QuestionTemplateModel]: A sequence, typically a list, of all question templates in the database. If no templates are found, an empty sequence is returned.
+        Sequence[models.QuestionTemplate]: A sequence, typically a list, of all question templates in the database. If no templates are found, an empty sequence is returned.
     """
     db.flush()
-    result: Result[Tuple[schemas.QuestionTemplateModel]] = db.execute(
+    result: Result[Tuple[models.QuestionTemplate]] = db.execute(
         statement=select(models.QuestionTemplate)
     )
     return result.scalars().all()
@@ -101,7 +107,7 @@ def get_templates(
 
 def add_template(
     db: Session, template: schemas.CreateQuestionTemplateModel
-) -> schemas.QuestionTemplateModel:
+) -> models.QuestionTemplate:
     """
     Adds a new question template to the database.
 
@@ -110,7 +116,7 @@ def add_template(
         template (schemas.QuestionTemplateCreate): The template data to be added.
 
     Returns:
-        schemas.QuestionTemplateModel: The newly created question template instance.
+        models.QuestionTemplate: The newly created question template instance.
 
     Raises:
         TemplateAlreadyExistsException: If a template with the given ID already exists.
@@ -155,7 +161,7 @@ def add_template(
                 db.flush()
 
         # Return the newly created template
-        created_template: Optional[schemas.QuestionTemplateModel] = get_template_by_id(
+        created_template: Optional[models.QuestionTemplate] = get_template_by_id(
             db=db, template_id=new_template_id
         )
         if created_template is None:
@@ -173,9 +179,9 @@ def add_template(
 
 def update_template(
     db: Session,
-    existing_template_id: str,
+    existing_template_id: HasTemplateID,
     updated_template: schemas.UpdateQuestionTemplateModel,
-) -> schemas.QuestionTemplateModel:
+) -> models.QuestionTemplate:
     """
     Update an existing question template in the database.
 
@@ -184,12 +190,15 @@ def update_template(
         template (schemas.QuestionTemplateUpdate): The template data to update.
 
     Returns:
-        schemas.QuestionTemplateModel: The updated question template.
+        models.QuestionTemplate: The updated question template.
 
     Raises:
         TemplateNotFoundException: If the template with the given ID does not exist.
     """
-    existing_template: Optional[schemas.QuestionTemplateModel] = get_template_by_id(
+    if not isinstance(existing_template_id, str):
+        existing_template_id = existing_template_id.template_id
+
+    existing_template: Optional[models.QuestionTemplate] = get_template_by_id(
         db=db, template_id=existing_template_id
     )
     if not existing_template:
@@ -231,7 +240,7 @@ def update_template(
                         # Add any missing options
                         extra_options: int = len(existing_question.options)
                         for option in updated_question.options[extra_options:]:
-                            new_option: schemas.OptionModel = add_option(
+                            new_option: models.Option = add_option(
                                 db=db,
                                 option=option,
                                 question_id=existing_question.id,
@@ -252,7 +261,7 @@ def update_template(
                 # Add any missing questions
                 extra_questions: int = len(existing_template.questions)
                 for question in updated_template.questions[extra_questions:]:
-                    new_question: schemas.QuestionModel = add_question(
+                    new_question: models.Question = add_question(
                         db=db,
                         question=question,
                         template_id=existing_template.template_id,
@@ -269,9 +278,7 @@ def update_template(
     return existing_template
 
 
-def delete_template(
-    db: Session, template: schemas.DeleteQuestionTemplateModel
-) -> schemas.QuestionTemplateModel:
+def delete_template(db: Session, template: HasTemplateID) -> models.QuestionTemplate:
     """
     Deletes a question template from the database.
 
@@ -285,21 +292,24 @@ def delete_template(
         template (schemas.QuestionTemplateBase): The template data containing the ID of the template to delete.
 
     Returns:
-        schemas.QuestionTemplateModel: The deleted question template.
+        models.QuestionTemplate: The deleted question template.
 
     Raises:
         TemplateNotFoundException: If the template with the given ID is not found.
     """
     db.flush()
-    deleted_template: Optional[schemas.QuestionTemplateModel] = get_template_by_id(
+    template_to_delete: Optional[models.QuestionTemplate] = get_template_by_id(
         db=db, template=template
     )
-    if not deleted_template:
-        raise TemplateNotFoundException(template_id=template.template_id)
+    if not template_to_delete:
+        if isinstance(template, str):
+            raise TemplateNotFoundException(template_id=template)
+        else:
+            raise TemplateNotFoundException(template_id=template.template_id)
 
-    db.delete(instance=deleted_template)
+    db.delete(instance=template_to_delete)
     db.commit()
-    return deleted_template
+    return template_to_delete
 
 
 @overload
@@ -308,7 +318,7 @@ def add_question(
     question: Union[schemas.CreateQuestionModel, schemas.UpdateQuestionModel],
     *,
     template_id: str,
-) -> schemas.QuestionModel:
+) -> models.Question:
     """
     Adds a new question to the database.
 
@@ -318,7 +328,7 @@ def add_question(
         template_id (str): The ID of the template to which the question belongs.
 
     Returns:
-        schemas.QuestionModel: The newly created question object.
+        models.Question: The newly created question object.
     """
     ...
 
@@ -329,7 +339,7 @@ def add_question(
     question: Union[schemas.CreateQuestionModel, schemas.UpdateQuestionModel],
     *,
     template: models.QuestionTemplate,
-) -> schemas.QuestionModel:
+) -> models.Question:
     """
     Adds a new question to the database.
 
@@ -339,7 +349,7 @@ def add_question(
         template (models.QuestionTemplate): The template which contains the ID to associate the question with.
 
     Returns:
-        schemas.QuestionModel: The newly created question object.
+        models.Question: The newly created question object.
     """
     ...
 
@@ -350,7 +360,7 @@ def add_question(
     *,
     template_id: Optional[str] = None,
     template: Optional[models.QuestionTemplate] = None,
-) -> schemas.QuestionModel:
+) -> models.Question:
     """
     Adds a new question to the database.
 
@@ -370,7 +380,7 @@ def add_question(
         ValueError: If neither template nor template_id is provided.
 
     Returns:
-        schemas.QuestionModel: The newly created question instance.
+        models.Question: The newly created question instance.
     """
     template_ref_id: str = ""
     if template is not None:
@@ -389,8 +399,9 @@ def add_question(
     )
 
     db.add(instance=new_question)
+    db.flush()
 
-    return schemas.QuestionModel.model_validate(obj=new_question)
+    return new_question
 
 
 @overload
@@ -399,7 +410,7 @@ def add_option(
     option: Union[schemas.CreateOptionModel, schemas.UpdateOptionModel],
     *,
     question_id: int,
-) -> schemas.OptionModel:
+) -> models.Option:
     """
     Adds a new option to the database.
 
@@ -409,7 +420,7 @@ def add_option(
         question_id (int): The ID of the question to which the option belongs.
 
     Returns:
-        schemas.OptionModel: The newly created option object.
+        models.Option: The newly created option object.
     """
     ...
 
@@ -420,7 +431,7 @@ def add_option(
     option: Union[schemas.CreateOptionModel, schemas.UpdateOptionModel],
     *,
     question: models.Question,
-) -> schemas.OptionModel:
+) -> models.Option:
     """
     Adds a new option to the database.
 
@@ -430,7 +441,7 @@ def add_option(
         question (models.Question): The question to which the option belongs.
 
     Returns:
-        schemas.OptionModel: The newly created option object.
+        models.Option: The newly created option object.
     """
     ...
 
@@ -441,7 +452,7 @@ def add_option(
     *,
     question_id: Optional[int] = None,
     question: Optional[models.Question] = None,
-) -> schemas.OptionModel:
+) -> models.Option:
     """
     Adds a new option to the database.
 
@@ -461,7 +472,7 @@ def add_option(
         ValueError: If neither question nor question_id is provided.
 
     Returns:
-        schemas.OptionModel: The newly created option instance.
+        models.Option: The newly created option instance.
     """
     question_ref_id: int = -1
     if question is not None:
@@ -479,8 +490,9 @@ def add_option(
     )
 
     db.add(instance=new_option)
+    db.flush()
 
-    return schemas.OptionModel.model_validate(obj=new_option)
+    return new_option
 
 
 def get_option_by_id(db: Session, option_id: int) -> Optional[schemas.OptionModel]:
