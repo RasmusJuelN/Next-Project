@@ -277,6 +277,13 @@ export class MockDataService {
     let templates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.title.toLowerCase().includes(titleString.toLowerCase()));
     return of(this.paginate(templates, page, limit)).pipe(delay(300));
   }
+
+  getTemplatesPage(page: number, limit: number): Observable<QuestionTemplate[]> {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedTemplates = this.mockDbService.mockData.mockQuestionTemplates.slice(startIndex, endIndex);
+    return of(paginatedTemplates).pipe(delay(250)); // Adding a delay to simulate a real HTTP request
+  }
   // Get all templates
   getTemplates(): Observable<QuestionTemplate[]> {
     return of(this.mockDbService.mockData.mockQuestionTemplates);

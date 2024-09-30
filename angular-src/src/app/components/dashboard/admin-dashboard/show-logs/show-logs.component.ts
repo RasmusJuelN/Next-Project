@@ -34,9 +34,9 @@ export class ShowLogsComponent implements OnInit {
 
   ngOnInit(): void {
     // Initialize with generated test logs
-    const testLogs = this.generateTestLogs(50); // Generate 50 test logs
-    this.logs = testLogs.map(this.parseLog).filter(log => log !== null) as LogEntry[];
-    this.applySeverityFilter(); // Apply the severity filter after generating logs
+    //const testLogs = this.generateTestLogs(50); // Generate 50 test logs
+    //this.logs = testLogs.map(this.parseLog).filter(log => log !== null) as LogEntry[];
+    //this.applySeverityFilter(); // Apply the severity filter after generating logs
   }
 
     // Generate test logs for testing purposes

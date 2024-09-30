@@ -16,6 +16,7 @@ export class AdminDashboardService {
   getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10){
     return this.dataService.getUsersFromSearch(role,nameString,page,limit);
   }
+  
   getActiveQuestionnairePage(filter: any, page: number, limit: number){
     return this.dataService.getActiveQuestionnairePage(filter, page, limit)
   }
@@ -25,9 +26,10 @@ export class AdminDashboardService {
   }
 
   // Template Management
-  getTemplates(): Observable<QuestionTemplate[]> {
-    return this.dataService.getTemplates();
+  getTemplatesPage(page: number, limit: number): Observable<QuestionTemplate[]> {
+    return this.dataService.getTemplatesPage(page, limit);
   }
+  
 
   createTemplate(template:QuestionTemplate): Observable<void> {
     return this.dataService.createTemplate(template);

@@ -97,6 +97,15 @@ export class DataService {
       );
   }
 
+  getTemplatesPage(page: number, limit: number): Observable<QuestionTemplate[]> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+  
+    return this.http.get<QuestionTemplate[]>('/api/getTemplates', { params });
+  }
+  
+
   // Template Management Methods
   getTemplates(): Observable<QuestionTemplate[]> {
     const url = `${this.apiUrl}/templates`;

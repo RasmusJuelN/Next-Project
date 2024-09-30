@@ -1,17 +1,67 @@
-.template-manager {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
+.question-editor ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }
 
-h2, h3, h4 {
+.question-editor li {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.question-editor li label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #495057;
+    flex-grow: 1;
+}
+
+.question-editor li input[type="number"] {
+    min-width: 40px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 5px;
     text-align: center;
-    margin-bottom: 20px;
-    color: #343a40;
+}
+
+.question-editor li textarea.label-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 16px;
+    resize: both; /* Allow user to resize both width and height */
+    height: 80px; /* Increased default height */
+    max-height: 140px; /* Maximum height */
+    margin-bottom: 5px;
+    min-width: 200px; /* Set a minimum width for proper resizing */
+}
+
+.question-editor li .input-group {
+    display: flex;
+    gap: 40px;
+    flex-grow: 1;
+    align-items: center;
+}
+
+.input-group label {
+    flex: 1;
+}
+
+.input-group input[type="number"] {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
 }
 
 button {
@@ -27,89 +77,27 @@ button {
     display: inline-block;
 }
 
-button:hover {
-    background-color: #0056b3;
-}
-
-button:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-li {
-    padding: 10px;
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    color: #495057;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-li button {
-    margin-left: 10px;
-    background-color: #17a2b8;
-}
-
-li button:last-child {
+/* Specific red styling for delete button */
+.question-editor .delete-btn {
     background-color: #dc3545;
-}
-
-li button:hover {
-    background-color: #138496;
-}
-
-li button:last-child:hover {
-    background-color: #c82333;
-}
-
-.template-editor,
-.question-editor {
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.template-editor label,
-.question-editor label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #495057;
-}
-
-.template-editor input,
-.template-editor textarea,
-.question-editor input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
+    color: #fff;
+    padding: 8px 15px;
     border-radius: 4px;
-    font-size: 16px;
-    margin-bottom: 15px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-start;
 }
 
-.template-editor textarea {
-    resize: vertical;
-    height: 100px;
+.question-editor .delete-btn:hover {
+    background-color: #c82333;
 }
 
 .actions {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px; /* Adds space between buttons */
+    gap: 10px;
     margin-top: 20px;
 }
 
@@ -119,37 +107,4 @@ li button:last-child:hover {
 
 .actions button:hover {
     background-color: #218838;
-}
-
-.question-editor ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.question-editor li {
-    padding: 10px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-
-.question-editor li label {
-    display: inline-block;
-    width: 100px;
-}
-
-.question-editor button {
-    background-color: #007bff;
-    color: white;
-    border-radius: 4px;
-}
-
-.question-editor button:hover {
-    background-color: #0056b3;
-}
-
-.question-editor .custom-answer-label {
-    font-style: italic;
-    color: #6c757d;
 }

@@ -15,9 +15,12 @@ import { QuestionEditorComponent } from './template-editor/question-editor/quest
 })
 export class TemplateManagerComponent {
   templates: QuestionTemplate[] = [];
-
   selectedTemplate: QuestionTemplate | null = null;
   selectedQuestion: Question | null = null;
+
+  page: number = 1; // Pagination current page
+  limit: number = 5; // Number of templates to load per page
+  hasMoreTemplates: boolean = false;
 
   constructor(private adminDashboardService: AdminDashboardService) {}
 
@@ -45,9 +48,21 @@ export class TemplateManagerComponent {
   
 
   loadTemplates() {
-    this.adminDashboardService.getTemplates().subscribe((templates) => {
-      this.templates = templates;
+    this.adminDashboardService.getTemplatesPage(this.page, this.limit).subscribe((templates) => {
+      if (this.page === 1) {
+        this.templates = templates; // Replace results on the first page
+      } else {
+        this.templates = [...this.templates, ...templates]; // Append for subsequent pages
+      }
+      this.hasMoreTemplates = templates.length >= this.limit;
     });
+  }
+
+  loadMore() {
+    if (this.hasMoreTemplates) {
+      this.page++;
+      this.loadTemplates();
+    }
   }
   
   hasCustomOption(): boolean {

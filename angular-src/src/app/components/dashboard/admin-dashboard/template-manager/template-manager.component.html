@@ -12,6 +12,9 @@
     </li>
   </ul>
 
+  <!-- Load More Button for Pagination -->
+  <button (click)="loadMore()" *ngIf="hasMoreTemplates">Load More</button>
+
   <!-- Template Editor Component -->
   <app-template-editor
     *ngIf="selectedTemplate"
