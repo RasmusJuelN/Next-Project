@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException, status, Request, APIRouter, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from ldap3.core.exceptions import LDAPInvalidCredentialsResult
 from ldap3 import Connection
-from typing import Sequence
+from typing import Optional
 
 from backend.lib.api.auth import logger
 from backend.lib.api.auth.utility import (
@@ -20,7 +20,7 @@ from backend.lib.api.auth.utility import (
     query_for_users_ldap,
 )
 from backend.lib.api.auth.dependencies import authenticate_with_sa_service_account
-from backend.lib.api.auth.models import User
+from backend.lib.api.auth.models import UserSearchResponse
 from backend import app_settings
 
 
@@ -79,19 +79,23 @@ def authenticate_user(
     return {"access_token": encoded_jwt, "token_type": "bearer"}
 
 
-@router.get(path="/users/search", tags=["auth"], response_model=Sequence[User])
+@router.get(path="/users/search", tags=["auth"], response_model=UserSearchResponse)
 def query_for_users(
     request: Request,
     role: str,
     search_query: str,
     page: int,
     limit: int = Query(default=..., le=10),
+    cache_cookie: Optional[str] = Query(default=None),
     connection: Connection = Depends(dependency=authenticate_with_sa_service_account),
-) -> Sequence[User]:
-    return query_for_users_ldap(
+) -> UserSearchResponse:
+    users, _cache_cookie = query_for_users_ldap(
         connection=connection,
         role=role,
         search_query=search_query,
         page=page,
         limit=limit,
+        cache_cookie=cache_cookie,
     )
+
+    return UserSearchResponse(users=users, cache_cookie=_cache_cookie)

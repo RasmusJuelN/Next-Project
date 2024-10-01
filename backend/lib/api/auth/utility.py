@@ -1,4 +1,4 @@
-from typing import Any, Union, overload, Optional, List, Sequence, cast
+from typing import Any, Union, overload, Optional, List, Sequence, cast, Tuple
 from fastapi import HTTPException, status, Depends
 from jose import jwt
 from ldap3 import Server, Connection, Entry, SASL, DIGEST_MD5, ALL, SUBTREE
@@ -577,7 +577,7 @@ def query_for_users_ldap(
     page: int,
     limit: int,
     cache_cookie: Optional[str] = None,
-) -> Sequence[User]:
+) -> Tuple[Sequence[User], str]:
     if role not in app_settings.settings.auth.scopes:
         raise ValueError("Invalid role")
 
@@ -593,7 +593,7 @@ def query_for_users_ldap(
             cached_users_to_return: Sequence[User] = cached[
                 (page - 1) * limit : page * limit  # noqa: E203
             ]
-            return cached_users_to_return
+            return cached_users_to_return, cache_cookie
 
     else:
         try:
@@ -633,7 +633,7 @@ def query_for_users_ldap(
                 (page - 1) * limit : page * limit  # noqa: E203
             ]
 
-            return users_to_return
+            return users_to_return, cache_cookie
 
         except Exception as e:
             raise RuntimeError("LDAP search failed") from e

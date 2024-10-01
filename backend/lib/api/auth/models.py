@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, AliasGenerator
 from pydantic.alias_generators import to_camel
-from typing import Optional
+from typing import Optional, Sequence
 
 
 class CamelBaseModel(BaseModel):
@@ -24,3 +24,8 @@ class User(CamelBaseModel):
     user_name: str
     full_name: str
     role: str
+
+
+class UserSearchResponse(CamelBaseModel):
+    users: Sequence[User]
+    cache_cookie: str
