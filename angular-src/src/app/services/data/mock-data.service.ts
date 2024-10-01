@@ -10,7 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import { AppSettings } from '../../models/setting-models';
 import { LogEntry } from '../../models/log-models';
 
-type LogFileType = 'sql' | 'backend' | 'settingsManager';
+type LogFileType = 'sql' | 'backend' | 'settings_manager';
 
 @Injectable({
   providedIn: 'root'

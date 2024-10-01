@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LogEntry } from '../../../../models/log-models';
 
-type LogFileType = 'sql' | 'backend' | 'settingsManager';
+type LogFileType = 'sql' | 'backend' | 'settings_manager';
 type SeverityLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'; // Changed WARNING to WARN
 
 @Component({
@@ -17,7 +17,7 @@ type SeverityLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'; // Cha
 export class ShowLogsComponent implements OnInit {
   logs: LogEntry[] = []; // Logs stored as LogEntry objects
   filteredLogs: LogEntry[] = []; // Logs after applying checkbox filters
-  logFileTypes: LogFileType[] = ['sql', 'backend', 'settingsManager'];
+  logFileTypes: LogFileType[] = ['sql', 'backend', 'settings_manager'];
   selectedLogFileType: LogFileType = 'backend';
 
   severityLevels: SeverityLevel[] = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']; // Updated severity level names

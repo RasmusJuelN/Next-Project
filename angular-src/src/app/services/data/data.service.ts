@@ -32,7 +32,7 @@ export class DataService {
       .set('log_severity', logSeverity);  // Set log severity level
   
     // Use HttpParams in the GET request and expect the API to return LogEntry[]
-    return this.http.get<LogEntry[]>('/api/logs/get', { params })
+    return this.http.get<LogEntry[]>(`${this.apiUrl}/logs/get`, { params })
       .pipe(
         catchError(this.handleError<LogEntry[]>('getLogs', []))  // Handle errors and return an empty array if needed
       );
@@ -104,7 +104,7 @@ export class DataService {
       .set('page', page.toString())
       .set('limit', limit.toString());
   
-    return this.http.get<QuestionTemplate[]>('/api/templates/query', { params });
+    return this.http.get<QuestionTemplate[]>(`${this.apiUrl}/templates/query`, { params });
   }
   
 

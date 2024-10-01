@@ -26,7 +26,7 @@ interface AnswerSession {
 interface MockLogs {
   sql: LogEntry[];
   backend: LogEntry[];
-  settingsManager: LogEntry[];
+  settings_manager: LogEntry[];
 }
 
 @Injectable({
@@ -250,7 +250,7 @@ export class MockDbService {
           message: 'Transaction committed',
         }
       ],
-      settingsManager: [
+      settings_manager: [
         {
           timestamp: '2024-09-20 09:53:59',
           severity: 'INFO',
