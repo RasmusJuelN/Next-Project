@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionDetails, QuestionTemplate, User } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
 import { AppSettings } from '../../models/setting-models';
+import { LogEntry } from '../../models/log-models';
 
 @Injectable({
   providedIn: 'root'
@@ -21,21 +22,22 @@ export class DataService {
     };
   }
 
-  getLogs(logSeverity: string, logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<string[]> {
+  getLogs(logSeverity: string, logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<LogEntry[]> {
     // Create HttpParams object to build query parameters
     let params = new HttpParams()
-      .set('log_name', logFileType) // log_name maps to logFileType
-      .set('start_line', startLine.toString()) // start_line maps to startLine
-      .set('amount', lineCount.toString()) // amount maps to lineCount
-      .set('order', reverse ? 'desc' : 'asc') // order is "desc" for reverse, "asc" otherwise
-      .set('log_severity', logSeverity); // Set log severity level
+      .set('log_name', logFileType)  // log_name maps to logFileType
+      .set('start_line', startLine.toString())  // start_line maps to startLine
+      .set('amount', lineCount.toString())  // amount maps to lineCount
+      .set('order', reverse ? 'desc' : 'asc')  // order is "desc" for reverse, "asc" otherwise
+      .set('log_severity', logSeverity);  // Set log severity level
   
-    // Use HttpParams in the GET request
-    return this.http.get<string[]>('/api/logs/get', { params })
-    .pipe(
-      catchError(this.handleError<string[]>('getLogs'))
-    );
+    // Use HttpParams in the GET request and expect the API to return LogEntry[]
+    return this.http.get<LogEntry[]>('/api/logs/get', { params })
+      .pipe(
+        catchError(this.handleError<LogEntry[]>('getLogs', []))  // Handle errors and return an empty array if needed
+      );
   }
+  
   
   
   
@@ -102,7 +104,7 @@ export class DataService {
       .set('page', page.toString())
       .set('limit', limit.toString());
   
-    return this.http.get<QuestionTemplate[]>('/api/getTemplates', { params });
+    return this.http.get<QuestionTemplate[]>('/api/templates/query', { params });
   }
   
 

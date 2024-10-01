@@ -13,6 +13,9 @@
   <div *ngIf="selectedStudent" class="selected-item">
     <strong>Selected Student:</strong> {{ selectedStudent.fullName }}
   </div>
+  <div class="actions">
+    <button *ngIf="hasMoreStudents" (click)="loadMore('student', studentInput.value)">Load More Students</button>
+  </div>
 </div>
 
 <!-- Search for Teacher -->
@@ -26,6 +29,9 @@
   </ul>
   <div *ngIf="selectedTeacher" class="selected-item">
     <strong>Selected Teacher:</strong> {{ selectedTeacher.fullName }} ({{ selectedTeacher.userName }})
+  </div>
+  <div class="actions">
+    <button *ngIf="hasMoreTeachers" (click)="loadMore('teacher', teacherInput.value)">Load More Teachers</button>
   </div>
 </div>
 
@@ -41,13 +47,7 @@
   <div *ngIf="selectedTemplateId" class="selected-item">
     <strong>Selected Template:</strong> {{ selectedTemplateId }}
   </div>
+  <div class="actions">
+    <button *ngIf="hasMoreTemplates" (click)="loadMore('template', templateInput.value)">Load More Templates</button>
+  </div>
 </div>
-
-<!-- Button to create Active Questionnaire -->
-<div class="actions">
-  <button [disabled]="!selectedStudent || !selectedTeacher || !selectedTemplateId" (click)="createActiveQuestionnaire()">
-    Create Active Questionnaire
-  </button>
-</div>
-
-  

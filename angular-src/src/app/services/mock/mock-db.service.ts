@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ActiveQuestionnaire, User, QuestionTemplate } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
 import { AppSettings } from '../../models/setting-models';
+import { LogEntry } from '../../models/log-models';
 
 
 interface Answer {
@@ -22,6 +23,11 @@ interface AnswerSession {
   teacherAnswers: UserAnswerSheet;
 }
 
+interface MockLogs {
+  sql: LogEntry[];
+  backend: LogEntry[];
+  settingsManager: LogEntry[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +42,7 @@ export class MockDbService {
     mockActiveQuestionnaire: ActiveQuestionnaire[],
     mockQuestionTemplates: QuestionTemplate[],
     mockAppSettings: AppSettings,
-    mockLogs: { [key: string]: string[] } 
+    mockLogs: MockLogs 
   } = {
     mockUsers: [
       { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
@@ -181,29 +187,102 @@ export class MockDbService {
     },
     mockLogs: {
       sql: [
-        '[2024-09-20 09:53:54] [DEBUG] sqlalchemy.orm.mapper.Mapper: (Option|options) _configure_property(options, _RelationshipDeclared)',
-        '[2024-09-20 09:53:54] [DEBUG] sqlalchemy.orm.mapper.Mapper: (QuestionTemplate|question_templates) Col (\'cid\', \'name\', \'type\', \'notnull\', \'dflt_value\', \'pk\')',
-        '[2024-09-20 09:53:54] [INFO] sqlalchemy.orm.mapper.Mapper: (Question|questions) BEGIN (implicit)',
-        '[2024-09-20 09:53:55] [INFO] sqlalchemy.orm.mapper.Mapper: (Question|questions) Identified primary key columns',
-        '[2024-09-20 09:53:55] [DEBUG] sqlalchemy.orm.mapper.Mapper: (Option|options) PRAGMA main.table_info("options")'
+        {
+          timestamp: '2024-09-20 09:53:54',
+          severity: 'DEBUG',
+          source: 'sqlalchemy.orm.mapper.Mapper',
+          message: '(Option|options) _configure_property(options, _RelationshipDeclared)',
+        },
+        {
+          timestamp: '2024-09-20 09:53:54',
+          severity: 'DEBUG',
+          source: 'sqlalchemy.orm.mapper.Mapper',
+          message: '(QuestionTemplate|question_templates) Col (\'cid\', \'name\', \'type\', \'notnull\', \'dflt_value\', \'pk\')',
+        },
+        {
+          timestamp: '2024-09-20 09:53:54',
+          severity: 'INFO',
+          source: 'sqlalchemy.orm.mapper.Mapper',
+          message: '(Question|questions) BEGIN (implicit)',
+        },
+        {
+          timestamp: '2024-09-20 09:53:55',
+          severity: 'INFO',
+          source: 'sqlalchemy.orm.mapper.Mapper',
+          message: '(Question|questions) Identified primary key columns',
+        },
+        {
+          timestamp: '2024-09-20 09:53:55',
+          severity: 'DEBUG',
+          source: 'sqlalchemy.orm.mapper.Mapper',
+          message: '(Option|options) PRAGMA main.table_info("options")',
+        }
       ],
       backend: [
-        '[2024-09-20 09:53:56] [DEBUG] backend.service.Service: Initiating request to /api/questions',
-        '[2024-09-20 09:53:56] [INFO] backend.database.Connection: Created new connection to backend database',
-        '[2024-09-20 09:53:57] [WARN] backend.cache.CacheManager: Cache miss for key "question_list"',
-        '[2024-09-20 09:53:57] [DEBUG] backend.service.Service: Response received from /api/questions with status 200',
-        '[2024-09-20 09:53:58] [INFO] backend.database.Transaction: Transaction committed'
+        {
+          timestamp: '2024-09-20 09:53:56',
+          severity: 'DEBUG',
+          source: 'backend.service.Service',
+          message: 'Initiating request to /api/questions',
+        },
+        {
+          timestamp: '2024-09-20 09:53:56',
+          severity: 'INFO',
+          source: 'backend.database.Connection',
+          message: 'Created new connection to backend database',
+        },
+        {
+          timestamp: '2024-09-20 09:53:57',
+          severity: 'WARNING',
+          source: 'backend.cache.CacheManager',
+          message: 'Cache miss for key "question_list"',
+        },
+        {
+          timestamp: '2024-09-20 09:53:57',
+          severity: 'DEBUG',
+          source: 'backend.service.Service',
+          message: 'Response received from /api/questions with status 200',
+        },
+        {
+          timestamp: '2024-09-20 09:53:58',
+          severity: 'INFO',
+          source: 'backend.database.Transaction',
+          message: 'Transaction committed',
+        }
       ],
       settingsManager: [
-        '[2024-09-20 09:53:59] [INFO] settings.Manager: Loading configuration from file settings.yaml',
-        '[2024-09-20 09:53:59] [DEBUG] settings.Validator: Validating setting "max_connections"',
-        '[2024-09-20 09:54:00] [INFO] settings.Manager: Applying new settings for max_connections=10',
-        '[2024-09-20 09:54:01] [DEBUG] settings.Manager: Saving configuration to file settings.yaml',
-        '[2024-09-20 09:54:02] [WARN] settings.Validator: Invalid value for "timeout", using default of 30 seconds'
+        {
+          timestamp: '2024-09-20 09:53:59',
+          severity: 'INFO',
+          source: 'settings.Manager',
+          message: 'Loading configuration from file settings.yaml',
+        },
+        {
+          timestamp: '2024-09-20 09:53:59',
+          severity: 'DEBUG',
+          source: 'settings.Validator',
+          message: 'Validating setting "max_connections"',
+        },
+        {
+          timestamp: '2024-09-20 09:54:00',
+          severity: 'INFO',
+          source: 'settings.Manager',
+          message: 'Applying new settings for max_connections=10',
+        },
+        {
+          timestamp: '2024-09-20 09:54:01',
+          severity: 'DEBUG',
+          source: 'settings.Manager',
+          message: 'Saving configuration to file settings.yaml',
+        },
+        {
+          timestamp: '2024-09-20 09:54:02',
+          severity: 'WARNING',
+          source: 'settings.Validator',
+          message: 'Invalid value for "timeout", using default of 30 seconds',
+        }
       ]
     }
-    
-
   };
   
 

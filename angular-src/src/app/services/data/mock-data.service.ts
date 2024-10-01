@@ -8,7 +8,9 @@ import { JWTTokenService } from '../auth/jwt-token.service';
 import { MockDbService } from '../mock/mock-db.service';
 import { AuthService } from '../auth/auth.service';
 import { AppSettings } from '../../models/setting-models';
+import { LogEntry } from '../../models/log-models';
 
+type LogFileType = 'sql' | 'backend' | 'settingsManager';
 
 @Injectable({
   providedIn: 'root'
@@ -24,21 +26,20 @@ export class MockDataService {
   }
 
 
-  getLogs(logSeverity: string, logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<string[]> {
-    // Retrieve logs for the specified logFileType
-    const logs = this.mockDbService.mockData.mockLogs[logFileType];
+  getLogs(logSeverity: string, logFileType: LogFileType, startLine: number, lineCount: number, reverse: boolean): Observable<LogEntry[]> {
+    const logs: LogEntry[] = this.mockDbService.mockData.mockLogs[logFileType];
+    console.log(this.mockDbService.mockData.mockLogs[logFileType])
     
     if (!logs) {
       console.error(`Log file type '${logFileType}' not found`);
       return of([]);
     }
   
-    // If no logSeverity is provided, return all logs
+    // Filter logs by severity if provided
     let filteredLogs = logs;
   
     if (logSeverity) {
-      // Filter logs by log severity (logSeverity) if provided
-      const severityLevels = ["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"];
+      const severityLevels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"];
       const severityIndex = severityLevels.indexOf(logSeverity.toUpperCase());
   
       if (severityIndex === -1) {
@@ -47,13 +48,8 @@ export class MockDataService {
       }
   
       filteredLogs = logs.filter(log => {
-        // Extract the severity level from the log message (e.g., "[DEBUG]", "[INFO]", etc.)
-        const logLevelMatch = log.match(/\[(DEBUG|INFO|WARN|ERROR|CRITICAL)\]/);
-        if (logLevelMatch) {
-          const logLevel = logLevelMatch[1];
-          return severityLevels.indexOf(logLevel) >= severityIndex;
-        }
-        return false; // Ignore logs without a matching severity level
+        const logLevelIndex = severityLevels.indexOf(log.severity);
+        return logLevelIndex >= severityIndex;
       });
     }
   
@@ -71,8 +67,6 @@ export class MockDataService {
   
     return of(selectedLogs).pipe(delay(250), catchError(this.handleError('getLogs')));
   }
-  
-  
   
 
   getSettings(): Observable<AppSettings>  {
