@@ -1,9 +1,14 @@
-from typing import Any, Union
+from typing import Any, Union, Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
+from ldap3 import ALL, SASL, DIGEST_MD5, Connection, Server
 
 from backend.lib.api.auth.models import TokenData
+from backend.lib.api.auth.exceptions import (
+    MissingADServiceAccountError,
+    MissingSecretKeyError,
+)
 from backend import app_settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
@@ -42,6 +47,9 @@ class RoleChecker:
         self.role: str = role
 
     def __call__(self, token: str = Depends(dependency=oauth2_scheme)) -> None:
+        if app_settings.settings.auth.secret_key is None:
+            raise MissingSecretKeyError()
+
         payload: dict[str, Any] = jwt.decode(
             token=token,
             key=app_settings.settings.auth.secret_key,
@@ -78,6 +86,9 @@ def get_token_data(
     Returns:
         TokenData: An instance of the TokenData class containing the decoded token data.
     """
+    if app_settings.settings.auth.secret_key is None:
+        raise MissingSecretKeyError()
+
     payload: dict[str, Any] = jwt.decode(
         token=token,
         key=app_settings.settings.auth.secret_key,
@@ -106,6 +117,9 @@ def validate_token(
     Raises:
         HTTPException: If the token is invalid or missing a username.
     """
+    if app_settings.settings.auth.secret_key is None:
+        raise MissingSecretKeyError()
+
     payload: dict[str, Any] = jwt.decode(
         token=token,
         key=app_settings.settings.auth.secret_key,
@@ -120,3 +134,46 @@ def validate_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return TokenData(username=username)
+
+
+def authenticate_with_sa_service_account() -> Connection:
+    """
+    Authenticates with the Active Directory (AD) using a service account.
+
+    This function establishes a connection to the LDAP server using the
+    service account credentials specified in the application settings.
+    It uses SASL authentication with the DIGEST-MD5 mechanism.
+
+    Returns:
+        Connection: An LDAP connection object.
+
+    Raises:
+        MissingADServiceAccountError: If the AD service account or password is not provided in the application settings.
+
+    Note:
+        Auto binds the connection to the server immediately after creation.
+    """
+    server = Server(host=app_settings.settings.auth.ldap_server, get_info=ALL)
+
+    ad_service_account: Optional[str] = app_settings.settings.auth.ad_service_account
+    ad_service_password: Optional[str] = app_settings.settings.auth.ad_service_password
+
+    if ad_service_account is None or ad_service_password is None:
+        raise MissingADServiceAccountError()
+
+    conn = Connection(
+        server=server,
+        auto_bind=True,
+        version=3,
+        authentication=SASL,
+        sasl_mechanism=DIGEST_MD5,
+        sasl_credentials=(
+            None,
+            app_settings.settings.auth.ad_service_account,
+            app_settings.settings.auth.ad_service_password,
+            None,
+            "sign",
+        ),
+    )
+
+    return conn
