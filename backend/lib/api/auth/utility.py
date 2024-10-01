@@ -1,13 +1,73 @@
-from typing import Any, Union, overload, Optional, List
+from typing import Any, Union, overload, Optional, List, Sequence, cast
 from fastapi import HTTPException, status, Depends
 from jose import jwt
-from ldap3 import Server, Connection, SASL, DIGEST_MD5, ALL
+from ldap3 import Server, Connection, Entry, SASL, DIGEST_MD5, ALL, SUBTREE
 from datetime import datetime, timedelta, UTC
-from uuid import UUID
+from uuid import UUID, uuid4
+from cachetools import TTLCache
 
 from backend import app_settings
 from backend.lib.api.auth.dependencies import oauth2_scheme
 from backend.lib.api.auth.exceptions import MissingSecretKeyError
+from backend.lib.api.auth.models import User
+from backend.lib.api.auth import logger
+
+CACHE: TTLCache = TTLCache(
+    maxsize=100, ttl=300
+)  # LRU cache with a 5-minute TTL that can cache up to 100 items
+
+
+def add_to_cache(key: str, value: Any) -> None:
+    """
+    Adds a key-value pair to the cache.
+
+    Args:
+        key (str): The key to add to the cache.
+        value (Any): The value to add to the cache.
+    """
+    CACHE[key] = value
+    logger.debug(msg=f"Cached {key}")
+
+
+def get_from_cache(key: str) -> Any:
+    """
+    Retrieves a value from the cache.
+
+    Args:
+        key (str): The key to retrieve from the cache.
+
+    Returns:
+        Any: The value retrieved from the cache, or None if the key is not found.
+    """
+    try:
+        value: Any = CACHE[key]
+        logger.debug(msg=f"Cache hit: {key}")
+        return value
+    except KeyError:
+        logger.debug(msg=f"Cache miss: {key}")
+        return None
+
+
+def remove_from_cache(key: str) -> None:
+    """
+    Removes a key-value pair from the cache.
+
+    Args:
+        key (str): The key to remove from the cache.
+    """
+    try:
+        del CACHE[key]
+        logger.debug(msg=f"Removed {key} from cache")
+    except KeyError:
+        logger.debug(msg=f"Key {key} not found in cache")
+
+
+def clear_cache() -> None:
+    """
+    Clears the cache.
+    """
+    CACHE.clear()
+    logger.debug(msg="Cleared cache")
 
 
 def decode_token(token: str) -> dict[str, Any]:
@@ -467,3 +527,113 @@ def return_first_non_empty_attribute(
             return connection.entries[0][attr].value
 
     raise ValueError("None of the expected attributes were found")
+
+
+def resolve_to_dn(
+    connection: Connection,
+    search_base: str,
+    search_filter: str,
+    attribute: str,
+) -> str:
+    """
+    Resolves a search filter to a Distinguished Name (DN) based on the provided attribute.
+
+    Args:
+        connection (Connection): The LDAP connection object.
+        search_base (str): The search base to use for the search.
+        search_filter (str): The search filter to use for the search.
+        attribute (str): The attribute to resolve to a DN.
+
+    Returns:
+        str: The DN resolved from the attribute.
+
+    Raises:
+        ValueError: If no matching entries are found or if the attribute is not found.
+    """
+    try:
+        connection.search(
+            search_base=search_base,
+            search_filter=search_filter,
+            attributes=[attribute],
+        )
+    except Exception as e:
+        raise RuntimeError("LDAP search failed") from e
+
+    if len(connection.entries) == 0:
+        raise ValueError("No matching entries found")
+
+    if connection.entries:
+        entry: Entry = connection.entries[0]
+        return entry.entry_dn
+
+    raise ValueError(f"The '{attribute}' attribute was not found")
+
+
+# TODO: Currently does not return the cache cookie
+def query_for_users_ldap(
+    connection: Connection,
+    role: str,
+    search_query: str,
+    page: int,
+    limit: int,
+    cache_cookie: Optional[str] = None,
+) -> Sequence[User]:
+    if role not in app_settings.settings.auth.scopes:
+        raise ValueError("Invalid role")
+
+    if limit < 1:
+        raise ValueError("Limit must be at least 1")
+
+    if page < 1:
+        raise ValueError("Page must be at least 1")
+
+    if cache_cookie is not None:
+        cached: Sequence[User] = cast(Sequence[User], get_from_cache(key=cache_cookie))
+        if cached is not None:
+            cached_users_to_return: Sequence[User] = cached[
+                (page - 1) * limit : page * limit  # noqa: E203
+            ]
+            return cached_users_to_return
+
+    else:
+        try:
+            group_dn: str = resolve_to_dn(
+                connection=connection,
+                search_base=app_settings.settings.auth.ldap_base_dn,
+                search_filter=f"(cn={app_settings.settings.auth.scopes[role]})",
+                attribute="distinguishedName",
+            )
+
+            connection.search(
+                search_base=app_settings.settings.auth.ldap_base_dn,
+                search_filter=f"(&(sAMAccountName={search_query}*)(memberOf:1.2.840.113556.1.4.1941:={group_dn}))",
+                search_scope=SUBTREE,
+                attributes=["sAMAccountName", "displayName"],
+            )
+
+            if len(connection.entries) == 0:
+                raise ValueError("No matching entries found")
+
+            users: List[User] = []
+            for entry in connection.entries:
+                users.append(
+                    User(
+                        user_name=entry["sAMAccountName"].value,
+                        full_name=entry["displayName"].value,
+                        role=role,
+                    )
+                )
+
+            if cache_cookie is None:
+                cache_cookie = str(object=uuid4())
+
+            add_to_cache(key=cache_cookie, value=users)
+
+            users_to_return: Sequence[User] = users[
+                (page - 1) * limit : page * limit  # noqa: E203
+            ]
+
+            return users_to_return
+
+        except Exception as e:
+            raise RuntimeError("LDAP search failed") from e
