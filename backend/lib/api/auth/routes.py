@@ -7,10 +7,9 @@ from fastapi import Depends, HTTPException, status, Request, APIRouter, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from ldap3.core.exceptions import LDAPInvalidCredentialsResult
 from ldap3 import Connection
-from logging import Logger, DEBUG, INFO
 from typing import Sequence
 
-from backend.lib._logger import LogHelper
+from backend.lib.api.auth import logger
 from backend.lib.api.auth.utility import (
     get_full_name_from_ldap,
     get_member_of_from_ldap,
@@ -18,17 +17,12 @@ from backend.lib.api.auth.utility import (
     determine_scope_from_groups,
     authenticate_user_ldap,
     create_access_token,
+    query_for_users_ldap,
 )
+from backend.lib.api.auth.dependencies import authenticate_with_sa_service_account
 from backend.lib.api.auth.models import User
 from backend import app_settings
 
-
-logger: Logger = LogHelper.create_logger(
-    logger_name="backend API (auth)",
-    log_file="backend/logs/backend.log",
-    file_log_level=DEBUG,
-    stream_log_level=INFO,
-)
 
 router = APIRouter()
 
@@ -85,12 +79,19 @@ def authenticate_user(
     return {"access_token": encoded_jwt, "token_type": "bearer"}
 
 
-@router.get(path="/users", tags=["auth"], response_model=Sequence[User])
+@router.get(path="/users/search", tags=["auth"], response_model=Sequence[User])
 def query_for_users(
     request: Request,
     role: str,
     search_query: str,
     page: int,
     limit: int = Query(default=..., le=10),
+    connection: Connection = Depends(dependency=authenticate_with_sa_service_account),
 ) -> Sequence[User]:
-    raise NotImplementedError
+    return query_for_users_ldap(
+        connection=connection,
+        role=role,
+        search_query=search_query,
+        page=page,
+        limit=limit,
+    )
