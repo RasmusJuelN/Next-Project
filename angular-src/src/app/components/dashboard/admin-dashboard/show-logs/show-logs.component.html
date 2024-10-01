@@ -61,7 +61,7 @@
 
   <div *ngIf="!isLoading && filteredLogs.length > 0" class="log-display-container">
     <div *ngFor="let log of filteredLogs; let i = index" class="log-line" [ngClass]="{ 'odd-row': i % 2 === 0, 'even-row': i % 2 !== 0 }">
-      {{ log.timestamp }}  [{{ log.severity }}] {{ log.source }} {{ log.message }}
+      <pre>{{ log.timestamp }} [{{ log.severity }}] {{ log.source }} {{ log.message }}</pre>
     </div>
   </div>
   

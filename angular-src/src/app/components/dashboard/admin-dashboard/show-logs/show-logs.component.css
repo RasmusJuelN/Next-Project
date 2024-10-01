@@ -89,6 +89,20 @@
   line-height: 1.5;
 }
 
+
+/* Ensure long lines break and wrap inside the <pre> element */
+.log-display-container pre {
+  white-space: pre-wrap; /* Preserves whitespace and allows wrapping */
+  word-wrap: break-word; /* Break long words if necessary */
+  overflow-wrap: break-word; /* For better compatibility across browsers */
+  margin: 0; /* Ensure no extra margin */
+  padding: 0;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
 /* Alternating row colors for logs */
 .log-line.odd-row {
   background-color: #f0f0f0;
