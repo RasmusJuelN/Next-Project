@@ -47,6 +47,8 @@ class AuthSettings:
             "admin": "admin",
         }
     )
+    ad_service_account: Optional[str] = field(default=None)
+    ad_service_password: Optional[str] = field(default=None)
 
 
 @dataclass(config=config)
