@@ -14,6 +14,7 @@ dacite = "*"
 sqlalchemy = "*"
 aiosqlite = "*"
 python-multipart = "*"
+cachetools = "*"
 
 [dev-packages]
 types-python-jose = "*"
@@ -23,6 +24,7 @@ types-toml = "*"
 pyyaml = "*"
 toml = "*"
 pre-commit = "*"
+types-cachetools = "*"
 
 [requires]
 python_version = "3.12"
