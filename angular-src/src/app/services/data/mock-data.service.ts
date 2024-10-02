@@ -257,7 +257,7 @@ export class MockDataService {
   }
 
   // Active questionare
-  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10): Observable<User[]> {
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<User[]> {
     // Filter users by role (student or teacher)
     let users = this.mockDbService.mockData.mockUsers.filter(u => u.role === role);
     if(nameString){

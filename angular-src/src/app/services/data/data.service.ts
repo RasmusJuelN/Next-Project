@@ -73,18 +73,25 @@ export class DataService {
   }
 
   // Search and Pagination for Users
-  getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10): Observable<User[]> {
-    const params = new HttpParams()
+  // user.service.ts
+  getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<User[]> {
+    let params = new HttpParams()
       .set('role', role)
-      .set('searchQuery', searchQuery)
+      .set('search_query', searchQuery) // Updated to match the FastAPI endpoint
       .set('page', page.toString())
       .set('limit', limit.toString());
-  
-    return this.http.get<User[]>(`${this.apiUrl}/users`, { params })
+
+    // If a cache cookie is provided, include it in the params
+    if (cacheCookie) {
+      params = params.set('cache_cookie', cacheCookie);
+    }
+
+    return this.http.get<User[]>(`${this.apiUrl}/users/search`, { params })
       .pipe(
         catchError(this.handleError<User[]>('getUsersFromSearch', []))
       );
   }
+
 
   getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observable<QuestionTemplate[]> {
     let params = new HttpParams()
