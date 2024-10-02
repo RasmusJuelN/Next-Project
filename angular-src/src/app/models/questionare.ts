@@ -4,7 +4,7 @@
  * Represents a user like (e.g., 'student', 'teacher', 'admin').
  */
 export interface User {
-  id: number; // ID of the user from the database
+  id: string; // ID of the user from the database
   userName: string; // Username of the user
   fullName: string
   role: string; // Role for the user.

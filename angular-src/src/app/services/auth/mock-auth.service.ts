@@ -115,7 +115,7 @@ export class MockAuthService {
     if (!idString) {
       return of({ hasActive: false, urlString: '' });
     }
-    const id = Number(idString); // Convert string to number for now
+    const id = String(idString);
 
     const mockData = this.localStorageService.getData('mockData');
 
@@ -146,9 +146,9 @@ export class MockAuthService {
    * Retrieves the user ID from the token stored in the JWTTokenService.
    * @returns The user ID if the token is valid, or null if the token is invalid or not found.
    */
-  getUserId(): number | null {
+  getUserId(): string | null {
     const decodedToken = this.jwtTokenService.getDecodeToken();
-    return decodedToken && decodedToken['sub'] ? Number(decodedToken['sub']) : null;
+    return decodedToken && decodedToken['sub'] ? decodedToken['sub'] : null;
   }
 
   /**

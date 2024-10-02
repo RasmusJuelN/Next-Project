@@ -142,7 +142,7 @@ export class MockDataService {
     return items.slice(startIndex, startIndex + limit);
   }
 
-  private getUserById(userId: number | null) {
+  private getUserById(userId: string | null) {
     if (!userId) {
       return null;
     }
@@ -485,7 +485,7 @@ getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observ
    * @param studentId The ID of the student.
    * @returns True if the student is in an active questionnaire, false otherwise.
    */
-  isStudentInQuestionnaire(studentId: number): boolean {
+  isStudentInQuestionnaire(studentId: string): boolean {
     return this.mockDbService.mockData.mockActiveQuestionnaire.some(aq => aq.student.id === studentId && !aq.isStudentFinished);
   }
 

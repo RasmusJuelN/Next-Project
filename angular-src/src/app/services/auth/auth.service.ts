@@ -116,9 +116,9 @@ export class AuthService {
    * Retrieves the user ID from the stored token.
    * @returns The user ID or null if the token is invalid or not present.
    */
-  getUserId(): number | null {
+  getUserId(): string | null {
     const decodedToken = this.jwtTokenService.getDecodeToken();
-    return decodedToken && decodedToken['sub'] ? Number(decodedToken['sub']) : null;
+    return decodedToken && decodedToken['sub'] ? decodedToken['sub'] : null;
   }
 
   /**

@@ -51,3 +51,10 @@
     <button *ngIf="hasMoreTemplates" (click)="loadMore('template', templateInput.value)">Load More Templates</button>
   </div>
 </div>
+
+
+<div class="actions">
+  <button [disabled]="!selectedStudent || !selectedTeacher || !selectedTemplateId" (click)="createActiveQuestionnaire()">
+    Create Active Questionnaire
+  </button>
+</div>

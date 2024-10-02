@@ -45,16 +45,16 @@ export class MockDbService {
     mockLogs: MockLogs 
   } = {
     mockUsers: [
-      { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
-      { id: 2, userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
-      { id: 3, userName: "AS", fullName: "Alexander Svensson", role: "student" },
-      { id: 4, userName: "JW", fullName: "Johan Wallin", role: "student" }
+      { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
+      { id: "2", userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
+      { id: "3", userName: "AS", fullName: "Alexander Svensson", role: "student" },
+      { id: "4", userName: "JW", fullName: "Johan Wallin", role: "student" }
     ],
     mockAnswers: [
       {
         questionnaireId: "efgh",
         studentAnswers: {
-          user: { id: 2, userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
+          user: { id: "2", userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
           answers: [
             { questionId: 1, selectedOptionId: 1 },
             { questionId: 2, selectedOptionId: 2 },
@@ -64,7 +64,7 @@ export class MockDbService {
           answeredAt: new Date()
         },
         teacherAnswers: {
-          user: { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
+          user: { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
           answers: [
             { questionId: 1, selectedOptionId: 1 },
             { questionId: 2, selectedOptionId: 1 },
@@ -78,8 +78,8 @@ export class MockDbService {
     mockActiveQuestionnaire: [
       {
         id: "efgh",
-        student: { id: 2, userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
-        teacher: { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
+        student: { id: "2", userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
+        teacher: { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
         isStudentFinished: true,
         isTeacherFinished: true,
         questionnaireTemplate: {
@@ -90,8 +90,8 @@ export class MockDbService {
       },
       {
         id: "ijkl",
-        student: { id: 3, userName: "AS", fullName: "Alexander Svensson", role: "student" },
-        teacher: { id: 1, userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
+        student: { id: "3", userName: "AS", fullName: "Alexander Svensson", role: "student" },
+        teacher: { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
         isStudentFinished: false,
         isTeacherFinished: false,
         questionnaireTemplate: {

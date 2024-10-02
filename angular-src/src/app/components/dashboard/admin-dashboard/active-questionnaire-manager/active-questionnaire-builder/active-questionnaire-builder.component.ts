@@ -160,8 +160,8 @@ export class ActiveQuestionnaireBuilderComponent {
     this.searchStudentPage = 1;
     this.searchTeacherPage = 1;
     this.searchTemplatePage = 1;
-    this.hasMoreStudents = true;
-    this.hasMoreTeachers = true;
-    this.hasMoreTemplates = true;
+    this.hasMoreStudents = false;
+    this.hasMoreTeachers = false;
+    this.hasMoreTemplates = false;
   }
 }
