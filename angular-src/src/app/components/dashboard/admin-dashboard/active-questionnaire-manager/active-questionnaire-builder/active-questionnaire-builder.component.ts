@@ -3,6 +3,7 @@ import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActiveQuestionnaire, QuestionTemplate, User } from '../../../../../models/questionare';
 import { DataService } from '../../../../../services/data/data.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-active-questionnaire-builder',
@@ -12,77 +13,116 @@ import { DataService } from '../../../../../services/data/data.service';
   styleUrls: ['../active-questionnaire-manager.component.css','./active-questionnaire-builder.component.css']
 })
 export class ActiveQuestionnaireBuilderComponent {
-  private dataService = inject(DataService)
+  private dataService = inject(DataService);
 
   // State for search results and selected entities
   searchStudentResults: User[] = [];
-  selectedStudent: User | null = null;
-  searchStudentPage: number = 1; // Pagination for students
-  hasMoreStudents: boolean = false;
-  studentCacheCookie: string | undefined = undefined;
-  
   searchTeacherResults: User[] = [];
-  selectedTeacher: User | null = null;
-  searchTeacherPage: number = 1; // Pagination for teachers
-  hasMoreTeachers: boolean = false;
-  teacherCacheCookie: string | undefined = undefined;
-
   searchTemplateResults: QuestionTemplate[] = [];
+
+  selectedStudent: User | null = null;
+  selectedTeacher: User | null = null;
   selectedTemplateId: string | null = null;
-  searchTemplatePage: number = 1; // Pagination for templates
+
+  searchStudentPage: number = 1;
+  searchTeacherPage: number = 1;
+  searchTemplatePage: number = 1;
+
+  hasMoreStudents: boolean = false;
+  hasMoreTeachers: boolean = false;
   hasMoreTemplates: boolean = false;
 
-  limit: number = 2; // How many students, teachers, and templates to load per page
+  teacherCacheCookie: string | undefined = undefined;
+  studentCacheCookie: string | undefined = undefined;
+
+  limit: number = 2;
+
+  // Subjects to manage input changes and debounce
+  private studentSearchSubject = new Subject<string>();
+  private teacherSearchSubject = new Subject<string>();
+  private templateSearchSubject = new Subject<string>();
 
   @Output() questionnaireCreated = new EventEmitter<void>();
 
-  // Search students by name
+  ngOnInit(): void {
+    // Debounce for student search
+    this.studentSearchSubject
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((searchText) => {
+        this.searchStudents(searchText);
+      });
+  
+    // Debounce for teacher search
+    this.teacherSearchSubject
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((searchText) => {
+        this.searchTeachers(searchText);
+      });
+  
+    // Debounce for template search
+    this.templateSearchSubject
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((searchText) => {
+        this.searchTemplates(searchText);
+      });
+  }
+
+  // Trigger search for students with debounce
+  onStudentInputChange(searchText: string) {
+    this.studentSearchSubject.next(searchText);
+  }
+
+  // Trigger search for teachers with debounce
+  onTeacherInputChange(searchText: string) {
+    this.teacherSearchSubject.next(searchText);
+  }
+
+  // Trigger search for templates with debounce
+  onTemplateInputChange(searchText: string) {
+    this.templateSearchSubject.next(searchText);
+  }
+
   searchStudents(name: string | null | undefined) {
     if (name && name.length > 0) {
-      this.searchStudentPage = 1; // Reset page number to 1
-      this.searchStudentResults = []; // Clear previous search results
-
+      this.searchStudentPage = 1;
+      this.searchStudentResults = [];
       this.dataService.getUsersFromSearch('student', name, this.searchStudentPage, this.limit)
         .subscribe(response => {
-          this.searchStudentResults = response.users; // Access 'users' from the response
-          this.studentCacheCookie = response.cacheCookie; // Store cache cookie
-          this.hasMoreStudents = response.users.length >= this.limit; // Check if more results exist
+          this.searchStudentResults = response.users;
+          this.hasMoreStudents = response.users.length >= this.limit;
         });
     } else {
       this.searchStudentResults = [];
     }
   }
 
-  // Search templates by title
-  searchTemplates(title: string | null | undefined) {
-    if (title && title.length > 0) {
-      this.searchTemplatePage = 1; // Reset page number to 1
-      this.searchTemplateResults = []; // Clear previous search results
-
-      this.dataService.getTemplates(this.searchTemplatePage, this.limit, title)
-        .subscribe(results => {
-          this.searchTemplateResults = results; // Replace with new results
-          this.hasMoreTemplates = results.length >= this.limit; // Check if more results exist
-        });
-    } else {
-      this.searchTemplateResults = [];
-    }
-  }
-
-  // Search teachers by name
   searchTeachers(name: string | null | undefined) {
     if (name && name.length > 0) {
-      this.searchTeacherPage = 1; // Reset page number to 1
-      this.searchTeacherResults = []; // Clear previous search results
+      this.searchTeacherPage = 1;
+      this.searchTeacherResults = [];
 
       this.dataService.getUsersFromSearch('teacher', name, this.searchTeacherPage, this.limit)
         .subscribe(response => {
-          this.searchTeacherResults = response.users; // Access 'users' from the response
-          this.teacherCacheCookie = response.cacheCookie; // Store cache cookie
-          this.hasMoreTeachers = response.users.length >= this.limit; // Check if more results exist
+          this.searchTeacherResults = response.users;
+          this.hasMoreTeachers = response.users.length >= this.limit;
         });
     } else {
       this.searchTeacherResults = [];
+    }
+  }
+
+  searchTemplates(title: string | null | undefined) {
+    if (title && title.length > 0) {
+      this.searchTemplatePage = 1;
+      this.searchTemplateResults = [];
+
+      this.dataService.getTemplates(this.searchTemplatePage, this.limit, title)
+        .subscribe(results => {
+          this.searchTemplateResults = results;
+          this.hasMoreTemplates = results.length >= this.limit;
+        });
+    } else {
+      this.searchTemplateResults = [];
     }
   }
 

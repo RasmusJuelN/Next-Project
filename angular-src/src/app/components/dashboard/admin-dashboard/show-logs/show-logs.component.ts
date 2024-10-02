@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LogEntry } from '../../../../models/log-models';
 
-type LogFileType = 'sql' | 'backend' | 'settings_manager';
-type SeverityLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'; // Changed WARNING to WARN
+
+type SeverityLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
 @Component({
   selector: 'app-show-logs',
@@ -18,8 +18,9 @@ export class ShowLogsComponent implements OnInit {
   private dataService = inject(DataService)
   logs: LogEntry[] = []; // Logs stored as LogEntry objects
   filteredLogs: LogEntry[] = []; // Logs after applying checkbox filters
-  logFileTypes: LogFileType[] = ['sql', 'backend', 'settings_manager'];
-  selectedLogFileType: LogFileType = 'backend';
+
+  logFileTypes: string[] = []; 
+  selectedLogFileType: string = ''; 
 
   severityLevels: SeverityLevel[] = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']; // Updated severity level names
   selectedFetchSeverityLevel: SeverityLevel = 'DEBUG'; // Dropdown for fetching logs
@@ -32,7 +33,19 @@ export class ShowLogsComponent implements OnInit {
   errorMessage: string | null = null;
 
   ngOnInit(): void {
-    
+    this.fetchLogFileTypes(); // Fetch log file types on component initialization
+  }
+
+  fetchLogFileTypes(): void {
+    this.dataService.getLogFileTypes().subscribe({
+      next: (fileTypes: string[]) => {
+        this.logFileTypes = fileTypes;
+        this.selectedLogFileType = this.logFileTypes[0]; // Set the default selection to the first type
+      },
+      error: () => {
+        this.errorMessage = 'Failed to load log file types';
+      }
+    });
   }
 
   // Fetch logs based on the selected severity level and other params

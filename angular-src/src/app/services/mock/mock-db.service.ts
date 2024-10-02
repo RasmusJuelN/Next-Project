@@ -1,28 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { ActiveQuestionnaire, User, QuestionTemplate } from '../../models/questionare';
+import { ActiveQuestionnaire, User, QuestionTemplate, AnswerSession } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
 import { AppSettings } from '../../models/setting-models';
 import { LogEntry } from '../../models/log-models';
 
 
-interface Answer {
-  questionId: number;
-  selectedOptionId?: number;
-  customAnswer?: string;
-}
-
-interface UserAnswerSheet {
-  user: User; // Reference to the User object instead of just ID
-  answers: Answer[];
-  answeredAt: Date;
-}
-
-interface AnswerSession {
-  questionnaireId: string;
-  studentAnswers: UserAnswerSheet;
-  teacherAnswers: UserAnswerSheet;
-}
-
+export type LogFileType = 'sql' | 'backend' | 'settings_manager';
 interface MockLogs {
   sql: LogEntry[];
   backend: LogEntry[];
