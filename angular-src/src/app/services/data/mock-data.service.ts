@@ -267,21 +267,21 @@ export class MockDataService {
     return of(this.paginate(users, page, limit)).pipe(delay(300));
   }
 
-  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10): Observable<QuestionTemplate[]> {
-    let templates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.title.toLowerCase().includes(titleString.toLowerCase()));
-    return of(this.paginate(templates, page, limit)).pipe(delay(300));
+// Combined mock version for Search and Pagination for Templates
+getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observable<QuestionTemplate[]> {
+  let templates = this.mockDbService.mockData.mockQuestionTemplates;
+
+  // If a titleString is provided, filter the templates based on it
+  if (titleString) {
+    templates = templates.filter(t => t.title.toLowerCase().includes(titleString.toLowerCase()));
   }
 
-  getTemplatesPage(page: number, limit: number): Observable<QuestionTemplate[]> {
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedTemplates = this.mockDbService.mockData.mockQuestionTemplates.slice(startIndex, endIndex);
-    return of(paginatedTemplates).pipe(delay(250)); // Adding a delay to simulate a real HTTP request
-  }
-  // Get all templates
-  getTemplates(): Observable<QuestionTemplate[]> {
-    return of(this.mockDbService.mockData.mockQuestionTemplates);
-  }
+  // Paginate the templates
+  const paginatedTemplates = this.paginate(templates, page, limit);
+
+  // Return the paginated result with a simulated delay
+  return of(paginatedTemplates).pipe(delay(300)); 
+}
 
   // Create a new template
   createTemplate(template: QuestionTemplate): Observable<void> {
@@ -291,20 +291,6 @@ export class MockDataService {
     this.saveData();
     
     return of(undefined).pipe(delay(300)); // Simulate delay
-  }
-
-  private generateUniqueId(type: 'template' | 'question' | 'option'): number {
-    const mockData = this.mockDbService.mockData;
-    
-    let maxId = 0;
-    if (type === 'template') {
-      maxId = Math.max(...mockData.mockQuestionTemplates.map(t => Number(t.templateId.replace('template', ''))), 0);
-    } else if (type === 'question') {
-      maxId = Math.max(...mockData.mockQuestionTemplates.flatMap(t => t.questions.map(q => q.id)), 0);
-    } else if (type === 'option') {
-      maxId = Math.max(...mockData.mockQuestionTemplates.flatMap(t => t.questions.flatMap(q => q.options.map(o => o.id))), 0);
-    }
-    return maxId + 1;
   }
 
   // Update an existing template

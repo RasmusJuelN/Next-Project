@@ -22,12 +22,12 @@ export class AdminDashboardService {
   }
 
   getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10){
-    return this.dataService.getTemplatesFromSearch(titleString,page,limit);
+    return this.dataService.getTemplates(page,limit, titleString);
   }
 
   // Template Management
   getTemplatesPage(page: number, limit: number): Observable<QuestionTemplate[]> {
-    return this.dataService.getTemplatesPage(page, limit);
+    return this.dataService.getTemplates(page, limit);
   }
   
 

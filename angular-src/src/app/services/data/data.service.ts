@@ -86,32 +86,16 @@ export class DataService {
       );
   }
 
-  // Search and Pagination for Templates
-  getTemplatesFromSearch(titleString: string, page: number = 1, limit: number = 10): Observable<QuestionTemplate[]> {
-    const params = new HttpParams()
-      .set('title', titleString)
-      .set('page', page.toString())
-      .set('limit', limit.toString());
-  
-    return this.http.get<QuestionTemplate[]>(`${this.apiUrl}/templates/search`, { params })
-      .pipe(
-        catchError(this.handleError<QuestionTemplate[]>('getTemplatesFromSearch', []))
-      );
-  }
-
-  getTemplatesPage(page: number, limit: number): Observable<QuestionTemplate[]> {
+  getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observable<QuestionTemplate[]> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
   
-    return this.http.get<QuestionTemplate[]>(`${this.apiUrl}/templates/query`, { params });
-  }
+    if (titleString) {
+      params = params.set('title', titleString);
+    }
   
-
-  // Template Management Methods
-  getTemplates(): Observable<QuestionTemplate[]> {
-    const url = `${this.apiUrl}/templates`;
-    return this.http.get<QuestionTemplate[]>(url)
+    return this.http.get<QuestionTemplate[]>(`${this.apiUrl}/templates/query`, { params })
       .pipe(
         catchError(this.handleError<QuestionTemplate[]>('getTemplates', []))
       );
