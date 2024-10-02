@@ -35,6 +35,7 @@ class DatabaseSettings:
 @dataclass(config=config)
 class AuthSettings:
     secret_key: Optional[str] = field(default=None)
+    salt_hash: Optional[str] = field(default=None)
     algorithm: str = field(default="HS256")
     access_token_expire_minutes: int = field(default=30)
     domain: str = field(default="localhost")
