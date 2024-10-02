@@ -3,11 +3,11 @@ This module contains the authentication logic for the FastAPI application.
 """
 
 from datetime import timedelta
-from fastapi import Depends, HTTPException, status, Request, APIRouter, Query
+from typing import Sequence
+from fastapi import Depends, HTTPException, status, Request, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from ldap3.core.exceptions import LDAPInvalidCredentialsResult
 from ldap3 import Connection
-from typing import Optional
 
 from backend.lib.api.auth import logger
 from backend.lib.api.auth.utility import (
@@ -20,7 +20,8 @@ from backend.lib.api.auth.utility import (
     query_for_users_ldap,
 )
 from backend.lib.api.auth.dependencies import authenticate_with_sa_service_account
-from backend.lib.api.auth.models import UserSearchResponse
+from backend.lib.api.auth.models import User, UserSearchResponse, UserSearchRequest
+from backend.lib.api.auth.exceptions import NoLDAPResultsError
 from backend import app_settings
 
 
@@ -82,20 +83,21 @@ def authenticate_user(
 @router.get(path="/users/search", tags=["auth"], response_model=UserSearchResponse)
 def query_for_users(
     request: Request,
-    role: str,
-    search_query: str,
-    page: int,
-    limit: int = Query(default=..., le=10),
-    cache_cookie: Optional[str] = Query(default=None),
+    query_params: UserSearchRequest = Depends(),
     connection: Connection = Depends(dependency=authenticate_with_sa_service_account),
 ) -> UserSearchResponse:
-    users, _cache_cookie = query_for_users_ldap(
-        connection=connection,
-        role=role,
-        search_query=search_query,
-        page=page,
-        limit=limit,
-        cache_cookie=cache_cookie,
-    )
+    try:
+        users: Sequence[User] = query_for_users_ldap(
+            connection=connection,
+            role=query_params.role,
+            search_query=query_params.search_query,
+            page=query_params.page,
+            limit=query_params.limit,
+        )
+    except NoLDAPResultsError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No users were found matching the search criteria.",
+        )
 
-    return UserSearchResponse(users=users, cache_cookie=_cache_cookie)
+    return UserSearchResponse(users=users)

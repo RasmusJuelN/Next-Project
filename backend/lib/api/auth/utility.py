@@ -1,15 +1,21 @@
-from typing import Any, Union, overload, Optional, List, Sequence, cast, Tuple
+from typing import Any, Union, overload, Optional, List, Sequence, cast
 from fastapi import HTTPException, status, Depends
 from jose import jwt
 from ldap3 import Server, Connection, Entry, SASL, DIGEST_MD5, ALL, SUBTREE
 from datetime import datetime, timedelta, UTC
-from uuid import UUID, uuid4
+from uuid import UUID
 from cachetools import TTLCache
+from hashlib import sha512
 
 from backend import app_settings
 from backend.lib.api.auth.dependencies import oauth2_scheme
-from backend.lib.api.auth.exceptions import MissingSecretKeyError
+from backend.lib.api.auth.exceptions import (
+    MissingSecretKeyError,
+    NoLDAPResultsError,
+    MissingSaltHashError,
+)
 from backend.lib.api.auth.models import User
+from backend.lib.api.auth.typing import UserSearchEntry
 from backend.lib.api.auth import logger
 
 CACHE: TTLCache = TTLCache(
@@ -85,6 +91,27 @@ def clear_cache() -> None:
     """
     CACHE.clear()
     logger.debug(msg="Cleared cache")
+
+
+def hash_string(string: str) -> str:
+    """
+    Hashes a string using SHA-512 with a salt.
+
+    Args:
+        string (str): The string to hash.
+
+    Raises:
+        MissingSaltHashError: If the salt hash is missing in the settings file.
+
+    Returns:
+        str: The hashed string.
+    """
+    if app_settings.settings.auth.salt_hash is None:
+        raise MissingSaltHashError
+
+    return sha512(
+        string=f"{string}{app_settings.settings.auth.salt_hash}".encode()
+    ).hexdigest()
 
 
 def decode_token(token: str) -> dict[str, Any]:
@@ -593,15 +620,30 @@ def resolve_to_dn(
     raise ValueError(f"The '{attribute}' attribute was not found")
 
 
-# TODO: Currently does not return the cache cookie
 def query_for_users_ldap(
     connection: Connection,
     role: str,
     search_query: str,
     page: int,
     limit: int,
-    cache_cookie: Optional[str] = None,
-) -> Tuple[Sequence[User], str]:
+) -> Sequence[User]:
+    """
+    Queries for users in LDAP based on role and search query, with pagination support.
+
+    Args:
+        connection (Connection): The LDAP connection object.
+        role (str): The role to filter users by.
+        search_query (str): The search query to filter users by username or full name.
+        page (int): The page number for pagination.
+        limit (int): The number of users to return per page.
+
+    Returns:
+        Sequence[User]: A sequence of User objects matching the search criteria.
+
+    Raises:
+        ValueError: If the role is invalid, or if page or limit are less than 1.
+        NoLDAPResultsError: If no matching users are found in LDAP.
+    """
     if role not in app_settings.settings.auth.scopes:
         raise ValueError("Invalid role")
 
@@ -611,53 +653,54 @@ def query_for_users_ldap(
     if page < 1:
         raise ValueError("Page must be at least 1")
 
-    if cache_cookie is not None:
-        cached: Sequence[User] = cast(Sequence[User], get_from_cache(key=cache_cookie))
-        if cached is not None:
-            cached_users_to_return: Sequence[User] = cached[
-                (page - 1) * limit : page * limit  # noqa: E203
-            ]
-            return cached_users_to_return, cache_cookie
+    # Create a cache key based on the role and search query
+    cache_key: str = f"{role}:{search_query}"
 
-    else:
-        try:
-            group_dn: str = resolve_to_dn(
-                connection=connection,
-                search_base=app_settings.settings.auth.ldap_base_dn,
-                search_filter=f"(cn={app_settings.settings.auth.scopes[role]})",
-                attribute="distinguishedName",
+    cached_users: Optional[Sequence[User]] = cast(
+        Optional[Sequence[User]], get_from_cache(key=cache_key)
+    )
+    if cached_users is not None:
+        cached_users_to_return: Sequence[User] = cached_users[
+            (page - 1) * limit : page * limit  # noqa: E203
+        ]
+        return cached_users_to_return
+
+    # if we didn't get a hit on the cache, perform a new search and cache the results
+    # We start by resolving the group DN based on the role
+    group_dn: str = resolve_to_dn(
+        connection=connection,
+        search_base=app_settings.settings.auth.ldap_base_dn,
+        search_filter=f"(cn={app_settings.settings.auth.scopes[role]})",
+        attribute="distinguishedName",
+    )
+
+    # Perform the search for users in the specified group with a username or full name matching the search query
+    connection.search(
+        search_base=app_settings.settings.auth.ldap_base_dn,
+        search_filter=f"(&(|(sAMAccountName=*{search_query}*)(displayName=*{search_query}*))(memberOf:1.2.840.113556.1.4.1941:={group_dn}))",
+        search_scope=SUBTREE,
+        attributes=["sAMAccountName", "displayName", "objectGUID"],
+    )
+
+    if len(connection.entries) == 0:
+        raise NoLDAPResultsError
+
+    users: List[User] = []
+    entry: UserSearchEntry
+    for entry in connection.entries:
+        users.append(
+            User(
+                id=hash_string(string=entry.objectGUID.value),
+                user_name=entry.sAMAccountName.value,
+                full_name=entry.displayName.value,
+                role=role,
             )
+        )
 
-            connection.search(
-                search_base=app_settings.settings.auth.ldap_base_dn,
-                search_filter=f"(&(sAMAccountName={search_query}*)(memberOf:1.2.840.113556.1.4.1941:={group_dn}))",
-                search_scope=SUBTREE,
-                attributes=["sAMAccountName", "displayName"],
-            )
+    add_to_cache(key=cache_key, value=users)
 
-            if len(connection.entries) == 0:
-                raise ValueError("No matching entries found")
+    users_to_return: Sequence[User] = users[
+        (page - 1) * limit : page * limit  # noqa: E203
+    ]
 
-            users: List[User] = []
-            for entry in connection.entries:
-                users.append(
-                    User(
-                        user_name=entry["sAMAccountName"].value,
-                        full_name=entry["displayName"].value,
-                        role=role,
-                    )
-                )
-
-            if cache_cookie is None:
-                cache_cookie = str(object=uuid4())
-
-            add_to_cache(key=cache_cookie, value=users)
-
-            users_to_return: Sequence[User] = users[
-                (page - 1) * limit : page * limit  # noqa: E203
-            ]
-
-            return users_to_return, cache_cookie
-
-        except Exception as e:
-            raise RuntimeError("LDAP search failed") from e
+    return users_to_return
