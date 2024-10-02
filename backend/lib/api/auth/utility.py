@@ -567,6 +567,11 @@ def resolve_to_dn(
     Raises:
         ValueError: If no matching entries are found or if the attribute is not found.
     """
+    cache_key: str = f"{search_base}:{search_filter}:{attribute}"
+    cached_dn: Optional[Any] = get_from_cache(key=cache_key)
+    if cached_dn:
+        return cached_dn
+
     try:
         connection.search(
             search_base=search_base,
@@ -581,7 +586,9 @@ def resolve_to_dn(
 
     if connection.entries:
         entry: Entry = connection.entries[0]
-        return entry.entry_dn
+        dn = entry.entry_dn
+        add_to_cache(key=cache_key, value=dn)
+        return dn
 
     raise ValueError(f"The '{attribute}' attribute was not found")
 
