@@ -13,8 +13,8 @@ from backend.lib.api.auth.models import User
 from backend.lib.api.auth import logger
 
 CACHE: TTLCache = TTLCache(
-    maxsize=100, ttl=300
-)  # LRU cache with a 5-minute TTL that can cache up to 100 items
+    maxsize=100, ttl=60
+)  # LRU cache with a 1-minute TTL that can cache up to 100 items
 
 
 def add_to_cache(key: str, value: Any) -> None:
@@ -26,10 +26,12 @@ def add_to_cache(key: str, value: Any) -> None:
         value (Any): The value to add to the cache.
     """
     CACHE[key] = value
-    logger.debug(msg=f"Cached {key}")
+    logger.debug(
+        msg=f"Cached {key} with a TTL of {CACHE.ttl}. {CACHE.currsize}/{CACHE.maxsize} items in cache"
+    )
 
 
-def get_from_cache(key: str) -> Any:
+def get_from_cache(key: str) -> Optional[Any]:
     """
     Retrieves a value from the cache.
 
@@ -48,6 +50,19 @@ def get_from_cache(key: str) -> Any:
         return None
 
 
+def is_key_in_cache(key: str) -> bool:
+    """
+    Searches for a key in the cache.
+
+    Args:
+        key (str): The key to search for in the cache.
+
+    Returns:
+        bool: True if the key is found in the cache, False otherwise.
+    """
+    return key in CACHE
+
+
 def remove_from_cache(key: str) -> None:
     """
     Removes a key-value pair from the cache.
@@ -56,8 +71,10 @@ def remove_from_cache(key: str) -> None:
         key (str): The key to remove from the cache.
     """
     try:
-        del CACHE[key]
-        logger.debug(msg=f"Removed {key} from cache")
+        CACHE.pop(key=key)
+        logger.debug(
+            msg=f"Removed {key} from cache. {len(CACHE)}/{CACHE.maxsize} items in cache"
+        )
     except KeyError:
         logger.debug(msg=f"Key {key} not found in cache")
 
