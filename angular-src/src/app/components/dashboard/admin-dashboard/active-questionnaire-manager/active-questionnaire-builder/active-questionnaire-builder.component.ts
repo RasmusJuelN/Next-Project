@@ -17,11 +17,13 @@ export class ActiveQuestionnaireBuilderComponent {
   selectedStudent: User | null = null;
   searchStudentPage: number = 1; // Pagination for students
   hasMoreStudents: boolean = false;
-
+  studentCacheCookie: string | undefined = undefined;
+  
   searchTeacherResults: User[] = [];
   selectedTeacher: User | null = null;
   searchTeacherPage: number = 1; // Pagination for teachers
   hasMoreTeachers: boolean = false;
+  teacherCacheCookie: string | undefined = undefined;
 
   searchTemplateResults: QuestionTemplate[] = [];
   selectedTemplateId: string | null = null;
@@ -41,9 +43,10 @@ export class ActiveQuestionnaireBuilderComponent {
       this.searchStudentResults = []; // Clear previous search results
 
       this.adminDashboardService.getUsersFromSearch('student', name, this.searchStudentPage, this.limit)
-        .subscribe(results => {
-          this.searchStudentResults = results; // Replace with new results
-          this.hasMoreStudents = results.length >= this.limit; // Check if more results exist
+        .subscribe(response => {
+          this.searchStudentResults = response.users; // Access 'users' from the response
+          this.studentCacheCookie = response.cacheCookie; // Store cache cookie
+          this.hasMoreStudents = response.users.length >= this.limit; // Check if more results exist
         });
     } else {
       this.searchStudentResults = [];
@@ -73,9 +76,10 @@ export class ActiveQuestionnaireBuilderComponent {
       this.searchTeacherResults = []; // Clear previous search results
 
       this.adminDashboardService.getUsersFromSearch('teacher', name, this.searchTeacherPage, this.limit)
-        .subscribe(results => {
-          this.searchTeacherResults = results; // Replace with new results
-          this.hasMoreTeachers = results.length >= this.limit; // Check if more results exist
+        .subscribe(response => {
+          this.searchTeacherResults = response.users; // Access 'users' from the response
+          this.teacherCacheCookie = response.cacheCookie; // Store cache cookie
+          this.hasMoreTeachers = response.users.length >= this.limit; // Check if more results exist
         });
     } else {
       this.searchTeacherResults = [];
@@ -87,33 +91,33 @@ export class ActiveQuestionnaireBuilderComponent {
       case 'student':
         if (this.hasMoreStudents) {
           this.searchStudentPage++;
-          this.adminDashboardService.getUsersFromSearch('student', searchQuery, this.searchStudentPage, this.limit)
-            .subscribe(results => {
-              this.searchStudentResults = [...this.searchStudentResults, ...results]; // Append new results
-              this.hasMoreStudents = results.length >= this.limit;
+          this.adminDashboardService.getUsersFromSearch('student', searchQuery, this.searchStudentPage, this.limit, this.studentCacheCookie)
+            .subscribe(response => {
+              this.searchStudentResults = [...this.searchStudentResults, ...response.users]; // Append new results
+              this.hasMoreStudents = response.users.length >= this.limit;
             });
         }
         break;
       case 'teacher':
         if (this.hasMoreTeachers) {
           this.searchTeacherPage++;
-          this.adminDashboardService.getUsersFromSearch('teacher', searchQuery, this.searchTeacherPage, this.limit)
-            .subscribe(results => {
-              this.searchTeacherResults = [...this.searchTeacherResults, ...results]; // Append new results
-              this.hasMoreTeachers = results.length >= this.limit;
+          this.adminDashboardService.getUsersFromSearch('teacher', searchQuery, this.searchTeacherPage, this.limit, this.teacherCacheCookie)
+            .subscribe(response => {
+              this.searchTeacherResults = [...this.searchTeacherResults, ...response.users]; // Append new results
+              this.hasMoreTeachers = response.users.length >= this.limit;
             });
         }
         break;
-      case 'template':
-        if (this.hasMoreTemplates) {
-          this.searchTemplatePage++;
-          this.adminDashboardService.getTemplatesFromSearch(searchQuery, this.searchTemplatePage, this.limit)
-            .subscribe(results => {
-              this.searchTemplateResults = [...this.searchTemplateResults, ...results]; // Append new results
-              this.hasMoreTemplates = results.length >= this.limit;
-            });
-        }
-        break;
+        case 'template':
+          if (this.hasMoreTemplates) {
+            this.searchTemplatePage++;
+            this.adminDashboardService.getTemplatesFromSearch(searchQuery, this.searchTemplatePage, this.limit)
+              .subscribe(results => {
+                this.searchTemplateResults = [...this.searchTemplateResults, ...results];
+                this.hasMoreTemplates = results.length >= this.limit;
+              });
+          }
+          break;
     }
   }
 

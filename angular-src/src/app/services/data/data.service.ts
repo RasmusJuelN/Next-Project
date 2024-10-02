@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionDetails, QuestionTemplate, User } from '../../models/questionare';
+import { catchError, tap } from 'rxjs/operators';
+import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionDetails, QuestionTemplate, User, UserSearchResponse } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
 import { AppSettings } from '../../models/setting-models';
 import { LogEntry } from '../../models/log-models';
@@ -73,22 +73,26 @@ export class DataService {
   }
 
   // Search and Pagination for Users
-  // user.service.ts
-  getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<User[]> {
+  getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<UserSearchResponse> {
     let params = new HttpParams()
       .set('role', role)
-      .set('search_query', searchQuery) // Updated to match the FastAPI endpoint
+      .set('search_query', searchQuery) // Updated parameter name
       .set('page', page.toString())
       .set('limit', limit.toString());
 
-    // If a cache cookie is provided, include it in the params
     if (cacheCookie) {
       params = params.set('cache_cookie', cacheCookie);
     }
 
-    return this.http.get<User[]>(`${this.apiUrl}/users/search`, { params })
+    return this.http.get<UserSearchResponse>(`${this.apiUrl}/users/search`, { params })
       .pipe(
-        catchError(this.handleError<User[]>('getUsersFromSearch', []))
+        // Log the full response, including both users and cacheCookie
+        tap((response: UserSearchResponse) => {  // Explicitly define the type of 'response'
+          console.log('Users fetched:', response.users);
+          console.log('Cache Cookie:', response.cacheCookie);
+        }),
+        // Handle errors
+        catchError(this.handleError<UserSearchResponse>('getUsersFromSearch', { users: [], cacheCookie: '' }))
       );
   }
 

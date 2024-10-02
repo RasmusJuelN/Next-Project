@@ -13,8 +13,8 @@ export class AdminDashboardService {
   createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
     return this.dataService.createActiveQuestionnaire(student,teacher,templateId)
   }
-  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10){
-    return this.dataService.getUsersFromSearch(role,nameString,page,limit);
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10, cache?:string){
+    return this.dataService.getUsersFromSearch(role,nameString,page,limit,cache);
   }
   
   getActiveQuestionnairePage(filter: any, page: number, limit: number){

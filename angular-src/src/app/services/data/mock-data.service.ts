@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
-import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession, Answer, QuestionDetails } from '../../models/questionare';
+import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession, Answer, QuestionDetails, UserSearchResponse } from '../../models/questionare';
 import { Option } from '../../models/questionare';
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
@@ -257,14 +257,26 @@ export class MockDataService {
   }
 
   // Active questionare
-  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<User[]> {
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<UserSearchResponse> {
     // Filter users by role (student or teacher)
     let users = this.mockDbService.mockData.mockUsers.filter(u => u.role === role);
-    if(nameString){
-      users = users.filter(u => u.fullName.toLowerCase().includes(nameString.toLowerCase()))
+    
+    // Filter users by the name string (if provided)
+    if (nameString) {
+      users = users.filter(u => u.fullName.toLowerCase().includes(nameString.toLowerCase()));
     }
+
     // Paginate the results
-    return of(this.paginate(users, page, limit)).pipe(delay(300));
+    const paginatedUsers = this.paginate(users, page, limit);
+
+    // Mock cacheCookie or reuse provided one
+    const mockCacheCookie = cacheCookie || 'mock-cache-cookie-' + Math.random().toString(36).substring(7);
+
+    // Return the users and cacheCookie in the UserSearchResponse structure
+    return of({
+      users: paginatedUsers,
+      cacheCookie: mockCacheCookie
+    }).pipe(delay(300));  // Simulate a network delay
   }
 
 // Combined mock version for Search and Pagination for Templates
