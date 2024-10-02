@@ -1,6 +1,7 @@
 from typing import List, Literal, Optional, cast, Union
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 from re import Match, search
+from pathlib import Path
 
 from backend.lib.api.logs.models import LogEntry
 
@@ -83,3 +84,17 @@ def read_logs(
                 )
 
     return log_lines
+
+
+def get_log_file_names_on_disk() -> List[str]:
+    """
+    Retrieves the names of all log files in the 'backend/logs' directory.
+
+    Returns:
+        List[str]: A list of log file names with a '.log' extension.
+    """
+    return [
+        path.stem
+        for path in Path("backend/logs").iterdir()
+        if path.is_file() and path.suffix == ".log"
+    ]

@@ -2,7 +2,7 @@ from fastapi import Request, APIRouter, HTTPException
 from typing import List, Literal
 
 from backend.lib.api.logs import logger
-from backend.lib.api.logs.utils import read_logs
+from backend.lib.api.logs.utils import read_logs, get_log_file_names_on_disk
 from backend.lib.api.logs.models import LogEntry
 
 router = APIRouter()
@@ -41,3 +41,10 @@ def get_logs(
                 "If you are the system administrator, check the logs for more information."
             ),
         )
+
+
+@router.get(path="/logs/get-available", tags=["logs"], response_model=List[str])
+def get_available_logs(
+    request: Request,
+) -> List[str]:
+    return get_log_file_names_on_disk()
