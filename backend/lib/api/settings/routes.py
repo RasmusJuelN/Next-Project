@@ -36,5 +36,6 @@ def update_settings(
     request: Request,
     settings: AppSettings,
 ) -> AppSettings:
-    app_settings.settings = settings
+    with app_settings.autosave():
+        app_settings.settings = settings
     return app_settings.settings
