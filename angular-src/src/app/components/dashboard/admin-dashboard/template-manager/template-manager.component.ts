@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
-import { AdminDashboardService } from '../../../../services/dashboard/admin-dashboard.service';
+import { Component, inject } from '@angular/core';
 import { Question, QuestionTemplate, Option } from '../../../../models/questionare';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplateEditorComponent } from './template-editor/template-editor.component';
 import { QuestionEditorComponent } from './template-editor/question-editor/question-editor.component';
+import { DataService } from '../../../../services/data/data.service';
 
 @Component({
   selector: 'app-template-manager',
@@ -14,6 +14,7 @@ import { QuestionEditorComponent } from './template-editor/question-editor/quest
   styleUrl: './template-manager.component.css'
 })
 export class TemplateManagerComponent {
+  dataService = inject(DataService)
   templates: QuestionTemplate[] = [];
   selectedTemplate: QuestionTemplate | null = null;
   selectedQuestion: Question | null = null;
@@ -21,8 +22,6 @@ export class TemplateManagerComponent {
   page: number = 1; // Pagination current page
   limit: number = 5; // Number of templates to load per page
   hasMoreTemplates: boolean = false;
-
-  constructor(private adminDashboardService: AdminDashboardService) {}
 
   ngOnInit(): void {
     this.loadTemplates();
@@ -48,7 +47,7 @@ export class TemplateManagerComponent {
   
 
   loadTemplates() {
-    this.adminDashboardService.getTemplatesPage(this.page, this.limit).subscribe((templates) => {
+    this.dataService.getTemplates(this.page, this.limit).subscribe((templates) => {
       if (this.page === 1) {
         this.templates = templates; // Replace results on the first page
       } else {
@@ -67,12 +66,6 @@ export class TemplateManagerComponent {
   
   hasCustomOption(): boolean {
     return this.selectedQuestion ? this.selectedQuestion.options.some(o => o.isCustom) : false;
-  }
-  // OLd, might get removed
-  private generateTemplateId(): string {
-    const prefix = 'template';
-    const timestamp = new Date().getTime(); // Current timestamp in milliseconds
-    return `${prefix}_${timestamp}`;
   }
 
   createNewTemplate() {
@@ -123,7 +116,7 @@ export class TemplateManagerComponent {
             return 'template_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
           };
           newOrUpdatedTemplate.templateId = generateUniqueId();
-          this.adminDashboardService.createTemplate(newOrUpdatedTemplate).subscribe({
+          this.dataService.createTemplate(newOrUpdatedTemplate).subscribe({
             complete: () => {
               this.loadTemplates();
               this.clearSelectedTemplate();
@@ -134,7 +127,7 @@ export class TemplateManagerComponent {
           });
         } else {
         // Send the updated template to the backend
-         this.adminDashboardService.updateTemplate(newOrUpdatedTemplate).subscribe({
+         this.dataService.updateTemplate(newOrUpdatedTemplate).subscribe({
           error: (err) => console.error('Error updating template:', err),
           complete: () => {
             console.log('Template update complete.');
@@ -161,13 +154,13 @@ export class TemplateManagerComponent {
     alert('Are you sure you want to delete this template? This action cannot be undone.')
     const confirmed = window.confirm('Remember, this is perment');
     if (confirmed) {
-      this.adminDashboardService.deleteTemplate(templateId).subscribe({
+      this.dataService.deleteTemplate(templateId).subscribe({
         error: (err) => {
           console.error('Error deleting template:', err);
         },
         complete: () => {
           console.log('Template deletion complete.');
-          this.loadTemplates(); // Reload the list after deletion
+          this.loadTemplates();
         }
       });
     }

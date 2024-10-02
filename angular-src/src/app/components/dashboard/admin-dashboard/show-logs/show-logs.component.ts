@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { DataService } from '../../../../services/data/data.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ type SeverityLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'; // Cha
   styleUrls: ['./show-logs.component.css']
 })
 export class ShowLogsComponent implements OnInit {
+  private dataService = inject(DataService)
   logs: LogEntry[] = []; // Logs stored as LogEntry objects
   filteredLogs: LogEntry[] = []; // Logs after applying checkbox filters
   logFileTypes: LogFileType[] = ['sql', 'backend', 'settings_manager'];
@@ -30,9 +31,8 @@ export class ShowLogsComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string | null = null;
 
-  constructor(private dataService: DataService) {}
-
   ngOnInit(): void {
+    
   }
 
   // Fetch logs based on the selected severity level and other params

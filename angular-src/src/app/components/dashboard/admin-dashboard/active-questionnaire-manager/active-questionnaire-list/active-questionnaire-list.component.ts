@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActiveQuestionnaire } from '../../../../../models/questionare';
-import { AdminDashboardService } from '../../../../../services/dashboard/admin-dashboard.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DataService } from '../../../../../services/data/data.service';
 
 @Component({
   selector: 'app-active-questionnaire-list',
@@ -12,13 +12,12 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['../active-questionnaire-manager.component.css',"./active-questionnaire-list.component.css"]
 })
 export class ActiveQuestionnaireListComponent {
+  private dataService = inject(DataService)
   activeQuestionnaires: ActiveQuestionnaire[] = [];
   searchActiveQuestionnaireStudent: string = ""; // For searching by student name
   searchActiveQuestionnaireTeacher: string = ""; // For searching by teacher name
   page: number = 1; // Pagination current page
   limit: number = 8; // Results per page
-
-  constructor(private adminDashboardService: AdminDashboardService) {}
 
   ngOnInit(){
     this.searchActiveQuestionnaires();
@@ -32,7 +31,7 @@ export class ActiveQuestionnaireListComponent {
     };
   
     // Fetch active questionnaires from the service
-    this.adminDashboardService.getActiveQuestionnairePage(filter, this.page, this.limit)
+    this.dataService.getActiveQuestionnairePage(filter, this.page, this.limit)
       .subscribe({
         next: (results: ActiveQuestionnaire[]) => {
           if (this.page === 1) {

@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActiveQuestionnaire } from '../../../../models/questionare';
-import { TeacherDashboardService } from '../../../../services/dashboard/teacher-dashboard.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../services/auth/auth.service';
+import { DataService } from '../../../../services/data/data.service';
 
 @Component({
   selector: 'app-teacher-general-overview',
@@ -14,13 +14,16 @@ import { AuthService } from '../../../../services/auth/auth.service';
   styleUrl: './teacher-general-overview.component.css'
 })
 export class TeacherGeneralOverviewComponent {
+  private dataService = inject(DataService)
+  private router = inject(Router)
+  private authService = inject(AuthService)
+  private readonly loadLimit = 5;
   activeQuestionnaires: ActiveQuestionnaire[] = [];
   filters: any;
   isCollapsed: boolean = true;
   currentPage: number = 1;
   noMoreData: boolean = false;
 
-  constructor(private teacherDashboardService: TeacherDashboardService, private router: Router, private authService:AuthService) {}
 
   ngOnInit(): void {
     this.filters = {
@@ -42,10 +45,10 @@ export class TeacherGeneralOverviewComponent {
       this.noMoreData = false;
     }
 
-    this.teacherDashboardService.loadActiveQuestionnaires(this.filters, this.currentPage).subscribe(
+    this.dataService.getActiveQuestionnairePage(this.filters, this.currentPage, this.loadLimit).subscribe(
       questionnaires => {
         this.activeQuestionnaires = [...this.activeQuestionnaires, ...questionnaires];
-        this.noMoreData = questionnaires.length < this.teacherDashboardService.getLoadLimit();
+        this.noMoreData = questionnaires.length < this.loadLimit;
         if (!this.noMoreData) {
           this.currentPage++;
         }

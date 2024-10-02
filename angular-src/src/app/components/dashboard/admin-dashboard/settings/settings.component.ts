@@ -13,9 +13,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent {
+  private dataService = inject(DataService)
   private http = inject(HttpClient)
   private fb = inject(FormBuilder)
-  private dataService = inject(DataService)
   settingsForm: FormGroup;
 
   databaseTypes: DatabaseType[] = ['sqlite', 'mysql', 'mssql'];

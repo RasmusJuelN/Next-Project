@@ -1,24 +1,24 @@
-import { Injectable } from '@angular/core';
+import { inject, Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ActiveQuestionnaire, Answer, Question, QuestionnaireMetadata } from '../models/questionare';
 import { MockAuthService } from './auth/mock-auth.service';
 import { ErrorHandlingService } from './error-handling.service';
 import { DataService } from './data/data.service';
+import { AuthService } from './auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuestionnaireService {
+  private dataService = inject(DataService)
+  private authService = inject(AuthService)
+  private errorHandlingService =  inject(ErrorHandlingService)
+
+
   private metadataSubject = new BehaviorSubject<QuestionnaireMetadata | null>(null);
   private questionsSubject = new BehaviorSubject<Question[]>([]);
   private activeQuestionnaire: ActiveQuestionnaire | null = null;
-
-  constructor(
-    private dataService: DataService,
-    private authService: MockAuthService,
-    private errorHandlingService: ErrorHandlingService
-  ) {}
 
   /**
    * Loads the active questionnaire for the user by ID.
