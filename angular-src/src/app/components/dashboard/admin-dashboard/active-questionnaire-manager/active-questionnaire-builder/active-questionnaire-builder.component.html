@@ -4,7 +4,7 @@
 <!-- Search for Student -->
 <div class="search-section">
   <label for="student-search">Search for Student:</label>
-  <input id="student-search" #studentInput type="text" (input)="searchStudents(studentInput.value)" placeholder="Enter student name..." />
+  <input id="student-search" #studentInput type="text" (input)="onStudentInputChange(studentInput.value)" placeholder="Enter student name..." />
   <ul *ngIf="searchStudentResults.length > 0" class="search-results">
     <li *ngFor="let student of searchStudentResults" (click)="selectStudent(student)">
       {{ student.fullName }} ({{ student.userName }})
@@ -21,7 +21,7 @@
 <!-- Search for Teacher -->
 <div class="search-section">
   <label for="teacher-search">Search for Teacher:</label>
-  <input id="teacher-search" type="text" #teacherInput (input)="searchTeachers(teacherInput.value)" placeholder="Enter teacher name..." />
+  <input id="teacher-search" type="text" #teacherInput (input)="onTeacherInputChange(teacherInput.value)" placeholder="Enter teacher name..." />
   <ul *ngIf="searchTeacherResults.length > 0" class="search-results">
     <li *ngFor="let teacher of searchTeacherResults" (click)="selectTeacher(teacher)">
       {{ teacher.fullName }} ({{ teacher.userName }})
@@ -38,7 +38,7 @@
 <!-- Search for Template -->
 <div class="search-section">
   <label for="template-search">Search for Template:</label>
-  <input id="template-search" #templateInput type="text" (input)="searchTemplates(templateInput.value)" placeholder="Enter template title..." />
+  <input id="template-search" #templateInput type="text" (input)="onTemplateInputChange(templateInput.value)" placeholder="Enter template title..." />
   <ul *ngIf="searchTemplateResults.length > 0" class="search-results">
     <li *ngFor="let template of searchTemplateResults" (click)="selectTemplate(template)">
       {{ template.title }}
@@ -51,6 +51,7 @@
     <button *ngIf="hasMoreTemplates" (click)="loadMore('template', templateInput.value)">Load More Templates</button>
   </div>
 </div>
+
 
 
 <div class="actions">

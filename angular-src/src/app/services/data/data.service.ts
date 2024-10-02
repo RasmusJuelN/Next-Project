@@ -22,6 +22,12 @@ export class DataService {
     };
   }
 
+  getLogFileTypes(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/logs/get-available`).pipe(
+      catchError(this.handleError<string[]>('getLogFileTypes', []))
+    );
+  }
+
   getLogs(logSeverity: string, logFileType: string, startLine: number, lineCount: number, reverse: boolean): Observable<LogEntry[]> {
     // Create HttpParams object to build query parameters
     let params = new HttpParams()

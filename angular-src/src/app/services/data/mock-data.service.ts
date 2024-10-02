@@ -5,12 +5,12 @@ import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession, A
 import { Option } from '../../models/questionare';
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
-import { MockDbService } from '../mock/mock-db.service';
+import { LogFileType, MockDbService } from '../mock/mock-db.service';
 import { AuthService } from '../auth/auth.service';
 import { AppSettings } from '../../models/setting-models';
 import { LogEntry } from '../../models/log-models';
 
-type LogFileType = 'sql' | 'backend' | 'settings_manager';
+
 
 @Injectable({
   providedIn: 'root'
@@ -21,8 +21,13 @@ export class MockDataService {
   private jwtTokenService = inject(JWTTokenService);
   private errorHandlingService = inject(ErrorHandlingService)
   private authService = inject(AuthService)
-  constructor(private http: HttpClient) {
+  constructor() {
     this.mockDbService.loadInitialMockData();
+  }
+
+  getLogFileTypes(): Observable<string[]> {
+    const logFileTypes = Object.keys(this.mockDbService.mockData.mockLogs);
+    return of(logFileTypes);
   }
 
 
