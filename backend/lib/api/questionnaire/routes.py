@@ -7,6 +7,7 @@ from backend.lib.sql import crud, schemas, models
 from backend.lib.api.questionnaire.models import (
     TemplateSearchRequest,
 )
+from backend.lib.api.questionnaire.utility import query_templates, query_template_by_id
 
 router = APIRouter()
 
@@ -38,13 +39,7 @@ def get_templates(
     query: TemplateSearchRequest = Depends(),
     db: Session = Depends(dependency=get_db),
 ) -> Sequence[models.QuestionTemplate]:
-    start: int = (query.page - 1) * query.limit
-    if query.title is None:
-        templates: Sequence[models.QuestionTemplate] = crud.get_all_templates(db=db)
-    else:
-        templates = crud.get_templates_by_title(db=db, title=query.title)
-
-    return templates[start : start + query.limit]  # noqa: E203
+    return query_templates(query=query, db=db)
 
 
 @router.get(
@@ -57,8 +52,8 @@ def get_template(
     template_id: str,  # The ID of the template the client wishes to fetch
     db: Session = Depends(dependency=get_db),
 ) -> models.QuestionTemplate:
-    template: Optional[models.QuestionTemplate] = crud.get_template_by_id(
-        db=db, template_id=template_id
+    template: Optional[models.QuestionTemplate] = query_template_by_id(
+        template_id=template_id, db=db
     )
     if template is None:
         raise HTTPException(status_code=404, detail="Template not found")
@@ -94,19 +89,49 @@ def delete_template(
     return crud.delete_template(db=db, template=template_id)
 
 
-@router.get(
-    path="/questionnaire",
+@router.post(
+    path="/questionnaire/create",
     tags=["questionnaire"],
-    response_model=Sequence[schemas.QuestionTemplateModel],
+    response_model=schemas.ActiveQuestionnaireModel,
 )
-def get_active_questionnaires(
+def create_active_questionnaire(
     request: Request,
-    page: int,
-    limit: int,
-    search_student: Optional[str] = None,
-    search_teacher: Optional[str] = None,
+    questionnaire: schemas.ActiveQuestionnaireCreateModel,
     db: Session = Depends(dependency=get_db),
-) -> Sequence[models.QuestionTemplate]:
-    start: int = (page - 1) * limit
+) -> schemas.ActiveQuestionnaireModel:
+    new_questionnaire: models.ActiveQuestionnaire = crud.add_active_questionnaire(
+        db=db, questionnaire=questionnaire
+    )
+    new_student = schemas.User(
+        id=new_questionnaire.student.id,
+        user_name=new_questionnaire.student.username,
+        full_name=new_questionnaire.student.full_name,
+        role=new_questionnaire.student.role,
+    )
+    new_teacher = schemas.User(
+        id=new_questionnaire.teacher.id,
+        user_name=new_questionnaire.teacher.username,
+        full_name=new_questionnaire.teacher.full_name,
+        role=new_questionnaire.teacher.role,
+    )
+    template = crud.get_template_by_id(
+        db=db, template_id=new_questionnaire.template_reference_id
+    )
+    if template is None:
+        raise HTTPException(status_code=404, detail="Template not found")
 
-    raise NotImplementedError("This endpoint is not yet implemented")
+    questionnaire_to_return = schemas.ActiveQuestionnaireModel(
+        id=new_questionnaire.id,
+        student=new_student,
+        teacher=new_teacher,
+        is_student_finished=new_questionnaire.is_student_finished,
+        is_teacher_finished=new_questionnaire.is_teacher_finished,
+        questionnaire_template=schemas.QuestionnaireTemplateModel(
+            template_id=template.template_id,
+            title=template.title,
+            description=template.description,
+        ),
+        created_at=new_questionnaire.created_at,
+    )
+
+    return questionnaire_to_return

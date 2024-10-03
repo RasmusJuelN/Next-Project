@@ -3,6 +3,8 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, AliasGenerator
 from pydantic.alias_generators import to_camel
 
+from backend.lib.api.auth.models import User
+
 
 class CamelBaseModel(BaseModel):
     model_config = ConfigDict(
@@ -219,3 +221,25 @@ class QuestionTemplateModel(BaseQuestionTemplateModel):
 
     questions: List[QuestionModel]
     template_id: str
+
+
+class QuestionnaireTemplateModel(CamelBaseModel):
+    template_id: str
+    title: str
+    description: str
+
+
+class ActiveQuestionnaireCreateModel(CamelBaseModel):
+    student: User
+    teacher: User
+    template_id: str
+
+
+class ActiveQuestionnaireModel(CamelBaseModel):
+    id: str
+    student: User
+    teacher: User
+    is_student_finished: bool
+    is_teacher_finished: bool
+    questionnaire_template: QuestionnaireTemplateModel
+    created_at: datetime

@@ -3,7 +3,12 @@ from sqlalchemy import Result, select
 from sqlalchemy.orm import Session
 
 from backend.lib.sql import schemas, models
-from backend.lib.sql.utils import generate_random_string, id_exists
+from backend.lib.sql.utils import (
+    generate_random_string,
+    template_id_exists,
+    questionnaire_id_exists,
+    user_exists,
+)
 from backend.lib.sql.exceptions import TemplateNotFoundException, TemplateCreationError
 
 
@@ -144,7 +149,7 @@ def add_template(
         TemplateAlreadyExistsException: If a template with the given ID already exists.
     """
     new_template_id: str = generate_random_string()
-    while id_exists(db=db, id=new_template_id):
+    while template_id_exists(db=db, id=new_template_id):
         new_template_id = generate_random_string()
 
     try:
@@ -553,3 +558,46 @@ def get_options_by_question_id(
         statement=select(models.Option).where(models.Option.question_id == question_id)
     )
     return result.scalars().all()
+
+
+def add_active_questionnaire(
+    db: Session,
+    questionnaire: schemas.ActiveQuestionnaireCreateModel,
+) -> models.ActiveQuestionnaire:
+    new_active_questionnaire_id: str = generate_random_string(length=30)
+    while questionnaire_id_exists(db=db, id=new_active_questionnaire_id):
+        new_active_questionnaire_id = generate_random_string(length=30)
+
+    new_active_questionnaire = models.ActiveQuestionnaire(
+        id=new_active_questionnaire_id,
+        student_id=questionnaire.student.id,
+        teacher_id=questionnaire.teacher.id,
+        is_student_finished=False,
+        is_teacher_finished=False,
+        template_reference_id=questionnaire.template_id,
+    )
+
+    db.add(instance=new_active_questionnaire)
+    db.flush()
+
+    if not user_exists(db=db, id=questionnaire.student.id):
+        new_student = models.User(
+            id=questionnaire.student.id,
+            username=questionnaire.student.user_name,
+            full_name=questionnaire.student.full_name,
+            role=questionnaire.student.role,
+        )
+        db.add(instance=new_student)
+
+    if not user_exists(db=db, id=questionnaire.teacher.id):
+        new_teacher = models.User(
+            id=questionnaire.teacher.id,
+            username=questionnaire.teacher.user_name,
+            full_name=questionnaire.teacher.full_name,
+            role=questionnaire.teacher.role,
+        )
+        db.add(instance=new_teacher)
+
+    db.commit()
+
+    return new_active_questionnaire

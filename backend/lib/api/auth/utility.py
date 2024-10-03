@@ -4,7 +4,6 @@ from jose import jwt
 from ldap3 import Server, Connection, Entry, SASL, DIGEST_MD5, ALL, SUBTREE
 from datetime import datetime, timedelta, UTC
 from uuid import UUID
-from cachetools import TTLCache
 from hashlib import sha512
 
 from backend import app_settings
@@ -16,81 +15,7 @@ from backend.lib.api.auth.exceptions import (
 )
 from backend.lib.api.auth.models import User
 from backend.lib.api.auth.typing import UserSearchEntry
-from backend.lib.api.auth import logger
-
-CACHE: TTLCache = TTLCache(
-    maxsize=100, ttl=60
-)  # LRU cache with a 1-minute TTL that can cache up to 100 items
-
-
-def add_to_cache(key: str, value: Any) -> None:
-    """
-    Adds a key-value pair to the cache.
-
-    Args:
-        key (str): The key to add to the cache.
-        value (Any): The value to add to the cache.
-    """
-    CACHE[key] = value
-    logger.debug(
-        msg=f"Cached {key} with a TTL of {CACHE.ttl}. {CACHE.currsize}/{CACHE.maxsize} items in cache"
-    )
-
-
-def get_from_cache(key: str) -> Optional[Any]:
-    """
-    Retrieves a value from the cache.
-
-    Args:
-        key (str): The key to retrieve from the cache.
-
-    Returns:
-        Any: The value retrieved from the cache, or None if the key is not found.
-    """
-    try:
-        value: Any = CACHE[key]
-        logger.debug(msg=f"Cache hit: {key}")
-        return value
-    except KeyError:
-        logger.debug(msg=f"Cache miss: {key}")
-        return None
-
-
-def is_key_in_cache(key: str) -> bool:
-    """
-    Searches for a key in the cache.
-
-    Args:
-        key (str): The key to search for in the cache.
-
-    Returns:
-        bool: True if the key is found in the cache, False otherwise.
-    """
-    return key in CACHE
-
-
-def remove_from_cache(key: str) -> None:
-    """
-    Removes a key-value pair from the cache.
-
-    Args:
-        key (str): The key to remove from the cache.
-    """
-    try:
-        CACHE.pop(key=key)
-        logger.debug(
-            msg=f"Removed {key} from cache. {len(CACHE)}/{CACHE.maxsize} items in cache"
-        )
-    except KeyError:
-        logger.debug(msg=f"Key {key} not found in cache")
-
-
-def clear_cache() -> None:
-    """
-    Clears the cache.
-    """
-    CACHE.clear()
-    logger.debug(msg="Cleared cache")
+from backend.lib import cache
 
 
 def hash_string(string: str) -> str:
@@ -595,7 +520,7 @@ def resolve_to_dn(
         ValueError: If no matching entries are found or if the attribute is not found.
     """
     cache_key: str = f"{search_base}:{search_filter}:{attribute}"
-    cached_dn: Optional[Any] = get_from_cache(key=cache_key)
+    cached_dn: Optional[Any] = cache.read(key=cache_key)
     if cached_dn:
         return cached_dn
 
@@ -614,7 +539,7 @@ def resolve_to_dn(
     if connection.entries:
         entry: Entry = connection.entries[0]
         dn = entry.entry_dn
-        add_to_cache(key=cache_key, value=dn)
+        cache.write(key=cache_key, value=dn)
         return dn
 
     raise ValueError(f"The '{attribute}' attribute was not found")
@@ -657,7 +582,7 @@ def query_for_users_ldap(
     cache_key: str = f"{role}:{search_query}"
 
     cached_users: Optional[Sequence[User]] = cast(
-        Optional[Sequence[User]], get_from_cache(key=cache_key)
+        Optional[Sequence[User]], cache.read(key=cache_key)
     )
     if cached_users is not None:
         cached_users_to_return: Sequence[User] = cached_users[
@@ -697,7 +622,7 @@ def query_for_users_ldap(
             )
         )
 
-    add_to_cache(key=cache_key, value=users)
+    cache.write(key=cache_key, value=users)
 
     users_to_return: Sequence[User] = users[
         (page - 1) * limit : page * limit  # noqa: E203
