@@ -1,8 +1,8 @@
 from dataclasses import field
 from pydantic.dataclasses import dataclass
-from pydantic import AliasGenerator, ConfigDict
+from pydantic import AliasGenerator, ConfigDict, BaseModel, Field
 from pydantic.alias_generators import to_camel
-from typing import Optional, Literal
+from typing import Optional, Literal, Sequence, Union, List
 
 
 config = ConfigDict(
@@ -56,3 +56,30 @@ class AuthSettings:
 class AppSettings:
     auth: AuthSettings = field(default_factory=AuthSettings)
     database: DatabaseSettings = field(default_factory=DatabaseSettings)
+
+
+class CamelCaseModel(BaseModel):
+    class Config:
+        alias_generator = AliasGenerator(
+            validation_alias=to_camel,
+            serialization_alias=to_camel,
+        )
+        populate_by_name = True
+
+
+class Metadata(CamelCaseModel):
+    default: Optional[Union[str, int, bool, Sequence]] = Field(default=None)
+    min_value: Optional[int] = Field(default=None)
+    max_value: Optional[int] = Field(default=None)
+    allowed_values: Optional[List[Union[str, int]]] = Field(default=None)
+    can_be_empty: bool = Field(default=False)
+    description: Optional[str] = Field(default=None)
+
+
+class DatabaseSettingsModel(CamelCaseModel):
+    database_type: Metadata = Metadata(
+        default="sqlite",
+        allowed_values=["sqlite", "mysql", "mssql"],
+        can_be_empty=False,
+        description="The type of database to use.",
+    )
