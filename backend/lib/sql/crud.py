@@ -86,7 +86,7 @@ def get_template_by_id(
     return result.scalars().first()
 
 
-def get_templates(
+def get_all_templates(
     db: Session,
 ) -> Sequence[models.QuestionTemplate]:
     """
@@ -101,6 +101,28 @@ def get_templates(
     db.flush()
     result: Result[Tuple[models.QuestionTemplate]] = db.execute(
         statement=select(models.QuestionTemplate)
+    )
+    return result.scalars().all()
+
+
+def get_templates_by_title(
+    db: Session, title: str
+) -> Sequence[models.QuestionTemplate]:
+    """
+    Retrieve all question templates which contain the given title from the database.
+
+    Args:
+        db (Session): The database session to use for the query.
+        title (str): The title of the templates to retrieve.
+
+    Returns:
+        Sequence[models.QuestionTemplate]: A sequence, typically a list, of all question templates with the given title. If no templates are found, an empty sequence is returned.
+    """
+    db.flush()
+    result: Result[Tuple[models.QuestionTemplate]] = db.execute(
+        statement=select(models.QuestionTemplate).where(
+            models.QuestionTemplate.title.like(other=f"%{title}%")
+        )
     )
     return result.scalars().all()
 
