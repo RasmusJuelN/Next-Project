@@ -1,17 +1,11 @@
 from fastapi import Request, APIRouter, Depends, HTTPException
-from logging import Logger, DEBUG, INFO
 from sqlalchemy.orm import Session
 from typing import Sequence, Optional
 
-from backend.lib._logger import LogHelper
 from backend.lib.sql.dependencies import get_db
 from backend.lib.sql import crud, schemas, models
-
-logger: Logger = LogHelper.create_logger(
-    logger_name="backend API (questionnaire)",
-    log_file="backend/logs/backend.log",
-    file_log_level=DEBUG,
-    stream_log_level=INFO,
+from backend.lib.api.questionnaire.models import (
+    TemplateSearchRequest,
 )
 
 router = APIRouter()
@@ -35,14 +29,22 @@ def create_template(
 
 
 @router.get(
-    path="/templates",
+    path="/templates/query",
     tags=["template"],
     response_model=Sequence[schemas.QuestionTemplateModel],
 )
 def get_templates(
-    request: Request, db: Session = Depends(dependency=get_db)
+    request: Request,
+    query: TemplateSearchRequest = Depends(),
+    db: Session = Depends(dependency=get_db),
 ) -> Sequence[models.QuestionTemplate]:
-    return crud.get_templates(db=db)
+    start: int = (query.page - 1) * query.limit
+    if query.title is None:
+        templates: Sequence[models.QuestionTemplate] = crud.get_all_templates(db=db)
+    else:
+        templates = crud.get_templates_by_title(db=db, title=query.title)
+
+    return templates[start : start + query.limit]  # noqa: E203
 
 
 @router.get(
