@@ -99,7 +99,7 @@ def generate_random_string(
     return "".join(choice(seq=char_set) for _ in range(length))
 
 
-def id_exists(db: Session, id: str) -> bool:
+def template_id_exists(db: Session, id: str) -> bool:
     """
     Check if a given template ID exists in the database.
 
@@ -113,3 +113,31 @@ def id_exists(db: Session, id: str) -> bool:
     return (
         db.query(models.QuestionTemplate).filter_by(template_id=id).first() is not None
     )
+
+
+def questionnaire_id_exists(db: Session, id: str) -> bool:
+    """
+    Check if a given questionnaire ID exists in the database.
+
+    Args:
+        db: The database session.
+        id (str): The questionnaire ID to check for in the database.
+
+    Returns:
+        bool: True if the questionnaire ID exists in the database, False otherwise.
+    """
+    return db.query(models.ActiveQuestionnaire).filter_by(id=id).first() is not None
+
+
+def user_exists(db: Session, id: str) -> bool:
+    """
+    Check if a given user ID exists in the database.
+
+    Args:
+        db: The database session.
+        id (str): The user ID to check for in the database.
+
+    Returns:
+        bool: True if the user ID exists in the database, False otherwise.
+    """
+    return db.query(models.User).filter_by(id=id).first() is not None
