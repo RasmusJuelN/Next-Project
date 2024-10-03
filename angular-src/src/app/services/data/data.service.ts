@@ -82,7 +82,7 @@ export class DataService {
   getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<UserSearchResponse> {
     let params = new HttpParams()
       .set('role', role)
-      .set('search_query', searchQuery) // Updated parameter name
+      .set('searchQuery', searchQuery) // Updated parameter name
       .set('page', page.toString())
       .set('limit', limit.toString());
 
