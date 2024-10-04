@@ -50,6 +50,9 @@ class AuthSettings:
     )
     ad_service_account: Optional[str] = field(default=None)
     ad_service_password: Optional[str] = field(default=None)
+    authentication_method: Literal["simple", "sasl-digest-md5", "NTLM"] = field(
+        default="simple"
+    )
 
 
 @dataclass(config=config)
