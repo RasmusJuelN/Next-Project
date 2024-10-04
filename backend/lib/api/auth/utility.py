@@ -1,7 +1,7 @@
 from typing import Any, Union, overload, Optional, List, Sequence, cast
 from fastapi import HTTPException, status, Depends
 from jose import jwt
-from ldap3 import Server, Connection, Entry, SASL, DIGEST_MD5, ALL, SUBTREE
+from ldap3 import Connection, Entry, SUBTREE
 from datetime import datetime, timedelta, UTC
 from uuid import UUID
 from hashlib import sha512
