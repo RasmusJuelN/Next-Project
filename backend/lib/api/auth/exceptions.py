@@ -66,3 +66,20 @@ class MissingSaltHashError(Exception):
         super().__init__(
             "A salt hash in the settings file under `auth.salt_hash` must be set. It is used to hash user data. It should be a long, random string. One can be generated with `openssl rand -hex 32`."
         )
+
+
+class InvalidLDAPAuthenticationMethodError(Exception):
+    """
+    Exception raised when an invalid LDAP authentication method is specified in the settings file.
+
+    This exception is triggered when the `auth.authentication_method` setting in the settings file
+    is not one of the supported LDAP authentication methods: "simple", "sasl-digest-md5", or "NTLM".
+
+    Attributes:
+        message (str): Explanation of the error.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(
+            "The LDAP authentication method specified in the settings file under `auth.authentication_method` is invalid. Supported methods are 'simple', 'sasl-digest-md5', and 'NTLM'."
+        )
