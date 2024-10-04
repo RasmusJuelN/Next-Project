@@ -246,38 +246,6 @@ def get_username_from_token(
     return username
 
 
-def authenticate_user_ldap(username: str, password: str) -> Connection:
-    """
-    Low-level function to authenticate a user against an LDAP server.
-
-    Low-level function that attempts to authenticate a user against an LDAP server.
-    No exceptions are handled, no logging is done, and no checks are performed.
-    Caller is expected to handle all of these. Refer to `ldap3`'s documentation, especially on exceptions.
-
-    Args:
-        username (str): The username to authenticate.
-        password (str): The password to authenticate.
-
-    Returns:
-        Connection: An LDAP connection object on successful authentication.
-
-    Raises:
-        LDAPException: If the connection fails for any reason. Use specific exceptions for more granular error handling.
-    """
-    server = Server(host=app_settings.settings.auth.ldap_server, get_info=ALL)
-
-    conn = Connection(
-        server=server,
-        auto_bind=True,
-        version=3,
-        authentication=SASL,
-        sasl_mechanism=DIGEST_MD5,
-        sasl_credentials=(None, username, password, None, "sign"),
-        raise_exceptions=True,
-    )
-    return conn
-
-
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
     Create an access token with the provided data and expiration delta.

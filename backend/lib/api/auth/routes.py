@@ -15,13 +15,13 @@ from backend.lib.api.auth.utility import (
     get_member_of_from_ldap,
     get_uuid_from_ldap,
     determine_scope_from_groups,
-    authenticate_user_ldap,
     create_access_token,
     query_for_users_ldap,
 )
 from backend.lib.api.auth.dependencies import authenticate_with_sa_service_account
 from backend.lib.api.auth.models import User, UserSearchResponse, UserSearchRequest
 from backend.lib.api.auth.exceptions import NoLDAPResultsError
+from backend.lib.api.auth.classes import LDAPConnection
 from backend import app_settings
 
 
@@ -34,8 +34,39 @@ def authenticate_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> dict[str, str]:
     try:
-        conn: Connection = authenticate_user_ldap(
-            username=form_data.username, password=form_data.password
+        with LDAPConnection(
+            username=form_data.username,
+            password=form_data.password,
+        ) as connection:
+
+            access_token_expires = timedelta(
+                minutes=app_settings.settings.auth.access_token_expire_minutes
+            )
+            full_name: str = get_full_name_from_ldap(
+                connection=connection, username=form_data.username
+            )
+            encoded_jwt: str = create_access_token(
+                data={
+                    "sub": get_uuid_from_ldap(
+                        connection=connection, username=form_data.username
+                    ),
+                    "full_name": full_name,
+                    "scope": determine_scope_from_groups(
+                        groups=get_member_of_from_ldap(
+                            connection=connection, username=form_data.username
+                        )
+                    ),
+                    "username": form_data.username,
+                },
+                expires_delta=access_token_expires,
+            )
+
+    except ValueError as e:
+        logger.exception(msg=str(object=e))
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User does not have the required permissions to access this resource.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     except LDAPInvalidCredentialsResult:
         ip_address: str = (
@@ -49,34 +80,7 @@ def authenticate_user(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(
-        minutes=app_settings.settings.auth.access_token_expire_minutes
-    )
-    full_name: str = get_full_name_from_ldap(
-        connection=conn, username=form_data.username
-    )
-    try:
-        encoded_jwt: str = create_access_token(
-            data={
-                "sub": get_uuid_from_ldap(connection=conn, username=form_data.username),
-                "full_name": full_name,
-                "scope": determine_scope_from_groups(
-                    groups=get_member_of_from_ldap(
-                        connection=conn, username=form_data.username
-                    )
-                ),
-                "username": form_data.username,
-            },
-            expires_delta=access_token_expires,
-        )
-    except ValueError as e:
-        conn.unbind()
-        logger.exception(msg=str(object=e))
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User does not have the required permissions to access this resource.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+
     return {"access_token": encoded_jwt, "token_type": "bearer"}
 
 
