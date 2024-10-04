@@ -14,6 +14,7 @@ class LogEntry(CamelCaseModel):
     """
     A Pydantic model representing a log entry.
     """
+
     timestamp: str
     severity: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     source: str

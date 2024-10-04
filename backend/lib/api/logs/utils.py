@@ -1,7 +1,7 @@
-from typing import List, Literal, Optional, cast, Union
+from typing import List, Literal, Optional, cast, Union, Tuple
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
-from re import Match, search
 from pathlib import Path
+from re import match, Match, DOTALL
 
 from backend.lib.api.logs.models import LogEntry
 
@@ -19,6 +19,15 @@ LOG_LEVEL_STRING_TO_LITERAL: dict[str, int] = {
 LOG_CAPTURE_PATTERN: str = (
     r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(\w+)\s*\] ([\w\s\.]+(?: \([\w\s]+\))?): (.+)"
 )
+
+
+def parse_log_line(log_line: str) -> Optional[Tuple[str, str, str, str]]:
+    _match: Optional[Match[str]] = match(
+        pattern=LOG_CAPTURE_PATTERN, string=log_line, flags=DOTALL
+    )
+    if _match:
+        return cast(Tuple[str, str, str, str], _match.groups())
+    return None
 
 
 def read_logs(
@@ -49,19 +58,18 @@ def read_logs(
             # Skip empty lines
             continue
 
-        log_level: Optional[Match[str]] = search(
-            pattern=LOG_CAPTURE_PATTERN,
-            string=log_line,
+        parsed_log: Optional[Tuple[str, str, str, str]] = parse_log_line(
+            log_line=log_line
         )
-        if log_level is None:
+        if parsed_log is None:
             # Assume it is part of a multiline log message where the previous line was the log level
             last_log_line: LogEntry = log_lines[-1]
             last_log_line.message += log_line
             continue
         else:
-            literal_log_level: int = LOG_LEVEL_STRING_TO_LITERAL[log_level.group(2)]
+            literal_log_level: int = LOG_LEVEL_STRING_TO_LITERAL[parsed_log[1]]
             if literal_log_level <= literal_log_severity:
-                timestamp: str = log_level.group(1)
+                timestamp: str = parsed_log[0]
                 severity: Union[
                     Literal["DEBUG"],
                     Literal["INFO"],
@@ -70,10 +78,10 @@ def read_logs(
                     Literal["CRITICAL"],
                 ] = cast(
                     Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-                    log_level.group(2),
+                    parsed_log[1],
                 )
-                source: str = log_level.group(3)
-                message: str = log_level.group(4)
+                source: str = parsed_log[2]
+                message: str = parsed_log[3]
                 log_lines.append(
                     LogEntry(
                         timestamp=timestamp,
