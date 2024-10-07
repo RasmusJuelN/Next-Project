@@ -144,7 +144,7 @@ export class DataService {
       }
     });
   
-    const url = `${this.apiUrl}/questionnaire`;
+    const url = `${this.apiUrl}/questionnaire/query`;
     return this.http.get<ActiveQuestionnaire[]>(url, { params })
       .pipe(
         catchError(this.handleError<ActiveQuestionnaire[]>('getActiveQuestionnairePage', []))

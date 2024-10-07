@@ -57,13 +57,16 @@ class QuestionTemplate(Base):
     questions: Mapped[List["Question"]] = relationship(
         argument="Question", back_populates="template", cascade="all, delete-orphan"
     )
+    template_questionnaires: Mapped[List["ActiveQuestionnaire"]] = relationship(
+        argument="ActiveQuestionnaire", back_populates="template"
+    )
 
 
 class User(Base):
     __tablename__: str = "users"
 
     id: Mapped[str] = mapped_column(type_=String, primary_key=True, index=True)
-    username: Mapped[str] = mapped_column(type_=String, index=True)
+    user_name: Mapped[str] = mapped_column(type_=String, index=True)
     full_name: Mapped[str] = mapped_column(type_=String, index=False)
     role: Mapped[str] = mapped_column(type_=String, index=False)
 
@@ -107,4 +110,9 @@ class ActiveQuestionnaire(Base):
         argument="User",
         foreign_keys=[teacher_id],
         back_populates="teacher_questionnaires",
+    )
+    template: Mapped["QuestionTemplate"] = relationship(
+        argument="QuestionTemplate",
+        foreign_keys=[template_reference_id],
+        back_populates="template_questionnaires",
     )

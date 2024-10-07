@@ -67,7 +67,7 @@ export class MockDbService {
         teacher: { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
         isStudentFinished: true,
         isTeacherFinished: true,
-        questionnaireTemplate: {
+        template: {
           templateId: 'template1',
           title: 'Employee Performance Review',
           description: 'A template for assessing employee performance in various aspects of their job.'
@@ -79,7 +79,7 @@ export class MockDbService {
         teacher: { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
         isStudentFinished: false,
         isTeacherFinished: false,
-        questionnaireTemplate: {
+        template: {
           templateId: 'template1',
           title: 'Employee Performance Review',
           description: 'A template for assessing employee performance in various aspects of their job.'

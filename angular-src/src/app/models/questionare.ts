@@ -53,7 +53,7 @@ export interface ActiveQuestionnaire {
   teacher: User; // The teacher involved in the questionnaire
   isStudentFinished: boolean; // Whether the student has finished the questionnaire
   isTeacherFinished: boolean; // Whether the teacher has finished the questionnaire
-  questionnaireTemplate: {
+  template: {
     templateId: string; // ID of the template used
     title: string; // Title of the template
     description: string; // Description of the template

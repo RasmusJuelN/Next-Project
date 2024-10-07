@@ -194,7 +194,7 @@ export class MockDataService {
   
     // Step 3: Find the corresponding question template
     const template = this.mockDbService.mockData.mockQuestionTemplates.find(
-      qt => qt.templateId === activeQuestionnaire.questionnaireTemplate.templateId
+      qt => qt.templateId === activeQuestionnaire.template.templateId
     );
     if (!template) return throwError(() => new Error('Question template not found'));
   
@@ -249,7 +249,7 @@ export class MockDataService {
       id: this.generateId(), // Generate a unique ID based on the current timestamp
       student,
       teacher,
-      questionnaireTemplate: {
+      template: {
         templateId: template.templateId,
         title: template.title,
         description: template.description

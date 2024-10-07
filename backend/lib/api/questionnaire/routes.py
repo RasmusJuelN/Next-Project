@@ -6,8 +6,13 @@ from backend.lib.sql.dependencies import get_db
 from backend.lib.sql import crud, schemas, models
 from backend.lib.api.questionnaire.models import (
     TemplateSearchRequest,
+    QuestionnaireSearchRequest,
 )
-from backend.lib.api.questionnaire.utility import query_templates, query_template_by_id
+from backend.lib.api.questionnaire.utility import (
+    query_templates,
+    query_template_by_id,
+    query_questionnaires,
+)
 
 router = APIRouter()
 
@@ -98,40 +103,21 @@ def create_active_questionnaire(
     request: Request,
     questionnaire: schemas.ActiveQuestionnaireCreateModel,
     db: Session = Depends(dependency=get_db),
-) -> schemas.ActiveQuestionnaireModel:
+) -> models.ActiveQuestionnaire:
     new_questionnaire: models.ActiveQuestionnaire = crud.add_active_questionnaire(
         db=db, questionnaire=questionnaire
     )
-    new_student = schemas.User(
-        id=new_questionnaire.student.id,
-        user_name=new_questionnaire.student.username,
-        full_name=new_questionnaire.student.full_name,
-        role=new_questionnaire.student.role,
-    )
-    new_teacher = schemas.User(
-        id=new_questionnaire.teacher.id,
-        user_name=new_questionnaire.teacher.username,
-        full_name=new_questionnaire.teacher.full_name,
-        role=new_questionnaire.teacher.role,
-    )
-    template = crud.get_template_by_id(
-        db=db, template_id=new_questionnaire.template_reference_id
-    )
-    if template is None:
-        raise HTTPException(status_code=404, detail="Template not found")
+    return new_questionnaire
 
-    questionnaire_to_return = schemas.ActiveQuestionnaireModel(
-        id=new_questionnaire.id,
-        student=new_student,
-        teacher=new_teacher,
-        is_student_finished=new_questionnaire.is_student_finished,
-        is_teacher_finished=new_questionnaire.is_teacher_finished,
-        questionnaire_template=schemas.QuestionnaireTemplateModel(
-            template_id=template.template_id,
-            title=template.title,
-            description=template.description,
-        ),
-        created_at=new_questionnaire.created_at,
-    )
 
-    return questionnaire_to_return
+@router.get(
+    path="/questionnaire/query",
+    tags=["questionnaire"],
+    response_model=Sequence[schemas.ActiveQuestionnaireModel],
+)
+def get_active_questionnaires(
+    request: Request,
+    query: QuestionnaireSearchRequest = Depends(),
+    db: Session = Depends(dependency=get_db),
+) -> Sequence[models.ActiveQuestionnaire]:
+    return query_questionnaires(query=query, db=db)

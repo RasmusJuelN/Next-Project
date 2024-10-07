@@ -46,7 +46,7 @@ export class QuestionnaireService {
    */
   initializeQuestionsAndMetadata(questionnaire: ActiveQuestionnaire): void {
     this.activeQuestionnaire = questionnaire;
-    this.getQuestionsForUser(questionnaire.questionnaireTemplate.templateId).subscribe((questions) => {
+    this.getQuestionsForUser(questionnaire.template.templateId).subscribe((questions) => {
       const metadata = this.initializeMetadata(questions, questionnaire.id);
       this.metadataSubject.next(metadata);
       this.questionsSubject.next(questions);

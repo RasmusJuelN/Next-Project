@@ -1,5 +1,5 @@
 from typing import Tuple, Optional, Sequence, overload, Union, Protocol, TypeAlias
-from sqlalchemy import Result, select
+from sqlalchemy import Result, select, and_, or_
 from sqlalchemy.orm import Session
 
 from backend.lib.sql import schemas, models
@@ -583,7 +583,7 @@ def add_active_questionnaire(
     if not user_exists(db=db, id=questionnaire.student.id):
         new_student = models.User(
             id=questionnaire.student.id,
-            username=questionnaire.student.user_name,
+            user_name=questionnaire.student.user_name,
             full_name=questionnaire.student.full_name,
             role=questionnaire.student.role,
         )
@@ -592,7 +592,7 @@ def add_active_questionnaire(
     if not user_exists(db=db, id=questionnaire.teacher.id):
         new_teacher = models.User(
             id=questionnaire.teacher.id,
-            username=questionnaire.teacher.user_name,
+            user_name=questionnaire.teacher.user_name,
             full_name=questionnaire.teacher.full_name,
             role=questionnaire.teacher.role,
         )
@@ -601,3 +601,34 @@ def add_active_questionnaire(
     db.commit()
 
     return new_active_questionnaire
+
+
+def get_all_active_questionnaires(
+    db: Session,
+    teacher: str,
+    student: str,
+) -> Sequence[models.ActiveQuestionnaire]:
+    db.flush()
+    result: Result[Tuple[models.ActiveQuestionnaire]] = db.execute(
+        statement=select(models.ActiveQuestionnaire).where(
+            and_(
+                or_(
+                    models.ActiveQuestionnaire.student.has(
+                        criterion=models.User.user_name.like(other=f"%{student}%")
+                    ),
+                    models.ActiveQuestionnaire.student.has(
+                        criterion=models.User.full_name.like(other=f"%{student}%")
+                    ),
+                ),
+                or_(
+                    models.ActiveQuestionnaire.teacher.has(
+                        criterion=models.User.user_name.like(other=f"%{teacher}%")
+                    ),
+                    models.ActiveQuestionnaire.teacher.has(
+                        criterion=models.User.full_name.like(other=f"%{teacher}%")
+                    ),
+                ),
+            )
+        )
+    )
+    return result.scalars().all()

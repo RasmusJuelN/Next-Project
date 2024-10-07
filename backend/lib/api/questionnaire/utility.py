@@ -5,6 +5,7 @@ from backend.lib import cache
 from backend.lib.sql import crud, models
 from backend.lib.api.questionnaire.models import (
     TemplateSearchRequest,
+    QuestionnaireSearchRequest,
 )
 
 
@@ -84,3 +85,30 @@ def query_template_by_id(
         cache.write(key=cached_key, value=template)
 
     return template
+
+
+def query_questionnaires(
+    query: QuestionnaireSearchRequest, db: Session
+) -> Sequence[models.ActiveQuestionnaire]:
+    start: int = (query.page - 1) * query.limit
+
+    cached_key: str = (
+        f"query_questionnaires_{query.search_student}_{query.search_teacher}"
+    )
+
+    cached_questionnaires: Optional[Sequence[models.ActiveQuestionnaire]] = cast(
+        Optional[Sequence[models.ActiveQuestionnaire]], cache.read(key=cached_key)
+    )
+
+    if cached_questionnaires:
+        return cached_questionnaires[start : start + query.limit]  # noqa: E203
+
+    questionnaires: Sequence[models.ActiveQuestionnaire] = (
+        crud.get_all_active_questionnaires(
+            db=db, teacher=query.search_teacher, student=query.search_student
+        )
+    )
+
+    cache.write(key=cached_key, value=questionnaires)
+
+    return questionnaires[start : start + query.limit]  # noqa: E203

@@ -241,5 +241,5 @@ class ActiveQuestionnaireModel(CamelBaseModel):
     teacher: User
     is_student_finished: bool
     is_teacher_finished: bool
-    questionnaire_template: QuestionnaireTemplateModel
+    template: QuestionnaireTemplateModel
     created_at: datetime
