@@ -285,10 +285,9 @@ def get_object_by_uuid(
     Raises:
         ValueError: If no matching entries are found or if the 'objectGUID' attribute is not found.
     """
-    # TODO: Replace hardcoded search_base with a setting
     try:
         connection.search(
-            search_base="ou=next,dc=next,dc=dev",
+            search_base=app_settings.settings.auth.ldap_base_dn,
             search_filter=f"(objectGUID={uuid})",
             attributes=["sAMAccountName"],
         )
@@ -344,10 +343,9 @@ def get_uuid_from_ldap(
     Raises:
         ValueError: If no matching entries are found or if the 'objectGUID' attribute is not found.
     """
-    # TODO: Replace hardcoded search_base with a setting
     try:
         connection.search(
-            search_base="ou=next,dc=next,dc=dev",
+            search_base=app_settings.settings.auth.ldap_base_dn,
             search_filter=f"(sAMAccountName={username})",
             attributes=["objectGUID"],
         )
@@ -382,10 +380,9 @@ def get_member_of_from_ldap(
     Raises:
         ValueError: If no matching entries are found or if the 'memberOf' attribute is not found.
     """
-    # TODO: Replace hardcoded search_base with a setting
     try:
         connection.search(
-            search_base="ou=next,dc=next,dc=dev",
+            search_base=app_settings.settings.auth.ldap_base_dn,
             search_filter=f"(sAMAccountName={username})",
             attributes=["memberOf"],
         )
@@ -450,10 +447,9 @@ def return_first_non_empty_attribute(
     Raises:
         ValueError: If no matching entries are found or if none of the expected attributes are found.
     """
-    # TODO: Replace hardcoded search_base with a setting
     try:
         connection.search(
-            search_base="ou=next,dc=next,dc=dev",
+            search_base=app_settings.settings.auth.ldap_base_dn,
             search_filter=f"(sAMAccountName={username})",
             attributes=attributes,
         )
