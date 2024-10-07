@@ -83,3 +83,36 @@ class InvalidLDAPAuthenticationMethodError(Exception):
         super().__init__(
             "The LDAP authentication method specified in the settings file under `auth.authentication_method` is invalid. Supported methods are 'simple', 'sasl-digest-md5', and 'NTLM'."
         )
+
+
+class LDAPControlNotAdvertisedException(Exception):
+    """
+    Baseclass exception raised when the LDAP server does not advertise the requested extended control.
+
+    This exception is raised when the LDAP server does not advertise one or all of the requested
+    extended controls. This could be due to the LDAP server not supporting the requested control,
+    or the control being disabled on the server.
+
+    Attributes:
+        message (str): Explanation of the error.
+    """
+
+    def __init__(self, control_oid: str) -> None:
+        super().__init__(
+            f"The LDAP server does not advertise the requested extended control with OID {control_oid}."
+        )
+
+
+class LDAPSignedIntegrityProtectionNotSupportedError(LDAPControlNotAdvertisedException):
+    """
+    Exception raised when the LDAP server does not advertise support for signed integrity protection.
+
+    This exception is triggered when the LDAP server does not advertise support for signed integrity
+    protection, which is required for the LDAP authentication method "sasl-digest-md5".
+
+    Attributes:
+        message (str): Explanation of the error.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(control_oid="1.2.840.113556.1.4.1791")
