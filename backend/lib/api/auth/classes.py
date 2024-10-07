@@ -1,10 +1,15 @@
 from ldap3 import ALL, Connection, Server, DIGEST_MD5, NTLM, SASL
 from ldap3.core.exceptions import LDAPException
-from typing import Optional
+from ldap3.protocol.rfc4512 import DsaInfo
+from typing import Literal, Optional, Union, Callable, List, Tuple
 from enum import Enum
 
+
 from backend.lib.api.auth import logger
-from backend.lib.api.auth.exceptions import InvalidLDAPAuthenticationMethodError
+from backend.lib.api.auth.exceptions import (
+    InvalidLDAPAuthenticationMethodError,
+    LDAPSignedIntegrityProtectionNotSupportedError,
+)
 from backend import app_settings
 
 # Define constants for authentication methods
@@ -29,6 +34,7 @@ class DirectoryServiceFeature(Enum):
     This enum provides a list of Active Directory specific OIDs that
     can be used to determine if the LDAP server is an
     Active Directory server, as well as its feature set.
+    Refer to https://oidref.com/1.2.840.113556.1.4 for more information.
 
     Attributes:
         `ACTIVE_DIRECTORY` (str): The OID for Active Directory.
@@ -63,38 +69,64 @@ class DirectoryServiceFeature(Enum):
 
 class LDAPConnection:
     """
-    LDAPConnection class for handling LDAP authentication using various methods.
+    LDAPConnection class for handling LDAP authentication using various
+    methods, including the option to provide a custom authentication
+    method instead of the built-in methods.
 
-    This class provides methods to authenticate a user against an LDAP server using
-    SASL with DIGEST-MD5, simple authentication, or NTLM. It also supports context
-    management to ensure proper cleanup of the connection.
+    This class provides methods to authenticate a user against an LDAP
+    server using SASL with DIGEST-MD5, simple authentication, NTLM,
+    or a custom method. It also supports context management to
+    ensure proper cleanup of the connection.
 
     Attributes:
         server (Server): The LDAP server instance.
         connection (Optional[Connection]): The LDAP connection object.
+        username (str): The username for authentication.
+        custom_authentication_method (Optional[Callable[[str, str, Server], Connection]]):
 
     Methods:
-        authenticate_using_sasl_digest_md5() -> Connection:
+        `authenticate_using_sasl_digest_md5() -> Connection:`
             Authenticates a username and password using SASL with DIGEST-MD5 against
-        authenticate_using_simple() -> Connection:
+            an LDAP server.
+        `authenticate_using_simple() -> Connection:`
             Authenticates a username and password using simple authentication against
-        authenticate_using_ntlm() -> Connection:
+            an LDAP server.
+        `authenticate_using_ntlm() -> Connection:`
             Authenticates a username and password using NTLM authentication against
-        authenticate() -> Connection:
+            an LDAP server.
+        `authenticate() -> Connection:`
+            Authenticates a username and password using SASL, simple, or NTLM
+            authentication against an LDAP server, based on the authentication
+            method specified in the settings.
     """
 
-    def __init__(self, username: str, password: str) -> None:
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        custom_authentication_method: Optional[
+            Callable[[str, str, Server], Connection]
+        ] = None,
+    ) -> None:
         """
-        Initializes the LDAPConnection with the given username and password.
+        Initializes the LDAPConnection with the given username and password, and an optional
+        custom authentication method.
 
         Args:
             username (str): The username for authentication.
             password (str): The password for authentication.
+            custom_authentication_method (Optional[Callable[[str, str, Server], Connection]]):
+                A custom authentication method that takes a username, password, and Server
+                instance as arguments and returns an LDAP connection object. Defaults to None.
         """
         self.server: Server = self._create_server()
         self.username: str = username
         self.password: str = password
         self.connection: Optional[Connection] = None
+        self.custom_authentication_method: Optional[
+            Callable[[str, str, Server], Connection]
+        ] = custom_authentication_method
+        self.server_info: DsaInfo = self._get_server_info()
 
     def authenticate_using_sasl_digest_md5(self) -> Connection:
         """
@@ -110,6 +142,8 @@ class LDAPConnection:
             Connection: An LDAP connection object on successful authentication.
 
         Raises:
+            LDAPSignedIntegrityProtectionNotSupportedError: If the LDAP server
+                does not advertise support for signed integrity protection.
             LDAPException: If the connection fails for any reason. Use
                 specific exceptions for more granular error handling.
 
@@ -130,9 +164,9 @@ class LDAPConnection:
         """
         if not (
             DirectoryServiceFeature.ACTIVE_DIRECTORY_LDAP_INTEG.value
-            in self.server.info.supported_features
+            in self.server_info.supported_features
         ):
-            raise LDAPException("LDAP server does not support DIGEST-MD5 with signing.")
+            raise LDAPSignedIntegrityProtectionNotSupportedError
 
         connection: Connection = Connection(
             server=self.server,
@@ -140,7 +174,13 @@ class LDAPConnection:
             version=3,
             authentication=SASL,
             sasl_mechanism=DIGEST_MD5,
-            sasl_credentials=(None, self.username, self.password, None, "sign"),
+            sasl_credentials=(
+                None,
+                self._build_username(),
+                self.password,
+                None,
+                "sign",
+            ),
             raise_exceptions=True,
         )
         try:
@@ -184,7 +224,7 @@ class LDAPConnection:
             server=self.server,
             auto_bind=False,
             version=3,
-            user=self.username,
+            user=self._build_username(),
             password=self.password,
             raise_exceptions=True,
         )
@@ -235,10 +275,51 @@ class LDAPConnection:
             server=self.server,
             auto_bind=False,
             version=3,
-            user=self.username,
+            user=self._build_username(),
             password=self.password,
             authentication=NTLM,
             raise_exceptions=True,
+        )
+        try:
+            connection.bind()
+
+        except LDAPException as bind_error:
+            connection.unbind()
+            logger.error(msg=f"LDAP bind failed: {bind_error}")
+            raise bind_error
+
+        else:
+            self.connection = connection
+            return connection
+
+    def authenticate_using_anonymous(self) -> Connection:
+        """
+        Authenticates anonymously against an LDAP server.
+
+        Returns an automatically bound LDAP connection object on a successful
+        connection.
+
+        Returns:
+            Connection: An LDAP connection object on successful authentication.
+
+        Raises:
+            LDAPException: If the connection fails for any reason. Use
+                specific exceptions for more granular error handling.
+
+        Notes:
+            The connection is NOT automatically unbound.
+            `Connection.unbind()` should be called when done.
+            Alternatively, `LDAPConnection` can be used as a context
+            manager instead to automatically unbind the connection.
+            Anonymous authentication often has limited access, if any, to
+            the LDAP server. This should only be used to retrieve information
+            advertised by the server, such as the supported features.
+        """
+        connection: Connection = Connection(
+            server=self.server,
+            auto_bind=False,
+            version=3,
+            raise_exceptions=False,  # For some reason, setting this to True causes ldap3 to raise "LdapErr: DSID-0C090728, comment: In order to perform this operation a successful bind must be completed on the connection"
         )
         try:
             connection.bind()
@@ -280,17 +361,26 @@ class LDAPConnection:
             implications.
 
         """
-        if app_settings.settings.auth.authentication_method == AUTH_METHOD_SIMPLE:
-            return self.authenticate_using_simple()
-        elif (
-            app_settings.settings.auth.authentication_method
-            == AUTH_METHOD_SASL_DIGEST_MD5
-        ):
-            return self.authenticate_using_sasl_digest_md5()
-        elif app_settings.settings.auth.authentication_method == AUTH_METHOD_NTLM:
-            return self.authenticate_using_ntlm()
+        try:
+            if self.custom_authentication_method is not None:
+                connection: Connection = self.custom_authentication_method(
+                    self.username, self.password, self.server
+                )
+            elif app_settings.settings.auth.authentication_method == AUTH_METHOD_SIMPLE:
+                connection = self.authenticate_using_simple()
+            elif (
+                app_settings.settings.auth.authentication_method
+                == AUTH_METHOD_SASL_DIGEST_MD5
+            ):
+                connection = self.authenticate_using_sasl_digest_md5()
+            elif app_settings.settings.auth.authentication_method == AUTH_METHOD_NTLM:
+                connection = self.authenticate_using_ntlm()
+            else:
+                raise InvalidLDAPAuthenticationMethodError
+        except Exception as exception:
+            raise exception
         else:
-            raise InvalidLDAPAuthenticationMethodError
+            return connection
 
     def _create_server(self) -> Server:
         """
@@ -310,23 +400,55 @@ class LDAPConnection:
         )
 
     def _build_username(self) -> str:
-        if app_settings.settings.auth.authentication_method == AUTH_METHOD_SIMPLE:
-            return self.username
+        """
+        Constructs a username based on the authentication method specified in the application settings.
 
-        elif (
-            app_settings.settings.auth.authentication_method
-            == AUTH_METHOD_SASL_DIGEST_MD5
-        ):
-            _username: str = f"{self.username}@{app_settings.settings.auth.domain}"
-            return _username
+        Returns:
+            str: The constructed username.
 
-        elif app_settings.settings.auth.authentication_method == AUTH_METHOD_NTLM:
-            _domain: str = app_settings.settings.auth.domain.replace(".", "")
-            _username = f"{_domain}\\{self.username}"
-            return _username
+        Raises:
+            InvalidLDAPAuthenticationMethodError: If the authentication method is not recognized.
+        """
+        auth_method: Union[
+            Literal["simple"], Literal["sasl-digest-md5"], Literal["NTLM"]
+        ] = app_settings.settings.auth.authentication_method
 
+        if auth_method == AUTH_METHOD_SIMPLE:
+            return self._build_simple_username()
+        elif auth_method == AUTH_METHOD_SASL_DIGEST_MD5:
+            return self._build_sasl_digest_md5_username()
+        elif auth_method == AUTH_METHOD_NTLM:
+            return self._build_ntlm_username()
         else:
             raise InvalidLDAPAuthenticationMethodError
+
+    def _build_simple_username(self) -> str:
+        """
+        Constructs a username for simple authentication.
+
+        Returns:
+            str: The constructed username.
+        """
+        return self.username
+
+    def _build_sasl_digest_md5_username(self) -> str:
+        """
+        Constructs a username for SASL DIGEST-MD5 authentication.
+
+        Returns:
+            str: The constructed username.
+        """
+        return f"{self.username}@{app_settings.settings.auth.domain}"
+
+    def _build_ntlm_username(self) -> str:
+        """
+        Constructs a username for NTLM authentication.
+
+        Returns:
+            str: The constructed username.
+        """
+        domain: str = app_settings.settings.auth.domain.replace(".", "")
+        return f"{domain}\\{self.username}"
 
     def _is_active_directory(self) -> bool:
         """
@@ -335,13 +457,19 @@ class LDAPConnection:
         Returns:
             bool: True if the LDAP server is an Active Directory server, False otherwise.
         """
-        if self.connection is None:
-            raise LDAPException("Connection is not established.")
-
-        return any(
-            cap in self.connection.server.info.supported_features
-            for cap in AD_SPECIFIC_OIDS
+        supported_features: List[Tuple[str, str, str, str]] = (
+            self.server_info.supported_features
         )
+        return any(
+            DirectoryServiceFeature.ACTIVE_DIRECTORY.value in feature
+            for feature in supported_features
+        )
+
+    def _get_server_info(self) -> DsaInfo:
+        connection: Connection = self.authenticate_using_anonymous()
+        server_info: DsaInfo = connection.server.info
+        connection.unbind()
+        return server_info
 
     def __enter__(self) -> Connection:
         """
@@ -372,4 +500,3 @@ class LDAPConnection:
             return
 
         self.connection.unbind()
-        self.connection = None
