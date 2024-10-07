@@ -153,19 +153,10 @@ class LDAPConnection:
             Alternatively, `LDAPConnection` can be used as a context
             manager instead to automatically unbind the connection.
             SASL can be very strict about the format of the credentials
-            and the domain name when signing is enabled. If any issues
-        self.connection: Connection = Connection(matches the expected format
-            `<uid>|<cn>@<domain>` and that the domain name is correct.
-            If the LDAP server is an Active Directory server, the username
-            should be in the format `<sAMAccountName>@<domain>`. If AD runs
-            on a FQDN, ensure that the domain name is the FQDN. If an IP
-            address is used, SASL may not work due to the lack of a domain
-            name.
+            and the domain name when signing is enabled. Ensure that the
+            username and domain are in the correct format.
         """
-        if not (
-            DirectoryServiceFeature.ACTIVE_DIRECTORY_LDAP_INTEG.value
-            in self.server_info.supported_features
-        ):
+        if not self._supports_signed_integrity_protection():
             raise LDAPSignedIntegrityProtectionNotSupportedError
 
         connection: Connection = Connection(
@@ -176,7 +167,7 @@ class LDAPConnection:
             sasl_mechanism=DIGEST_MD5,
             sasl_credentials=(
                 None,
-                self._build_username(),
+                self.username,
                 self.password,
                 None,
                 "sign",
@@ -265,7 +256,7 @@ class LDAPConnection:
             SASL with DIGEST-MD5, but it is more secure than simple
             authentication. NTLM is widely used in Windows environments.
             Usernames are required to be in the pre-windows 2000 format
-            `<domain>\<sAMAccountName>` where the domain is NOT dot
+            `<domain>\\<sAMAccountName>` where the domain is NOT dot
             separated. For example, `next.dev` should be `nextdev`.
         """
         if not self._is_active_directory():
@@ -450,6 +441,35 @@ class LDAPConnection:
         domain: str = app_settings.settings.auth.domain.replace(".", "")
         return f"{domain}\\{self.username}"
 
+    def _has_feature(self, feature: str) -> bool:
+        """
+        Determines if the LDAP server supports a specific feature.
+
+        Args:
+            feature (str): The name or OID of the feature to check.
+
+        Returns:
+            bool: True if the feature is supported, False otherwise.
+        """
+        supported_features: List[Tuple[str, str, str, str]] = (
+            self.server_info.supported_features
+        )
+        return any(
+            feature in supported_feature for supported_feature in supported_features
+        )
+
+    def _has_features(self, features: List[str]) -> bool:
+        """
+        Determines if the LDAP server supports a list of features.
+
+        Args:
+            features (List[str]): A list of feature names or OIDs to check.
+
+        Returns:
+            bool: True if all features are supported, False otherwise.
+        """
+        return all(self._has_feature(feature=feature) for feature in features)
+
     def _is_active_directory(self) -> bool:
         """
         Determines if the LDAP server is an Active Directory server.
@@ -457,12 +477,17 @@ class LDAPConnection:
         Returns:
             bool: True if the LDAP server is an Active Directory server, False otherwise.
         """
-        supported_features: List[Tuple[str, str, str, str]] = (
-            self.server_info.supported_features
-        )
-        return any(
-            DirectoryServiceFeature.ACTIVE_DIRECTORY.value in feature
-            for feature in supported_features
+        return self._has_feature(feature=DirectoryServiceFeature.ACTIVE_DIRECTORY.value)
+
+    def _supports_signed_integrity_protection(self) -> bool:
+        """
+        Determines if the LDAP server supports signed integrity protection.
+
+        Returns:
+            bool: True if the LDAP server supports signed integrity protection, False otherwise.
+        """
+        return self._has_feature(
+            feature=DirectoryServiceFeature.ACTIVE_DIRECTORY_LDAP_INTEG.value
         )
 
     def _get_server_info(self) -> DsaInfo:
