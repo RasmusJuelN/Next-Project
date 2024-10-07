@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 fastapi = "*"
 slowapi = "*"
-uvicorn = "*"
 ldap3 = "*"
 python-jose = "*"
 pycryptodome = "*"
@@ -15,6 +14,7 @@ sqlalchemy = "*"
 aiosqlite = "*"
 python-multipart = "*"
 cachetools = "*"
+uvicorn = {extras = ["standard"], version = "*"}
 
 [dev-packages]
 types-python-jose = "*"
