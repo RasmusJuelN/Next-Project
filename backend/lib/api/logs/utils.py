@@ -48,6 +48,7 @@ def read_logs(
         read_log_lines.reverse()
 
     log_lines: List[LogEntry] = []
+    previous_log_level: int = -1
     # Keep reading until we have the requested amount of log lines
     while len(log_lines) < amount and start_line < len(read_log_lines):
         log_line: str = read_log_lines[start_line]
@@ -62,6 +63,12 @@ def read_logs(
             log_line=log_line
         )
         if parsed_log is None:
+            # Ensure we have a log level to compare against
+            if len(log_lines) == 0:
+                continue
+            # If the previous log line that was read has a log level that is less than the requested log severity, skip this line
+            if previous_log_level > literal_log_severity:
+                continue
             # Assume it is part of a multiline log message where the previous line was the log level
             last_log_line: LogEntry = log_lines[-1]
             last_log_line.message += log_line
@@ -90,6 +97,7 @@ def read_logs(
                         message=message,
                     )
                 )
+            previous_log_level = literal_log_level
 
     return log_lines
 
