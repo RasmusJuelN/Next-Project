@@ -2,13 +2,14 @@ from typing import Any, Union, Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from ldap3 import ALL, SASL, DIGEST_MD5, Connection, Server
+from ldap3 import Connection
 
 from backend.lib.api.auth.models import TokenData
 from backend.lib.api.auth.exceptions import (
     MissingADServiceAccountError,
     MissingSecretKeyError,
 )
+from backend.lib.api.auth.classes import LDAPConnection
 from backend import app_settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
@@ -153,27 +154,15 @@ def authenticate_with_sa_service_account() -> Connection:
     Note:
         Auto binds the connection to the server immediately after creation.
     """
-    server = Server(host=app_settings.settings.auth.ldap_server, get_info=ALL)
-
     ad_service_account: Optional[str] = app_settings.settings.auth.ad_service_account
     ad_service_password: Optional[str] = app_settings.settings.auth.ad_service_password
 
     if ad_service_account is None or ad_service_password is None:
         raise MissingADServiceAccountError()
 
-    conn = Connection(
-        server=server,
-        auto_bind=True,
-        version=3,
-        authentication=SASL,
-        sasl_mechanism=DIGEST_MD5,
-        sasl_credentials=(
-            None,
-            app_settings.settings.auth.ad_service_account,
-            app_settings.settings.auth.ad_service_password,
-            None,
-            "sign",
-        ),
-    )
+    conn: Connection = LDAPConnection(
+        username=ad_service_account,
+        password=ad_service_password,
+    ).authenticate()
 
     return conn
