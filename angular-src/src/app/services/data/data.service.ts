@@ -77,18 +77,19 @@ export class DataService {
   }
 
   // Search and Pagination for Users
-  getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10): Observable<User[]> {
-    let params = new HttpParams()
+  getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10): Observable<{ users: User[] }> {
+    const params = new HttpParams()
       .set('role', role)
-      .set('searchQuery', searchQuery) // Updated parameter name
+      .set('searchQuery', searchQuery)
       .set('page', page.toString())
       .set('limit', limit.toString());
-
-    return this.http.get<User[]>(`${this.apiUrl}/users/search`, { params })
+  
+    return this.http.get<{ users: User[] }>(`${this.apiUrl}/users/search`, { params })
       .pipe(
-        catchError(this.handleError<User[]>('getUsersFromSearch', []))
+        catchError(this.handleError<{ users: User[] }>('getUsersFromSearch', { users: [] }))
       );
   }
+  
 
 
   getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observable<QuestionTemplate[]> {

@@ -267,7 +267,7 @@ export class MockDataService {
     return of(newActiveQuestionnaire).pipe(delay(300)); // Simulate a delay
   }
 
-  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<User[]> {
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<{ users: User[] }> {
     // Filter users by role (student or teacher)
     let users = this.mockDbService.mockData.mockUsers.filter(u => u.role === role);
     
@@ -280,7 +280,7 @@ export class MockDataService {
     const paginatedUsers = this.paginate(users, page, limit);
 
     // Return the users and cacheCookie in the UserSearchResponse structure
-    return of(paginatedUsers).pipe(delay(300));  // Simulate a network delay
+    return of({ users: paginatedUsers }).pipe(delay(300));  // Simulate a network delay
   }
 
 // Combined mock version for Search and Pagination for Templates

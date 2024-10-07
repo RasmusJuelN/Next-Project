@@ -88,8 +88,8 @@ export class ActiveQuestionnaireBuilderComponent {
       this.searchStudentResults = [];
       this.dataService.getUsersFromSearch('student', name, this.searchStudentPage, this.limit)
         .subscribe(response => {
-          this.searchStudentResults = response;
-          this.hasMoreStudents = response.length >= this.limit;
+          this.searchStudentResults = response.users;
+          this.hasMoreStudents = response.users.length >= this.limit;
         });
     } else {
       this.searchStudentResults = [];
@@ -103,8 +103,8 @@ export class ActiveQuestionnaireBuilderComponent {
 
       this.dataService.getUsersFromSearch('teacher', name, this.searchTeacherPage, this.limit)
         .subscribe(response => {
-          this.searchTeacherResults = response;
-          this.hasMoreTeachers = response.length >= this.limit;
+          this.searchTeacherResults = response.users;
+          this.hasMoreTeachers = response.users.length >= this.limit;
         });
     } else {
       this.searchTeacherResults = [];
@@ -133,8 +133,8 @@ export class ActiveQuestionnaireBuilderComponent {
           this.searchStudentPage++;
           this.dataService.getUsersFromSearch('student', searchQuery, this.searchStudentPage, this.limit)
             .subscribe(response => {
-              this.searchStudentResults = [...this.searchStudentResults, ...response]; // Append new results
-              this.hasMoreStudents = response.length >= this.limit;
+              this.searchStudentResults = [...this.searchStudentResults, ...response.users]; // Append new results
+              this.hasMoreStudents = response.users.length >= this.limit;
             });
         }
         break;
@@ -143,8 +143,8 @@ export class ActiveQuestionnaireBuilderComponent {
           this.searchTeacherPage++;
           this.dataService.getUsersFromSearch('teacher', searchQuery, this.searchTeacherPage, this.limit)
             .subscribe(response => {
-              this.searchTeacherResults = [...this.searchTeacherResults, ...response]; // Append new results
-              this.hasMoreTeachers = response.length >= this.limit;
+              this.searchTeacherResults = [...this.searchTeacherResults, ...response.users]; // Append new results
+              this.hasMoreTeachers = response.users.length >= this.limit;
             });
         }
         break;
