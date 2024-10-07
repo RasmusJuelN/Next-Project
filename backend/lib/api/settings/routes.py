@@ -2,7 +2,7 @@ from fastapi import Request, APIRouter
 from logging import Logger, DEBUG, INFO
 
 from backend import AppSettings, app_settings
-
+from backend.lib.api.settings.models import SettingsWithMetadata
 from backend.lib._logger import LogHelper
 
 
@@ -19,12 +19,14 @@ router = APIRouter()
 @router.get(
     path="/settings/get",
     tags=["settings"],
-    response_model=AppSettings,
+    response_model=SettingsWithMetadata,
 )
 def get_settings(
     request: Request,
-) -> AppSettings:
-    return app_settings.settings
+) -> SettingsWithMetadata:
+    return SettingsWithMetadata(
+        settings=app_settings.settings,
+    )
 
 
 @router.put(
