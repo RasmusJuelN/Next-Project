@@ -1,13 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
-import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession, Answer, QuestionDetails, UserSearchResponse } from '../../models/questionare';
+import { User, Question, ActiveQuestionnaire, QuestionTemplate, AnswerSession, Answer, QuestionDetails } from '../../models/questionare';
 import { Option } from '../../models/questionare';
 import { ErrorHandlingService } from '../error-handling.service';
 import { JWTTokenService } from '../auth/jwt-token.service';
 import { LogFileType, MockDbService } from '../mock/mock-db.service';
 import { AuthService } from '../auth/auth.service';
-import { AppSettings } from '../../models/setting-models';
 import { LogEntry } from '../../models/log-models';
 
 
@@ -74,11 +73,18 @@ export class MockDataService {
   }
   
 
-  getSettings(): Observable<AppSettings>  {
-    return of(this.mockDbService.mockData.mockAppSettings)
+  getSettings(): Observable<any>  {
+    const settings = this.mockDbService.mockData.mockAppSettings.settings
+    const metaData = this.mockDbService.mockData.mockAppSettings.metadata
+    return of({
+      settings: settings,
+      metadata: metaData
+    });
   }
-  updateSettings(updatedSettings: AppSettings): Observable<any>{
-    this.mockDbService.mockData.mockAppSettings = updatedSettings;
+
+  updateSettings(updatedSettings: any): Observable<any>{
+    this.mockDbService.mockData.mockAppSettings.settings = updatedSettings;
+    this.saveData();
     return of({ success: true });
   }
 
@@ -261,8 +267,7 @@ export class MockDataService {
     return of(newActiveQuestionnaire).pipe(delay(300)); // Simulate a delay
   }
 
-  // Active questionare
-  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<UserSearchResponse> {
+  getUsersFromSearch(role: string, nameString: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<User[]> {
     // Filter users by role (student or teacher)
     let users = this.mockDbService.mockData.mockUsers.filter(u => u.role === role);
     
@@ -274,14 +279,8 @@ export class MockDataService {
     // Paginate the results
     const paginatedUsers = this.paginate(users, page, limit);
 
-    // Mock cacheCookie or reuse provided one
-    const mockCacheCookie = cacheCookie || 'mock-cache-cookie-' + Math.random().toString(36).substring(7);
-
     // Return the users and cacheCookie in the UserSearchResponse structure
-    return of({
-      users: paginatedUsers,
-      cacheCookie: mockCacheCookie
-    }).pipe(delay(300));  // Simulate a network delay
+    return of(paginatedUsers).pipe(delay(300));  // Simulate a network delay
   }
 
 // Combined mock version for Search and Pagination for Templates

@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ActiveQuestionnaire, User, QuestionTemplate, AnswerSession } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
-import { AppSettings } from '../../models/setting-models';
 import { LogEntry } from '../../models/log-models';
 
 
@@ -24,7 +23,10 @@ export class MockDbService {
     mockAnswers: AnswerSession[],
     mockActiveQuestionnaire: ActiveQuestionnaire[],
     mockQuestionTemplates: QuestionTemplate[],
-    mockAppSettings: AppSettings,
+    mockAppSettings: {
+      settings: any;
+      metadata: any;
+    },
     mockLogs: MockLogs 
   } = {
     mockUsers: [
@@ -138,35 +140,138 @@ export class MockDbService {
       }
     ],
     mockAppSettings: {
-      auth: {
-        accessTokenExpireMinutes: 30,
-        algorithm: 'HS256',
-        domain: 'localhost',
-        ldapBaseDn: 'dc=example,dc=com',
-        ldapServer: 'ldap://localhost',
-        scopes: {
-          admin: 'admin',
-          student: 'student',
-          teacher: 'teacher'
+      settings: {
+        auth: {
+          access_token_expire_minutes: 30,
+          algorithm: 'HS256',
+          domain: 'localhost',
+          ldap_base_dn: 'dc=example,dc=com',
+          ldap_server: 'ldap://localhost',
+          scopes: {
+            admin: 'admin',
+            student: 'student',
+            teacher: 'teacher',
+          },
+          secret_key: null,
         },
-        secretKey: null
+        database: {
+          database_driver: null,
+          database_type: 'mysql',
+          db_name: 'program.db',
+          host: null,
+          max_connections: null,
+          min_connections: null,
+          password: null,
+          port: null,
+          ssl_ca_cert_file: null,
+          ssl_cert_file: null,
+          ssl_key_file: null,
+          timeout: null,
+          use_ssl: false,
+          user: null,
+        },
       },
-      database: {
-        databaseDriver: null,
-        databaseType: 'mysql',
-        dbName: 'program.db',
-        host: null,
-        maxConnections: null,
-        minConnections: null,
-        password: null,
-        port: null,
-        sslCaCertFile: null,
-        sslCertFile: null,
-        sslKeyFile: null,
-        timeout: null,
-        useSsl: false,
-        user: null
-      }
+      metadata: {
+        auth: {
+          access_token_expire_minutes: {
+            default: 30,
+            minValue: 1,
+            maxValue: 1440,
+            canBeEmpty: false,
+            description: 'Access token expiration in minutes',
+          },
+          algorithm: {
+            default: 'HS256',
+            canBeEmpty: false,
+            description: 'Algorithm used for authentication',
+          },
+          domain: {
+            default: 'localhost',
+            canBeEmpty: false,
+            description: 'Domain name',
+          },
+          ldap_base_dn: {
+            default: 'dc=example,dc=com',
+            canBeEmpty: false,
+            description: 'LDAP base DN',
+          },
+          ldap_server: {
+            default: 'ldap://localhost',
+            canBeEmpty: false,
+            description: 'LDAP server URL',
+          },
+          scopes: {
+            canBeEmpty: false,
+            description: 'Access scopes',
+          },
+          secret_key: {
+            default: '',
+            canBeEmpty: true,
+            description: 'Secret key used for authentication',
+          },
+        },
+        database: {
+          database_driver: {
+            canBeEmpty: true,
+            description: 'Database driver',
+          },
+          database_type: {
+            allowedValues: ['sqlite', 'postgresql', 'mysql'],
+            canBeEmpty: false,
+            description: 'Type of the database',
+          },
+          db_name: {
+            default: 'program.db',
+            canBeEmpty: false,
+            description: 'Database name',
+          },
+          host: {
+            canBeEmpty: true,
+            description: 'Database host',
+          },
+          max_connections: {
+            canBeEmpty: true,
+            description: 'Maximum number of database connections',
+          },
+          min_connections: {
+            canBeEmpty: true,
+            description: 'Minimum number of database connections',
+          },
+          password: {
+            canBeEmpty: true,
+            description: 'Database password',
+          },
+          port: {
+            canBeEmpty: true,
+            description: 'Database port',
+          },
+          ssl_ca_cert_file: {
+            canBeEmpty: true,
+            description: 'SSL CA certificate file',
+          },
+          ssl_cert_file: {
+            canBeEmpty: true,
+            description: 'SSL certificate file',
+          },
+          ssl_key_file: {
+            canBeEmpty: true,
+            description: 'SSL key file',
+          },
+          timeout: {
+            canBeEmpty: true,
+            description: 'Database connection timeout',
+          },
+          use_ssl: {
+            default: false,
+            canBeEmpty: false,
+            description: 'Use SSL for database connection',
+          },
+          user: {
+            canBeEmpty: true,
+            description: 'Database user',
+          },
+        },
+      },
     },
     mockLogs: {
       sql: [

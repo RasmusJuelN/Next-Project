@@ -119,3 +119,60 @@ select::-ms-expand {
   transform: translateY(-50%);
   pointer-events: none; /* Prevents click on the arrow */
 }
+
+/* Style for section selection buttons */
+.section-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: #007bff;
+  color: white;
+  font-size: 1rem;
+  text-align: left;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.section-button:hover {
+  background-color: #0056b3;
+}
+
+/* Style for the Back button */
+.back-button {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #6c757d;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+/* Style for the Save button */
+.submit-button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background-color: #28a745;
+  color: white;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #218838;
+}

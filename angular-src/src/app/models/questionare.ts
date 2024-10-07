@@ -88,10 +88,3 @@ export interface QuestionDetails {
   studentAnswer: string;
   teacherAnswer: string;
 }
-
-
-
-export interface UserSearchResponse {
-  users: User[];
-  cacheCookie: string;
-}

@@ -1,60 +1,27 @@
-<div class="settings-container">
-  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
-    <h2>Auth Settings</h2>
-    <div formGroupName="auth" class="form-row">
-      <label>Access Token Expire Minutes:
-        <input type="number" formControlName="accessTokenExpireMinutes">
-      </label>
-      <label>Algorithm:
-        <input type="text" formControlName="algorithm">
-      </label>
-      <label>Domain:
-        <input type="text" formControlName="domain">
-      </label>
-      <label>LDAP Base DN:
-        <input type="text" formControlName="ldapBaseDn">
-      </label>
-      <label>LDAP Server:
-        <input type="text" formControlName="ldapServer">
-      </label>
-      <label>Secret Key:
-        <input type="text" formControlName="secretKey">
-      </label>
-    </div>
+<div *ngIf="loading">Loading settings...</div>
+<div class="settings-container" *ngIf="!loading && settings && metadata && form">
+  <!-- Section selection dropdown -->
+  <div class="form-row">
+    <label for="sectionSelect">Select Settings Section:</label>
+    <select [formControl]="sectionControl" id="sectionSelect">
+      <option *ngFor="let key of keys(settings)" [value]="key">
+        {{ key | titlecase }}
+      </option>
+    </select>
+  </div>
 
-    <h2>Database Settings</h2>
-    <div formGroupName="database" class="form-row">
-      <label>Database Driver:
-        <input type="text" formControlName="databaseDriver">
-      </label>
-      <label>Database Type:
-        <div class="select-container">
-          <select formControlName="databaseType">
-            <option *ngFor="let type of databaseTypes" [value]="type">{{ type }}</option>
-          </select>
-        </div>
-      </label>
-      <label>Database Name:
-        <input type="text" formControlName="dbName">
-      </label>
-      <label>Host:
-        <input type="text" formControlName="host">
-      </label>
-      <label>Max Connections:
-        <input type="number" formControlName="maxConnections" min="0">
-      </label>
-      <label>Min Connections:
-        <input type="number" formControlName="minConnections" min="0">
-      </label>
-      <div class="checkbox-container">
-        <label>Use SSL:
-          <input type="checkbox" formControlName="useSsl">
-        </label>
-      </div>
-    </div>
+  <h2>{{ selectedSection | titlecase }} Settings</h2>
+  <form [formGroup]="form" (ngSubmit)="saveSettings()">
+    <!-- Use the RecursiveFormComponent -->
+    <app-settings-form
+      [group]="form"
+      [settings]="settings[selectedSection]"
+      [metadata]="metadataForKey(selectedSection)"
+    ></app-settings-form>
 
-    <div class="actions">
-      <button type="submit">Save Settings</button>
-    </div>
+    <!-- Save button -->
+    <button type="submit" [disabled]="form.invalid" class="submit-button">
+      Save Settings
+    </button>
   </form>
 </div>

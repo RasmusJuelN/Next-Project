@@ -2,9 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionDetails, QuestionTemplate, User, UserSearchResponse } from '../../models/questionare';
+import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionDetails, QuestionTemplate, User } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
-import { AppSettings } from '../../models/setting-models';
 import { LogEntry } from '../../models/log-models';
 
 @Injectable({
@@ -48,18 +47,17 @@ export class DataService {
   
   
   // Fetch the settings data from the backend
-  getSettings(): Observable<AppSettings> {
-    return this.http.get<AppSettings>(`${this.apiUrl}/settings/get`);
-    ``
+  getSettings(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/settings/get`);
   }
 
   // Update the settings data by sending it to the backend
-  updateSettings(updatedSettings: AppSettings): Observable<any> {
+  updateSettings(updatedSettings: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/settings/update`, updatedSettings);
   }
 
 
-  // Placeholder for a not implemented method
+
   getResults(activeQuestionnaireId: string): Observable<{ answerSession: AnswerSession, questionDetails: QuestionDetails[] }> {
     const url = `${this.apiUrl}/results/${activeQuestionnaireId}`;
     return this.http.get<{ answerSession: AnswerSession, questionDetails: QuestionDetails[] }>(url)
@@ -69,36 +67,26 @@ export class DataService {
   }
 
   // Active Questionnaire Methods
-  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire> {
+  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<any> {
     const url = `${this.apiUrl}/questionnaire/create`;
     const body = { student, teacher, templateId };
-    return this.http.post<ActiveQuestionnaire>(url, body)
+    return this.http.post(url, body)
       .pipe(
-        catchError(this.handleError<ActiveQuestionnaire>('createActiveQuestionnaire'))
+        catchError(this.handleError('createActiveQuestionnaire'))
       );
   }
 
   // Search and Pagination for Users
-  getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10, cacheCookie?: string): Observable<UserSearchResponse> {
+  getUsersFromSearch(role: string, searchQuery: string, page: number = 1, limit: number = 10): Observable<User[]> {
     let params = new HttpParams()
       .set('role', role)
       .set('searchQuery', searchQuery) // Updated parameter name
       .set('page', page.toString())
       .set('limit', limit.toString());
 
-    if (cacheCookie) {
-      params = params.set('cache_cookie', cacheCookie);
-    }
-
-    return this.http.get<UserSearchResponse>(`${this.apiUrl}/users/search`, { params })
+    return this.http.get<User[]>(`${this.apiUrl}/users/search`, { params })
       .pipe(
-        // Log the full response, including both users and cacheCookie
-        tap((response: UserSearchResponse) => {  // Explicitly define the type of 'response'
-          console.log('Users fetched:', response.users);
-          console.log('Cache Cookie:', response.cacheCookie);
-        }),
-        // Handle errors
-        catchError(this.handleError<UserSearchResponse>('getUsersFromSearch', { users: [], cacheCookie: '' }))
+        catchError(this.handleError<User[]>('getUsersFromSearch', []))
       );
   }
 
