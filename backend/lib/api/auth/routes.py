@@ -17,6 +17,7 @@ from backend.lib.api.auth.utility import (
     determine_scope_from_groups,
     create_access_token,
     query_for_users_ldap,
+    hash_string,
 )
 from backend.lib.api.auth.dependencies import authenticate_with_sa_service_account
 from backend.lib.api.auth.models import User, UserSearchResponse, UserSearchRequest
@@ -47,8 +48,10 @@ def authenticate_user(
             )
             encoded_jwt: str = create_access_token(
                 data={
-                    "sub": get_uuid_from_ldap(
-                        connection=connection, username=form_data.username
+                    "sub": hash_string(
+                        string=get_uuid_from_ldap(
+                            connection=connection, username=form_data.username
+                        )
                     ),
                     "full_name": full_name,
                     "scope": determine_scope_from_groups(
