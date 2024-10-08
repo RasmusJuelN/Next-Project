@@ -11,8 +11,14 @@ def get_db() -> Generator[Session, Any, None]:
     Yields:
         Generator[Session, Any, None]: A SQLAlchemy Session object.
 
-    This function is used as a dependency in FastAPI routes to provide a database session.
-    It ensures that the session is properly closed after the request is processed.
+    This function is used as a dependency in FastAPI routes to provide
+    a database session. It ensures that the session is properly closed
+    after the request is processed.
+
+    Note:
+        The session is yielded as is, without any additional context.
+        Manual transaction management is required when using this
+        dependency.
     """
     session: Session = sessionLocal()
     try:

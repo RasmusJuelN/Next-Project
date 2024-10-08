@@ -18,9 +18,13 @@ router = APIRouter()
 
 
 # You may notice that the response_model and return type does not match.
-# Pydantic, which is used to define the response_model, automatically converts
-#   the return type to the response_model if 'from_attributes' (formerly 'orm_mode') is set to True in the model's Config.
-# The return type is an SQLAlchemy model which correctly lets internal calling code know what to expect.
+# Pydantic, which is used to define the response_model, automatically
+# converts the return type to the response_model if 'from_attributes'
+# (formerly 'orm_mode') is set to True in the model's Config, While the
+# return type is an SQLAlchemy model, allowing internal code to still
+# correctly infer the type of data being returned. Additionally, if
+# 'from_attributes' is True, pydantic will be able to get the attributes
+# of any lazy-loading relationships that are accessed in the SQLAlchemy model.
 @router.post(
     path="/templates/create",
     tags=["template"],
