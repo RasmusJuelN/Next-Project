@@ -15,66 +15,6 @@ from backend import app_settings
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
 
 
-class RoleChecker:
-    """
-    RoleChecker class is responsible for checking if a user has the required role to access a resource.
-
-    Refer to the `SCOPES` constant in lib._utils for the available roles. No value is returned.
-
-    Raises:
-        HTTPException (status_code=401): If the token is invalid.
-        HTTPException (status_code=403): If the user does not have the required role.
-
-    Example:
-        ```python
-        is_admin = RoleChecker(SCOPES["admin"])
-
-        @router.get("/admin", dependencies=[Depends(is_admin)])
-        def admin_only_route():
-            return {"message": "You are an admin."}
-        ```
-
-    Alternatively:
-        ```python
-        is_admin = RoleChecker(SCOPES["admin"])
-
-        @router.get("/admin")
-        def admin_only_route(_ = Depends(is_admin)):
-            return {"message": "You are an admin."}
-        ```
-    """
-
-    def __init__(self, role: str) -> None:
-        self.role: str = role
-
-    def __call__(self, token: str = Depends(dependency=oauth2_scheme)) -> None:
-        if app_settings.settings.auth.secret_key is None:
-            raise MissingSecretKeyError()
-
-        payload: dict[str, Any] = jwt.decode(
-            token=token,
-            key=app_settings.settings.auth.secret_key,
-            algorithms=[app_settings.settings.auth.algorithm],
-        )
-        scope: Union[str, None] = payload.get("scope")
-        if scope is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        if not scope == self.role:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You do not have the required permissions to access this resource.",
-            )
-
-
-is_admin = RoleChecker(role=app_settings.settings.auth.scopes["admin"])
-is_student = RoleChecker(role=app_settings.settings.auth.scopes["student"])
-is_teacher = RoleChecker(role=app_settings.settings.auth.scopes["teacher"])
-
-
 def get_token_data(
     token: str = Depends(dependency=oauth2_scheme),
 ) -> TokenData:
@@ -143,6 +83,63 @@ def validate_token(
         scope=scope,
         uuid=uuid,
     )
+
+
+def is_student(token_data: TokenData = Depends(dependency=validate_token)) -> bool:
+    """
+    Checks if the user is a student.
+
+    Args:
+        token_data (TokenData): The decoded token data.
+
+    Returns:
+        bool: True if the user is a student, False otherwise.
+    """
+    student: str = app_settings.settings.auth.scopes["student"]
+    if student not in token_data.scope:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User does not have the required permissions to access this resource.",
+        )
+    return True
+
+
+def is_teacher(token_data: TokenData = Depends(dependency=validate_token)) -> bool:
+    """
+    Checks if the user is a teacher.
+
+    Args:
+        token_data (TokenData): The decoded token data.
+
+    Returns:
+        bool: True if the user is a teacher, False otherwise.
+    """
+    teacher: str = app_settings.settings.auth.scopes["teacher"]
+    if teacher not in token_data.scope:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User does not have the required permissions to access this resource.",
+        )
+    return True
+
+
+def is_admin(token_data: TokenData = Depends(dependency=validate_token)) -> bool:
+    """
+    Checks if the user is an admin.
+
+    Args:
+        token_data (TokenData): The decoded token data.
+
+    Returns:
+        bool: True if the user is an admin, False otherwise.
+    """
+    admin: str = app_settings.settings.auth.scopes["admin"]
+    if admin not in token_data.scope:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User does not have the required permissions to access this resource.",
+        )
+    return True
 
 
 def authenticate_with_sa_service_account() -> Connection:
