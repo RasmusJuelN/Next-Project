@@ -1,4 +1,4 @@
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
@@ -16,7 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
 
 
 def get_token_data(
-    token: str = Depends(dependency=oauth2_scheme),
+    token: Annotated[str, Depends(dependency=oauth2_scheme)],
 ) -> TokenData:
     """
     Retrieves the token data from the provided token.
@@ -44,7 +44,7 @@ def get_token_data(
 
 
 def validate_token(
-    token: str = Depends(dependency=oauth2_scheme),
+    token: Annotated[str, Depends(dependency=oauth2_scheme)],
 ) -> TokenData:
     """
     Validates the provided token and returns the decoded token data.
@@ -85,7 +85,9 @@ def validate_token(
     )
 
 
-def is_student(token_data: TokenData = Depends(dependency=validate_token)) -> bool:
+def is_student(
+    token_data: Annotated[TokenData, Depends(dependency=validate_token)]
+) -> bool:
     """
     Checks if the user is a student.
 
@@ -104,7 +106,9 @@ def is_student(token_data: TokenData = Depends(dependency=validate_token)) -> bo
     return True
 
 
-def is_teacher(token_data: TokenData = Depends(dependency=validate_token)) -> bool:
+def is_teacher(
+    token_data: Annotated[TokenData, Depends(dependency=validate_token)]
+) -> bool:
     """
     Checks if the user is a teacher.
 
@@ -123,7 +127,9 @@ def is_teacher(token_data: TokenData = Depends(dependency=validate_token)) -> bo
     return True
 
 
-def is_admin(token_data: TokenData = Depends(dependency=validate_token)) -> bool:
+def is_admin(
+    token_data: Annotated[TokenData, Depends(dependency=validate_token)]
+) -> bool:
     """
     Checks if the user is an admin.
 

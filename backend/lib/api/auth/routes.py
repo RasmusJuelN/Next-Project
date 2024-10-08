@@ -3,7 +3,7 @@ This module contains the authentication logic for the FastAPI application.
 """
 
 from datetime import timedelta
-from typing import Sequence
+from typing import Sequence, Annotated
 from fastapi import Depends, HTTPException, status, Request, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from ldap3.core.exceptions import LDAPInvalidCredentialsResult
@@ -32,7 +32,7 @@ router = APIRouter()
 @router.post(path="/auth", tags=["auth"])
 def authenticate_user(
     request: Request,
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> dict[str, str]:
     try:
         with LDAPConnection(
@@ -90,8 +90,10 @@ def authenticate_user(
 @router.get(path="/users/search", tags=["auth"], response_model=UserSearchResponse)
 def query_for_users(
     request: Request,
-    query_params: UserSearchRequest = Depends(),
-    connection: Connection = Depends(dependency=authenticate_with_sa_service_account),
+    connection: Annotated[
+        Connection, Depends(dependency=authenticate_with_sa_service_account)
+    ],
+    query_params: Annotated[UserSearchRequest, Depends()],
 ) -> UserSearchResponse:
     try:
         users: Sequence[User] = query_for_users_ldap(

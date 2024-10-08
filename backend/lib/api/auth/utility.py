@@ -1,4 +1,4 @@
-from typing import Any, Union, overload, Optional, List, Sequence, cast
+from typing import Any, Union, overload, Optional, List, Sequence, cast, Annotated
 from fastapi import HTTPException, status, Depends
 from jose import jwt
 from ldap3 import Connection, Entry, SUBTREE
@@ -143,7 +143,7 @@ def encode_or_decode_token(
 
 
 def get_full_name_from_token(
-    token: str = Depends(dependency=oauth2_scheme),
+    token: Annotated[str, Depends(dependency=oauth2_scheme)],
 ) -> str:
     """
     Retrieves the full name from the provided token.
@@ -169,7 +169,7 @@ def get_full_name_from_token(
 
 
 def get_uuid_from_token(
-    token: str = Depends(dependency=oauth2_scheme),
+    token: Annotated[str, Depends(dependency=oauth2_scheme)],
 ) -> str:
     """
     Retrieves the UUID from the provided token.
@@ -195,7 +195,7 @@ def get_uuid_from_token(
 
 
 def get_scope_from_token(
-    token: str = Depends(dependency=oauth2_scheme),
+    token: Annotated[str, Depends(dependency=oauth2_scheme)],
 ) -> str:
     """
     Retrieves the scope from the provided token.
@@ -221,7 +221,7 @@ def get_scope_from_token(
 
 
 def get_username_from_token(
-    token: str = Depends(dependency=oauth2_scheme),
+    token: Annotated[str, Depends(dependency=oauth2_scheme)],
 ) -> str:
     """
     Retrieves the username from the provided token.

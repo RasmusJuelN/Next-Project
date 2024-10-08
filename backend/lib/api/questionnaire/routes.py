@@ -1,6 +1,6 @@
 from fastapi import Request, APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Sequence, Optional
+from typing import Sequence, Optional, Annotated
 
 from backend.lib.sql.dependencies import get_db
 from backend.lib.sql import crud, schemas, models
@@ -33,7 +33,7 @@ router = APIRouter()
 def create_template(
     request: Request,
     template: schemas.CreateQuestionTemplateModel,
-    db: Session = Depends(dependency=get_db),
+    db: Annotated[Session, Depends(dependency=get_db)],
 ) -> models.QuestionTemplate:
     return crud.add_template(db=db, template=template)
 
@@ -45,8 +45,8 @@ def create_template(
 )
 def get_templates(
     request: Request,
-    query: TemplateSearchRequest = Depends(),
-    db: Session = Depends(dependency=get_db),
+    query: Annotated[TemplateSearchRequest, Depends()],
+    db: Annotated[Session, Depends(dependency=get_db)],
 ) -> Sequence[models.QuestionTemplate]:
     return query_templates(query=query, db=db)
 
@@ -59,7 +59,7 @@ def get_templates(
 def get_template(
     request: Request,
     template_id: str,  # The ID of the template the client wishes to fetch
-    db: Session = Depends(dependency=get_db),
+    db: Annotated[Session, Depends(dependency=get_db)],
 ) -> models.QuestionTemplate:
     template: Optional[models.QuestionTemplate] = query_template_by_id(
         template_id=template_id, db=db
@@ -78,7 +78,7 @@ def update_template(
     request: Request,
     template_id: str,  # The ID of the template the client wishes to update
     template: schemas.UpdateQuestionTemplateModel,  # The updated template data
-    db: Session = Depends(dependency=get_db),
+    db: Annotated[Session, Depends(dependency=get_db)],
 ) -> models.QuestionTemplate:
     return crud.update_template(
         db=db, existing_template_id=template_id, updated_template=template
@@ -93,7 +93,7 @@ def update_template(
 def delete_template(
     request: Request,
     template_id: str,  # The ID of the template the client wishes to delete
-    db: Session = Depends(dependency=get_db),
+    db: Annotated[Session, Depends(dependency=get_db)],
 ) -> models.QuestionTemplate:
     return crud.delete_template(db=db, template=template_id)
 
@@ -106,7 +106,7 @@ def delete_template(
 def create_active_questionnaire(
     request: Request,
     questionnaire: schemas.ActiveQuestionnaireCreateModel,
-    db: Session = Depends(dependency=get_db),
+    db: Annotated[Session, Depends(dependency=get_db)],
 ) -> models.ActiveQuestionnaire:
     new_questionnaire: models.ActiveQuestionnaire = crud.add_active_questionnaire(
         db=db, questionnaire=questionnaire
@@ -121,7 +121,7 @@ def create_active_questionnaire(
 )
 def get_active_questionnaires(
     request: Request,
-    query: QuestionnaireSearchRequest = Depends(),
-    db: Session = Depends(dependency=get_db),
+    query: Annotated[QuestionnaireSearchRequest, Depends()],
+    db: Annotated[Session, Depends(dependency=get_db)],
 ) -> Sequence[models.ActiveQuestionnaire]:
     return query_questionnaires(query=query, db=db)
