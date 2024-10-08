@@ -26,7 +26,7 @@ export class ActiveQuestionnaireListComponent {
   private teacherSearchSubject = new Subject<string>();
 
   ngOnInit() {
-    this.searchActiveQuestionnaires();
+    // this.searchActiveQuestionnaires();
 
     // Debounce for student search input
     this.studentSearchSubject

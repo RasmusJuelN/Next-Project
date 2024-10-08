@@ -92,27 +92,6 @@ export class AuthService {
   }
 
   /**
-   * Checks if there is an active questionnaire for the user.
-   * This method should make a request to the backend to verify if the user has an active questionnaire.
-   * @returns An Observable that emits the active questionnaire status and URL string.
-   */
-  checkForActiveQuestionnaire(): Observable<{ hasActive: boolean, urlString: string }> {
-    const role = this.getUserRole();
-    const id = this.getUserId();
-    
-    if (!id || !role) {
-      return of({ hasActive: false, urlString: '' });
-    }
-
-    return this.httpClient.get<{ hasActive: boolean, urlString: string }>(`${environment.apiUrl}/questionnaires/active/${role}/${id}`).pipe(
-      catchError(error => {
-        console.error('Error checking for active questionnaire', error);
-        return of({ hasActive: false, urlString: '' });
-      })
-    );
-  }
-
-  /**
    * Retrieves the user ID from the stored token.
    * @returns The user ID or null if the token is invalid or not present.
    */

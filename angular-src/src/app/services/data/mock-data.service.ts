@@ -24,6 +24,39 @@ export class MockDataService {
     this.mockDbService.loadInitialMockData();
   }
 
+  checkForActiveQuestionnaire(id: string, role: string): Observable<{ hasActive: boolean, urlString: string }> {
+    if (!id || !role) {
+      return of({ hasActive: false, urlString: '' });
+    }
+    
+    const mockActiveQuestionnaires = this.mockDbService.mockData.mockActiveQuestionnaire;
+  
+    let activeQuestionnaire;
+  
+    // Check for active questionnaires based on the user's role
+    if (role === 'student') {
+      activeQuestionnaire = mockActiveQuestionnaires.find(
+        (questionnaire: ActiveQuestionnaire) =>
+          questionnaire.student.id === id && !questionnaire.isStudentFinished
+      );
+    } else if (role === 'teacher') {
+      activeQuestionnaire = mockActiveQuestionnaires.find(
+        (questionnaire: ActiveQuestionnaire) =>
+          questionnaire.teacher.id === id && !questionnaire.isTeacherFinished
+      );
+    }
+  
+    // Return result based on whether an active questionnaire was found
+    if (activeQuestionnaire) {
+      return of({ hasActive: true, urlString: `${activeQuestionnaire.id}` });
+    }
+  
+    return of({ hasActive: false, urlString: '' });
+  }
+  
+  
+  
+
   getLogFileTypes(): Observable<string[]> {
     const logFileTypes = Object.keys(this.mockDbService.mockData.mockLogs);
     return of(logFileTypes);

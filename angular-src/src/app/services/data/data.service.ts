@@ -21,6 +21,20 @@ export class DataService {
     };
   }
 
+
+  checkForActiveQuestionnaire(id: string, role: string): Observable<{ hasActive: boolean, urlString: string }> {
+    if (!id || !role) {
+      return of({ hasActive: false, urlString: '' });
+    }
+  
+    return this.http.get<{ hasActive: boolean, urlString: string }>(`${environment.apiUrl}/questionnaires/active/${role}/${id}`).pipe(
+      catchError(error => {
+        console.error('Error checking for active questionnaire', error);
+        return of({ hasActive: false, urlString: '' });
+      })
+    );
+  }
+
   getLogFileTypes(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/logs/get-available`).pipe(
       catchError(this.handleError<string[]>('getLogFileTypes', []))

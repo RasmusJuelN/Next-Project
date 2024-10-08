@@ -104,44 +104,6 @@ export class MockAuthService {
     return userRole === role;
   }
 
-
-  /**
-   * Checks if there is an active questionnaire for the user.
-   * @returns An object containing `hasActive` (boolean) and `urlString` (string).
-   */
-  checkForActiveQuestionnaire(): Observable<{ hasActive: boolean, urlString: string }> {
-    const role = this.getUserRole();
-    const idString = this.getUserId();
-    if (!idString) {
-      return of({ hasActive: false, urlString: '' });
-    }
-    const id = String(idString);
-
-    const mockData = this.localStorageService.getData('mockData');
-
-    if (mockData) {
-      const parsedData: {
-        mockStudents: User[],
-        mockTeachers: User[],
-        mockQuestions: Question[],
-        mockActiveQuestionnaire: ActiveQuestionnaire[]
-      } = JSON.parse(mockData);
-
-      if (role === 'student') {
-        const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.student.id === id && !questionnaire.isStudentFinished);
-        if (activeQuestionnaire) {
-          return of({ hasActive: true, urlString: `${activeQuestionnaire.id}` });
-        }
-      } else if (role === 'teacher') {
-        const activeQuestionnaire = parsedData.mockActiveQuestionnaire.find((questionnaire: ActiveQuestionnaire) => questionnaire.teacher.id === id && !questionnaire.isTeacherFinished);
-        if (activeQuestionnaire) {
-          return of({ hasActive: true, urlString: `${activeQuestionnaire.id}` });
-        }
-      }
-    }
-    return of({ hasActive: false, urlString: '' });
-  }
-
   /**
    * Retrieves the user ID from the token stored in the JWTTokenService.
    * @returns The user ID if the token is valid, or null if the token is invalid or not found.

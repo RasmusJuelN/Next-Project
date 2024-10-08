@@ -1,103 +1,155 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LoginPageService } from '../../services/login-page.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { DataService } from '../../services/data/data.service';
+import { Router } from '@angular/router';
+import { catchError, map, mergeMap, Observable, of, throwError } from 'rxjs';
+import { ErrorHandlingService } from '../../services/error-handling.service';
 
-
-/**
- * Represents the login page component.
- */
 @Component({
   selector: 'app-login-page',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './login-page.component.html',
-  styleUrls: ['./login-page.component.css']
+  styleUrls: ['./login-page.component.css'],
 })
-export class LoginPageComponent {
-  private loginPageService = inject(LoginPageService);
-  private authService = inject(AuthService)
-  
+export class LoginPageComponent implements OnInit {
+  private authService = inject(AuthService);
+  private dataService = inject(DataService);
+  private errorHandlingService = inject(ErrorHandlingService);
+  private router = inject(Router);
+
   errorMessage: string | null = null;
-  userName: string = '';
-  password: string = '';
-  
-  loggedInAlready: boolean = false;
+  userName = '';
+  password = '';
+  loggedInAlready = false;
   activeQuestionnaireString: string | null = '';
-  errorHasHapped: boolean = false;
-  goToDashboard: boolean = false;
-  goToActiveQuestionnaire: boolean = false;
+  goToDashboard = false;
+  goToActiveQuestionnaire = false;
 
-
-  /**
-   * Initializes the component and tries to redirect to the dashboard if the user is already logged in.
-   */
   ngOnInit(): void {
-    // Subscribe to the authentication status observable
-    this.authService.isAuthenticated$.subscribe((isAuthenticated: boolean) => {
-      this.loggedInAlready = isAuthenticated;
-
-      if (this.loggedInAlready) {
-        // If the user is logged in, handle the navigation
-        this.loginPageService.handleLoggedInUser(this.goToDashboard, this.goToActiveQuestionnaire)
-          .subscribe({
-            next: ({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString }) => {
-              this.goToDashboard = goToDashboard;
-              this.goToActiveQuestionnaire = goToActiveQuestionnaire;
-              this.activeQuestionnaireString = activeQuestionnaireString;
-            },
-            error: err => this.errorMessage = 'Error initializing login page'
-          });
-      } else {
-        // Reset the login page if the user is not logged in
-        this.resetLoginPage();
-      }
+    this.authService.isAuthenticated$.subscribe({
+      next: (isAuthenticated: boolean) => {
+        this.loggedInAlready = isAuthenticated;
+        if (this.loggedInAlready) {
+          this.handleLoggedInUser();
+        } else {
+          this.resetLoginPage();
+        }
+      },
+      error: (error) => this.handleError('Error during authentication status check', error),
     });
   }
 
-  /**
-   * Handles form submission.
-   * @param form - The form data.
-   */
+  private handleLoggedInUser(): void {
+    const { id, role } = this.getUserDetails();
+
+    if (!id || !role) {
+      this.resetLoginPage();
+      return;
+    }
+
+    this.dataService.checkForActiveQuestionnaire(id, role)
+      .pipe(
+        map(response => this.buildRedirectResponse(response, role)),
+        catchError(error => this.handleError('Error handling logged in user', error))
+      )
+      .subscribe(({ goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString }) => {
+        this.goToDashboard = goToDashboard;
+        this.goToActiveQuestionnaire = goToActiveQuestionnaire;
+        this.activeQuestionnaireString = activeQuestionnaireString;
+      });
+  }
+
   onSubmit(form: any): void {
     if (form.valid) {
-      this.loginPageService.login(this.userName, this.password).subscribe({
-        error: err => {
-          this.errorMessage = 'Login failed. Please check your credentials.';
-          this.errorHasHapped = true;
-        }
-      });
+      this.authService.loginAuthentication(this.userName, this.password)
+        .pipe(
+          mergeMap(response => this.handleLoginResponse(response)),
+          catchError(error => this.handleError('Login failed', error))
+        )
+        .subscribe({
+          error: () => {
+            this.errorMessage = 'Login failed. Please check your credentials.';
+          },
+        });
     }
   }
 
-  logout() {
-    this.loginPageService.logout();
-    this.loggedInAlready = false;
-    this.goToDashboard = false;
-    this.goToActiveQuestionnaire = false;
+  private handleLoginResponse(response: { access_token: string } | { error: string }): Observable<void> {
+    if ('access_token' in response) {
+      const { id, role } = this.getUserDetails();
+
+      if (id && role) {
+        return this.dataService.checkForActiveQuestionnaire(id, role).pipe(
+          map(activeQuestionnaireResponse => this.redirectUserBasedOnQuestionnaire(activeQuestionnaireResponse))
+        );
+      } else {
+        return throwError(() => new Error('User ID or role is missing after login.'));
+      }
+    } else if ('error' in response) {
+      this.handleLoginError(new Error(response.error));
+      return throwError(() => new Error(response.error));
+    }
+
+    return throwError(() => new Error('Unexpected login response'));
   }
 
-  toDashboard() {
-    this.resetLoginPage();
-  
-    this.loginPageService.router.navigate(['/dashboard/nav']);
+  private getUserDetails(): { id: string | null; role: string | null } {
+    return {
+      id: this.authService.getUserId(),
+      role: this.authService.getUserRole(),
+    };
   }
-  
 
-  toActiveQuestionnaire(urlString: string) {
-    this.resetLoginPage()
-    this.loginPageService.router.navigate([`/answer/${urlString}`]);
+  private handleLoginError(error: Error): void {
+    this.errorMessage = 'Login failed. Please check your credentials.';
+    this.errorHandlingService.handleError(error, this.errorMessage);
+  }
+
+  private redirectUserBasedOnQuestionnaire(activeQuestionnaireResponse: { hasActive: boolean, urlString: string }): void {
+    const route = activeQuestionnaireResponse.hasActive ? `/answer/${activeQuestionnaireResponse.urlString}` : '/dashboard';
+    this.router.navigate([route]);
+  }
+
+  private buildRedirectResponse(response: { urlString: string }, role: string) {
+    const goToActiveQuestionnaire = !!response.urlString;
+    const goToDashboard = role === 'admin' || role === 'teacher';
+    return { goToDashboard, goToActiveQuestionnaire, activeQuestionnaireString: response.urlString };
+  }
+
+  private handleError(errorMessage: string, error: any): Observable<never> {
+    this.errorHandlingService.handleError(error, errorMessage);
+    this.errorMessage = errorMessage;
+    return throwError(() => new Error(errorMessage));
   }
 
   private resetLoginPage(): void {
-    // Clear form fields and reset any flags or messages
     this.userName = '';
     this.password = '';
     this.errorMessage = null;
     this.loggedInAlready = false;
     this.goToDashboard = false;
     this.goToActiveQuestionnaire = false;
-    this.errorHasHapped = false;
     this.activeQuestionnaireString = null;
+  }
+
+  private navigateTo(route: string): void {
+    this.resetLoginPage();
+    this.router.navigate([route]);
+  }
+
+  toDashboard(): void {
+    this.navigateTo('/dashboard/nav');
+  }
+
+  toActiveQuestionnaire(urlString: string): void {
+    this.navigateTo(`/answer/${urlString}`);
+  }
+
+  logout(): void {
+    this.authService.logout();
+    alert('Token deleted');
+    this.resetLoginPage();
   }
 }
