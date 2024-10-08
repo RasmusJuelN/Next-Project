@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, AliasGenerator, Field, field_validator
 from pydantic.alias_generators import to_camel
-from typing import Optional, Sequence
+from typing import Sequence
 from fastapi import HTTPException, status
 from string import ascii_letters, digits
 
@@ -18,10 +18,10 @@ class CamelBaseModel(BaseModel):
 
 
 class TokenData(CamelBaseModel):
-    username: Optional[str] = None
-    full_name: Optional[str] = None
-    scope: Optional[str] = None
-    uuid: Optional[str] = None
+    username: str
+    full_name: str
+    scope: str
+    uuid: str
 
 
 class User(CamelBaseModel):
@@ -87,4 +87,5 @@ class UserSearchResponse(CamelBaseModel):
     Attributes:
         users (Sequence[User]): A sequence of User objects representing the search results.
     """
+
     users: Sequence[User]

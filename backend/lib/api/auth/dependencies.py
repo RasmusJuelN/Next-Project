@@ -96,10 +96,10 @@ def get_token_data(
         algorithms=[app_settings.settings.auth.algorithm],
     )
     return TokenData(
-        username=payload.get("username"),
-        full_name=payload.get("full_name"),
-        scope=payload.get("scope"),
-        uuid=payload.get("sub"),
+        username=payload.get("username", "N/A"),
+        full_name=payload.get("full_name", "N/A"),
+        scope=payload.get("scope", "N/A"),
+        uuid=payload.get("sub", "N/A"),
     )
 
 
@@ -126,15 +126,23 @@ def validate_token(
         key=app_settings.settings.auth.secret_key,
         algorithms=[app_settings.settings.auth.algorithm],
     )
-    username: Union[str, None] = payload.get("sub")
+    uuid: Union[str, None] = payload.get("sub")
+    full_name: Union[str, None] = payload.get("full_name")
+    scope: Union[str, None] = payload.get("scope")
+    username: Union[str, None] = payload.get("username")
 
-    if username is None:
+    if username is None or uuid is None or full_name is None or scope is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return TokenData(username=username)
+    return TokenData(
+        username=username,
+        full_name=full_name,
+        scope=scope,
+        uuid=uuid,
+    )
 
 
 def authenticate_with_sa_service_account() -> Connection:
