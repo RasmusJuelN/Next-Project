@@ -8,6 +8,7 @@ from ldap3.core.exceptions import (
     LDAPSocketOpenError,
 )
 from typing import Dict, Union, List
+from typing_extensions import deprecated
 
 from backend.lib._logger import LogHelper
 from backend.lib.api.auth.routes import router as auth_router
@@ -111,6 +112,7 @@ def read_root() -> RedirectResponse:
     return RedirectResponse(url="/docs")
 
 
+@deprecated("This endpoint is deprecated. It was used for testing purposes only.")
 @app.get(
     path="/protected",
     response_model=TokenData,
@@ -137,6 +139,7 @@ def read_protected(
     return {**token_data.model_dump()}
 
 
+@deprecated("This endpoint is deprecated. It was used for testing purposes only.")
 @app.get(
     path="/protected/student",
     tags=["users"],
@@ -165,6 +168,7 @@ def read_protected_student(
     return {**token_data.model_dump()}
 
 
+@deprecated("This endpoint is deprecated. It was used for testing purposes only.")
 @app.get(
     path="/protected/teacher",
     tags=["users"],
@@ -192,6 +196,7 @@ def read_protected_teacher(
     return {**token_data.model_dump()}
 
 
+@deprecated("This endpoint is deprecated. It was used for testing purposes only.")
 @app.get(
     path="/protected/admin",
     tags=["users"],
@@ -217,55 +222,3 @@ def read_protected_admin(
     """  # noqa: W291
     # fmt: on
     return {**token_data.model_dump()}
-
-
-@app.get(
-    path="/questions/",
-    response_model=Question,
-)
-def read_question(
-    id: int,
-    request: Request,
-) -> Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]:
-    """
-    Call this endpoint with the ID of the question you want to retrieve.
-
-    - **arg**:  `/api/v1/questions/?id={id}` (int): The ID of the question to retrieve.
-
-    - **return**:  `{"id": int, "text": str, "options": [{"value": int, "label": str}]}`: The question with the specified ID.
-
-    - **raises**:  `HTTPException`: A 404 error if the question is not found.
-    """
-    translator = Translator(lang=request.state.language)
-    for question in questionnaire["questions"]:
-        if question["id"] == str(object=id):
-            return question
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"{translator.t(key='errors.question_not_found')}: {id}",
-    )
-
-
-@app.get(
-    path="/questions/all",
-    response_model=AllQuestions,
-)
-def read_questions(
-    request: Request,
-) -> Dict[str, List[Dict[str, Union[str, List[Dict[str, Union[int, str]]]]]]]:
-    """
-    Call this endpoint to retrieve all questions.
-
-    - **arg**:  `/api/v1/questions/all`
-
-    - **return**:  `{"questions": [{"id": int, "text": str, "options": [{"value": int, "label": str}]}]}`: All questions.
-
-    - **raises**:  `HTTPException`: A 404 error if no questions are found.
-    """
-    translator = Translator(lang=request.state.language)
-    if len(questionnaire["questions"]) > 0:
-        return questionnaire
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=translator.t(key="errors.no_questions_found"),
-    )
