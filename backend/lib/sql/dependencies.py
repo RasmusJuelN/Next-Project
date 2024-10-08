@@ -14,8 +14,8 @@ def get_db() -> Generator[Session, Any, None]:
     This function is used as a dependency in FastAPI routes to provide a database session.
     It ensures that the session is properly closed after the request is processed.
     """
-    db: Session = sessionLocal()
+    session: Session = sessionLocal()
     try:
-        yield db
+        yield session
     finally:
-        db.close()
+        session.close()
