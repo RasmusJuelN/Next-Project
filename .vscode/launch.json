@@ -6,7 +6,7 @@
     "compounds": [
         {
             "name": "Debug both",
-            "configurations": ["Frontend: Angular", "Python Debugger: FastAPI"]
+            "configurations": ["ng serve", "Python Debugger: FastAPI"]
         }
     ],
     "configurations": [
