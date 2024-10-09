@@ -27,7 +27,7 @@ export class DataService {
       return of({ hasActive: false, urlString: '' });
     }
   
-    return this.http.get<{ hasActive: boolean, urlString: string }>(`${environment.apiUrl}/questionnaires/active/${role}/${id}`).pipe(
+    return this.http.get<{ hasActive: boolean, urlString: string }>(`${environment.apiUrl}/questionnaire/active/${id}`).pipe(
       catchError(error => {
         console.error('Error checking for active questionnaire', error);
         return of({ hasActive: false, urlString: '' });
