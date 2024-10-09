@@ -7,7 +7,6 @@ from ldap3.core.exceptions import (
     LDAPException,
     LDAPSocketOpenError,
 )
-from typing import Dict, Union, List
 from typing_extensions import deprecated
 
 from backend.lib._logger import LogHelper
@@ -22,9 +21,7 @@ from backend.lib.api.auth.dependencies import (
     is_teacher,
     is_admin,
 )
-from backend.lib.questions import questionnaire
-from backend.lib.models import Question, AllQuestions
-from backend.lib.i18n_middleware import I18nMiddleware, Translator
+from backend.lib.i18n_middleware import I18nMiddleware
 from backend.lib.sql.database import engine
 from backend.lib.sql.models import Base
 
