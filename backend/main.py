@@ -1,5 +1,15 @@
 from logging import DEBUG, INFO, Logger
-from fastapi import FastAPI, HTTPException, Depends, status, Request
+from typing import Literal
+from fastapi import (
+    FastAPI,
+    HTTPException,
+    Depends,
+    status,
+    Request,
+    WebSocket,
+    WebSocketException,
+    WebSocketDisconnect,
+)
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from jose import JWTError, ExpiredSignatureError
@@ -219,3 +229,41 @@ def read_protected_admin(
     """  # noqa: W291
     # fmt: on
     return {**token_data.model_dump()}
+
+
+@app.get(path="/ping", tags=["system"], response_model=Literal[True])
+def ping() -> Literal[True]:
+    """
+    Test endpoint to check if the API is running and can be reached.
+
+    Returns:
+        Literal[True]: The API is running and can be reached.
+    """
+    return True
+
+
+@app.websocket(path="/ws")
+async def websocket_endpoint(websocket: WebSocket) -> None:
+    await websocket.accept()
+    while True:
+        try:
+            data: str = await websocket.receive_text()
+            if data == "Ping!":
+                await websocket.send_text(data="Pong!")
+            else:
+                await websocket.send_text(data="Invalid message")
+        except WebSocketDisconnect as websocket_close_event:
+            logger.debug(msg="WebSocket closed", exc_info=websocket_close_event)
+            break
+        except WebSocketException:
+            logger.exception(msg="WebSocket exception occurred")
+            break
+        except Exception as e:
+            logger.exception(msg="Unexpected error occurred", exc_info=e)
+            try:
+                await websocket.close(code=1011, reason="Unexpected error occurred")
+            except Exception as e:
+                logger.exception(
+                    msg="Tried notifying client of error, but failed", exc_info=e
+                )
+            break
