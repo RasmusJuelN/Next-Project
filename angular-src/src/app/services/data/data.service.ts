@@ -166,12 +166,13 @@ export class DataService {
   }
 
   getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire | null> {
-    const url = `${this.apiUrl}/questionnaire/${id}`;
+    const url = `${this.apiUrl}/questionnaire/active/${id}`;
     return this.http.get<ActiveQuestionnaire | null>(url)
       .pipe(
         catchError(this.handleError<ActiveQuestionnaire | null>('getActiveQuestionnaireById', null))
       );
   }
+
 
   // Get questions for a user based on the template
   getQuestionsForUser(templateId: string): Observable<Question[]> {
