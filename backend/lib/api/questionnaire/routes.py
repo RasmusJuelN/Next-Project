@@ -103,7 +103,7 @@ def delete_template(
     tags=["questionnaire"],
     response_model=schemas.ActiveQuestionnaireModel,
 )
-def create_active_questionnaire(
+def create_questionnaire(
     request: Request,
     questionnaire: schemas.ActiveQuestionnaireCreateModel,
     db: Annotated[Session, Depends(dependency=get_db)],
@@ -119,9 +119,27 @@ def create_active_questionnaire(
     tags=["questionnaire"],
     response_model=Sequence[schemas.ActiveQuestionnaireModel],
 )
-def get_active_questionnaires(
+def get_questionnaires(
     request: Request,
     query: Annotated[QuestionnaireSearchRequest, Depends()],
     db: Annotated[Session, Depends(dependency=get_db)],
 ) -> Sequence[models.ActiveQuestionnaire]:
     return query_questionnaires(query=query, db=db)
+
+
+@router.get(
+    path="/questionnaire/active/{user_id}",
+    tags=["questionnaire"],
+    response_model=schemas.ActiveQuestionnaireModel,
+)
+def get_active_questionnaire(
+    request: Request,
+    user_id: str,  # The ID of the user
+    db: Annotated[Session, Depends(dependency=get_db)],
+) -> models.ActiveQuestionnaire:
+    questionnaire: Optional[models.ActiveQuestionnaire] = (
+        crud.get_active_questionnaire_by_user_id(db=db, user_id=user_id)
+    )
+    if questionnaire is None:
+        raise HTTPException(status_code=404, detail="Questionnaire not found")
+    return questionnaire

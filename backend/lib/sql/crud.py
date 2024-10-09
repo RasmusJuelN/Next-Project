@@ -632,3 +632,16 @@ def get_all_active_questionnaires(
         )
     )
     return result.scalars().all()
+
+
+def get_active_questionnaire_by_user_id(
+    db: Session,
+    user_id: str,
+) -> Optional[models.ActiveQuestionnaire]:
+    db.flush()
+    result: Result[Tuple[models.ActiveQuestionnaire]] = db.execute(
+        statement=select(models.ActiveQuestionnaire).where(
+            models.ActiveQuestionnaire.student.has(id=user_id)
+        )
+    )
+    return result.scalars().first()
