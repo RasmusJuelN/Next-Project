@@ -11,6 +11,31 @@
     ],
     "configurations": [
         {
+            "name": "ng serve",
+            "type": "msedge",
+            "request": "launch",
+            "preLaunchTask": "npm: start",
+            "url": "http://localhost:4200",
+            "webRoot": "${workspaceFolder}/angular-src"
+          },
+          {
+            "name": "ng test",
+            "type": "msedge",
+            "request": "launch",
+            "url": "http://localhost:9876/debug.html",
+            "webRoot": "${workspaceFolder}/angular-src",
+            "sourceMapPathOverrides": {
+              "./src/*": "${workspaceFolder}/angular-src/src/*"
+            }
+          },
+          {
+            "name": "ng e2e",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/angular-src/node_modules/protractor/bin/protractor",
+            "args": ["${workspaceFolder}/angular-src/e2e/protractor.conf.js"]
+          },
+                {
             "name": "Python Debugger: FastAPI",
             "type": "debugpy",
             "request": "launch",
@@ -20,15 +45,6 @@
                 "--port", "8000"
             ],
             "jinja": true
-        },
-        {
-            "name": "Frontend: Angular",
-            "type": "msedge",
-            "request": "launch",
-            "url": "http://localhost:4200",
-            "webRoot": "${workspaceFolder}/frontend",
-            "sourceMaps": true,
-            "preLaunchTask": "npm: start"
         }
     ]
 }
