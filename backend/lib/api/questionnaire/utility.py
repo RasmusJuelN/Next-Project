@@ -64,9 +64,6 @@ def query_template_by_id(
 
     Returns:
         Optional[models.QuestionTemplate]: The retrieved question template, or None if not found.
-
-    Raises:
-        HTTPException: If the template is not found in the database.
     """
     cached_key: str = f"query_template_by_id_{template_id}"
 
