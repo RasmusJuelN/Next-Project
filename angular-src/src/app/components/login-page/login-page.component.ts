@@ -108,7 +108,7 @@ export class LoginPageComponent implements OnInit {
   }
 
   private redirectUserBasedOnQuestionnaire(activeQuestionnaireResponse: { hasActive: boolean, urlString: string }): void {
-    const route = activeQuestionnaireResponse.hasActive ? `/answer/${activeQuestionnaireResponse.urlString}` : '/dashboard';
+    const route = activeQuestionnaireResponse.hasActive ? `/answer/${activeQuestionnaireResponse.urlString}` : '/dashboard/nav';
     this.router.navigate([route]);
   }
 

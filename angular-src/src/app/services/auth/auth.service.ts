@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { JWTTokenService } from './jwt-token.service';
 import { Router } from '@angular/router';
@@ -49,6 +49,13 @@ export class AuthService {
         console.error('Login error:', error.message || error);
         return throwError(() => new Error('Login failed. Please check your credentials or try again later.'));
       })
+    );
+  }
+
+  checkServerConnection(): Observable<boolean> {
+    return this.httpClient.get(`${environment.apiUrl}/ping`).pipe(
+      map(() => true),
+      catchError(() => of(false)) // If the request fails, assume the server is unreachable
     );
   }
 

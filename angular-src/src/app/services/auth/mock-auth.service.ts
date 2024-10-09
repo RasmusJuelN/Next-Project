@@ -93,6 +93,10 @@ export class MockAuthService {
     }
   }
 
+  checkServerConnection(): Observable<boolean> {
+    return of(false)
+  }
+
 
   /**
    * Checks if the current user has a specific role.

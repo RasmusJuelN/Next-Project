@@ -32,7 +32,6 @@ export class ActiveQuestionnaireListComponent {
     this.studentSearchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((studentName) => {
-        console.log(`Debounced student search triggered with name: ${studentName}`);
         this.searchActiveQuestionnaireStudent = studentName;
         this.page = 1; // Reset to the first page on new search
         this.searchActiveQuestionnaires();
@@ -42,7 +41,6 @@ export class ActiveQuestionnaireListComponent {
     this.teacherSearchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((teacherName) => {
-        console.log(`Debounced teacher search triggered with name: ${teacherName}`);
         this.searchActiveQuestionnaireTeacher = teacherName;
         this.page = 1; // Reset to the first page on new search
         this.searchActiveQuestionnaires();
