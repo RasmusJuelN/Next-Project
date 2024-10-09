@@ -9,7 +9,6 @@ from backend import app_settings
 from backend.lib.api.auth.dependencies import oauth2_scheme
 from backend.lib.api.auth.exceptions import (
     MissingSecretKeyError,
-    NoLDAPResultsError,
     MissingSaltHashError,
 )
 from backend.lib.api.auth.models import User
@@ -534,7 +533,6 @@ def query_for_users_ldap(
 
     Raises:
         ValueError: If the role is invalid, or if page or limit are less than 1.
-        NoLDAPResultsError: If no matching users are found in LDAP.
     """
     if role not in app_settings.settings.auth.scopes:
         raise ValueError("Invalid role")
@@ -573,9 +571,6 @@ def query_for_users_ldap(
         search_scope=SUBTREE,
         attributes=["sAMAccountName", "displayName", "objectGUID"],
     )
-
-    if len(connection.entries) == 0:
-        raise NoLDAPResultsError
 
     users: List[User] = []
     entry: UserSearchEntry

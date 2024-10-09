@@ -21,7 +21,6 @@ from backend.lib.api.auth.utility import (
 )
 from backend.lib.api.auth.dependencies import authenticate_with_sa_service_account
 from backend.lib.api.auth.models import User, UserSearchResponse, UserSearchRequest
-from backend.lib.api.auth.exceptions import NoLDAPResultsError
 from backend.lib.api.auth.classes import LDAPConnection
 from backend import app_settings
 
@@ -95,18 +94,12 @@ def query_for_users(
     ],
     query_params: Annotated[UserSearchRequest, Depends()],
 ) -> UserSearchResponse:
-    try:
-        users: Sequence[User] = query_for_users_ldap(
-            connection=connection,
-            role=query_params.role,
-            search_query=query_params.search_query,
-            page=query_params.page,
-            limit=query_params.limit,
-        )
-    except NoLDAPResultsError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No users were found matching the search criteria.",
-        )
+    users: Sequence[User] = query_for_users_ldap(
+        connection=connection,
+        role=query_params.role,
+        search_query=query_params.search_query,
+        page=query_params.page,
+        limit=query_params.limit,
+    )
 
     return UserSearchResponse(users=users)
