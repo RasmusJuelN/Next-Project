@@ -3,7 +3,6 @@ from fastapi import HTTPException, status, Depends
 from jose import jwt
 from ldap3 import Connection, Entry, SUBTREE
 from datetime import datetime, timedelta, UTC
-from uuid import UUID
 from hashlib import sha512
 
 from backend import app_settings
@@ -355,12 +354,12 @@ def get_uuid_from_ldap(
     if len(connection.entries) == 0:
         raise ValueError("No matching entries found")
 
-    if "objectGUID" in connection.entries[0]:
-        uuid_str: str = connection.entries[0]["objectGUID"].value
-        uuid_str = uuid_str.strip("{}")
-        return str(object=UUID(hex=uuid_str))
-
-    raise ValueError("The 'objectGUID' attribute was not found")
+    try:
+        entry: Entry = connection.entries[0]
+        id: str = entry.objectGUID.value
+        return id
+    except AttributeError:
+        raise ValueError("The 'objectGUID' attribute was not found")
 
 
 def get_member_of_from_ldap(
