@@ -1,9 +1,14 @@
 from typing import Tuple, Optional, Sequence, overload, Union, Protocol, TypeAlias
-from sqlalchemy import ColumnElement, Result, select, and_, or_
+from sqlalchemy import Result, select, and_
 from sqlalchemy.orm import Session
 
 from backend.lib.sql import schemas, models
-from backend.lib.sql.utils import check_if_record_exists_by_id
+from backend.lib.sql.utils import (
+    check_if_record_exists_by_id,
+    user_id_condition,
+    student_name_condition,
+    teacher_name_condition,
+)
 from backend.lib.sql.exceptions import TemplateNotFoundException, TemplateCreationError
 
 
@@ -12,13 +17,6 @@ class ObjectHasTemplateID(Protocol):
 
 
 HasTemplateID: TypeAlias = Union[ObjectHasTemplateID, str]
-
-
-def user_id_condition(user_id: str) -> ColumnElement[bool]:
-    return or_(
-        models.ActiveQuestionnaire.student.has(id=user_id),
-        models.ActiveQuestionnaire.teacher.has(id=user_id),
-    )
 
 
 @overload
@@ -608,22 +606,8 @@ def get_all_active_questionnaires(
     result: Result[Tuple[models.ActiveQuestionnaire]] = db.execute(
         statement=select(models.ActiveQuestionnaire).where(
             and_(
-                or_(
-                    models.ActiveQuestionnaire.student.has(
-                        criterion=models.User.user_name.like(other=f"%{student}%")
-                    ),
-                    models.ActiveQuestionnaire.student.has(
-                        criterion=models.User.full_name.like(other=f"%{student}%")
-                    ),
-                ),
-                or_(
-                    models.ActiveQuestionnaire.teacher.has(
-                        criterion=models.User.user_name.like(other=f"%{teacher}%")
-                    ),
-                    models.ActiveQuestionnaire.teacher.has(
-                        criterion=models.User.full_name.like(other=f"%{teacher}%")
-                    ),
-                ),
+                student_name_condition(student_name=student),
+                teacher_name_condition(teacher_name=teacher),
             )
         )
     )
