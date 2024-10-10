@@ -487,13 +487,18 @@ getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observ
 
 
 
-  getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire | null> {
-    const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(aq => aq.id === id) || null;
+  getActiveQuestionnaireByUserId(id: string): Observable<ActiveQuestionnaire | null> {
+    // Check if the active questionnaire contains either a student or teacher with the specified id
+    const activeQuestionnaire = this.mockDbService.mockData.mockActiveQuestionnaire.find(
+      aq => aq.student.id === id || aq.teacher.id === id
+    ) || null;
+  
     return of(activeQuestionnaire).pipe(
-      delay(250),
-      catchError(this.handleError('getActiveQuestionnaireById'))
+      delay(250), // Simulate network latency
+      catchError(this.handleError('getActiveQuestionnaireByUserId'))
     );
   }
+  
 
   /**
    * Retrieves the list of mock students.
