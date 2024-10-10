@@ -3,12 +3,7 @@ from sqlalchemy import Result, select, and_, or_
 from sqlalchemy.orm import Session
 
 from backend.lib.sql import schemas, models
-from backend.lib.sql.utils import (
-    generate_random_string,
-    template_id_exists,
-    questionnaire_id_exists,
-    user_exists,
-)
+from backend.lib.sql.utils import check_if_record_exists_by_id
 from backend.lib.sql.exceptions import TemplateNotFoundException, TemplateCreationError
 
 
@@ -148,13 +143,8 @@ def add_template(
     Raises:
         TemplateAlreadyExistsException: If a template with the given ID already exists.
     """
-    new_template_id: str = generate_random_string()
-    while template_id_exists(db=db, id=new_template_id):
-        new_template_id = generate_random_string()
-
     try:
         new_template = models.QuestionTemplate(
-            template_id=new_template_id,
             title=template.title,
             description=template.description,
             created_at=template.created_at,
@@ -189,11 +179,11 @@ def add_template(
 
         # Return the newly created template
         created_template: Optional[models.QuestionTemplate] = get_template_by_id(
-            db=db, template_id=new_template_id
+            db=db, template_id=new_template.template_id
         )
         if created_template is None:
             db.rollback()
-            raise TemplateCreationError(template_id=new_template_id)
+            raise TemplateCreationError(template_id=new_template.template_id)
 
         db.commit()
         return created_template
@@ -564,12 +554,7 @@ def add_active_questionnaire(
     db: Session,
     questionnaire: schemas.ActiveQuestionnaireCreateModel,
 ) -> models.ActiveQuestionnaire:
-    new_active_questionnaire_id: str = generate_random_string(length=30)
-    while questionnaire_id_exists(db=db, id=new_active_questionnaire_id):
-        new_active_questionnaire_id = generate_random_string(length=30)
-
     new_active_questionnaire = models.ActiveQuestionnaire(
-        id=new_active_questionnaire_id,
         student_id=questionnaire.student.id,
         teacher_id=questionnaire.teacher.id,
         is_student_finished=False,
@@ -580,7 +565,9 @@ def add_active_questionnaire(
     db.add(instance=new_active_questionnaire)
     db.flush()
 
-    if not user_exists(db=db, id=questionnaire.student.id):
+    if not check_if_record_exists_by_id(
+        db=db, model=models.User, id=questionnaire.student.id
+    ):
         new_student = models.User(
             id=questionnaire.student.id,
             user_name=questionnaire.student.user_name,
@@ -589,7 +576,9 @@ def add_active_questionnaire(
         )
         db.add(instance=new_student)
 
-    if not user_exists(db=db, id=questionnaire.teacher.id):
+    if not check_if_record_exists_by_id(
+        db=db, model=models.User, id=questionnaire.teacher.id
+    ):
         new_teacher = models.User(
             id=questionnaire.teacher.id,
             user_name=questionnaire.teacher.user_name,

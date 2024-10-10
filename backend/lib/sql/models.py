@@ -1,7 +1,67 @@
-from sqlalchemy import Boolean, ForeignKey, Integer, String, DateTime, func
+from sqlalchemy import (
+    Boolean,
+    ExecutionContext,
+    Exists,
+    ForeignKey,
+    Integer,
+    String,
+    DateTime,
+    func,
+    exists,
+    select,
+)
 from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column, Mapped
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, LiteralString
+from random import choice
+from string import ascii_letters, digits
+
+from backend.lib.sql import db_logger
+
+URL_FRIENDLY_BASE64: LiteralString = ascii_letters + digits + "-_"
+
+
+def sql_func_generate_id(context: ExecutionContext) -> str:
+    """
+    Generates a unique random string ID for a SQL database entry.
+
+    This function attempts to generate a unique 10-character random string
+    using URL-friendly base64 characters. It checks the generated string
+    against the `QuestionTemplate` table to ensure uniqueness. If a unique
+    string is not generated within 5 attempts, it logs an error and raises
+    a `ValueError`.
+
+    Args:
+        context (ExecutionContext): The SQLAlchemy execution context containing
+                                    the database engine.
+
+    Returns:
+        str: A unique 10-character random string.
+
+    Raises:
+        ValueError: If a unique random string cannot be generated after 5 attempts.
+    """
+    attempts: int = 0
+    with context.engine.begin() as connection:
+        while True:
+            random_string: str = "".join(
+                choice(seq=URL_FRIENDLY_BASE64) for _ in range(10)
+            )
+            exists_criteria: Exists = exists().where(
+                QuestionTemplate.id == random_string
+            )
+            result: Optional[bool] = connection.execute(
+                statement=select(exists_criteria)
+            ).scalar()
+            if result is False:
+                return random_string
+            else:
+                if attempts >= 5:
+                    msg = "Failed to generate a unique random string after 5 attempts"
+                    db_logger.error(msg=msg)
+                    raise ValueError(msg)
+                attempts += 1
+                continue
 
 
 class Base(DeclarativeBase):
@@ -49,7 +109,9 @@ class QuestionTemplate(Base):
     __tablename__: str = "question_templates"
 
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, index=True)
-    template_id: Mapped[str] = mapped_column(type_=String, index=True, unique=True)
+    template_id: Mapped[str] = mapped_column(
+        type_=String, index=True, unique=True, default=sql_func_generate_id
+    )
     title: Mapped[str] = mapped_column(type_=String, index=True)
     description: Mapped[str] = mapped_column(type_=String, index=False)
     created_at: Mapped[datetime] = mapped_column(type_=DateTime, index=False)
@@ -85,7 +147,9 @@ class User(Base):
 class ActiveQuestionnaire(Base):
     __tablename__: str = "active_questionnaires"
 
-    id: Mapped[str] = mapped_column(type_=String, primary_key=True, index=True)
+    id: Mapped[str] = mapped_column(
+        type_=String, primary_key=True, index=True, default=sql_func_generate_id
+    )
     student_id: Mapped[str] = mapped_column(
         type_=String, __type_pos=ForeignKey(column="users.id")
     )
