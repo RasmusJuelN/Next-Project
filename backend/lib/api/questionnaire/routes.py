@@ -128,18 +128,44 @@ def get_questionnaires(
 
 
 @router.get(
-    path="/questionnaire/active/{user_id}",
+    path="/questionnaire/active/{questionnaire_id}",
     tags=["questionnaire"],
     response_model=schemas.ActiveQuestionnaireModel,
 )
 def get_active_questionnaire(
     request: Request,
-    user_id: str,  # The ID of the user
+    questionnaire_id: str,
     db: Annotated[Session, Depends(dependency=get_db)],
 ) -> models.ActiveQuestionnaire:
     questionnaire: Optional[models.ActiveQuestionnaire] = (
-        crud.get_active_questionnaire_by_user_id(db=db, user_id=user_id)
+        crud.get_active_questionnaire_by_id(db=db, questionnaire_id=questionnaire_id)
     )
     if questionnaire is None:
         raise HTTPException(status_code=404, detail="Questionnaire not found")
     return questionnaire
+
+
+@router.get(
+    path="/questionnaire/active/check/{user_id}",
+    tags=["questionnaire"],
+    response_model=Optional[str],
+)
+def check_if_user_has_active_questionnaires(
+    request: Request,
+    user_id: str,
+    db: Annotated[Session, Depends(dependency=get_db)],
+) -> Optional[str]:
+    return crud.get_oldest_active_questionnaire_id_for_user(db=db, user_id=user_id)
+
+
+@router.get(
+    path="/questionnaire/active/check-all/{user_id}",
+    tags=["questionnaire"],
+    response_model=Sequence[str],
+)
+def check_all_active_questionnaires_for_user(
+    request: Request,
+    user_id: str,
+    db: Annotated[Session, Depends(dependency=get_db)],
+) -> Sequence[str]:
+    return crud.get_all_active_questionnaire_ids_for_user(db=db, user_id=user_id)

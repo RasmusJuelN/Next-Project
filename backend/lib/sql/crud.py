@@ -1,5 +1,5 @@
 from typing import Tuple, Optional, Sequence, overload, Union, Protocol, TypeAlias
-from sqlalchemy import Result, select, and_, or_
+from sqlalchemy import ColumnElement, Result, select, and_, or_
 from sqlalchemy.orm import Session
 
 from backend.lib.sql import schemas, models
@@ -17,6 +17,13 @@ class ObjectHasTemplateID(Protocol):
 
 
 HasTemplateID: TypeAlias = Union[ObjectHasTemplateID, str]
+
+
+def user_id_condition(user_id: str) -> ColumnElement[bool]:
+    return or_(
+        models.ActiveQuestionnaire.student.has(id=user_id),
+        models.ActiveQuestionnaire.teacher.has(id=user_id),
+    )
 
 
 @overload
@@ -634,14 +641,40 @@ def get_all_active_questionnaires(
     return result.scalars().all()
 
 
-def get_active_questionnaire_by_user_id(
+def get_active_questionnaire_by_id(
     db: Session,
-    user_id: str,
+    questionnaire_id: str,
 ) -> Optional[models.ActiveQuestionnaire]:
     db.flush()
     result: Result[Tuple[models.ActiveQuestionnaire]] = db.execute(
         statement=select(models.ActiveQuestionnaire).where(
-            models.ActiveQuestionnaire.student.has(id=user_id)
+            models.ActiveQuestionnaire.id == questionnaire_id
         )
     )
     return result.scalars().first()
+
+
+def get_oldest_active_questionnaire_id_for_user(
+    db: Session,
+    user_id: str,
+) -> Optional[str]:
+    db.flush()
+    result: Result[Tuple[str]] = db.execute(
+        statement=select(models.ActiveQuestionnaire.id)
+        .where(user_id_condition(user_id=user_id))
+        .order_by(models.ActiveQuestionnaire.created_at)
+    )
+    return result.scalars().first()
+
+
+def get_all_active_questionnaire_ids_for_user(
+    db: Session,
+    user_id: str,
+) -> Sequence[str]:
+    db.flush()
+    result: Result[Tuple[str]] = db.execute(
+        statement=select(models.ActiveQuestionnaire.id)
+        .where(user_id_condition(user_id=user_id))
+        .order_by(models.ActiveQuestionnaire.created_at)
+    )
+    return result.scalars().all()
