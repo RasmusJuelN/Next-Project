@@ -157,10 +157,10 @@ class FetchQuestionTemplateModel(CamelBaseModel):
     Pydantic model for fetching a QuestionTemplate object. Inherits from QuestionTemplateBase.
 
     Attributes:
-        template_id (str): The ID of the template to fetch.
+        id (str): The ID of the template to fetch.
     """
 
-    template_id: str
+    id: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -170,10 +170,10 @@ class DeleteQuestionTemplateModel(CamelBaseModel):
     Pydantic model for deleting a QuestionTemplate object. Inherits from QuestionTemplateBase.
 
     Attributes:
-        template_id (str): The ID of the template to delete.
+        id (str): The ID of the template to delete.
     """
 
-    template_id: str
+    id: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -216,15 +216,15 @@ class QuestionTemplateModel(BaseQuestionTemplateModel):
         created_at (datetime): The creation date of the template.
         questions (List[Question]): A list of Question objects.
         id (int): The DB autoincrement ID of the template.
-        template_id (str): A unique, server-generated ID for the template.
+        id (str): A unique, server-generated ID for the template.
     """
 
     questions: List[QuestionModel]
-    template_id: str
+    id: str
 
 
 class QuestionnaireTemplateModel(CamelBaseModel):
-    template_id: str
+    id: str
     title: str
     description: str
 
@@ -232,7 +232,7 @@ class QuestionnaireTemplateModel(CamelBaseModel):
 class ActiveQuestionnaireCreateModel(CamelBaseModel):
     student: User
     teacher: User
-    template_id: str
+    id: str
 
 
 class ActiveQuestionnaireModel(CamelBaseModel):

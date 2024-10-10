@@ -86,7 +86,7 @@ class Question(Base):
 
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, index=True)
     template_reference_id: Mapped[str] = mapped_column(
-        type_=String, __type_pos=ForeignKey(column="question_templates.template_id")
+        type_=String, __type_pos=ForeignKey(column="question_templates.id")
     )
     title: Mapped[str] = mapped_column(type_=String, index=True)
 
@@ -108,9 +108,8 @@ class Question(Base):
 class QuestionTemplate(Base):
     __tablename__: str = "question_templates"
 
-    id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, index=True)
-    template_id: Mapped[str] = mapped_column(
-        type_=String, index=True, unique=True, default=sql_func_generate_id
+    id: Mapped[str] = mapped_column(
+        type_=String, primary_key=True, index=True, default=sql_func_generate_id
     )
     title: Mapped[str] = mapped_column(type_=String, index=True)
     description: Mapped[str] = mapped_column(type_=String, index=False)
@@ -159,7 +158,7 @@ class ActiveQuestionnaire(Base):
     is_student_finished: Mapped[bool] = mapped_column(type_=Boolean, index=False)
     is_teacher_finished: Mapped[bool] = mapped_column(type_=Boolean, index=False)
     template_reference_id: Mapped[str] = mapped_column(
-        type_=String, __type_pos=ForeignKey(column="question_templates.template_id")
+        type_=String, __type_pos=ForeignKey(column="question_templates.id")
     )
     created_at: Mapped[datetime] = mapped_column(
         type_=DateTime(timezone=True), index=False, server_default=func.now()

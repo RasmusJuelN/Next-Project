@@ -13,7 +13,7 @@ from backend.lib.sql.exceptions import TemplateNotFoundException, TemplateCreati
 
 
 class ObjectHasTemplateID(Protocol):
-    template_id: str
+    id: str
 
 
 HasTemplateID: TypeAlias = Union[ObjectHasTemplateID, str]
@@ -39,15 +39,13 @@ def get_template_by_id(
 
 
 @overload
-def get_template_by_id(
-    db: Session, *, template_id: str
-) -> Optional[models.QuestionTemplate]:
+def get_template_by_id(db: Session, *, id: str) -> Optional[models.QuestionTemplate]:
     """
     Retrieve a question template by its ID from the database.
 
     Args:
         db (Session): The database session to use for the query.
-        template_id (str): The ID of the template to retrieve.
+        id (str): The ID of the template to retrieve.
 
     Returns:
         Optional[models.QuestionTemplate]: The question template if found, otherwise None.
@@ -59,7 +57,7 @@ def get_template_by_id(
     db: Session,
     *,
     template: Optional[HasTemplateID] = None,
-    template_id: Optional[str] = None,
+    id: Optional[str] = None,
 ) -> Optional[models.QuestionTemplate]:
     """
     Retrieve a question template by its ID from the database.
@@ -76,16 +74,16 @@ def get_template_by_id(
         if isinstance(template, str):
             template_ref_id = template
         else:
-            template_ref_id = template.template_id
-    elif template_id is not None:
-        template_ref_id = template_id
+            template_ref_id = template.id
+    elif id is not None:
+        template_ref_id = id
     else:
-        raise ValueError("Either template or template_id must be provided.")
+        raise ValueError("Either template or id must be provided.")
 
     db.flush()
     result: Result[Tuple[models.QuestionTemplate]] = db.execute(
         statement=select(models.QuestionTemplate).where(
-            models.QuestionTemplate.template_id == template_ref_id
+            models.QuestionTemplate.id == template_ref_id
         )
     )
     return result.scalars().first()
@@ -162,7 +160,7 @@ def add_template(
         # Create the questions for the template and add them to the database
         for question in template.questions:
             new_question = models.Question(
-                template_reference_id=new_template.template_id,
+                template_reference_id=new_template.id,
                 title=question.title,
                 selected_option=question.selected_option,
                 custom_answer=question.custom_answer,
@@ -184,11 +182,11 @@ def add_template(
 
         # Return the newly created template
         created_template: Optional[models.QuestionTemplate] = get_template_by_id(
-            db=db, template_id=new_template.template_id
+            db=db, id=new_template.id
         )
         if created_template is None:
             db.rollback()
-            raise TemplateCreationError(template_id=new_template.template_id)
+            raise TemplateCreationError(template_id=new_template.id)
 
         db.commit()
         return created_template
@@ -201,7 +199,7 @@ def add_template(
 
 def update_template(
     db: Session,
-    existing_template_id: HasTemplateID,
+    existing_id: HasTemplateID,
     updated_template: schemas.UpdateQuestionTemplateModel,
 ) -> models.QuestionTemplate:
     """
@@ -217,14 +215,14 @@ def update_template(
     Raises:
         TemplateNotFoundException: If the template with the given ID does not exist.
     """
-    if not isinstance(existing_template_id, str):
-        existing_template_id = existing_template_id.template_id
+    if not isinstance(existing_id, str):
+        existing_id = existing_id.id
 
     existing_template: Optional[models.QuestionTemplate] = get_template_by_id(
-        db=db, template_id=existing_template_id
+        db=db, id=existing_id
     )
     if not existing_template:
-        raise TemplateNotFoundException(template_id=existing_template_id)
+        raise TemplateNotFoundException(template_id=existing_id)
 
     try:
         # Update the base template data
@@ -286,7 +284,7 @@ def update_template(
                     new_question: models.Question = add_question(
                         db=db,
                         question=question,
-                        template_id=existing_template.template_id,
+                        id=existing_template.id,
                     )
                     existing_template.questions.append(new_question)
             else:
@@ -327,7 +325,7 @@ def delete_template(db: Session, template: HasTemplateID) -> models.QuestionTemp
         if isinstance(template, str):
             raise TemplateNotFoundException(template_id=template)
         else:
-            raise TemplateNotFoundException(template_id=template.template_id)
+            raise TemplateNotFoundException(template_id=template.id)
 
     db.delete(instance=template_to_delete)
     db.commit()
@@ -339,7 +337,7 @@ def add_question(
     db: Session,
     question: Union[schemas.CreateQuestionModel, schemas.UpdateQuestionModel],
     *,
-    template_id: str,
+    id: str,
 ) -> models.Question:
     """
     Adds a new question to the database.
@@ -347,7 +345,7 @@ def add_question(
     Args:
         db (Session): The database session to use for the operation.
         question (Union[schemas.QuestionCreate, schemas.QuestionUpdate]): The question data to be added.
-        template_id (str): The ID of the template to which the question belongs.
+        id (str): The ID of the template to which the question belongs.
 
     Returns:
         models.Question: The newly created question object.
@@ -380,7 +378,7 @@ def add_question(
     db: Session,
     question: Union[schemas.CreateQuestionModel, schemas.UpdateQuestionModel],
     *,
-    template_id: Optional[str] = None,
+    id: Optional[str] = None,
     template: Optional[models.QuestionTemplate] = None,
 ) -> models.Question:
     """
@@ -391,7 +389,7 @@ def add_question(
     Overload 1:
         db (Session): The database session to use for the operation.
         question (schemas.QuestionCreate): The question data to be added.
-        template_id (Optional[str]): The ID of the template to associate the question with.
+        id (Optional[str]): The ID of the template to associate the question with.
 
     Overload 2:
         db (Session): The database session to use for the operation.
@@ -399,18 +397,18 @@ def add_question(
         template (Optional[models.QuestionTemplate]): The template which contains the ID to associate the question with.
 
     Raises:
-        ValueError: If neither template nor template_id is provided.
+        ValueError: If neither template nor id is provided.
 
     Returns:
         models.Question: The newly created question instance.
     """
     template_ref_id: str = ""
     if template is not None:
-        template_ref_id = template.template_id
-    elif template_id is not None:
-        template_ref_id = template_id
+        template_ref_id = template.id
+    elif id is not None:
+        template_ref_id = id
     else:
-        raise ValueError("Either template or template_id must be provided.")
+        raise ValueError("Either template or id must be provided.")
 
     new_question = models.Question(
         template_reference_id=template_ref_id,
@@ -564,7 +562,7 @@ def add_active_questionnaire(
         teacher_id=questionnaire.teacher.id,
         is_student_finished=False,
         is_teacher_finished=False,
-        template_reference_id=questionnaire.template_id,
+        template_reference_id=questionnaire.id,
     )
 
     db.add(instance=new_active_questionnaire)

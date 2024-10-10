@@ -227,7 +227,7 @@ export class MockDataService {
   
     // Step 3: Find the corresponding question template
     const template = this.mockDbService.mockData.mockQuestionTemplates.find(
-      qt => qt.templateId === activeQuestionnaire.template.templateId
+      qt => qt.id === activeQuestionnaire.template.id
     );
     if (!template) return throwError(() => new Error('Question template not found'));
   
@@ -264,7 +264,7 @@ export class MockDataService {
   
 
   
-  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<ActiveQuestionnaire>{
+  createActiveQuestionnaire(student: User, teacher: User, id: string): Observable<ActiveQuestionnaire>{
     const userRole = this.getRoleFromToken();
   
     // Only allow creation if the user is a teacher or admin
@@ -272,10 +272,10 @@ export class MockDataService {
       return throwError(() => new Error('Unauthorized: Only teachers or admins can create questionnaires.'));
     }
 
-    const template = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === templateId);
+    const template = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.id === id);
 
     if (!template) {
-      throw new Error(`Template with ID ${templateId} not found.`);
+      throw new Error(`Template with ID ${id} not found.`);
     }
 
     const newActiveQuestionnaire: ActiveQuestionnaire = {
@@ -283,7 +283,7 @@ export class MockDataService {
       student,
       teacher,
       template: {
-        templateId: template.templateId,
+        id: template.id,
         title: template.title,
         description: template.description
       },
@@ -344,7 +344,7 @@ getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observ
 
   // Update an existing template
   updateTemplate(updatedTemplate: QuestionTemplate): Observable<void> {
-    const existingTemplateIndex = this.mockDbService.mockData.mockQuestionTemplates.findIndex(t => t.templateId === updatedTemplate.templateId);
+    const existingTemplateIndex = this.mockDbService.mockData.mockQuestionTemplates.findIndex(t => t.id === updatedTemplate.id);
     
     if (existingTemplateIndex !== -1) {
       const existingTemplate = this.mockDbService.mockData.mockQuestionTemplates[existingTemplateIndex];
@@ -367,7 +367,7 @@ getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observ
 
   // Delete a template by ID
   deleteTemplate(templateId: string): Observable<void> {
-    this.mockDbService.mockData.mockQuestionTemplates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.templateId !== templateId);
+    this.mockDbService.mockData.mockQuestionTemplates = this.mockDbService.mockData.mockQuestionTemplates.filter(t => t.id !== templateId);
     this.saveData();
     
     return of(undefined).pipe(delay(300)); // Simulate delay
@@ -515,7 +515,7 @@ getTemplates(page: number = 1, limit: number = 10, titleString?: string): Observ
 
   getQuestionsForUser(templateId: string): Observable<Question[]> {
     // Find the template by templateId
-    const template = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.templateId === templateId);
+    const template = this.mockDbService.mockData.mockQuestionTemplates.find(t => t.id === templateId);
   
     // If template is found, return its questions; otherwise, return an empty array
     const questions = template ? template.questions : [];
