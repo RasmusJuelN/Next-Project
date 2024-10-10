@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { ActiveQuestionnaire, Answer, AnswerSession, Question, QuestionDetails, QuestionTemplate, User } from '../../models/questionare';
 import { environment } from '../../../environments/environment';
 import { LogEntry } from '../../models/log-models';
@@ -19,20 +19,6 @@ export class DataService {
       console.error(`${operation} failed: ${error.message}`);
       return throwError(() => new Error(`${operation} failed: ${error.message}`));
     };
-  }
-
-
-  checkForActiveQuestionnaire(id: string, role: string): Observable<{ hasActive: boolean, urlString: string }> {
-    if (!id || !role) {
-      return of({ hasActive: false, urlString: '' });
-    }
-  
-    return this.http.get<{ hasActive: boolean, urlString: string }>(`${environment.apiUrl}/questionnaire/active/${id}`).pipe(
-      catchError(error => {
-        console.error('Error checking for active questionnaire', error);
-        return of({ hasActive: false, urlString: '' });
-      })
-    );
   }
 
   getLogFileTypes(): Observable<string[]> {
@@ -165,12 +151,27 @@ export class DataService {
       );
   }
 
-  getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire | null> {
+  // Method to check if an active questionnaire exists for a user
+  checkForActiveQuestionnaire(userId: string): Observable<ActiveQuestionnaire | false> {
+    const url = `${this.apiUrl}/questionnaire/active/check/${userId}`;
+    return this.http.get<ActiveQuestionnaire | boolean>(url).pipe(
+      catchError((error) => {
+        console.error(`Unexpected error while checking active questionnaire: ${error.message}`);
+        return of(false); // Return false in case of any error
+      }),
+      map((response: ActiveQuestionnaire | boolean) => {
+        // If the response is a boolean, return it directly; otherwise, return the ActiveQuestionnaire object
+        return typeof response === 'boolean' ? false : response;
+      })
+    );
+  }
+
+  // Method to retrieve an active questionnaire by its unique ID
+  getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire> {
     const url = `${this.apiUrl}/questionnaire/active/${id}`;
-    return this.http.get<ActiveQuestionnaire | null>(url)
-      .pipe(
-        catchError(this.handleError<ActiveQuestionnaire | null>('getActiveQuestionnaireById', null))
-      );
+    return this.http.get<ActiveQuestionnaire>(url).pipe(
+      catchError(this.handleError<ActiveQuestionnaire>('getActiveQuestionnairePage'))
+    );
   }
 
 

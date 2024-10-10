@@ -49,16 +49,27 @@ export class LoginPageComponent implements OnInit {
   private handleLoggedInUser(): void {
     const { id, role } = this.getUserDetails();
     if (id && role) {
-      this.dataService.getActiveQuestionnaireById(id)
-        .pipe(
-          map(activeQuestionnaire => this.setRedirectionFlags(activeQuestionnaire, role)),
-          catchError(error => this.handleError('Error handling logged in user', error))
-        )
-        .subscribe();
+      // Step 1: Check if an active questionnaire exists for the user
+      this.dataService.checkForActiveQuestionnaire(id)
+        .subscribe({
+          next: (activeQuestionnaire) => {
+            // Step 2: If an active questionnaire exists, set redirection flags
+            if (activeQuestionnaire) {
+              this.setRedirectionFlags(activeQuestionnaire, role);
+            } else {
+              this.setRedirectionFlags(null, role);
+            }
+          },
+          error: (error) => {
+            console.error('Error checking for active questionnaire:', error);
+            this.handleError('Error handling logged in user', error);
+          }
+        });
     } else {
       this.resetLoginPage();
     }
   }
+  
 
   private handleLoginResponse(response: { access_token: string } | { error: string }): Observable<void> {
     if ('access_token' in response) {
