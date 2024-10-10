@@ -151,26 +151,21 @@ export class DataService {
       );
   }
 
-  // Method to check if an active questionnaire exists for a user
-  checkForActiveQuestionnaire(userId: string): Observable<ActiveQuestionnaire | false> {
+  // Updated method to check for any active questionnaires for a user
+  checkForActiveQuestionnaires(userId: string): Observable<string | null> {
     const url = `${this.apiUrl}/questionnaire/active/check/${userId}`;
-    return this.http.get<ActiveQuestionnaire | boolean>(url).pipe(
-      catchError((error) => {
-        console.error(`Unexpected error while checking active questionnaire: ${error.message}`);
-        return of(false); // Return false in case of any error
-      }),
-      map((response: ActiveQuestionnaire | boolean) => {
-        // If the response is a boolean, return it directly; otherwise, return the ActiveQuestionnaire object
-        return typeof response === 'boolean' ? false : response;
-      })
+    return this.http.get<string|null>(url)
+    .pipe(
+      catchError(this.handleError<string | null>('getActivecheckForActiveQuestionnairesQuestionnairePage'))
     );
   }
+
 
   // Method to retrieve an active questionnaire by its unique ID
   getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire> {
     const url = `${this.apiUrl}/questionnaire/active/${id}`;
     return this.http.get<ActiveQuestionnaire>(url).pipe(
-      catchError(this.handleError<ActiveQuestionnaire>('getActiveQuestionnairePage'))
+      catchError(this.handleError<ActiveQuestionnaire>('getActiveQuestionnaireById'))
     );
   }
 
