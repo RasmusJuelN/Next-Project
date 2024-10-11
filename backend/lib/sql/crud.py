@@ -561,6 +561,19 @@ def add_active_questionnaire(
     db: Session,
     questionnaire: schemas.ActiveQuestionnaireCreateModel,
 ) -> models.ActiveQuestionnaire:
+    """
+    Adds a new active questionnaire to the database. If the student or teacher
+    associated with the questionnaire does not exist in the database, they are
+    also added.
+
+    Args:
+        db (Session): The database session to use for the operation.
+        questionnaire (schemas.ActiveQuestionnaireCreateModel): The questionnaire
+            data to be added.
+
+    Returns:
+        models.ActiveQuestionnaire: The newly created active questionnaire record.
+    """
     new_active_questionnaire = models.ActiveQuestionnaire(
         student_id=questionnaire.student.id,
         teacher_id=questionnaire.teacher.id,
@@ -572,6 +585,7 @@ def add_active_questionnaire(
     db.add(instance=new_active_questionnaire)
     db.flush()
 
+    # Check if the student exists in the database, if not add them
     if not check_if_record_exists_by_id(
         db=db, model=models.User, id=questionnaire.student.id
     ):
@@ -583,6 +597,7 @@ def add_active_questionnaire(
         )
         db.add(instance=new_student)
 
+    # Check if the teacher exists in the database, if not add them
     if not check_if_record_exists_by_id(
         db=db, model=models.User, id=questionnaire.teacher.id
     ):
@@ -604,6 +619,17 @@ def get_all_active_questionnaires(
     teacher: str,
     student: str,
 ) -> Sequence[models.ActiveQuestionnaire]:
+    """
+    Retrieve all active questionnaires for a specific teacher and student.
+
+    Args:
+        db (Session): The database session to use for the query.
+        teacher (str): The name of the teacher associated with the questionnaires.
+        student (str): The name of the student associated with the questionnaires.
+
+    Returns:
+        Sequence[models.ActiveQuestionnaire]: A list of active questionnaires that match the given teacher and student.
+    """
     db.flush()
     result: Result[Tuple[models.ActiveQuestionnaire]] = db.execute(
         statement=select(models.ActiveQuestionnaire).where(
@@ -620,6 +646,16 @@ def get_active_questionnaire_by_id(
     db: Session,
     questionnaire_id: str,
 ) -> Optional[models.ActiveQuestionnaire]:
+    """
+    Retrieve an active questionnaire by its ID from the database.
+
+    Args:
+        db (Session): The database session to use for the query.
+        questionnaire_id (str): The ID of the questionnaire to retrieve.
+
+    Returns:
+        Optional[models.ActiveQuestionnaire]: The active questionnaire if found, otherwise None.
+    """
     db.flush()
     result: Result[Tuple[models.ActiveQuestionnaire]] = db.execute(
         statement=select(models.ActiveQuestionnaire).where(
@@ -633,6 +669,16 @@ def get_oldest_active_questionnaire_id_for_user(
     db: Session,
     user_id: str,
 ) -> Optional[str]:
+    """
+    Retrieve the ID of the oldest active questionnaire for a given user.
+
+    Args:
+        db (Session): The database session to use for the query.
+        user_id (str): The ID of the user for whom to retrieve the oldest active questionnaire.
+
+    Returns:
+        Optional[str]: The ID of the oldest active questionnaire if found, otherwise None.
+    """
     db.flush()
     result: Result[Tuple[str]] = db.execute(
         statement=select(models.ActiveQuestionnaire.id)
@@ -646,6 +692,16 @@ def get_all_active_questionnaire_ids_for_user(
     db: Session,
     user_id: str,
 ) -> Sequence[str]:
+    """
+    Retrieve all active questionnaire IDs for a given user.
+
+    Args:
+        db (Session): The database session to use for the query.
+        user_id (str): The ID of the user for whom to retrieve active questionnaire IDs.
+
+    Returns:
+        Sequence[str]: A sequence of active questionnaire IDs for the specified user.
+    """
     db.flush()
     result: Result[Tuple[str]] = db.execute(
         statement=select(models.ActiveQuestionnaire.id)
@@ -659,6 +715,19 @@ def delete_active_questionnaire(
     db: Session,
     questionnaire_id: str,
 ) -> models.ActiveQuestionnaire:
+    """
+    Deletes an active questionnaire from the database.
+
+    Args:
+        db (Session): The database session to use for the operation.
+        questionnaire_id (str): The ID of the questionnaire to delete.
+
+    Returns:
+        models.ActiveQuestionnaire: The deleted active questionnaire object.
+
+    Raises:
+        QuestionnaireNotFound: If no active questionnaire is found with the given ID.
+    """
     db.flush()
     questionnaire_to_delete: Optional[models.ActiveQuestionnaire] = (
         get_active_questionnaire_by_id(db=db, questionnaire_id=questionnaire_id)
