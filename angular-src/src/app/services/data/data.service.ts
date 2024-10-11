@@ -67,9 +67,9 @@ export class DataService {
   }
 
   // Active Questionnaire Methods
-  createActiveQuestionnaire(student: User, teacher: User, templateId: string): Observable<any> {
+  createActiveQuestionnaire(student: User, teacher: User, id: string): Observable<any> {
     const url = `${this.apiUrl}/questionnaire/create`;
-    const body = { student, teacher, templateId };
+    const body = { student, teacher, id };
     return this.http.post(url, body)
       .pipe(
         catchError(this.handleError('createActiveQuestionnaire'))
@@ -116,7 +116,7 @@ export class DataService {
   }
 
   updateTemplate(template: QuestionTemplate): Observable<void> {
-    const url = `${this.apiUrl}/templates/update/${template.templateId}`;
+    const url = `${this.apiUrl}/templates/update/${template.id}`;
     return this.http.put<void>(url, template)
       .pipe(
         catchError(this.handleError<void>('updateTemplate'))

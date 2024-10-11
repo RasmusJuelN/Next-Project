@@ -4,9 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
-    "start-backend": "py -m pipenv run uvicorn backend.main:app --host 127.0.0.1 --port 8000",
+    "start-backend": "pipenv run uvicorn backend.main:app --host 127.0.0.1 --port 8000",
     "start-frontend": "cd angular-src && ng serve --proxy-config proxy.conf.json",
-    "install-dependencies": "npm install && cd angular-src && npm install && cd ../ && py -m pip install pipenv && pipenv install -d"
+    "install-dependencies": "npm install && cd angular-src && npm install && cd ../ && pip install pipenv && pipenv install -d"
   },
   "keywords": [],
   "author": "",

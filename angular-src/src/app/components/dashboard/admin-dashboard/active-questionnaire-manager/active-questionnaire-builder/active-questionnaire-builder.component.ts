@@ -175,7 +175,7 @@ export class ActiveQuestionnaireBuilderComponent {
 
   // Handle selection of template
   selectTemplate(template: QuestionTemplate) {
-    this.selectedTemplateId = template.templateId;
+    this.selectedTemplateId = template.id;
     this.searchTemplateResults = []; // Clear search results
   }
 

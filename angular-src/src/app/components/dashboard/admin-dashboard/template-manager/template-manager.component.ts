@@ -34,7 +34,7 @@ export class TemplateManagerComponent {
         this.editTemplate(entity);
         break;
       case 'deleteTemplate':
-        this.deleteTemplate(entity.templateId);
+        this.deleteTemplate(entity.id);
         break;
       case 'editQuestion':
         this.editQuestion(entity);
@@ -70,7 +70,7 @@ export class TemplateManagerComponent {
 
   createNewTemplate() {
     const tempTemplate: QuestionTemplate = {
-      templateId: "temporary_template_id",
+      id: "temporary_template_id",
       title: 'New Template',
       description: '',
       questions: [
@@ -110,12 +110,12 @@ export class TemplateManagerComponent {
     const confirmed = window.confirm('Are you sure you want to save changes to this template?');
     if (confirmed) {
       if(newOrUpdatedTemplate){
-        if (newOrUpdatedTemplate.templateId === "temporary_template_id") {
+        if (newOrUpdatedTemplate.id === "temporary_template_id") {
               // Helper function to generate a unique ID
           const generateUniqueId = () => {
             return 'template_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
           };
-          newOrUpdatedTemplate.templateId = generateUniqueId();
+          newOrUpdatedTemplate.id = generateUniqueId();
           this.dataService.createTemplate(newOrUpdatedTemplate).subscribe({
             complete: () => {
               this.loadTemplates();

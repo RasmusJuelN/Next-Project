@@ -318,8 +318,9 @@ def determine_scope_from_groups(groups: List[str]) -> str:
     groups = [group.split(",")[0].split("=")[1] for group in groups]
 
     for group in groups:
-        if group in app_settings.settings.auth.scopes:
-            return app_settings.settings.auth.scopes[group]
+        for scope, group_name in app_settings.settings.auth.scopes.items():
+            if group_name.lower() == group.lower():
+                return scope
 
     raise ValueError("No matching scopes found")
 

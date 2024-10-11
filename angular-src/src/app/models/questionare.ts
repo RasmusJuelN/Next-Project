@@ -40,7 +40,7 @@ export interface Question {
 }
 
 export interface QuestionTemplate {
-  templateId: string;
+  id: string;
   title: string;
   description: string;
   questions: Question[];
@@ -54,7 +54,7 @@ export interface ActiveQuestionnaire {
   isStudentFinished: boolean; // Whether the student has finished the questionnaire
   isTeacherFinished: boolean; // Whether the teacher has finished the questionnaire
   template: {
-    templateId: string; // ID of the template used
+    id: string; // ID of the template used
     title: string; // Title of the template
     description: string; // Description of the template
   };

@@ -68,7 +68,7 @@ export class MockDbService {
         isStudentFinished: true,
         isTeacherFinished: true,
         template: {
-          templateId: 'template1',
+          id: 'template1',
           title: 'Employee Performance Review',
           description: 'A template for assessing employee performance in various aspects of their job.'
         }
@@ -80,7 +80,7 @@ export class MockDbService {
         isStudentFinished: false,
         isTeacherFinished: false,
         template: {
-          templateId: 'template1',
+          id: 'template1',
           title: 'Employee Performance Review',
           description: 'A template for assessing employee performance in various aspects of their job.'
         }
@@ -88,7 +88,7 @@ export class MockDbService {
     ],
     mockQuestionTemplates: [
       {
-        templateId: 'template1',
+        id: 'template1',
         title: 'Employee Performance Review',
         description: 'A template for assessing employee performance in various aspects of their job.',
         questions: [
