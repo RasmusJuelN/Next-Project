@@ -81,7 +81,7 @@ def update_template(
     db: Annotated[Session, Depends(dependency=get_db)],
 ) -> models.QuestionTemplate:
     return crud.update_template(
-        db=db, existing_template_id=template_id, updated_template=template
+        db=db, existing_id=template_id, updated_template=template
     )
 
 
