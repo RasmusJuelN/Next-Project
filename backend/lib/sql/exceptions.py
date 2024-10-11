@@ -27,3 +27,10 @@ class TemplateCreationError(Exception):
         self.template_id: str = template_id
         self.message: str = f"Error creating template with ID {template_id}."
         super().__init__(self.message)
+
+
+class QuestionnaireNotFound(Exception):
+    def __init__(self, questionnaire_id: str) -> None:
+        self.questionnaire_id: str = questionnaire_id
+        self.message: str = f"Questionnaire with ID {questionnaire_id} not found."
+        super().__init__(self.message)

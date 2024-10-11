@@ -9,8 +9,10 @@ from sqlalchemy import (
     func,
     exists,
     select,
+    event,
 )
-from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column, Mapped
+from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column, Mapped, Session
+from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime
 from typing import List, Optional, LiteralString
 from random import choice
@@ -179,3 +181,43 @@ class ActiveQuestionnaire(Base):
         foreign_keys=[template_reference_id],
         back_populates="template_questionnaires",
     )
+
+
+@event.listens_for(target=ActiveQuestionnaire, identifier="after_delete")
+def delete_user_if_no_questionnaires(mapper, connection, target) -> None:
+    """
+    Event listener to delete a user if they have no remaining questionnaires.
+
+    Args:
+        mapper: The mapper.
+        connection: The database connection.
+        target: The instance of ActiveQuestionnaire being deleted.
+    """
+    session = Session(bind=connection)
+
+    try:
+        # Check if the student has any remaining questionnaires
+        student_questionnaires = (
+            session.query(ActiveQuestionnaire)
+            .filter_by(student_id=target.student_id)
+            .count()
+        )
+        if student_questionnaires == 0:
+            student = session.query(User).filter_by(id=target.student_id).one()
+            session.delete(student)
+
+        # Check if the teacher has any remaining questionnaires
+        teacher_questionnaires = (
+            session.query(ActiveQuestionnaire)
+            .filter_by(teacher_id=target.teacher_id)
+            .count()
+        )
+        if teacher_questionnaires == 0:
+            teacher = session.query(User).filter_by(id=target.teacher_id).one()
+            session.delete(teacher)
+
+        session.commit()
+    except NoResultFound:
+        pass
+    finally:
+        session.close()

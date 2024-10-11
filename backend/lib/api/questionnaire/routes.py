@@ -1,6 +1,6 @@
 from fastapi import Request, APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Sequence, Optional, Annotated
+from typing import Literal, Sequence, Optional, Annotated
 
 from backend.lib.sql.dependencies import get_db
 from backend.lib.sql import crud, schemas, models
@@ -169,3 +169,17 @@ def check_all_active_questionnaires_for_user(
     db: Annotated[Session, Depends(dependency=get_db)],
 ) -> Sequence[str]:
     return crud.get_all_active_questionnaire_ids_for_user(db=db, user_id=user_id)
+
+
+@router.delete(
+    path="/questionnaire/delete/{questionnaire_id}",
+    tags=["questionnaire"],
+    response_model=Literal[True],
+)
+def delete_questionnaire(
+    request: Request,
+    questionnaire_id: str,
+    db: Annotated[Session, Depends(dependency=get_db)],
+) -> Literal[True]:
+    crud.delete_active_questionnaire(db=db, questionnaire_id=questionnaire_id)
+    return True

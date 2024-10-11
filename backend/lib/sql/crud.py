@@ -9,7 +9,11 @@ from backend.lib.sql.utils import (
     student_name_condition,
     teacher_name_condition,
 )
-from backend.lib.sql.exceptions import TemplateNotFoundException, TemplateCreationError
+from backend.lib.sql.exceptions import (
+    TemplateNotFoundException,
+    TemplateCreationError,
+    QuestionnaireNotFound,
+)
 
 
 class ObjectHasTemplateID(Protocol):
@@ -649,3 +653,19 @@ def get_all_active_questionnaire_ids_for_user(
         .order_by(models.ActiveQuestionnaire.created_at)
     )
     return result.scalars().all()
+
+
+def delete_active_questionnaire(
+    db: Session,
+    questionnaire_id: str,
+) -> models.ActiveQuestionnaire:
+    db.flush()
+    questionnaire_to_delete: Optional[models.ActiveQuestionnaire] = (
+        get_active_questionnaire_by_id(db=db, questionnaire_id=questionnaire_id)
+    )
+    if not questionnaire_to_delete:
+        raise QuestionnaireNotFound(questionnaire_id=questionnaire_id)
+
+    db.delete(instance=questionnaire_to_delete)
+    db.commit()
+    return questionnaire_to_delete
