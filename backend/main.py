@@ -1,4 +1,3 @@
-from logging import DEBUG, INFO, Logger
 from typing import Literal
 from fastapi import (
     FastAPI,
@@ -18,8 +17,12 @@ from ldap3.core.exceptions import (
     LDAPSocketOpenError,
 )
 from typing_extensions import deprecated
+from alembic import command
+from alembic.config import Config
+from alembic.util import CommandError
+from pathlib import Path
 
-from backend.lib._logger import LogHelper
+from backend import logger
 from backend.lib.api.auth.routes import router as auth_router
 from backend.lib.api.questionnaire.routes import router as questionnaire_router
 from backend.lib.api.settings.routes import router as settings_router
@@ -34,22 +37,30 @@ from backend.lib.api.auth.dependencies import (
 from backend.lib.i18n_middleware import I18nMiddleware
 from backend.lib.sql.database import engine
 from backend.lib.sql.models import Base
+from backend.lib.sql import database_migration_logger
 
 # noqa: W291 (trailing whitespace) prevents Flake8 from complaining about trailing whitespace. Used for docstrings.
 # fmt: off/on (black formatting) disables/enables Black formatting for the code block. Used for docstrings.
 
-logger: Logger = LogHelper.create_logger(
-    logger_name="backend API (main)",
-    log_file="backend/logs/backend.log",
-    file_log_level=DEBUG,
-    stream_log_level=INFO,
-)
 
 # Drop and recreate the database tables.
-# TODO: This is only for development purposes. Remove this in production.
-# Base.metadata.drop_all(bind=engine, checkfirst=True)
 Base.metadata.create_all(bind=engine, checkfirst=True)
 
+config: Config = Config(file_=Path("backend", "lib", "alembic", "alembic_app.ini"))
+# Check if the database schema is up-to-date.
+try:
+    command.check(config=config)
+except CommandError as e:
+    if "Target database is not up to date" in str(object=e):
+        database_migration_logger.warning(
+            msg="Database schema is not up-to-date. Attempting to upgrade."
+        )
+        command.upgrade(config=config, revision="head")
+        database_migration_logger.warning(
+            msg="Database schema has been upgraded to the latest version. Please refer to the logs for more information."
+        )
+    else:
+        database_migration_logger.exception(msg="Unexpected error occurred")
 
 app = FastAPI(root_path="/api/v1")
 

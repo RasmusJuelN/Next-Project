@@ -12,5 +12,6 @@ __pycache__
 # Ignore new changes to the config file
 backend-config.yaml
 
-# Ignore the database
+# Ignore the database and journal files
 program.db
+program.db-journal
