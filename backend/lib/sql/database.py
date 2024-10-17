@@ -9,5 +9,5 @@ db_connection_args: Dict[str, Any] = build_db_connection_args()
 engine: Engine = create_engine(**db_connection_args)
 
 sessionLocal = sessionmaker(
-    bind=engine, class_=Session, autoflush=False, autocommit=False
+    bind=engine, class_=Session, autoflush=True, autocommit=False
 )

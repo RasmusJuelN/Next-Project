@@ -21,6 +21,7 @@ from alembic import command
 from alembic.config import Config
 from alembic.util import CommandError
 from pathlib import Path
+from io import StringIO
 
 from backend import logger
 from backend.lib.api.auth.routes import router as auth_router
@@ -42,14 +43,20 @@ from backend.lib.sql import database_migration_logger
 # noqa: W291 (trailing whitespace) prevents Flake8 from complaining about trailing whitespace. Used for docstrings.
 # fmt: off/on (black formatting) disables/enables Black formatting for the code block. Used for docstrings.
 
+stdout_capture = StringIO()
 
 # Drop and recreate the database tables.
 Base.metadata.create_all(bind=engine, checkfirst=True)
 
-config: Config = Config(file_=Path("backend", "lib", "alembic", "alembic_app.ini"))
+config: Config = Config(
+    file_=Path("backend", "lib", "alembic", "alembic_app.ini"),
+    stdout=stdout_capture,
+    attributes={"configure_logger": False},
+)
 # Check if the database schema is up-to-date.
 try:
     command.check(config=config)
+    database_migration_logger.info(msg=stdout_capture.getvalue())
 except CommandError as e:
     if "Target database is not up to date" in str(object=e):
         database_migration_logger.warning(

@@ -21,7 +21,7 @@ class BaseOptionModel(CamelBaseModel):
     """
     The base Pydantic model for an Option object.
 
-    Applies camelCase aliasing to the model attributes, and allows for the model to be populated from attributes. Inherits from CamelBaseModel.
+    Applies camelCase aliasing to the model attributes, and allows for the model to be populated from attributes. Extends CamelBaseModel.
 
     Attributes:
         value (int): The value of the option.
@@ -36,7 +36,7 @@ class BaseOptionModel(CamelBaseModel):
 
 class CreateOptionModel(BaseOptionModel):
     """
-    Pydantic model for creating an Option object. Inherits from OptionBase.
+    Pydantic model for creating an Option object. Extends BaseOptionModel.
 
     Attributes:
         value (int): The value of the option.
@@ -49,7 +49,7 @@ class CreateOptionModel(BaseOptionModel):
 
 class UpdateOptionModel(BaseOptionModel):
     """
-    Pydantic model for updating an Option object. Inherits from OptionBase.
+    Pydantic model for updating an Option object. Extends BaseOptionModel.
 
     Attributes:
         value (int): The value of the option.
@@ -62,7 +62,8 @@ class UpdateOptionModel(BaseOptionModel):
 
 class OptionModel(BaseOptionModel):
     """
-    Pydantic model for an Option object. Inherits from OptionBase.
+    Pydantic model for an Option object. Extends BaseOptionModel.
+    Should be a 1:1 representation of the Option object in the database.
 
     Attributes:
         value (int): The value of the option.
@@ -78,27 +79,21 @@ class BaseQuestionModel(CamelBaseModel):
     """
     The base Pydantic model for a Question object.
 
-    Applies camelCase aliasing to the model attributes, and allows for the model to be populated from attributes. Inherits from CamelBaseModel.
+    Applies camelCase aliasing to the model attributes, and allows for the model to be populated from attributes. Extends CamelBaseModel.
 
     Attributes:
         title (str): The title of the question.
-        selected_option (int): The value of the selected option. Defaults to None.
-        custom_answer (str): The custom answer provided by the user. Defaults to None.
     """
 
     title: str
-    selected_option: Optional[int] = None
-    custom_answer: Optional[str] = None
 
 
 class CreateQuestionModel(BaseQuestionModel):
     """
-    Pydantic model for creating a Question object. Inherits from QuestionBase.
+    Pydantic model for creating a Question object. Extends QuestionBase.
 
     Attributes:
         title (str): The title of the question.
-        selected_option (int): The value of the selected option. Defaults to None.
-        custom_answer (str): The custom answer provided by the user. Defaults to None.
         options (List[OptionCreate]): A list of OptionCreate objects.
     """
 
@@ -107,12 +102,10 @@ class CreateQuestionModel(BaseQuestionModel):
 
 class UpdateQuestionModel(BaseQuestionModel):
     """
-    Pydantic model for updating a Question object. Inherits from QuestionBase.
+    Pydantic model for updating a Question object. Extends QuestionBase.
 
     Attributes:
         title (str): The title of the question.
-        selected_option (int): The value of the selected option. Defaults to None.
-        custom_answer (str): The custom answer provided by the user. Defaults to None.
         options (List[OptionUpdate]): A list of OptionUpdate objects.
     """
 
@@ -121,12 +114,11 @@ class UpdateQuestionModel(BaseQuestionModel):
 
 class QuestionModel(BaseQuestionModel):
     """
-    Pydantic model for a Question object. Inherits from QuestionBase.
+    Pydantic model for a Question object. Extends QuestionBase.
+    Should be a 1:1 representation of the Question object in the database.
 
     Attributes:
         title (str): The title of the question.
-        selected_option (int): The value of the selected option. Defaults to None.
-        custom_answer (str): The custom answer provided by the user. Defaults to None.
         options (List[Option]): A list of Option objects.
         id (int): The DB autoincrement ID of the question.
     """
@@ -139,54 +131,57 @@ class BaseQuestionTemplateModel(CamelBaseModel):
     """
     The base Pydantic model for a QuestionTemplate object.
 
-    Applies camelCase aliasing to the model attributes, and allows for the model to be populated from attributes. Inherits from CamelBaseModel.
+    Applies camelCase aliasing to the model attributes, and allows for the model to be populated from attributes. Extends CamelBaseModel.
 
     Attributes:
         title (str): The title of the template.
         description (str): The description of the template.
-        created_at (datetime): The creation date of the template.
     """
 
     title: str
     description: str
-    created_at: datetime
 
 
 class FetchQuestionTemplateModel(CamelBaseModel):
     """
-    Pydantic model for fetching a QuestionTemplate object. Inherits from QuestionTemplateBase.
+    Pydantic model for fetching a QuestionTemplate object. Extends BaseQuestionTemplateModel.
 
     Attributes:
+        created_at (datetime): The creation date of the template.
+        last_updated (datetime): The last update date of the template.
         id (str): The ID of the template to fetch.
     """
 
+    created_at: datetime
+    last_updated: datetime
     id: str
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class DeleteQuestionTemplateModel(CamelBaseModel):
     """
-    Pydantic model for deleting a QuestionTemplate object. Inherits from QuestionTemplateBase.
+    Pydantic model for deleting a QuestionTemplate object. Extends BaseQuestionTemplateModel.
 
     Attributes:
+        created_at (Optional[datetime]): The creation date of the template.
+            If set, the template will only be deleted if the creation date matches.
+        last_updated (Optional[datetime]): The last update date of the template.
+            If set, the template will only be deleted if the last update date matches.
         id (str): The ID of the template to delete.
     """
 
+    created_at: Optional[datetime] = None
+    last_updated: Optional[datetime] = None
     id: str
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class CreateQuestionTemplateModel(BaseQuestionTemplateModel):
     """
-    Pydantic model for creating a QuestionTemplate object. Inherits from QuestionTemplateBase.
+    Pydantic model for creating a QuestionTemplate object. Extends BaseQuestionTemplateModel.
 
     Attributes:
         title (str): The title of the template.
         description (str): The description of the template.
-        created_at (datetime): The creation date of the template.
-        questions (List[QuestionCreate]): A list of QuestionCreate objects.
+        questions (List[CreateQuestionModel]): A list of CreateQuestionModel objects.
     """
 
     questions: List[CreateQuestionModel]
@@ -194,12 +189,11 @@ class CreateQuestionTemplateModel(BaseQuestionTemplateModel):
 
 class UpdateQuestionTemplateModel(BaseQuestionTemplateModel):
     """
-    Pydantic model for updating a QuestionTemplate object. Inherits from QuestionTemplateBase.
+    Pydantic model for updating a QuestionTemplate object. Extends BaseQuestionTemplateModel.
 
     Attributes:
         title (str): The title of the template.
         description (str): The description of the template.
-        created_at (datetime): The creation date of the template.
         questions (List[QuestionUpdate]): A list of QuestionUpdate objects.
     """
 
@@ -208,14 +202,13 @@ class UpdateQuestionTemplateModel(BaseQuestionTemplateModel):
 
 class QuestionTemplateModel(BaseQuestionTemplateModel):
     """
-    Pydantic model for a QuestionTemplate object. Inherits from QuestionTemplateBase.
+    Pydantic model for a QuestionTemplate object. Extends BaseQuestionTemplateModel.
+    Should be a 1:1 representation of the QuestionTemplate object in the database.
 
     Attributes:
         title (str): The title of the template.
         description (str): The description of the template.
-        created_at (datetime): The creation date of the template.
         questions (List[Question]): A list of Question objects.
-        id (int): The DB autoincrement ID of the template.
         id (str): A unique, server-generated ID for the template.
     """
 

@@ -11,7 +11,7 @@ db_logger: Logger = LogHelper.create_logger(
 )
 
 database_migration_logger: Logger = LogHelper.create_logger(
-    logger_name="alembic",
+    logger_name="alembic.runtime.migration",
     log_file="backend/logs/alembic.log",
     file_log_level=DEBUG,
     stream_log_level=WARNING,

@@ -16,12 +16,21 @@ def get_db() -> Generator[Session, Any, None]:
     after the request is processed.
 
     Note:
-        The session is yielded as is, without any additional context.
-        Manual transaction management is required when using this
-        dependency.
+        The session is yielded as a context manager, so it is automatically
+        closed after the request is processed. It does NOT, however,
+        automatically commit or rollback the transaction. This must be done
+        explicitly with `session.commit()`|`session.rollback()`, or by using
+        the yielded session as a context manager with `with session.begin():`.
+
+    Example:
+        ```
+        from backend.lib.sql.dependencies import get_db
+
+        session = get_db()
+
+        with session.begin():
+            session.add(some_object)
+        ```
     """
-    session: Session = sessionLocal()
-    try:
+    with sessionLocal() as session:
         yield session
-    finally:
-        session.close()

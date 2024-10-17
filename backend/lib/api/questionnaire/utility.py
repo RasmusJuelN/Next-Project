@@ -75,7 +75,7 @@ def query_template_by_id(
         return cached_template
 
     template: Optional[models.QuestionTemplate] = crud.get_template_by_id(
-        db=db, template=template_id
+        db=db, template_id=template_id
     )
 
     if template is not None:
