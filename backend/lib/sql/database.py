@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.engine import Engine, create_engine
 from typing import Dict, Any
 
-from backend.lib.sql.utils import build_db_connection_args
+from backend.lib.sql.utility import build_db_connection_args
 
 db_connection_args: Dict[str, Any] = build_db_connection_args()
 

@@ -25,29 +25,29 @@ This directory contains all the reusable components of the application. Componen
 This directory contains the data models used in the application. Models define the structure of the data being handled. Currently, it contains a single file consolidating all data models.
 
 #### src/app/services
-Services provide extended logic for components and manage data operations. They also contain mock data files that use local storage to simulate backend data during development. 
+Services provide extended logic for components and manage data operations.
+
+They also contain mock services and a mock Database with premade data. In app.config has a useClass for Data and Auth services whihc replaces it if environment in either environment.devolopment.ts or environment.ts is true for useMock.
+
+**Mock needs to align that of the real version. So Names need to match. This is important as errors for return types or naming will give errors only in runtime for mock**
+
+#### guards and interceptors
+interceptors will give the htttp requests the token from local storage and put it in requests so backend can handle it.
+
+Guards is used to protect routes from being accessed. Role is used if someone like for example student tries to access dashboard component while Auth is used to check for connection before being put over there. If there is no connection it will signal as error and be put over to error component
 
 ### src/assets
-Contains static assets such as images and other resources. It also includes a default mock data JSON file used when there is no data available in local storage.
+Contains static assets such as images and other resources. It also includes an **OLD** default mock data JSON file used when there is no data available in local storage.
 
-# FrontendProj
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.5.
+# Other Stuff
+## JWT Token
+The JWT token can be found in **local storage** and is typiclly gotten using the service
 
-  
+## Api for backend.
+for current devolpemnt, the api url is getting it from environment.ts/environment.developments.ts, however when using the proxy it will replaces the url from api call with the one from proxy.
 
-## Development server
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-## Code scaffolding
+http://localhost:4200/api/v1
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+becomes
 
-## Build
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-## Running unit tests
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-## Running end-to-end tests
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+http://127.0.0.1:8000

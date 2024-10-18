@@ -6,9 +6,7 @@ import { LogEntry } from '../../models/log-models';
 
 export type LogFileType = 'sql' | 'backend' | 'settings_manager';
 interface MockLogs {
-  sql: LogEntry[];
-  backend: LogEntry[];
-  settings_manager: LogEntry[];
+  [key: string]: LogEntry[];
 }
 
 @Injectable({
@@ -20,70 +18,80 @@ export class MockDbService {
 
   private predefinedMockData: {
     mockUsers: User[],
-    mockAnswers: AnswerSession[],
+    mockAnswerSessions: AnswerSession[],
     mockActiveQuestionnaire: ActiveQuestionnaire[],
     mockQuestionTemplates: QuestionTemplate[],
     mockAppSettings: {
       settings: any;
       metadata: any;
     },
-    mockLogs: MockLogs 
+    mockLogs: MockLogs
   } = {
     mockUsers: [
-      { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
-      { id: "2", userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
-      { id: "3", userName: "AS", fullName: "Alexander Svensson", role: "student" },
-      { id: "4", userName: "JW", fullName: "Johan Wallin", role: "student" }
+      { id: "1", userName: "userteacher", fullName: "Teach", role: "teacher" },
+      { id: "2", userName: "NH", fullName: "Nicklas Helsberg", role: "student" },
+      { id: "3", userName: "MF", fullName: "Max Felding", role: "student" },
+      { id: "4", userName: "AMT", fullName: "Alexander Thamdrup", role: "student" },
+      { id: "5", userName: "sysadmin", fullName: "Admin", role: "admin" }
     ],
-    mockAnswers: [
+    mockAnswerSessions: [
       {
         questionnaireId: "efgh",
-        studentAnswers: {
-          user: { id: "2", userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
-          answers: [
-            { questionId: 1, selectedOptionId: 1 },
-            { questionId: 2, selectedOptionId: 2 },
-            { questionId: 3, customAnswer: 'More interactive activities would be great!' },
-            { questionId: 4, selectedOptionId: 2 },
-          ],
-          answeredAt: new Date()
+        users: {
+          student: { id: "2", userName: "NH", fullName: "Nicklas Helsberg", role: "student" },
+          teacher: { id: "1", userName: "userteacher", fullName: "Teach", role: "teacher" }
         },
-        teacherAnswers: {
-          user: { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
-          answers: [
-            { questionId: 1, selectedOptionId: 1 },
-            { questionId: 2, selectedOptionId: 1 },
-            { questionId: 3, customAnswer: 'Better resources and tools for students are needed.' },
-            { questionId: 4, selectedOptionId: 1 },
-          ],
-          answeredAt: new Date()
-        }
+        answers : [
+          { questionId: 1, questionTitle: 'Indlæringsevne', studentAnswer: 'Let ved at forstå arbejdsopgaverne og anvende den i praksis. Har let ved at tilegne sig ny viden.', teacherAnswer: 'Mindre behov for oplæring end normalt. Kan selv finde/tilegne sig ny viden.' },
+          { questionId: 2, questionTitle: 'Kreativitet og selvstændighed', studentAnswer: 'Viser normalt initiativ. Kommer selv med løsningsforslag. Tilrettelægger eget arbejde.', teacherAnswer: 'Viser ringe initiativ. Kommer ikke med løsningsforslag. Viser ingen interesse i at tilægge eget arbejde.' },
+          { questionId: 3, questionTitle: 'Arbejdsindsats', studentAnswer: 'Middel', teacherAnswer: 'Over middel' },
+          { questionId: 4, questionTitle: 'Orden og omhyggelighed', studentAnswer: 'Meget påpasselig både i praktik og teori. God orden.', teacherAnswer: 'God forståelse for materialevalg. Særdeles god orden.' }
+        ],        
+        studentAnsweredAt: new Date('2024-10-14T08:30:00.000Z'),
+        teacherAnsweredAt: new Date('2024-10-14T09:00:00.000Z')
+      },
+      {
+        questionnaireId: "ijkl",
+        users: {
+          student: { id: "4", userName: "AMT", fullName: "Alexander Thamdrup", role: "student" },
+          teacher: { id: "1", userName: "userteacher", fullName: "Teach", role: "teacher" }
+        },
+        answers: [
+          { questionId: 1, questionTitle: 'Indlæringsevne', studentAnswer: '', teacherAnswer: 'Not answered yet' },
+          { questionId: 2, questionTitle: 'Kreativitet og selvstændighed', studentAnswer: '', teacherAnswer: '' },
+          { questionId: 3, questionTitle: 'Arbejdsindsats', studentAnswer: '', teacherAnswer: '' },
+          { questionId: 4, questionTitle: 'Orden og omhyggelighed', studentAnswer: '', teacherAnswer: '' }
+        ],
+        studentAnsweredAt: new Date('2024-10-14T08:30:00.000Z'),
+        teacherAnsweredAt: new Date('2024-10-14T08:30:00.000Z')
       }
     ],
     mockActiveQuestionnaire: [
       {
         id: "efgh",
-        student: { id: "2", userName: "NN", fullName: "Nicklas Nilsson", role: "student" },
-        teacher: { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
-        isStudentFinished: true,
-        isTeacherFinished: true,
+        student: { id: "2", userName: "NH", fullName: "Nicklas Helsberg", role: "student" },
+        teacher: { id: "1", userName: "userteacher", fullName: "Teach", role: "teacher" },
+        studentFinishedAt: new Date(),
+        teacherFinishedAt: new Date(),
         template: {
           id: 'template1',
           title: 'Employee Performance Review',
           description: 'A template for assessing employee performance in various aspects of their job.'
-        }
+        },
+        createdAt: new Date()
       },
       {
         id: "ijkl",
-        student: { id: "3", userName: "AS", fullName: "Alexander Svensson", role: "student" },
-        teacher: { id: "1", userName: "MJ", fullName: "Max Jacobsen", role: "teacher" },
-        isStudentFinished: false,
-        isTeacherFinished: false,
+        student: { id: "4", userName: "AMT", fullName: "Alexander Thamdrup", role: "student" },
+        teacher: { id: "1", userName: "userteacher", fullName: "Teach", role: "teacher" },
+        studentFinishedAt: null,
+        teacherFinishedAt: null,
         template: {
           id: 'template1',
           title: 'Employee Performance Review',
           description: 'A template for assessing employee performance in various aspects of their job.'
-        }
+        },
+        createdAt: new Date()
       }
     ],
     mockQuestionTemplates: [
@@ -143,16 +151,20 @@ export class MockDbService {
       settings: {
         auth: {
           access_token_expire_minutes: 30,
+          ad_service_account: 'svc_backend_queries',
+          ad_service_password: 'Pa$$w0rd',
           algorithm: 'HS256',
-          domain: 'localhost',
-          ldap_base_dn: 'dc=example,dc=com',
-          ldap_server: 'ldap://localhost',
+          authentication_method: 'NTLM',
+          domain: '10.0.1.139',
+          ldap_base_dn: 'dc=next,dc=dev',
+          ldap_server: 'ldap://10.0.1.139',
+          salt_hash: 'b1865f9a4615cbcac2956f076a741841192dc65f4f6eebac66cc5ade440366c8',
           scopes: {
             admin: 'admin',
             student: 'student',
             teacher: 'teacher',
           },
-          secret_key: null,
+          secret_key: 'e33228799f663a35c4be9343cecd991ffedc6d6a88e6c20463744bd6ade87108',
         },
         database: {
           database_driver: null,
@@ -180,32 +192,52 @@ export class MockDbService {
             canBeEmpty: false,
             description: 'Access token expiration in minutes',
           },
+          ad_service_account: {
+            default: 'svc_backend_queries',
+            canBeEmpty: false,
+            description: 'AD Service Account',
+          },
+          ad_service_password: {
+            default: 'Pa$$w0rd',
+            canBeEmpty: false,
+            description: 'AD Service Password',
+          },
           algorithm: {
             default: 'HS256',
             canBeEmpty: false,
             description: 'Algorithm used for authentication',
           },
+          authentication_method: {
+            default: 'NTLM',
+            canBeEmpty: false,
+            description: 'Authentication method used',
+          },
           domain: {
-            default: 'localhost',
+            default: '10.0.1.139',
             canBeEmpty: false,
             description: 'Domain name',
           },
           ldap_base_dn: {
-            default: 'dc=example,dc=com',
+            default: 'dc=next,dc=dev',
             canBeEmpty: false,
             description: 'LDAP base DN',
           },
           ldap_server: {
-            default: 'ldap://localhost',
+            default: 'ldap://10.0.1.139',
             canBeEmpty: false,
             description: 'LDAP server URL',
+          },
+          salt_hash: {
+            default: 'b1865f9a4615cbcac2956f076a741841192dc65f4f6eebac66cc5ade440366c8',
+            canBeEmpty: false,
+            description: 'Salt hash for authentication',
           },
           scopes: {
             canBeEmpty: false,
             description: 'Access scopes',
           },
           secret_key: {
-            default: '',
+            default: 'e33228799f663a35c4be9343cecd991ffedc6d6a88e6c20463744bd6ade87108',
             canBeEmpty: true,
             description: 'Secret key used for authentication',
           },
@@ -273,6 +305,7 @@ export class MockDbService {
         },
       },
     },
+    
     mockLogs: {
       sql: [
         {

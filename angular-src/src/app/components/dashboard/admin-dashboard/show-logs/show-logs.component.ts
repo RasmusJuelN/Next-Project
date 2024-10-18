@@ -1,9 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core'; 
 import { DataService } from '../../../../services/data/data.service';
+import { LogEntry, LogFileType } from '../../../../models/log-models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LogEntry } from '../../../../models/log-models';
-
 
 type SeverityLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
@@ -14,70 +13,93 @@ type SeverityLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
   templateUrl: './show-logs.component.html',
   styleUrls: ['./show-logs.component.css']
 })
-export class ShowLogsComponent implements OnInit {
-  private dataService = inject(DataService)
-  logs: LogEntry[] = []; // Logs stored as LogEntry objects
-  filteredLogs: LogEntry[] = []; // Logs after applying checkbox filters
+export class ShowLogsComponent implements OnInit, OnDestroy {
+  private dataService = inject(DataService);
+  logs: LogEntry[] = [];
+  filteredLogs: LogEntry[] = [];
 
-  logFileTypes: string[] = []; 
-  selectedLogFileType: string = ''; 
+  logFileTypes: LogFileType = {};
+  logFileTypeKeys: string[] = [];
+  selectedLogFileType: string = '';
 
-  severityLevels: SeverityLevel[] = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']; // Updated severity level names
-  selectedFetchSeverityLevel: SeverityLevel = 'DEBUG'; // Dropdown for fetching logs
-  selectedFilterSeverityLevels: SeverityLevel[] = []; // Checkboxes for filtering fetched logs
+  severityLevels: SeverityLevel[] = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'];
+  selectedFetchSeverityLevel: SeverityLevel = 'DEBUG';
+  selectedFilterSeverityLevels: SeverityLevel[] = [];
 
-  startLine: number = 1;
-  lineCount: number = 5;
+  lineCount: number | null = 10;  // Default value
+  loadAllLines: boolean = false;
   reverseLogs: boolean = false;
   isLoading: boolean = false;
   errorMessage: string | null = null;
 
+  private refreshIntervalId: any;
+
   ngOnInit(): void {
-    this.fetchLogFileTypes(); // Fetch log file types on component initialization
+    this.fetchLogFileTypes();
+
+    // Auto-refresh log files every 10 seconds
+    this.refreshIntervalId = setInterval(() => {
+      this.fetchLogFileTypes();
+    }, 10000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshIntervalId) {
+      clearInterval(this.refreshIntervalId);
+    }
   }
 
   fetchLogFileTypes(): void {
     this.dataService.getLogFileTypes().subscribe({
-      next: (fileTypes: string[]) => {
+      next: (fileTypes: LogFileType) => {
         this.logFileTypes = fileTypes;
-        this.selectedLogFileType = this.logFileTypes[0]; // Set the default selection to the first type
+        this.logFileTypeKeys = Object.keys(fileTypes);
+
+        // If the selected log file type is no longer available, reset it
+        if (!this.logFileTypeKeys.includes(this.selectedLogFileType)) {
+          this.selectedLogFileType = this.logFileTypeKeys[0] || '';
+        }
       },
       error: () => {
         this.errorMessage = 'Failed to load log file types';
-      }
+      },
     });
   }
 
-  // Fetch logs based on the selected severity level and other params
   fetchLogs(): void {
     this.isLoading = true;
     this.errorMessage = null;
-  
-    this.dataService.getLogs(this.selectedFetchSeverityLevel, this.selectedLogFileType, this.startLine, this.lineCount, this.reverseLogs).subscribe({
-      next: (data: LogEntry[]) => {
-        this.logs = data;
-        this.applySeverityFilter();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.errorMessage = 'Error fetching logs';
-        this.isLoading = false;
-      },
-    });
+
+    this.dataService
+      .getLogs(
+        this.selectedFetchSeverityLevel,
+        this.selectedLogFileType,
+        this.lineCount,
+        this.reverseLogs
+      )
+      .subscribe({
+        next: (data: LogEntry[]) => {
+          this.logs = data;
+          this.applySeverityFilter();
+          this.isLoading = false;
+        },
+        error: () => {
+          this.errorMessage = 'Error fetching logs';
+          this.isLoading = false;
+        },
+      });
   }
 
-  // Apply the filter using the selected severity levels from checkboxes
   applySeverityFilter(): void {
     if (this.selectedFilterSeverityLevels.length === 0) {
-      this.filteredLogs = this.logs; // No filter applied if no checkboxes are selected
+      this.filteredLogs = this.logs;
     } else {
-      this.filteredLogs = this.logs.filter(log => {
-        return this.selectedFilterSeverityLevels.includes(log.severity);
-      });
+      this.filteredLogs = this.logs.filter((log) =>
+        this.selectedFilterSeverityLevels.includes(log.severity)
+      );
     }
   }
 
-  // Handle checkbox change for severity level filtering
   onSeverityFilterChange(event: Event, severity: SeverityLevel): void {
     const checkbox = event.target as HTMLInputElement;
     if (checkbox.checked) {
@@ -85,30 +107,22 @@ export class ShowLogsComponent implements OnInit {
         this.selectedFilterSeverityLevels.push(severity);
       }
     } else {
-      this.selectedFilterSeverityLevels = this.selectedFilterSeverityLevels.filter(level => level !== severity);
+      this.selectedFilterSeverityLevels = this.selectedFilterSeverityLevels.filter(
+        (level) => level !== severity
+      );
     }
-    this.applySeverityFilter(); // Apply the filter whenever a checkbox is changed
+    this.applySeverityFilter();
   }
 
   onUpdateLines(): void {
-    if (this.startLine < 1) {
-      this.startLine = 1;
-    }
-
-    if (this.lineCount > 0) {
-      this.fetchLogs();
+    if (this.loadAllLines) {
+      this.lineCount = null;
     } else {
-      this.errorMessage = 'Limit must be greater than 0.';
+      if (this.lineCount === null || isNaN(this.lineCount) || this.lineCount <= 0) {
+        this.errorMessage = 'Number of Lines must be greater than 0 or select Load All Lines.';
+        return;
+      }
     }
-  }
-
-  onPageChange(isNext: boolean): void {
-    if (isNext) {
-      this.startLine += this.lineCount;
-    } else if (this.startLine > 1) {
-      this.startLine = Math.max(1, this.startLine - this.lineCount);
-    }
-
     this.fetchLogs();
   }
 }

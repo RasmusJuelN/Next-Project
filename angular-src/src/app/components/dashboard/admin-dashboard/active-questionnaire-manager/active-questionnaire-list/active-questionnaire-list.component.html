@@ -1,33 +1,55 @@
-  <!-- Search for Active Questionnaires by Student -->
-  <div class="search-section">
-    <label for="student-search">Search by Student Name:</label>
-    <input id="student-search" #SearchByTeacher type="text" (input)="onSearchStudentChange(SearchByTeacher.value)" placeholder="Enter student name..." />
-  </div>
+<!-- Search for Active Questionnaires by Student -->
+<div class="search-section">
+  <label for="student-search">Search by Student Name:</label>
+  <input id="student-search" #SearchByTeacher type="text" (input)="onSearchStudentChange(SearchByTeacher.value)" placeholder="Type a student name..." />
+</div>
 
-  <!-- Search for Active Questionnaires by Teacher -->
-  <div class="search-section">
-    <label for="teacher-search">Search by Teacher Name:</label>
-    <input id="teacher-search" #SearchByStudent type="text" (input)="onSearchTeacherChange(SearchByStudent.value)" placeholder="Enter teacher name..." />
-  </div>
+<!-- Search for Active Questionnaires by Teacher -->
+<div class="search-section">
+  <label for="teacher-search">Search by Teacher Name:</label>
+  <input id="teacher-search" #SearchByStudent type="text" (input)="onSearchTeacherChange(SearchByStudent.value)" placeholder="Type a teacher name..." />
+</div>
 
-  <!-- Display Active Questionnaires -->
-  <div class="active-questionnaire-list">
-    <h3>Active Questionnaires</h3>
-    <ul *ngIf="activeQuestionnaires.length > 0">
-      <li *ngFor="let questionnaire of activeQuestionnaires">
-        <strong>Student:</strong> {{ questionnaire.student.fullName }} ({{ questionnaire.student.userName }})<br>
-        <strong>Teacher:</strong> {{ questionnaire.teacher.fullName }} ({{ questionnaire.teacher.userName }})<br>
-        <strong>Template:</strong> {{ questionnaire.template.title }}<br>
-        <strong>Description:</strong> {{ questionnaire.template.description }}<br>
-        <strong>Student Finished:</strong> {{ questionnaire.isStudentFinished ? 'Yes' : 'No' }}<br>
-        <strong>Teacher Finished:</strong> {{ questionnaire.isTeacherFinished ? 'Yes' : 'No' }}<br>
-        <strong>Created At:</strong> {{ questionnaire.createdAt | date:'short' }}<br>
-      </li>
-    </ul>
+<!-- Display Active Questionnaires -->
+<div class="active-questionnaire-list">
+  <h3>List of Active Questionnaires</h3>
+  <ul *ngIf="activeQuestionnaires.length > 0">
+    <li *ngFor="let questionnaire of activeQuestionnaires">
+      <div>
+          <strong>Student:</strong>
+          <span>{{ questionnaire.student.fullName }} ({{ questionnaire.student.userName }})</span>
+      </div>
+      <div>
+          <strong>Teacher:</strong>
+          <span>{{ questionnaire.teacher.fullName }} ({{ questionnaire.teacher.userName }})</span>
+      </div>
+      <div>
+          <strong>Template Title:</strong>
+          <span>{{ questionnaire.template.title }}</span>
+      </div>
+      <div>
+          <strong>Template Description:</strong>
+          <span>{{ questionnaire.template.description }}</span>
+      </div>
+      <div>
+          <strong>Student Completion Date:</strong>
+          <span>{{ questionnaire.studentFinishedAt ? (questionnaire.studentFinishedAt | date:'short') : 'Not completed' }}</span>
+      </div>
+      <div>
+          <strong>Teacher Completion Date:</strong>
+          <span>{{ questionnaire.teacherFinishedAt ? (questionnaire.teacherFinishedAt | date:'short') : 'Not completed' }}</span>
+      </div>
+      <div>
+          <strong>Creation Date:</strong>
+          <span>{{ questionnaire.createdAt | date:'short' }}</span>
+      </div>
+  </li>
+  
+  </ul>
 
-    <!-- Show message if no results are found -->
-    <p *ngIf="activeQuestionnaires.length === 0">No active questionnaires found.</p>
+  <!-- Show message if no results are found -->
+  <p *ngIf="activeQuestionnaires.length === 0">No active questionnaires found at the moment.</p>
 
-    <!-- Load More Button -->
-    <button (click)="loadMore()" *ngIf="activeQuestionnaires.length >= limit">Load More</button>
-  </div>
+  <!-- Load More Button -->
+  <button (click)="loadMore()" *ngIf="activeQuestionnaires.length >= limit">Load More</button>
+</div>

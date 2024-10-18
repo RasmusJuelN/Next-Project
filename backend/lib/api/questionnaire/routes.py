@@ -12,6 +12,7 @@ from backend.lib.api.questionnaire.utility import (
     query_templates,
     query_template_by_id,
     query_questionnaires,
+    fetch_questionnaire_results,
 )
 
 router = APIRouter()
@@ -182,4 +183,31 @@ def delete_questionnaire(
     db: Annotated[Session, Depends(dependency=get_db)],
 ) -> Literal[True]:
     crud.delete_active_questionnaire(db=db, questionnaire_id=questionnaire_id)
+    return True
+
+
+@router.get(
+    path="/questionnaire/results/{questionnaire_id}",
+    tags=["questionnaire"],
+    response_model=schemas.QuestionnaireResultModel,
+)
+def get_questionnaire_results(
+    request: Request,
+    questionnaire_id: str,
+    db: Annotated[Session, Depends(dependency=get_db)],
+) -> schemas.QuestionnaireResultModel:
+    return fetch_questionnaire_results(db=db, questionnaire_id=questionnaire_id)
+
+
+@router.post(
+    path="/questionnaire/answers/submit",
+    tags=["questionnaire"],
+    response_model=Literal[True],
+)
+def submit_questionnaire_answers(
+    request: Request,
+    answers: schemas.AnswerSubmissionModel,
+    db: Annotated[Session, Depends(dependency=get_db)],
+) -> Literal[True]:
+    crud.add_answers(db=db, answers=answers)
     return True

@@ -14,6 +14,7 @@ from sqlalchemy import (
     event,
     Connection,
     MetaData,
+    Text,
 )
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -132,6 +133,9 @@ class Option(Base):
         back_populates="options",  # The back reference to the options field in the Question model
         lazy="select",  # Lazy load the question
     )
+    answers: Mapped[List["Answer"]] = relationship(
+        argument="Answer", back_populates="option", cascade="all, delete-orphan"
+    )
 
 
 class Question(Base):
@@ -181,6 +185,9 @@ class Question(Base):
         back_populates="question",
         cascade="all, delete-orphan",  # Delete options when the question is deleted
         lazy="select",
+    )
+    answers: Mapped[List["Answer"]] = relationship(
+        argument="Answer", back_populates="question", cascade="all, delete-orphan"
     )
 
 
@@ -244,6 +251,7 @@ class QuestionTemplate(Base):
     template_questionnaires: Mapped[List["ActiveQuestionnaire"]] = relationship(
         argument="ActiveQuestionnaire",
         back_populates="template",
+        cascade="all, delete-orphan",
         lazy="select",
     )
 
@@ -291,6 +299,9 @@ class User(Base):
         foreign_keys="[ActiveQuestionnaire.teacher_id]",  # The foreign key to the teacher_id field in the ActiveQuestionnaire model
         back_populates="teacher",
         lazy="select",
+    )
+    answers: Mapped[List["Answer"]] = relationship(
+        argument="Answer", back_populates="user", cascade="all, delete-orphan"
     )
 
 
@@ -367,6 +378,67 @@ class ActiveQuestionnaire(Base):
         back_populates="template_questionnaires",
         lazy="select",
     )
+    answers: Mapped[List["Answer"]] = relationship(
+        argument="Answer",
+        back_populates="active_questionnaire",
+        cascade="all, delete-orphan",
+    )
+
+
+class Answer(Base):
+    """
+    Represents an answer in the database.
+
+    Attributes:
+        id (Mapped[int]): The primary key of the answer. Auto-incremented.
+        active_questionnaire_id (Mapped[str]): The foreign key linking to the
+            associated active questionnaire.
+        user_id (Mapped[str]): The foreign key linking to the user who answered
+            the question.
+        question_id (Mapped[int]): The foreign key linking to the question that
+            was answered.
+        option_id (Mapped[int]): The foreign key linking to the option that was
+            selected. Can be `None` if the user provided a custom answer.
+        custom_answer_text (Mapped[str]): The custom answer text provided by the
+            user. Can be `None` if the user selected an option.
+
+    Relationships:
+        active_questionnaire (Mapped["ActiveQuestionnaire"]): Relationship to the ActiveQuestionnaire model.
+        user (Mapped["User"]): Relationship to the User model.
+        question (Mapped["Question"]): Relationship to the Question model.
+        option (Mapped["Option"]): Relationship to the Option model.
+
+    Constraints:
+        CheckConstraint: Ensures that either the selected option or custom answer text is not null.
+    """
+
+    __tablename__: str = "answers"
+
+    id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, index=True)
+    active_questionnaire_id: Mapped[str] = mapped_column(
+        type_=String, __type_pos=ForeignKey(column="active_questionnaires.id")
+    )
+    user_id: Mapped[str] = mapped_column(
+        type_=String, __type_pos=ForeignKey(column="users.id")
+    )
+    question_id: Mapped[int] = mapped_column(
+        type_=Integer, __type_pos=ForeignKey(column="questions.id")
+    )
+    option_id: Mapped[int] = mapped_column(
+        type_=Integer, __type_pos=ForeignKey(column="options.id")
+    )
+    custom_answer_text: Mapped[str] = mapped_column(
+        type_=Text, index=False, nullable=True
+    )
+
+    active_questionnaire: Mapped["ActiveQuestionnaire"] = relationship(
+        argument="ActiveQuestionnaire", back_populates="answers"
+    )
+    user: Mapped["User"] = relationship(argument="User", back_populates="answers")
+    question: Mapped["Question"] = relationship(
+        argument="Question", back_populates="answers"
+    )
+    option: Mapped["Option"] = relationship(argument="Option", back_populates="answers")
 
 
 @event.listens_for(target=ActiveQuestionnaire, identifier="after_delete")

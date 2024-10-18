@@ -5,32 +5,32 @@
   <div class="user-info-section">
     <div class="info-item student-info">
       <span class="user-role-label">Student:</span>
-      <span class="user-name">{{ answerSession.studentAnswers.user.fullName }}</span>
-      <span> {{ answerSession.studentAnswers.answeredAt | date: 'dd/MM/yyyy' }}</span>
+      <span class="user-name">{{ answerSession.users.student.fullName }}</span>
+      <span>{{ answerSession.studentAnsweredAt | date: 'dd/MM/yyyy' }}</span>
     </div>
     <div class="info-item teacher-info">
       <span class="user-role-label">Teacher:</span>
-      <span class="user-name">{{ answerSession.teacherAnswers.user.fullName }}</span>
-      <span> {{ answerSession.teacherAnswers.answeredAt | date: 'dd/MM/yyyy' }}</span>
+      <span class="user-name">{{ answerSession.users.teacher.fullName }}</span>
+      <span>{{ answerSession.teacherAnsweredAt | date: 'dd/MM/yyyy' }}</span>
     </div>
   </div>
 
   <!-- Questions and Answers Section -->
   <div class="questions-section">
-    <div *ngFor="let studentAnswer of answerSession.studentAnswers.answers; let i = index" class="question-answer-pair">
-      <h3 class="question-title">{{ i + 1 }}. {{ getQuestionTitle(studentAnswer.questionId) }}</h3>
+    <div *ngFor="let answer of answerSession.answers; let i = index" class="question-answer-pair">
+      <h3 class="question-title">{{ i + 1 }}. {{ answer.questionTitle }}</h3>
 
       <div class="answers-comparison">
         <!-- Student's Answer -->
         <div class="answer-container student-answer">
           <span class="answer-label">Student:</span>
-          <p class="answer-text">{{ displayAnswer(studentAnswer.questionId, 'student') }}</p>
+          <p class="answer-text">{{ answer.studentAnswer || 'No Answer' }}</p>
         </div>
 
         <!-- Teacher's Answer -->
         <div class="answer-container teacher-answer">
           <span class="answer-label">Teacher:</span>
-          <p class="answer-text">{{ displayAnswer(studentAnswer.questionId, 'teacher') }}</p>
+          <p class="answer-text">{{ answer.teacherAnswer || 'No Answer' }}</p>
         </div>
       </div>
     </div>
@@ -41,4 +41,3 @@
 <div *ngIf="errorMessage" class="error-message">
   <p>{{ errorMessage }}</p>
 </div>
-

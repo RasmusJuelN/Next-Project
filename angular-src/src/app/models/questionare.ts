@@ -51,8 +51,8 @@ export interface ActiveQuestionnaire {
   id: string; // ID of the active questionnaire instance
   student: User; // The student involved in the questionnaire
   teacher: User; // The teacher involved in the questionnaire
-  isStudentFinished: boolean; // Whether the student has finished the questionnaire
-  isTeacherFinished: boolean; // Whether the teacher has finished the questionnaire
+  studentFinishedAt? : null | Date; // Whether the student has finished the questionnaire
+  teacherFinishedAt? : null | Date; // Whether the teacher has finished the questionnaire
   template: {
     id: string; // ID of the template used
     title: string; // Title of the template
@@ -68,23 +68,22 @@ export interface Answer {
   customAnswer?: string;
 }
 
-export interface UserAnswerSheet {
-  user: User; // Reference to the User object instead of just ID
-  answers: Answer[];
-  answeredAt: Date;
-}
-
-export interface AnswerSession {
-  questionnaireId: string;
-  studentAnswers: UserAnswerSheet;
-  teacherAnswers: UserAnswerSheet;
-}
-
-
-// Used to display details of the question.
-export interface QuestionDetails {
+// Used to display details of the answer and the question.
+export interface AnswerDetails {
   questionId: number;
   questionTitle: string;
   studentAnswer: string;
   teacherAnswer: string;
+}
+
+
+export interface AnswerSession {
+  questionnaireId: string;
+  users: {
+    student: User;
+    teacher: User;
+  };
+  answers: AnswerDetails[];  // An array of AnswerDetails
+  studentAnsweredAt?: Date;
+  teacherAnsweredAt?: Date;
 }

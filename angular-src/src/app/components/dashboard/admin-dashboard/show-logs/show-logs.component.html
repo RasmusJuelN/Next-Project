@@ -2,16 +2,33 @@
   <!-- Log Type Selection -->
   <div class="form-group">
     <label for="logType" class="form-label">Log Type:</label>
-    <select [(ngModel)]="selectedLogFileType" name="logType" id="logType" class="form-select">
-      <option *ngFor="let type of logFileTypes" [value]="type">{{ type | titlecase }}</option>
+    <select
+      [(ngModel)]="selectedLogFileType"
+      name="logType"
+      id="logType"
+      class="form-select"
+    >
+      <option
+        *ngFor="let type of logFileTypeKeys"
+        [value]="type"
+      >
+        {{ type | titlecase }} ({{ logFileTypes[type].amount }} lines)
+      </option>
     </select>
   </div>
 
   <!-- Dropdown for Fetching Logs Based on Severity -->
   <div class="form-group">
     <label for="fetchSeverityLevel" class="form-label">Fetch Logs with Severity:</label>
-    <select [(ngModel)]="selectedFetchSeverityLevel" name="fetchSeverityLevel" id="fetchSeverityLevel" class="form-select">
-      <option *ngFor="let severity of severityLevels" [value]="severity">{{ severity }}</option>
+    <select
+      [(ngModel)]="selectedFetchSeverityLevel"
+      name="fetchSeverityLevel"
+      id="fetchSeverityLevel"
+      class="form-select"
+    >
+      <option *ngFor="let severity of severityLevels" [value]="severity">
+        {{ severity }}
+      </option>
     </select>
   </div>
 
@@ -21,25 +38,37 @@
     <div class="checkbox-group">
       <div *ngFor="let severity of severityLevels" class="checkbox-item">
         <label>
-          <input 
-            type="checkbox" 
-            [value]="severity" 
-            (change)="onSeverityFilterChange($event, severity)" 
-            [checked]="selectedFilterSeverityLevels.includes(severity)" 
-          /> 
+          <input
+            type="checkbox"
+            [value]="severity"
+            (change)="onSeverityFilterChange($event, severity)"
+            [checked]="selectedFilterSeverityLevels.includes(severity)"
+          />
           {{ severity }}
         </label>
       </div>
     </div>
   </div>
 
-  <!-- Start Line and Limit Inputs -->
+  <!-- Number of Lines and Load All Lines Toggle -->
   <div class="form-group form-inline">
-    <label for="startLine" class="form-label">Start Line:</label>
-    <input type="number" [(ngModel)]="startLine" id="startLine" class="form-input" min="1" />
-
     <label for="lineCount" class="form-label">Number of Lines:</label>
-    <input type="number" [(ngModel)]="lineCount" id="lineCount" class="form-input" min="1" />
+    <input
+      type="number"
+      [(ngModel)]="lineCount"
+      id="lineCount"
+      class="form-input"
+      min="1"
+      [disabled]="loadAllLines"
+    />
+
+    <label for="loadAllLines" class="form-label">Load All Lines:</label>
+    <input
+      type="checkbox"
+      [(ngModel)]="loadAllLines"
+      id="loadAllLines"
+      class="form-check-input"
+    />
 
     <button (click)="onUpdateLines()" class="btn btn-primary">Fetch Logs</button>
   </div>
@@ -47,32 +76,37 @@
   <!-- Reverse Logs Checkbox -->
   <div class="form-group form-inline">
     <label for="reverseLogs" class="form-label">Reverse Logs:</label>
-    <input type="checkbox" [(ngModel)]="reverseLogs" id="reverseLogs" class="form-check-input" />
+    <input
+      type="checkbox"
+      [(ngModel)]="reverseLogs"
+      id="reverseLogs"
+      class="form-check-input"
+    />
   </div>
-  
-  <!-- Display Filtered Logs in a Scrollable Area -->
+
+  <!-- Loading Indicator -->
   <div *ngIf="isLoading" class="loading-indicator">
     <div class="spinner"></div> Loading logs...
   </div>
-  
+
+  <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">
     <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
   </div>
 
+  <!-- Display Filtered Logs with Line Numbers -->
   <div *ngIf="!isLoading && filteredLogs.length > 0" class="log-display-container">
-    <div *ngFor="let log of filteredLogs; let i = index" class="log-line" [ngClass]="{ 'odd-row': i % 2 === 0, 'even-row': i % 2 !== 0 }">
-      <pre>{{ log.timestamp }} [{{ log.severity }}] {{ log.source }} {{ log.message }}</pre>
+    <div
+      *ngFor="let log of filteredLogs; let i = index"
+      class="log-line"
+      [ngClass]="{ 'odd-row': i % 2 === 0, 'even-row': i % 2 !== 0 }"
+    >
+      <pre>{{ i + 1 }} {{ log.timestamp }} [{{ log.severity }}] {{ log.source }} {{ log.message }}</pre>
     </div>
   </div>
-  
+
+  <!-- No Logs Message -->
   <div *ngIf="!isLoading && filteredLogs.length === 0" class="no-logs-message">
     <p>No logs available for the selected criteria.</p>
   </div>
-
-  <!-- Pagination Controls -->
-  <div class="pagination-controls">
-    <button (click)="onPageChange(false)" [disabled]="startLine <= 0" class="btn btn-secondary">Previous</button>
-    <button (click)="onPageChange(true)" class="btn btn-secondary">Next</button>
-  </div>
-
 </div>

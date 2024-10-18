@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import List, Optional
-from pydantic import BaseModel, ConfigDict, AliasGenerator
+from typing import List, Optional, Self
+from pydantic import BaseModel, ConfigDict, AliasGenerator, model_validator
 from pydantic.alias_generators import to_camel
 
 from backend.lib.api.auth.models import User
@@ -217,22 +217,137 @@ class QuestionTemplateModel(BaseQuestionTemplateModel):
 
 
 class QuestionnaireTemplateModel(CamelBaseModel):
+    """
+    Pydantic model for a QuestionTemplateModel which has been stripped of its questions.
+    Extends CamelBaseModel.
+
+    Attributes:
+        id (str): The ID of the template.
+        title (str): The title of the template.
+        description (str): The description of the template.
+    """
+
     id: str
     title: str
     description: str
 
 
 class ActiveQuestionnaireCreateModel(CamelBaseModel):
+    """
+    Pydantic model for creating an ActiveQuestionnaire object. Extends CamelBaseModel.
+
+    Attributes:
+        student (User): The student who is taking the questionnaire.
+        teacher (User): The teacher who is taking the questionnaire.
+        template (QuestionnaireTemplateModel): The template of the questionnaire.
+    """
+
     student: User
     teacher: User
     id: str
 
 
 class ActiveQuestionnaireModel(CamelBaseModel):
+    """
+    Pydantic model for an ActiveQuestionnaire object. Extends CamelBaseModel.
+
+    Attributes:
+        id (str): The ID of the questionnaire.
+        student (User): The student who is taking the questionnaire.
+        teacher (User): The teacher who is taking the questionnaire.
+        template (QuestionnaireTemplateModel): The template of the questionnaire.
+        created_at (datetime): The creation date of the questionnaire.
+        student_finished_at (Optional[datetime]): The date the student finished the questionnaire.
+        teacher_finished_at (Optional[datetime]): The date the teacher finished the questionnaire.
+    """
+
     id: str
     student: User
     teacher: User
-    is_student_finished: bool
-    is_teacher_finished: bool
     template: QuestionnaireTemplateModel
     created_at: datetime
+    student_finished_at: Optional[datetime] = None
+    teacher_finished_at: Optional[datetime] = None
+
+
+class TeacherStudentPairModel(CamelBaseModel):
+    """
+    Pydantic model for a teacher and student pair. Extends CamelBaseModel.
+
+    Attributes:
+        teacher (User): The teacher in the pair.
+        student (User): The student in the pair.
+    """
+
+    teacher: User
+    student: User
+
+
+class AnswerModel(CamelBaseModel):
+    """
+    Pydantic model for an answer to a question. Extends CamelBaseModel.
+
+    Attributes:
+        question_id (int): The ID of the question.
+        selected_option_id (Optional[int]): The ID of the selected option. If not provided, custom_answer_text must be provided.
+        custom_answer_text (Optional[str]): The custom answer text. If not provided, selected_option_id must be provided.
+    """
+
+    question_id: int
+    selected_option_id: Optional[int] = 0
+    custom_answer_text: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validate_answer(self) -> Self:
+        if self.selected_option_id is None and self.custom_answer_text is None:
+            raise ValueError(
+                "Either selected_option_id or custom_answer_text must be provided"
+            )
+        return self
+
+
+class AnswerSubmissionModel(CamelBaseModel):
+    """
+    Pydantic model for submitting answers to a questionnaire. Extends CamelBaseModel.
+
+    Attributes:
+        questionnaire_id (str): The ID of the questionnaire.
+        user_id (str): The ID of the user submitting the answers.
+        answers (List[AnswerModel]): A list of AnswerModel objects.
+    """
+
+    questionnaire_id: str
+    user_id: str
+    answers: List[AnswerModel]
+
+
+class AnswerResultModel(CamelBaseModel):
+    """
+    Pydantic model for a result of a question. Extends CamelBaseModel.
+
+    Attributes:
+        question_id (int): The ID of the question.
+        question_title (str): The title of the question.
+        student_answer (str): The answer provided by the student.
+        teacher_answer (str): The answer provided by the teacher.
+    """
+
+    question_id: int
+    question_title: str
+    student_answer: str
+    teacher_answer: str
+
+
+class QuestionnaireResultModel(CamelBaseModel):
+    """
+    Pydantic model for the results of a questionnaire. Extends CamelBaseModel.
+
+    Attributes:
+        questionnaire_id (str): The ID of the questionnaire.
+        users (TeacherAndUserModel): The teacher and student who took the questionnaire.
+        answers (List[AnswerResultModel]): A list of AnswerResultModel objects.
+    """
+
+    questionnaire_id: str
+    users: TeacherStudentPairModel
+    answers: List[AnswerResultModel]

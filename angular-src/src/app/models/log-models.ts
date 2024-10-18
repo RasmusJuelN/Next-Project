@@ -4,4 +4,6 @@ export interface LogEntry {
     source: string;       // The source of the log, e.g., "sqlalchemy.orm.mapper.Mapper"
     message: string;      // The log message, e.g., "Col ('cid', 'name', 'type', 'notnull', 'dflt_value', 'pk')"
   }
-  
+  export interface LogFileType {
+    [key: string]: { amount: number };
+  }

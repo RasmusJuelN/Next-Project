@@ -1,102 +1,99 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { ActiveQuestionnaire, Question, User } from '../../models/questionare';
+import { User } from '../../models/questionare';
 import { LocalStorageService } from '../misc/local-storage.service';
 import { JWTTokenService } from './jwt-token.service';
 import { Router } from '@angular/router';
+import { MockDbService } from '../mock/mock-db.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MockAuthService {
-  private adminMockToken: string;
-  private teacherMockToken: string;
-  private studentMockToken: string;
   private localStorageService = inject(LocalStorageService);
   private jwtTokenService = inject(JWTTokenService);
-  private router = inject(Router)
+  private router = inject(Router);
+  private mockDbService = inject(MockDbService);
 
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
-  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable(); 
-  
+  // Initialize isAuthenticatedSubject before constructor logic
+  private isAuthenticatedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor() {
-    // This token assumes that the user is "Max" and is a teacher
-    this.teacherMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiTWF4Iiwic2NvcGUiOiJ0ZWFjaGVyIiwidXNlcm5hbWUiOiJNSiIsImV4cCI6MTc2NzIyNTYwMH0.sK5gcVr4AZBccqR7sRzHmsqCTFL2H8YzPKRmruH77w0';
-    this.adminMockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZnVsbF9uYW1lIjoiQWRtaW4iLCJzY29wZSI6ImFkbWluIiwidXNlcm5hbWUiOiJBZG1pbiIsImV4cCI6MTc2NzIyNTYwMH0.rm4eMTa8ZoRS0unm013ZsjCloZWwcy9bZ7kpOFmtFHQ';
-    this.studentMockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwiZnVsbF9uYW1lIjoiSm9oYW4iLCJzY29wZSI6InN0dWRlbnQiLCJ1c2VybmFtZSI6IkpIIiwiZXhwIjoxNzY3MjI1NjAwfQ.3fSMXJMA3eDEs9X0TUNTkVRmeEU3w_6prcmOc9K9EIc"
+    this.mockDbService.loadInitialMockData();
+    this.isAuthenticatedSubject.next(this.hasValidToken());
   }
-
-  refreshUserData(): void {
-    const token = this.jwtTokenService.getDecodeToken();
-    if (token) {
-      const decodedToken: any = this.jwtTokenService.getDecodeToken();
-      if (decodedToken) {
-        const role = decodedToken['scope'];
-        if (role === 'admin') {
-          this.jwtTokenService.setToken(this.adminMockToken);
-        } else if (role === 'teacher') {
-          this.jwtTokenService.setToken(this.teacherMockToken);
-        } else if (role === 'student') {
-          this.jwtTokenService.setToken(this.studentMockToken);
-        }
-      }
-    }
-  }
-
 
   /**
-   * Authenticates the user login using mock data.
+   * Authenticates the user login using mock data from MockDbService.
    * @param userName - The username of the user.
    * @param password - The password of the user.
    * @returns An Observable that emits an access token if the login is successful, or an error message if the login fails.
    */
   loginAuthentication(userName: string, password: string): Observable<{ access_token: string } | { error: string }> {
-    const premadeUsers = [
-      { userName: "Admin", password: "Pa$$w0rd", role: 'admin' },
-      { userName: "MJ", password: "Pa$$w0rd", role: 'teacher' },
-      { userName: "NH", password: "Pa$$w0rd", role: 'student' },
-      { userName: "AS", password: "Pa$$w0rd", role: 'student' },
-      { userName: "JW", password: "Pa$$w0rd", role: 'student' } 
-    ];
+    const matchedUser = this.mockDbService.mockData.mockUsers.find(user => user.userName === userName);
+    
+    // Check if user is found and password matches (mock password check)
+    if (matchedUser && password === 'Pa$$w0rd') {
+      const token = this.generateMockToken(matchedUser);
 
-    const matchedUser = premadeUsers.find(user => user.userName === userName && user.password === password);
-
-    if (matchedUser) {
-      let token = this.studentMockToken;
-      switch (matchedUser.role) {
-        case 'admin':
-          token = this.adminMockToken;
-          break;
-        case 'student':
-          token = this.studentMockToken;
-          break;
-        case 'teacher':
-          token = this.teacherMockToken;
-          break;
-      }
-      
       return of({ access_token: token }).pipe(
         tap(response => {
-          console.log("Login success");
-          this.jwtTokenService.setToken(response.access_token); // Use JWTTokenService to store the token
-          this.isAuthenticatedSubject.next(true);
+          this.jwtTokenService.setToken(response.access_token); // Store the token
+          this.isAuthenticatedSubject.next(true); // Update authentication status
         })
       );
     } else {
-      return throwError(() => new Error('Login failed. Please check your credentials.')).pipe(
-        tap(() => {
-          console.log("Login failure");
-        })
-      );
+      return throwError(() => new Error('Login failed. Please check your credentials.'));
     }
   }
 
-  checkServerConnection(): Observable<boolean> {
-    return of(false)
+  private generateMockToken(user: User): string {
+    const header = {
+      alg: 'HS256',
+      typ: 'JWT',
+    };
+  
+    const payload = {
+      sub: user.id,
+      full_name: user.fullName,
+      scope: user.role,
+      username: user.userName,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1-hour expiration
+    };
+  
+    // Function to encode in base64 with UTF-8 support
+    const base64UrlEncode = (obj: any) => {
+      return btoa(encodeURIComponent(JSON.stringify(obj))
+        .replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    };
+  
+    const encodedHeader = base64UrlEncode(header);
+    const encodedPayload = base64UrlEncode(payload);
+    const mockSignature = 'mock-signature';
+  
+    return `${encodedHeader}.${encodedPayload}.${mockSignature}`;
   }
+  
+  
 
+  /**
+   * Refreshes the user data based on the current token.
+   */
+  refreshUserData(): void {
+    const decodedToken = this.jwtTokenService.getDecodeToken();
+    if (decodedToken) {
+      const userId = decodedToken['sub'];
+      const user = this.mockDbService.mockData.mockUsers.find(u => u.id === userId);
+      
+      if (user) {
+        const newToken = this.generateMockToken(user);
+        this.jwtTokenService.setToken(newToken); // Refresh token
+      }
+    }
+  }
 
   /**
    * Checks if the current user has a specific role.
@@ -126,26 +123,35 @@ export class MockAuthService {
     return decodedToken ? decodedToken['scope'] : null;
   }
 
+  /**
+   * Logs out the user by clearing the token and updating the authentication status.
+   */
   logout(): void {
     this.jwtTokenService.clearToken();
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/']); // Redirect to login page
   }
 
+  /**
+   * Checks if a valid token exists and is not expired.
+   * @returns True if a valid token exists, false otherwise.
+   */
   hasValidToken(): boolean {
     const existsAndNotExpired = this.jwtTokenService.tokenExists() && !this.jwtTokenService.isTokenExpired();
-    
+
     if (!existsAndNotExpired) {
       this.jwtTokenService.clearToken();
-      // Check if isAuthenticatedSubject is initialized before calling .next()
-      if (this.isAuthenticatedSubject) {
-        this.isAuthenticatedSubject.next(false);
-      } else {
-        console.error('isAuthenticatedSubject is not initialized');
-      }
+      this.isAuthenticatedSubject.next(false); // Ensure auth status is updated
     }
-    
+
     return existsAndNotExpired;
   }
 
+  /**
+   * Checks if the mock server connection is available.
+   * @returns An observable that always returns true for mock purposes.
+   */
+  checkServerConnection(): Observable<boolean> {
+    return of(true);
+  }
 }

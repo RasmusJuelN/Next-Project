@@ -1,9 +1,10 @@
-from typing import Tuple, Optional, Sequence, Union, Protocol, TypeAlias
+from typing import List, Tuple, Optional, Sequence, Union, Protocol, TypeAlias
 from sqlalchemy import Result, select, and_
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from backend.lib.sql import schemas, models
-from backend.lib.sql.utils import (
+from backend.lib.sql.utility import (
     check_if_record_exists_by_id,
     user_id_condition,
     student_name_condition,
@@ -549,3 +550,57 @@ def add_or_remove_questions(
         return existing_template
     else:
         return existing_template
+
+
+def add_answers(
+    db: Session,
+    answers: schemas.AnswerSubmissionModel,
+) -> Sequence[models.Answer]:
+    with db.begin_nested():
+        new_answers: List[models.Answer] = []
+        for answer in answers.answers:
+            new_answer = models.Answer(
+                active_questionnaire_id=answers.questionnaire_id,
+                user_id=answers.user_id,
+                question_id=answer.question_id,
+                option_id=answer.selected_option_id,
+                custom_answer_text=answer.custom_answer_text,
+            )
+            new_answers.append(new_answer)
+        db.add_all(instances=new_answers)
+
+        mark_user_completed_questionnaire(
+            db=db,
+            user_id=answers.user_id,
+            questionnaire_id=answers.questionnaire_id,
+        )
+
+        return new_answers
+
+
+def mark_user_completed_questionnaire(
+    db: Session,
+    user_id: str,
+    questionnaire_id: str,
+) -> models.ActiveQuestionnaire:
+    with db.begin_nested():
+        questionnaire: models.ActiveQuestionnaire = db.execute(
+            statement=select(models.ActiveQuestionnaire).where(
+                models.ActiveQuestionnaire.id == questionnaire_id
+            )
+        ).scalar_one()
+
+        user: models.User = db.execute(
+            statement=select(models.User).where(models.User.id == user_id)
+        ).scalar_one()
+
+        if user.role == "student":
+            questionnaire.student_finished_at = datetime.now()
+
+        elif user.role == "teacher":
+            questionnaire.teacher_finished_at = datetime.now()
+
+        else:
+            raise ValueError("Invalid user role")
+
+        return questionnaire

@@ -34,15 +34,15 @@
         <p><strong>ID:</strong> {{ questionnaire.id }}</p>
         <p><strong>Student Name:</strong> {{ questionnaire.student.fullName }}</p>
         <div>
-          <span class="status-badge" [ngClass]="questionnaire.isStudentFinished ? 'badge-completed' : 'badge-pending'">
-            Student: {{ questionnaire.isStudentFinished ? 'Completed' : 'Pending' }}
+          <span class="status-badge" [ngClass]="questionnaire.studentFinishedAt ? 'badge-completed' : 'badge-pending'">
+            Student: {{ questionnaire.studentFinishedAt ? 'Completed' : 'Pending' }}
           </span>
-          <span class="status-badge" [ngClass]="questionnaire.isTeacherFinished ? 'badge-completed' : 'badge-pending'">
-            Teacher: {{ questionnaire.isTeacherFinished ? 'Reviewed' : 'Pending' }}
+          <span class="status-badge" [ngClass]="questionnaire.teacherFinishedAt ? 'badge-completed' : 'badge-pending'">
+            Teacher: {{ questionnaire.teacherFinishedAt ? 'Reviewed' : 'Pending' }}
           </span>
         </div>
-        <button *ngIf="!questionnaire.isTeacherFinished" class="route-button"  (click)="navigateTo(questionnaire.id, 'answer')">Go to Questionnaire</button>
-        <button *ngIf="questionnaire.isTeacherFinished && questionnaire.isStudentFinished" class="route-button" (click)="navigateTo(questionnaire.id, 'results')">Go to results</button>
+        <button *ngIf="!questionnaire.teacherFinishedAt" class="route-button"  (click)="navigateTo(questionnaire.id, 'answer')">Go to Questionnaire</button>
+        <button *ngIf="questionnaire.teacherFinishedAt && questionnaire.studentFinishedAt" class="route-button" (click)="navigateTo(questionnaire.id, 'results')">Go to results</button>
         <hr class="hr-line" *ngIf="i < activeQuestionnaires.length - 1">
       </div>
     </ng-container>

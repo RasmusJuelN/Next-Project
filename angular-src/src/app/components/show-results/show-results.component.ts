@@ -4,7 +4,7 @@ import { DataService } from '../../services/data/data.service';
 import { catchError } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { Answer, AnswerSession, QuestionDetails } from '../../models/questionare';
+import { AnswerSession } from '../../models/questionare';
 
 @Component({
   selector: 'app-show-results',
@@ -16,10 +16,9 @@ import { Answer, AnswerSession, QuestionDetails } from '../../models/questionare
 export class ShowResultsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dataService = inject(DataService);
-  private router = inject(Router)
+  private router = inject(Router);
   answerSession: AnswerSession | null = null; // Holds the fetched answer session data
   errorMessage: string | null = null;
-  questionDetails: QuestionDetails[] = []; // Combined question and option data for both student and teacher
 
   ngOnInit(): void {
     const questionnaireId = this.route.snapshot.paramMap.get('id');
@@ -37,27 +36,12 @@ export class ShowResultsComponent implements OnInit {
         this.errorMessage = error.message;
         return of(null); // Return null in case of error
       })
-    ).subscribe((data) => {
+    ).subscribe((data: AnswerSession | null) => {
       if (data) {
-        this.answerSession = data.answerSession; // Store the answer session data
-        this.questionDetails = data.questionDetails; // Store the combined question and option data
+        this.answerSession = data; // Store the answer session data
       } else {
         this.errorMessage = 'Results not found for the specified questionnaire.';
       }
     });
-  }
-
-  displayAnswer(questionId: number, role: 'student' | 'teacher'): string {
-    const questionDetail = this.questionDetails.find(q => q.questionId === questionId);
-    if (!questionDetail) return 'No Answer';
-  
-    return role === 'student' ? questionDetail.studentAnswer : questionDetail.teacherAnswer;
-  }
-
-
-  // Helper function to get the question title by its ID
-  getQuestionTitle(questionId: number): string {
-    const questionDetail = this.questionDetails.find(q => q.questionId === questionId);
-    return questionDetail ? questionDetail.questionTitle : 'Unknown question';
   }
 }
