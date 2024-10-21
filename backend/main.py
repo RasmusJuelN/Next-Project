@@ -11,7 +11,7 @@ from fastapi import (
 )
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-from jose import JWTError, ExpiredSignatureError
+from jwt import ExpiredSignatureError, PyJWTError
 from ldap3.core.exceptions import (
     LDAPException,
     LDAPSocketOpenError,
@@ -118,8 +118,8 @@ def ldap_exception_handler(request: Request, exc: LDAPException) -> JSONResponse
         )
 
 
-@app.exception_handler(exc_class_or_status_code=JWTError)
-def jwt_exception_handler(request: Request, exc: JWTError) -> JSONResponse:
+@app.exception_handler(exc_class_or_status_code=PyJWTError)
+def jwt_exception_handler(request: Request, exc: PyJWTError) -> JSONResponse:
     if isinstance(exc, ExpiredSignatureError):
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,

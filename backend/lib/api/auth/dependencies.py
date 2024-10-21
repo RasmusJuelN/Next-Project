@@ -1,8 +1,8 @@
 from typing import Any, Union, Optional, Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
 from ldap3 import Connection
+from jwt import decode
 
 from backend.lib.api.auth.models import TokenData
 from backend.lib.api.auth.exceptions import (
@@ -30,8 +30,8 @@ def get_token_data(
     if app_settings.settings.auth.secret_key is None:
         raise MissingSecretKeyError()
 
-    payload: dict[str, Any] = jwt.decode(
-        token=token,
+    payload: dict[str, Any] = decode(
+        jwt=token,
         key=app_settings.settings.auth.secret_key,
         algorithms=[app_settings.settings.auth.algorithm],
     )
@@ -61,8 +61,8 @@ def validate_token(
     if app_settings.settings.auth.secret_key is None:
         raise MissingSecretKeyError()
 
-    payload: dict[str, Any] = jwt.decode(
-        token=token,
+    payload: dict[str, Any] = decode(
+        jwt=token,
         key=app_settings.settings.auth.secret_key,
         algorithms=[app_settings.settings.auth.algorithm],
     )

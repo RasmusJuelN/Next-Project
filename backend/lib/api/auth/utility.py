@@ -1,6 +1,6 @@
 from typing import Any, Union, overload, Optional, List, Sequence, cast, Annotated
 from fastapi import HTTPException, status, Depends
-from jose import jwt
+from jwt import encode, decode
 from ldap3 import Connection, Entry, SUBTREE
 from datetime import datetime, timedelta, UTC
 from hashlib import sha512
@@ -52,8 +52,8 @@ def decode_token(token: str) -> dict[str, Any]:
     """
     if app_settings.settings.auth.secret_key is None:
         raise MissingSecretKeyError()
-    return jwt.decode(
-        token=token,
+    return decode(
+        jwt=token,
         key=app_settings.settings.auth.secret_key,
         algorithms=[app_settings.settings.auth.algorithm],
     )
@@ -74,8 +74,8 @@ def encode_token(data: dict) -> str:
     """
     if app_settings.settings.auth.secret_key is None:
         raise MissingSecretKeyError()
-    return jwt.encode(
-        claims=data,
+    return encode(
+        payload=data,
         key=app_settings.settings.auth.secret_key,
         algorithm=app_settings.settings.auth.algorithm,
     )
