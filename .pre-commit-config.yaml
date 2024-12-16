@@ -1,8 +1,0 @@
-repos:
-  - repo: local
-    hooks:
-      - id: update-requirements
-        name: Update requirements.txt
-        entry: bash -c 'pipenv requirements --dev > requirements.txt && git add requirements.txt'
-        language: system
-        files: ^(Pipfile|Pipfile.lock)$
