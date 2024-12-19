@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="LeftToRight" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+<Node Id="IModel" Label="Context" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot" PropertyAccessMode="PropertyAccessMode.Default" ProductVersion="9.0.0" Annotations="BaseTypeDiscoveryConvention:DerivedTypes: System.Collections.Generic.Dictionary`2[System.Type,System.Collections.Generic.List`1[Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType]]
+InversePropertyAttributeConvention:InverseNavigations: System.Collections.Generic.Dictionary`2[System.Type,System.Collections.Generic.SortedSet`1[System.Type]]
+Relational:MaxIdentifierLength: 128
+SqlServer:ValueGenerationStrategy: IdentityColumn" Category="Model" Group="Expanded" />
+<Node Id = "ActiveQuestionnaireAnswerModel" Label="ActiveQuestionnaireAnswerModel" Name="ActiveQuestionnaireAnswerModel" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="RelationshipDiscoveryConvention:NavigationCandidates: Microsoft.EntityFrameworkCore.Utilities.OrderedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "ActiveQuestionnaireModel" Label="ActiveQuestionnaireModel" Name="ActiveQuestionnaireModel" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="RelationshipDiscoveryConvention:NavigationCandidates: Microsoft.EntityFrameworkCore.Utilities.OrderedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "ActiveQuestionnaireAnswerModel.Id" Label="Id (int)" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="SqlServer:ValueGenerationStrategy: IdentityColumn" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "ActiveQuestionnaireAnswerModel.ActiveQuestionnaire" Label="ActiveQuestionnaire (1)" Name="ActiveQuestionnaire" Category="Navigation Property" Type="ActiveQuestionnaireModel"  Field="" Dependent="" Principal="ActiveQuestionnaireModel" Inverse="Answers" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "ActiveQuestionnaireAnswerModel.ActiveQuestionnaireId" Label="ActiveQuestionnaireId (int)" Name="ActiveQuestionnaireId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "ActiveQuestionnaireAnswerModel.CustomAnswerText" Label="CustomAnswerText (string)" Name="CustomAnswerText" Category="Property Optional" Type="string" MaxLength="(500)" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="MaxLength: 500" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "QuestionnaireOptionModel" Label="QuestionnaireOptionModel" Name="QuestionnaireOptionModel" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="RelationshipDiscoveryConvention:NavigationCandidates: Microsoft.EntityFrameworkCore.Utilities.OrderedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "ActiveQuestionnaireModel.Id" Label="Id (int)" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="SqlServer:ValueGenerationStrategy: IdentityColumn" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "ActiveQuestionnaireModel.Answers" Label="Answers (*)" Name="Answers" Category="Navigation Collection" Type="ICollection&lt;ActiveQuestionnaireAnswerModel&gt;"  Field="" Dependent="ActiveQuestionnaireAnswerModel" Principal="" Inverse="ActiveQuestionnaire" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "ActiveQuestionnaireModel.QuestionnaireTemplate" Label="QuestionnaireTemplate (1)" Name="QuestionnaireTemplate" Category="Navigation Property" Type="QuestionnaireTemplateModel"  Field="" Dependent="" Principal="QuestionnaireTemplateModel" Inverse="ActiveQuestionnaires" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "ActiveQuestionnaireModel.Student" Label="Student (1)" Name="Student" Category="Navigation Property" Type="UserModel"  Field="" Dependent="" Principal="UserModel" Inverse="StudentQuestionnaires" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "ActiveQuestionnaireModel.Teacher" Label="Teacher (1)" Name="Teacher" Category="Navigation Property" Type="UserModel"  Field="" Dependent="" Principal="UserModel" Inverse="TeacherQuestionnaires" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "ActiveQuestionnaireModel.CreatedAt" Label="CreatedAt (DateTime)" Name="CreatedAt" Category="Property Required" Type="DateTime" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="Relational:DefaultValueSql: getdate()" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "ActiveQuestionnaireModel.StudentFinishedAt" Label="StudentFinishedAt (DateTime?)" Name="StudentFinishedAt" Category="Property Optional" Type="DateTime?" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "ActiveQuestionnaireModel.StudentId" Label="StudentId (int)" Name="StudentId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "ActiveQuestionnaireModel.TeacherFinishedAt" Label="TeacherFinishedAt (DateTime?)" Name="TeacherFinishedAt" Category="Property Optional" Type="DateTime?" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "ActiveQuestionnaireModel.TeacherId" Label="TeacherId (int)" Name="TeacherId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "ActiveQuestionnaireModel.TemplateId" Label="TemplateId (string)" Name="TemplateId" Category="Property Foreign" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="False" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "QuestionnaireQuestionModel" Label="QuestionnaireQuestionModel" Name="QuestionnaireQuestionModel" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="RelationshipDiscoveryConvention:NavigationCandidates: Microsoft.EntityFrameworkCore.Utilities.OrderedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "QuestionnaireOptionModel.Id" Label="Id (int)" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="SqlServer:ValueGenerationStrategy: IdentityColumn" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "QuestionnaireOptionModel.Question" Label="Question (1)" Name="Question" Category="Navigation Property" Type="QuestionnaireQuestionModel"  Field="" Dependent="" Principal="QuestionnaireQuestionModel" Inverse="Options" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "QuestionnaireOptionModel.OptionText" Label="OptionText (string)" Name="OptionText" Category="Property Required" Type="string" MaxLength="(500)" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="MaxLength: 500" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "QuestionnaireOptionModel.QuestionId" Label="QuestionId (int)" Name="QuestionId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "QuestionnaireTemplateModel" Label="QuestionnaireTemplateModel" Name="QuestionnaireTemplateModel" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="RelationshipDiscoveryConvention:NavigationCandidates: Microsoft.EntityFrameworkCore.Utilities.OrderedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "QuestionnaireQuestionModel.Id" Label="Id (int)" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="SqlServer:ValueGenerationStrategy: IdentityColumn" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "QuestionnaireQuestionModel.Options" Label="Options (*)" Name="Options" Category="Navigation Collection" Type="ICollection&lt;QuestionnaireOptionModel&gt;"  Field="" Dependent="QuestionnaireOptionModel" Principal="" Inverse="Question" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "QuestionnaireQuestionModel.QuestionnaireTemplate" Label="QuestionnaireTemplate (1)" Name="QuestionnaireTemplate" Category="Navigation Property" Type="QuestionnaireTemplateModel"  Field="" Dependent="" Principal="QuestionnaireTemplateModel" Inverse="Questions" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "QuestionnaireQuestionModel.QuestionTitle" Label="QuestionTitle (string)" Name="QuestionTitle" Category="Property Required" Type="string" MaxLength="(100)" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="MaxLength: 100" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "QuestionnaireQuestionModel.QuestionnaireTemplateId" Label="QuestionnaireTemplateId (string)" Name="QuestionnaireTemplateId" Category="Property Foreign" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserModel" Label="UserModel" Name="UserModel" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:CheckConstraints: System.Collections.Generic.SortedDictionary`2[System.String,Microsoft.EntityFrameworkCore.Metadata.ICheckConstraint]
+Relational:TableName: UserModel
+RelationshipDiscoveryConvention:NavigationCandidates: Microsoft.EntityFrameworkCore.Utilities.OrderedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "QuestionnaireTemplateModel.Id" Label="Id (string)" Name="Id" Category="Property Primary" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "QuestionnaireTemplateModel.ActiveQuestionnaires" Label="ActiveQuestionnaires (*)" Name="ActiveQuestionnaires" Category="Navigation Collection" Type="ICollection&lt;ActiveQuestionnaireModel&gt;"  Field="" Dependent="ActiveQuestionnaireModel" Principal="" Inverse="QuestionnaireTemplate" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "QuestionnaireTemplateModel.Questions" Label="Questions (*)" Name="Questions" Category="Navigation Collection" Type="ICollection&lt;QuestionnaireQuestionModel&gt;"  Field="" Dependent="QuestionnaireQuestionModel" Principal="" Inverse="QuestionnaireTemplate" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "QuestionnaireTemplateModel.CreatedAt" Label="CreatedAt (DateTime)" Name="CreatedAt" Category="Property Required" Type="DateTime" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="Relational:DefaultValueSql: getdate()" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "QuestionnaireTemplateModel.TemplateTitle" Label="TemplateTitle (string)" Name="TemplateTitle" Category="Property Required" Type="string" MaxLength="(150)" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="MaxLength: 150" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserModel" Label="UserModel" Name="UserModel" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="" Category="EntityType" Group="Expanded" />
+<Node Id = "UserModel.Id" Label="Id (int)" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="SqlServer:ValueGenerationStrategy: IdentityColumn" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "UserModel.StudentQuestionnaires" Label="StudentQuestionnaires (*)" Name="StudentQuestionnaires" Category="Navigation Collection" Type="ICollection&lt;ActiveQuestionnaireModel&gt;"  Field="" Dependent="ActiveQuestionnaireModel" Principal="" Inverse="Student" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "UserModel.TeacherQuestionnaires" Label="TeacherQuestionnaires (*)" Name="TeacherQuestionnaires" Category="Navigation Collection" Type="ICollection&lt;ActiveQuestionnaireModel&gt;"  Field="" Dependent="ActiveQuestionnaireModel" Principal="" Inverse="Teacher" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "UserModel.FullName" Label="FullName (string)" Name="FullName" Category="Property Required" Type="string" MaxLength="(150)" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="MaxLength: 150" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserModel.Role" Label="Role (UserRoles)" Name="Role" Category="Property Required" Type="UserRoles" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="ProviderClrType: System.String
+ValueConverter:" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserModel.UserName" Label="UserName (string)" Name="UserName" Category="Property Required" Type="string" MaxLength="(100)" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="MaxLength: 100" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+  </Nodes>
+  <Links>
+<Link Source = "IModel" Target="ActiveQuestionnaireAnswerModel" Category="Contains" />
+<Link Source = "IModel" Target="ActiveQuestionnaireModel" Category="Contains" />
+<Link Source = "ActiveQuestionnaireAnswerModel" Target="ActiveQuestionnaireAnswerModel.ActiveQuestionnaire" Category="Contains" />
+<Link Source = "ActiveQuestionnaireAnswerModel" Target="ActiveQuestionnaireAnswerModel.Id" Category="Contains" />
+<Link Source="ActiveQuestionnaireAnswerModel" Target="ActiveQuestionnaireModel" From="ActiveQuestionnaireAnswerModel.ActiveQuestionnaireId" To="ActiveQuestionnaireModel.Id" Name="ActiveQuestionnaireAnswerModel -> ActiveQuestionnaireModel" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "ActiveQuestionnaireAnswerModel" Target="ActiveQuestionnaireAnswerModel.ActiveQuestionnaireId" Category="Contains" />
+<Link Source = "ActiveQuestionnaireAnswerModel" Target="ActiveQuestionnaireAnswerModel.CustomAnswerText" Category="Contains" />
+<Link Source = "IModel" Target="QuestionnaireOptionModel" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.Answers" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.QuestionnaireTemplate" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.Student" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.Teacher" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.Id" Category="Contains" />
+<Link Source="ActiveQuestionnaireModel" Target="UserModel" From="ActiveQuestionnaireModel.StudentId" To="UserModel.Id" Name="ActiveQuestionnaireModel -> UserModel" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="ActiveQuestionnaireModel" Target="UserModel" From="ActiveQuestionnaireModel.TeacherId" To="UserModel.Id" Name="ActiveQuestionnaireModel -> UserModel" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="ActiveQuestionnaireModel" Target="QuestionnaireTemplateModel" From="ActiveQuestionnaireModel.TemplateId" To="QuestionnaireTemplateModel.Id" Name="ActiveQuestionnaireModel -> QuestionnaireTemplateModel" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.CreatedAt" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.StudentFinishedAt" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.StudentId" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.TeacherFinishedAt" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.TeacherId" Category="Contains" />
+<Link Source = "ActiveQuestionnaireModel" Target="ActiveQuestionnaireModel.TemplateId" Category="Contains" />
+<Link Source = "IModel" Target="QuestionnaireQuestionModel" Category="Contains" />
+<Link Source = "QuestionnaireOptionModel" Target="QuestionnaireOptionModel.Question" Category="Contains" />
+<Link Source = "QuestionnaireOptionModel" Target="QuestionnaireOptionModel.Id" Category="Contains" />
+<Link Source="QuestionnaireOptionModel" Target="QuestionnaireQuestionModel" From="QuestionnaireOptionModel.QuestionId" To="QuestionnaireQuestionModel.Id" Name="QuestionnaireOptionModel -> QuestionnaireQuestionModel" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "QuestionnaireOptionModel" Target="QuestionnaireOptionModel.OptionText" Category="Contains" />
+<Link Source = "QuestionnaireOptionModel" Target="QuestionnaireOptionModel.QuestionId" Category="Contains" />
+<Link Source = "IModel" Target="QuestionnaireTemplateModel" Category="Contains" />
+<Link Source = "QuestionnaireQuestionModel" Target="QuestionnaireQuestionModel.Options" Category="Contains" />
+<Link Source = "QuestionnaireQuestionModel" Target="QuestionnaireQuestionModel.QuestionnaireTemplate" Category="Contains" />
+<Link Source = "QuestionnaireQuestionModel" Target="QuestionnaireQuestionModel.Id" Category="Contains" />
+<Link Source="QuestionnaireQuestionModel" Target="QuestionnaireTemplateModel" From="QuestionnaireQuestionModel.QuestionnaireTemplateId" To="QuestionnaireTemplateModel.Id" Name="QuestionnaireQuestionModel -> QuestionnaireTemplateModel" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "QuestionnaireQuestionModel" Target="QuestionnaireQuestionModel.QuestionTitle" Category="Contains" />
+<Link Source = "QuestionnaireQuestionModel" Target="QuestionnaireQuestionModel.QuestionnaireTemplateId" Category="Contains" />
+<Link Source = "IModel" Target="UserModel" Category="Contains" />
+<Link Source = "QuestionnaireTemplateModel" Target="QuestionnaireTemplateModel.ActiveQuestionnaires" Category="Contains" />
+<Link Source = "QuestionnaireTemplateModel" Target="QuestionnaireTemplateModel.Questions" Category="Contains" />
+<Link Source = "QuestionnaireTemplateModel" Target="QuestionnaireTemplateModel.Id" Category="Contains" />
+<Link Source = "QuestionnaireTemplateModel" Target="QuestionnaireTemplateModel.CreatedAt" Category="Contains" />
+<Link Source = "QuestionnaireTemplateModel" Target="QuestionnaireTemplateModel.TemplateTitle" Category="Contains" />
+<Link Source = "IModel" Target="UserModel" Category="Contains" />
+<Link Source = "UserModel" Target="UserModel.StudentQuestionnaires" Category="Contains" />
+<Link Source = "UserModel" Target="UserModel.TeacherQuestionnaires" Category="Contains" />
+<Link Source = "UserModel" Target="UserModel.Id" Category="Contains" />
+<Link Source = "UserModel" Target="UserModel.FullName" Category="Contains" />
+<Link Source = "UserModel" Target="UserModel.Role" Category="Contains" />
+<Link Source = "UserModel" Target="UserModel.UserName" Category="Contains" />
+  </Links>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="EntityType" ValueLabel="True">
+      <Condition Expression="HasCategory('EntityType')" />
+      <Setter Property="Background" Value="#FFC0C0C0" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Property Primary" ValueLabel="True">
+      <Condition Expression="HasCategory('Property Primary')" />
+      <Setter Property="Background" Value="#FF008000" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Property Optional" ValueLabel="True">
+      <Condition Expression="HasCategory('Property Optional')" />
+      <Setter Property="Background" Value="#FF808040" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Property Foreign" ValueLabel="True">
+      <Condition Expression="HasCategory('Property Foreign')" />
+      <Setter Property="Background" Value="#FF8080FF" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Property Required" ValueLabel="True">
+      <Condition Expression="HasCategory('Property Required')" />
+      <Setter Property="Background" Value="#FFC0A000" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Navigation Property" ValueLabel="True">
+      <Condition Expression="HasCategory('Navigation Property')" />
+      <Setter Property="Background" Value="#FF990000" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Navigation Collection" ValueLabel="True">
+      <Condition Expression="HasCategory('Navigation Collection')" />
+      <Setter Property="Background" Value="#FFFF3232" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Model" ValueLabel="True">
+      <Condition Expression="HasCategory('Model')" />
+      <Setter Property="Background" Value="#FFFFFFFF" />
+    </Style>
+  </Styles>
+  <Properties>
+    <Property Id="Name" Group="Model Properties" DataType="System.String" />
+    <Property Id="Field"  Description="Backing field" Group="Model Properties" DataType="System.String" />
+    <Property Id="Type"  Description="CLR data type" Group="Model Properties" DataType="System.String" />
+    <Property Id="To" Description="Source property" Group="Model Properties" DataType="System.String" />
+    <Property Id="From" Description="Target property" Group="Model Properties" DataType="System.String" />
+    <Property Id="Dependent" Description="Dependent entity" Group="Model Properties" DataType="System.String" />
+    <Property Id="Inverse" Description="Inverse entity" Group="Model Properties" DataType="System.String" />
+    <Property Id="Principal" Description="Principal entity" Group="Model Properties" DataType="System.String" />    
+    <Property Id="Annotations" Description="Annotations" Group="Model Properties" DataType="System.String" />
+    <Property Id="BaseClass"  Description="Base class" Group="Model Properties" DataType="System.String" />
+    <Property Id="ChangeTrackingStrategy" Description="Change tracking strategy" Group="Model Properties" DataType="System.String" />
+    <Property Id="IsUnique" Group="Model Properties" DataType="System.Boolean" />
+    <Property Id="IsAbstract" Group="Model Properties" DataType="System.Boolean" />
+    <Property Id="ProductVersion" Label="Product Version" Description="EF Core product version" Group="Model Properties" DataType="System.String" />
+    <Property Id="IsIndexed" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsRequired" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsPrimaryKey" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsForeignKey" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsShadow" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsAlternateKey" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsConcurrencyToken" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsIndexed" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsUnicode" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="ValueGenerated" Group="Property Flags" DataType="System.String" />
+    <Property Id="BeforeSaveBehavior" Group="Property Flags" DataType="System.String" />
+    <Property Id="AfterSaveBehavior" Group="Property Flags" DataType="System.String" />
+    <Property Id="PropertyAccessMode" Group="Property Flags" DataType="System.String" />
+  </Properties>
+</DirectedGraph>
