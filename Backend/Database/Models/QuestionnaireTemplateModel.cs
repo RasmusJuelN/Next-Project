@@ -1,6 +1,6 @@
 namespace Database.Models;
 
-internal class QuestionnaireTemplate
+internal class QuestionnaireTemplateModel
 {
     internal required Guid Id { get; set; }
     internal required string TemplateTitle { get; set; }
@@ -8,8 +8,7 @@ internal class QuestionnaireTemplate
     internal DateTime LastUpated { get; set; }
     internal bool IsLocked { get; set; }
 
-    // TODO: Change to reflect new database model
     // Navigational properties and references
-    internal required ICollection<QuestionnaireQuestion> Questions { get; set; }
-    internal ICollection<ActiveQuestionnaire> ?ActiveQuestionnaires { get; set; }
+    internal required ICollection<QuestionnaireQuestionModel> Questions { get; set; }
+    internal ICollection<ActiveQuestionnaireModel>? ActiveQuestionnaires { get; set; }
 }

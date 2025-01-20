@@ -14,6 +14,6 @@ public enum UserPermissions
     // Presets
     Student = CanRespondToQuestionnaires,
     Teacher = CanRespondToQuestionnaires | CanAssignQuestionnaires,
-    Admin = CanModifyQuestionnaireTemplates | CanModifyApplicationSettings | CanViewApplicationLogs,
+    Admin = CanAssignQuestionnaires | CanModifyQuestionnaireTemplates | CanModifyApplicationSettings | CanViewApplicationLogs,
     SuperAdmin = Admin | CanModifyPermissions
 }
