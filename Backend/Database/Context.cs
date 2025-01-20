@@ -3,8 +3,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Database;
 
-public class Context(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
+public class Context : DbContext
 {
+    public Context() {}
+    public Context(DbContextOptions dbContextOptions) : base(dbContextOptions) {}
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlServer("Data Source=10.0.10.129\\SQLEXPRESS;Initial Catalog=next;User ID=sa;Password=Pa$$w0rd;Encrypt=True;Trust Server Certificate=True");
+        base.OnConfiguring(optionsBuilder);
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // QuestionnaireTemplate
@@ -150,4 +157,14 @@ public class Context(DbContextOptions dbContextOptions) : DbContext(dbContextOpt
 
         base.OnModelCreating(modelBuilder);
     }
+
+    internal DbSet<QuestionnaireTemplateModel> QuestionnaireTemplates { get; set; }
+    internal DbSet<QuestionnaireQuestionModel> QuestionnaireQuestions { get; set; }
+    internal DbSet<QuestionnaireOptionModel> QuestionnaireOptions { get; set; }
+    internal DbSet<ActiveQuestionnaireModel> ActiveQuestionnaires { get; set; }
+    internal DbSet<ActiveQuestionnaireQuestionModel> ActiveQuestionnaireQuestions { get; set; }
+    internal DbSet<ActiveQuestionnaireOptionModel> ActiveQuestionnaireOptions { get; set; }
+    internal DbSet<ActiveQuestionnaireResponseModel> ActiveQuestionnaireResponses { get; set; }
+    internal DbSet<CustomAnswerModel> CustomAnswers { get; set; }
+    internal DbSet<UserModel> Users { get; set; }
 }
