@@ -7,11 +7,6 @@ public class Context : DbContext
 {
     public Context() {}
     public Context(DbContextOptions dbContextOptions) : base(dbContextOptions) {}
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer("Data Source=10.0.10.129\\SQLEXPRESS;Initial Catalog=next;User ID=sa;Password=Pa$$w0rd;Encrypt=True;Trust Server Certificate=True");
-        base.OnConfiguring(optionsBuilder);
-    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // QuestionnaireTemplate
