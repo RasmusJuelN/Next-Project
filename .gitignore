@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# DbContext diagram
+*.dgml
+
 # User-specific files
 *.rsuser
 *.suo
