@@ -1,4 +1,3 @@
-using System;
 using Settings.Default;
 
 namespace Settings.Interfaces;
