@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace API.services;
+namespace API.Services;
 
 public class Serializer
 {

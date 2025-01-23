@@ -1,43 +1,64 @@
-using API.services;
+using API.Services;
 using Database;
 using Microsoft.EntityFrameworkCore;
-using Settings.Default;
 using Settings.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using API.Utils;
 
 const string settingsFile = "config.json";
 
 var builder = WebApplication.CreateBuilder(args);
 
-if (!File.Exists(settingsFile))
-{
-    DefaultSettings defaultSettings = new();
-    Serializer serializer = new();
-    
-    string json = serializer.Serialize(defaultSettings);
-    File.WriteAllText(settingsFile, json);
+SettingsHelper settingsHelper = new(settingsFile);
 
-    // TODO: Maybe check if the required settings are actually set before allowing the user to continue?
-    Console.WriteLine(@"
-    A new default settings file has been generated. 
-    Some settings are required to be set for the application to work.
-    Press Enter to continue when completed.
-    ");
-    
-    // Visual Studio Code can, depending on its configuration, redirect everything to the debug console. This catches that.
-    if (Console.IsInputRedirected) Console.Read();
-    else Console.ReadKey(true);
+// TODO: Dedicated method?
+if (!settingsHelper.SettingsExists())
+{
+    settingsHelper.CreateDefault();
 }
 
 builder.Configuration.AddJsonFile(settingsFile, optional: false, reloadOnChange: true);
 
+// TODO: Check if config version is lower than default, and if it is, "upgrade" the config with any new settings
+
+DatabaseSettings databaseSettings = new SettingsBinder(builder.Configuration).Bind<DatabaseSettings>();
+JWTSettings jWTSettings = new SettingsBinder(builder.Configuration).Bind<JWTSettings>();
+
 // Add services to the container.
 
+builder.Services.AddScoped<LDAP>();
+builder.Services.AddScoped<Serializer>();
+builder.Services.AddScoped<JWT>();
+builder.Services.AddAuthentication(cfg => {
+    cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    cfg.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x => {
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = false;
+    x.TokenValidationParameters = new TokenValidationParameters {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jWTSettings.Secret)
+        ),
+        ValidateIssuer = true,
+        ValidateActor = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.Configure<RouteOptions>(o => {
+    o.LowercaseUrls = true;
+    o.LowercaseQueryStrings = true;
+});
+
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-DatabaseSettings databaseSettings = new SettingsBinder(builder.Configuration).Bind<DatabaseSettings>();
 
 builder.Services.AddDbContext<Context>(o => o.UseSqlServer(databaseSettings.ConnectionString, b => b.MigrationsAssembly("Database")));
 
@@ -51,6 +72,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
