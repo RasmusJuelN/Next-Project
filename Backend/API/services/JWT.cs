@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using API.Enums;
 using API.Models.Responses;
 using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
@@ -10,15 +11,16 @@ namespace API.Services;
 public class JWT(IConfiguration configuration)
 {
     private readonly JWTSettings JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
-
     public string GenerateToken(JWTUser user)
     {
         List<Claim> claims =
         [
-            new("id", user.Guid.ToString()),
-            new("username", user.Username),
-            new("role", user.Role.ToString()),
-            new("permissions", user.Permissions.ToString())
+            new(JWTClaims.id, user.Guid.ToString()),
+            new(JWTClaims.username, user.Username),
+            new(JWTClaims.role, user.Role.ToString()),
+            new(JWTClaims.permissions, user.Permissions.ToString()),
+            new(JwtRegisteredClaimNames.Iss, JWTSettings.Issuer),
+            new(JwtRegisteredClaimNames.Aud, JWTSettings.Audience)
         ];
 
         JwtSecurityToken jwtSecurityToken = new(

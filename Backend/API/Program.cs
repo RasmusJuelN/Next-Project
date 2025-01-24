@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using API.Utils;
+using Microsoft.OpenApi.Models;
 
 const string settingsFile = "config.json";
 
@@ -45,8 +46,14 @@ builder.Services.AddAuthentication(cfg => {
         ),
         ValidateIssuer = true,
         ValidateActor = true,
+        ValidIssuer = jWTSettings.Issuer,
+        ValidAudience = jWTSettings.Audience,
         ClockSkew = TimeSpan.Zero
     };
+
+    // ASP.NET likes to map JWT claim names to their own URL schema claims
+    // making it difficult to work with incoming tokens. This disables that.
+    x.MapInboundClaims = false;
 });
 
 builder.Services.Configure<RouteOptions>(o => {
@@ -58,7 +65,31 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "NEXT questionnaire API", Version = "v1"});
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your token in the field below."
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddDbContext<Context>(o => o.UseSqlServer(databaseSettings.ConnectionString, b => b.MigrationsAssembly("Database")));
 

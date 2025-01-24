@@ -2,21 +2,30 @@ namespace API.Exceptions;
 
 public class LDAPException
 {
-    public class ConnectionErrorException : Exception
+    public class ConnectionError : Exception
     {
-        public ConnectionErrorException() {}
-        public ConnectionErrorException(string message)
+        public ConnectionError() {}
+        public ConnectionError(string message)
             : base(message) {}
-        public ConnectionErrorException(string message, Exception inner)
+        public ConnectionError(string message, Exception inner)
             : base(message, inner) {}
     }
 
-    public class InvalidCredentialsException : Exception
+    public class InvalidCredentials : Exception
     {
-        public InvalidCredentialsException() {}
-        public InvalidCredentialsException(string message)
+        public InvalidCredentials() {}
+        public InvalidCredentials(string message)
             : base(message) {}
-        public InvalidCredentialsException(string message, Exception inner)
+        public InvalidCredentials(string message, Exception inner)
             : base(message, inner) {}
+    }
+
+    public class NotBound : Exception
+    {
+        public NotBound() {}
+        public NotBound(string message)
+            : base(message) {}
+        public NotBound(string message, Exception inner)
+            :   base(message, inner) {}
     }
 }
