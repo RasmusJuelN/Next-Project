@@ -4,7 +4,8 @@ namespace Settings.Default;
 
 public class DefaultJWT : IJWTSettings
 {
-    public string Secret { get; set; } = string.Empty;
+    public string AuthenticationTokenSecret { get; set; } = string.Empty;
+    public string RefreshTokenSecret { get; set; } = string.Empty;
     public int TokenTTLMinutes { get; set; } = 30;
     public int RenewTokenTTLDays { get; set; } = 30;
     public Dictionary<string, string> Roles { get; set; } = [];

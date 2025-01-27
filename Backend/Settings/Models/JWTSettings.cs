@@ -6,7 +6,8 @@ public class JWTSettings : Base, IJWTSettings
 {
     public override string Key { get; } = "JWT";
 
-    public string Secret { get; set; } = string.Empty;
+    public string AuthenticationTokenSecret { get; set; } = string.Empty;
+    public string RefreshTokenSecret { get; set; } = string.Empty;
     public int TokenTTLMinutes { get; set; } = 0;
     public int RenewTokenTTLDays { get; set; } = 0;
     public Dictionary<string, string> Roles { get; set; } = [];

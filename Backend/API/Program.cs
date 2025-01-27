@@ -35,18 +35,35 @@ builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     cfg.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x => {
+}).AddJwtBearer("AccessToken", x => {
     x.RequireHttpsMetadata = false;
     x.SaveToken = false;
     x.TokenValidationParameters = new TokenValidationParameters {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jWTSettings.Secret)
+            Encoding.UTF8.GetBytes(jWTSettings.AuthenticationTokenSecret)
         ),
         ValidateIssuer = true,
         ValidateActor = true,
         ValidIssuer = jWTSettings.Issuer,
         ValidAudience = jWTSettings.Audience,
+        ClockSkew = TimeSpan.Zero
+    };
+
+    // ASP.NET likes to map JWT claim names to their own URL schema claims
+    // making it difficult to work with incoming tokens. This disables that.
+    x.MapInboundClaims = false;
+}).AddJwtBearer("RefreshToken", x => {
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = false;
+    x.TokenValidationParameters = new TokenValidationParameters {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jWTSettings.RefreshTokenSecret)
+        ),
+        ValidateIssuer = true,
+        ValidateAudience = false,
+        ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
 

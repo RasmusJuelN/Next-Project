@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using API.Enums;
 using API.Exceptions;
@@ -13,14 +14,16 @@ using Settings.Models;
 
 namespace API.Controllers
 {
+    [Authorize(AuthenticationSchemes = "AccessToken")]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController(JWT JWT, LDAP LDAP, IConfiguration configuration) : ControllerBase
     {
         private readonly JWTSettings _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
 
+        [AllowAnonymous]
         [HttpPost]
-        [ProducesResponseType(typeof(Token), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthenticationToken), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Login([FromForm] UserLogin userLogin)
@@ -59,22 +62,36 @@ namespace API.Controllers
                 {
                     Guid = userGuid,
                     Username = userLogin.Username,
+                    Name = ldapUser.Name.StringValue,
                     Role = userRole,
                     Permissions = permissions
                 };
 
                 LDAP.Dispose();
 
-                return Ok(new Token{
-                    AccessToken = JWT.GenerateToken(jWTUser),
+                AuthenticationToken authenticationToken = new()
+                {
+                    Token = JWT.GenerateToken(jWTUser),
                     TokenType = "bearer"
+                };
+                
+                RefreshToken refreshToken = new()
+                {
+                    Token = JWT.GenerateRefreshToken(jWTUser),
+                    TokenType = "bearer"
+                };
+
+                return Ok(new Login{
+                    AuthToken = authenticationToken,
+                    RefreshToken = refreshToken
                 });
             }
             else return Unauthorized();
         }
         
+        [Authorize(AuthenticationSchemes = "RefreshToken")]
         [HttpPost("refresh")]
-        [ProducesResponseType(typeof(Token), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthenticationToken), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Refresh([FromBody] string token)
@@ -82,7 +99,6 @@ namespace API.Controllers
             throw new NotImplementedException();
         }
 
-        [Authorize]
         [HttpGet("WhoAmI")]
         [ProducesResponseType(typeof(JWTUser), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -91,8 +107,9 @@ namespace API.Controllers
             if (Request.Headers.Authorization.IsNullOrEmpty()) return Forbid();
 
             return Ok(new JWTUser{
-                Guid = new Guid(User.FindFirstValue(JWTClaims.id) ?? "N/A"),
-                Username = User.FindFirstValue(JWTClaims.username) ?? "N/A",
+                Guid = new Guid(User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? "N/A"),
+                Username = User.FindFirstValue(JwtRegisteredClaimNames.UniqueName) ?? "N/A",
+                Name = User.FindFirstValue(JwtRegisteredClaimNames.Name) ?? "N/A",
                 Role = User.FindFirstValue(JWTClaims.role)  ?? "N/A",
                 Permissions = Convert.ToInt32(User.FindFirstValue(JWTClaims.permissions) ?? "0")
             });
