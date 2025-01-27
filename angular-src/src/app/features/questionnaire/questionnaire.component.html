@@ -1,0 +1,52 @@
+<div class="flex flex-col h-full items-center justify-center bg-gray-100 p-4 sm:p-8">
+  <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-lg min-w-[320px] sm:min-w-[600px] lg:min-w-[800px] min-h-[450px] sm:min-h-[600px] max-h-screen overflow-y-auto">
+    <!-- Progress Section -->
+    <div class="progress-container mb-6">
+      <h4 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 text-center">
+        {{ state.currentQuestionIndex + 1 }} of {{ state.template.questions.length }}
+      </h4>
+      <div class="progress-bar w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          class="progress h-full bg-blue-500 rounded-full transition-all duration-500 ease-in-out"
+          [style.width.%]="state.progress"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Question Section -->
+    <div class="question-content flex-grow overflow-y-auto">
+      <app-question
+        [question]="currentQuestion"
+        [answer]="currentAnswer"
+        (answerChange)="onAnswerChange($event)"
+      ></app-question>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex flex-wrap gap-4 justify-between items-center mt-6">
+      <button
+        class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed w-full sm:w-auto"
+        [disabled]="state.currentQuestionIndex === 0"
+        (click)="previousQuestion()"
+      >
+        Previous
+      </button>
+      <button
+        *ngIf="state.currentQuestionIndex < state.template.questions.length - 1"
+        class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed w-full sm:w-auto"
+        [disabled]="!isAnswered"
+        (click)="nextQuestion()"
+      >
+        Next
+      </button>
+      <button
+        *ngIf="state.currentQuestionIndex === state.template.questions.length - 1"
+        class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed w-full sm:w-auto"
+        [disabled]="!allQuestionsAnswered"
+        (click)="submitQuestionnaire()"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+</div>

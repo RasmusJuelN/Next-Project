@@ -1,41 +1,50 @@
-<div class="min-h-screen bg-gray-100 flex items-center justify-center">
-  <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6 text-gray-700 text-center">Login</h2>
-    <form (ngSubmit)="onSubmit()">
+<div class="flex flex-col justify-center items-center w-full h-full bg-gray-100 p-4 sm:p-8">
+  <div class="flex flex-col max-w-md w-full bg-white shadow-md rounded-lg p-6 sm:p-8 h-full sm:h-auto">
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">
+      Login
+    </h2>
+    <form (ngSubmit)="onSubmit()" class="flex flex-col space-y-4 flex-grow">
       <!-- Email -->
-      <div class="mb-4">
-        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+          Email
+        </label>
         <input
           type="text"
           id="email"
           [(ngModel)]="userName"
           name="userName"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="Enter your email"
           required
         />
       </div>
+
       <!-- Password -->
-      <div class="mb-4">
-        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+          Password
+        </label>
         <input
           type="password"
           id="password"
           [(ngModel)]="password"
           name="password"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="Enter your password"
           required
         />
       </div>
+
       <!-- Error Message -->
-      <div *ngIf="errorMessage" class="text-red-500 text-sm mb-4">
+      <div *ngIf="errorMessage" class="text-red-500 text-sm text-center">
         {{ errorMessage }}
       </div>
+
       <!-- Submit Button -->
       <button
         type="submit"
-        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
         Login
       </button>

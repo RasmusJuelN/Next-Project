@@ -1,0 +1,49 @@
+@media print {
+    /* Hide elements not needed in print */
+    .print\:hidden {
+      display: none !important;
+    }
+  
+    /* Set background to white and remove shadows */
+    .print\:bg-white {
+      background-color: white !important;
+    }
+    .print\:shadow-none {
+      box-shadow: none !important;
+    }
+  
+    /* Use black text for high contrast */
+    .print\:text-black {
+      color: black !important;
+    }
+    .print\:text-gray-800 {
+      color: #4a5568 !important; /* Darker gray for secondary text */
+    }
+  
+    /* Simplify grid layout */
+    .print\:grid-cols-1 {
+      grid-template-columns: 1fr !important;
+    }
+  
+    /* Add borders for separation */
+    .print\:border-b {
+      border-bottom: 1px solid #d1d5db !important; /* Light gray border */
+    }
+    .print\:pb-4 {
+      padding-bottom: 1rem !important;
+    }
+    .print\:mb-4 {
+      margin-bottom: 1rem !important;
+    }
+  
+    /* Prevent breaking inside questions */
+    .print\:break-inside-avoid {
+      break-inside: avoid;
+    }
+  
+    /* Remove padding for cleaner print */
+    .print\:p-0 {
+      padding: 0 !important;
+    }
+  }
+  

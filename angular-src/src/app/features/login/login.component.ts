@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,39 +9,39 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
-  
+
+  @Output() loggedIn = new EventEmitter<boolean>(); // Emits true if login succeeds
+  @Output() errorOccurred = new EventEmitter<string>(); // Emits error message if login fails
+
   userName = '';
   password = '';
-  errorMessage = "";
+  errorMessage = '';
 
   login() {
-
-    this.authService.loginAuthentication(this.userName, this.password).subscribe({
+    this.authService.login(this.userName, this.password).subscribe({
       next: (isAuthenticated) => {
         if (isAuthenticated) {
-          // WIP
+          this.loggedIn.emit(true); // Notify parent component of successful login
         } else {
-          this.errorMessage = 'Invalid username or password.';
+          const errorMsg = 'Invalid username or password.';
+          this.errorMessage = errorMsg;
+          this.errorOccurred.emit(errorMsg); // Notify parent component of the error
         }
       },
       error: (error) => {
-        this.errorMessage = 'An error occurred during login. Please try again.';
-      }
+        const errorMsg = 'An error occurred during login. Please try again.';
+        this.errorMessage = errorMsg;
+        this.errorOccurred.emit(errorMsg);
+      },
     });
-  }
-
-
-  logout(){
-    this.authService.logout();
   }
 
   onSubmit() {
     this.login();
   }
-  
 }

@@ -1,38 +1,47 @@
-<div *ngIf="loggedInAlready$ | async; else loginForm">
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-6 text-gray-700 text-center">Welcome Back</h2>
-  
-        <div *ngIf="activeQuestionnaireString">
-          <p class="text-gray-600 mb-4 text-center">To Questionnaire?</p>
-          <button
-            class="dashboard-button w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            (click)="toActiveQuestionnaire()"
-          >
-            Go to Questionnaire
-          </button>
-        </div>
-  
-        <p class="text-gray-600 mt-6 mb-4 text-center">Go to your dashboard?</p>
-        <button
-          class="dashboard-button w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          (click)="toDashboard()"
-        >
-          Go to Dashboard
-        </button>
-  
-        <p class="text-gray-600 mt-6 mb-4 text-center">You are already logged in. Log out?</p>
-        <button
-          class="logout-button w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          (click)="logout()"
-        >
-          Logout
-        </button>
-      </div>
+<div
+  *ngIf="loggedInAlready$ | async; else loginForm"
+  class="flex flex-col h-full flex-grow items-center justify-center bg-gray-100 p-4 sm:p-8"
+>
+  <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-lg">
+    <!-- Welcome Message -->
+    <h2 class="text-xl sm:text-2xl font-bold mb-6 text-gray-700 text-center">
+      Welcome Back!
+    </h2>
+
+    <!-- Action Buttons -->
+    <div class="space-y-4">
+      <!-- Active Questionnaire -->
+      <button
+        *ngIf="activeQuestionnaireString"
+        class="dashboard-button w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        (click)="toActiveQuestionnaire()"
+      >
+        Continue Active Questionnaire
+      </button>
+
+      <!-- Go to Hub -->
+      <button
+        *ngIf="userRole === 'teacher' || userRole === 'admin'"
+        class="dashboard-button w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+        (click)="toHub()"
+      >
+        Access Hub
+      </button>
+
+      <!-- Logout -->
+      <button
+        class="logout-button w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        (click)="logout()"
+      >
+        Logout
+      </button>
     </div>
   </div>
-  
-  <ng-template #loginForm>
-    <app-login></app-login>
-  </ng-template>
-  
+</div>
+
+<ng-template #loginForm>
+  <app-login
+    (loggedIn)="onLoginSuccess()"
+    (errorOccurred)="onLoginError($event)"
+  ></app-login>
+</ng-template>
