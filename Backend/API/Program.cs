@@ -14,7 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 SettingsHelper settingsHelper = new(settingsFile);
 
-// TODO: Dedicated method?
 if (!settingsHelper.SettingsExists())
 {
     settingsHelper.CreateDefault();
@@ -99,7 +98,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options => {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.RoutePrefix = string.Empty;
+    });
 }
 
 app.UseHttpsRedirection();
