@@ -16,7 +16,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(JWT JWT, LDAP LDAP, IConfiguration configuration) : ControllerBase
+    public class AuthController(JWT _JWT, LDAP _LDAP, IConfiguration configuration) : ControllerBase
     {
         private readonly JWTSettings _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
 
@@ -29,7 +29,7 @@ namespace API.Controllers
         {
             try
             {
-                LDAP.Authenticate(userLogin.Username, userLogin.Password);
+                _LDAP.Authenticate(userLogin.Username, userLogin.Password);
             }
             catch (LDAPException.ConnectionError)
             {
@@ -40,9 +40,9 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            if (LDAP.connection.Bound)
+            if (_LDAP.connection.Bound)
             {
-                ObjectGuidAndMemberOf ldapUser = LDAP.SearchUser<ObjectGuidAndMemberOf>();
+                ObjectGuidAndMemberOf ldapUser = _LDAP.SearchUser<ObjectGuidAndMemberOf>();
 
                 // TODO: This shuld be logged
                 if (ldapUser is null) return Unauthorized();
@@ -66,7 +66,7 @@ namespace API.Controllers
                     Permissions = permissions
                 };
 
-                LDAP.Dispose();
+                _LDAP.Dispose();
 
                 Claim[] accessTokenClaims =
                 [
@@ -86,13 +86,13 @@ namespace API.Controllers
 
                 AuthenticationToken authenticationToken = new()
                 {
-                    Token = JWT.GenerateAccessToken(accessTokenClaims),
+                    Token = _JWT.GenerateAccessToken(accessTokenClaims),
                     TokenType = "bearer"
                 };
                 
                 RefreshToken refreshToken = new()
                 {
-                    Token = JWT.GenerateRefreshToken(refreshTokenClaims),
+                    Token = _JWT.GenerateRefreshToken(refreshTokenClaims),
                     TokenType = "bearer"
                 };
 
@@ -111,14 +111,14 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Refresh([FromBody] string expiredToken)
         {
-            ClaimsPrincipal principal = JWT.GetPrincipalFromExpiredToken(expiredToken);
+            ClaimsPrincipal principal = _JWT.GetPrincipalFromExpiredToken(expiredToken);
 
             // TODO: Also check if we've revoked the token in the database
             if (principal is null) return Unauthorized();
 
             AuthenticationToken authenticationToken = new()
             {
-                Token = JWT.GenerateAccessToken(principal.Claims),
+                Token = _JWT.GenerateAccessToken(principal.Claims),
                 TokenType = "bearer"
             };
 
@@ -129,7 +129,7 @@ namespace API.Controllers
 
             RefreshToken refreshToken = new()
             {
-                Token = JWT.GenerateRefreshToken(refreshTokenClaims),
+                Token = _JWT.GenerateRefreshToken(refreshTokenClaims),
                 TokenType = "bearer"
             };
 
@@ -137,6 +137,22 @@ namespace API.Controllers
                 AuthToken = authenticationToken,
                 RefreshToken = refreshToken
             });
+        }
+
+        [Authorize(AuthenticationSchemes = "RefreshToken")]
+        [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Logout()
+        {
+            if (!Request.Headers.Authorization.IsNullOrEmpty()) return Unauthorized();
+
+            if (!_JWT.TokenIsValid(Request.Headers.Authorization, _JWT.GetRefreshTokenValidationParameters())) return Unauthorized();
+            
+            // TODO: Log the token in the database so we can revoke it
+            
+            return Ok();
         }
 
         [Authorize(AuthenticationSchemes = "AccessToken")]

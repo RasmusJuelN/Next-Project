@@ -3,8 +3,6 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Settings.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using API.Utils;
 using Microsoft.OpenApi.Models;
 
@@ -38,17 +36,7 @@ builder.Services.AddAuthentication(cfg => {
 }).AddJwtBearer("AccessToken", x => {
     x.RequireHttpsMetadata = false;
     x.SaveToken = false;
-    x.TokenValidationParameters = new TokenValidationParameters {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jWTSettings.AuthenticationTokenSecret)
-        ),
-        ValidateIssuer = true,
-        ValidateActor = true,
-        ValidIssuer = jWTSettings.Issuer,
-        ValidAudience = jWTSettings.Audience,
-        ClockSkew = TimeSpan.Zero
-    };
+    x.TokenValidationParameters = JWT.GetAccessTokenValidationParameters(jWTSettings.AccessTokenSecret, issuer: jWTSettings.Issuer, audience: jWTSettings.Audience);
 
     // ASP.NET likes to map JWT claim names to their own URL schema claims
     // making it difficult to work with incoming tokens. This disables that.
@@ -56,16 +44,7 @@ builder.Services.AddAuthentication(cfg => {
 }).AddJwtBearer("RefreshToken", x => {
     x.RequireHttpsMetadata = false;
     x.SaveToken = false;
-    x.TokenValidationParameters = new TokenValidationParameters {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jWTSettings.RefreshTokenSecret)
-        ),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
-    };
+    x.TokenValidationParameters = JWT.GetRefreshTokenValidationParameters(jWTSettings.RefreshTokenSecret);
 
     // ASP.NET likes to map JWT claim names to their own URL schema claims
     // making it difficult to work with incoming tokens. This disables that.

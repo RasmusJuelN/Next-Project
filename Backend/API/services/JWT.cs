@@ -1,8 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using API.Enums;
-using API.Models.Responses;
 using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
 
@@ -10,19 +8,14 @@ namespace API.Services;
 
 public class JWT(IConfiguration configuration)
 {
-    private readonly JWTSettings JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
+    private readonly JWTSettings _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
         JwtSecurityToken jwtSecurityToken = new(
             claims: claims,
             notBefore: DateTime.UtcNow,
-            expires: DateTime.UtcNow.AddMinutes(JWTSettings.TokenTTLMinutes),
-            signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(JWTSettings.AuthenticationTokenSecret)
-                ),
-                SecurityAlgorithms.HmacSha256
-            )
+            expires: DateTime.UtcNow.AddMinutes(_JWTSettings.TokenTTLMinutes),
+            signingCredentials: GetSigningCredentials(_JWTSettings.AccessTokenSecret)
         );
 
         return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
@@ -33,13 +26,8 @@ public class JWT(IConfiguration configuration)
         JwtSecurityToken jwtSecurityToken = new(
             claims: claims,
             notBefore: DateTime.UtcNow,
-            expires: DateTime.UtcNow.AddDays(JWTSettings.RenewTokenTTLDays),
-            signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(JWTSettings.RefreshTokenSecret)
-                ),
-                SecurityAlgorithms.HmacSha256
-            )
+            expires: DateTime.UtcNow.AddDays(_JWTSettings.RenewTokenTTLDays),
+            signingCredentials: GetSigningCredentials(_JWTSettings.RefreshTokenSecret)
         );
 
         return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
@@ -47,20 +35,9 @@ public class JWT(IConfiguration configuration)
 
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string expiredToken)
     {
-        JwtSecurityTokenHandler tokenHandler = new()
-        {
-            MapInboundClaims = false
-        };
-        TokenValidationParameters tokenValidationParameters = new()
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = JWTSettings.Issuer,
-            ValidAudience = JWTSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSettings.AuthenticationTokenSecret)),
-            ValidateLifetime = false,
-        };
+        JwtSecurityTokenHandler tokenHandler = GetTokenHandler();
+        
+        TokenValidationParameters tokenValidationParameters = GetAccessTokenValidationParameters();
 
         ClaimsPrincipal principal = tokenHandler.ValidateToken(expiredToken, tokenValidationParameters, out SecurityToken securityToken);
 
@@ -70,5 +47,88 @@ public class JWT(IConfiguration configuration)
         }
 
         return principal;
+    }
+
+    public bool TokenIsValid(string token, TokenValidationParameters tokenValidationParameters)
+    {
+        JwtSecurityTokenHandler tokenHandler = GetTokenHandler();
+
+        try
+        {
+            tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static JwtSecurityTokenHandler GetTokenHandler()
+    {
+        return new()
+        {
+            MapInboundClaims = false
+        };
+    }
+
+    public TokenValidationParameters GetAccessTokenValidationParameters()
+    {
+        return new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateActor = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = _JWTSettings.Issuer,
+            ValidAudience = _JWTSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_JWTSettings.AccessTokenSecret)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    }
+
+    public static TokenValidationParameters GetAccessTokenValidationParameters(string secret, string issuer, string audience)
+    {
+        return new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateActor = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = issuer,
+            ValidAudience = audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    }
+
+    public TokenValidationParameters GetRefreshTokenValidationParameters()
+    {
+        return new()
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_JWTSettings.RefreshTokenSecret)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    }
+
+    public static TokenValidationParameters GetRefreshTokenValidationParameters(string secret)
+    {
+        return new()
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    }
+
+    public static SigningCredentials GetSigningCredentials(string secret)
+    {
+        return new(
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+            SecurityAlgorithms.HmacSha256
+        );
     }
 }

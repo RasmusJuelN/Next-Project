@@ -2,7 +2,7 @@ namespace Settings.Interfaces;
 
 public interface IJWTSettings
 {
-    public string AuthenticationTokenSecret { get; set; }
+    public string AccessTokenSecret { get; set; }
     public string RefreshTokenSecret { get; set; }
     public int TokenTTLMinutes { get; set; }
     public int RenewTokenTTLDays { get; set; }
