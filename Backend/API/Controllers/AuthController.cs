@@ -22,7 +22,7 @@ namespace API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        [ProducesResponseType(typeof(AuthenticationToken), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Auth), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Login([FromForm] UserLogin userLogin)
@@ -106,7 +106,7 @@ namespace API.Controllers
         
         [Authorize(AuthenticationSchemes = "RefreshToken")]
         [HttpPost("refresh")]
-        [ProducesResponseType(typeof(AuthenticationToken), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Auth), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Refresh([FromBody] string expiredToken)
