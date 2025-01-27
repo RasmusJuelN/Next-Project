@@ -11,19 +11,8 @@ namespace API.Services;
 public class JWT(IConfiguration configuration)
 {
     private readonly JWTSettings JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
-    public string GenerateToken(JWTUser user)
+    public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
-        List<Claim> claims =
-        [
-            new(JwtRegisteredClaimNames.Sub, user.Guid.ToString()),
-            new(JwtRegisteredClaimNames.UniqueName, user.Username),
-            new(JwtRegisteredClaimNames.Name, user.Name),
-            new(JWTClaims.role, user.Role.ToString()),
-            new(JWTClaims.permissions, user.Permissions.ToString()),
-            new(JwtRegisteredClaimNames.Iss, JWTSettings.Issuer),
-            new(JwtRegisteredClaimNames.Aud, JWTSettings.Audience)
-        ];
-
         JwtSecurityToken jwtSecurityToken = new(
             claims: claims,
             notBefore: DateTime.UtcNow,
@@ -39,15 +28,8 @@ public class JWT(IConfiguration configuration)
         return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
     }
 
-    public string GenerateRefreshToken(JWTUser user)
+    public string GenerateRefreshToken(IEnumerable<Claim> claims)
     {
-        List<Claim> claims =
-        [
-            new Claim(JWTClaims.id, user.Guid.ToString()),
-            new Claim(JwtRegisteredClaimNames.Iss, JWTSettings.Issuer),
-            new Claim(JwtRegisteredClaimNames.Aud, JWTSettings.Audience)
-        ];
-
         JwtSecurityToken jwtSecurityToken = new(
             claims: claims,
             notBefore: DateTime.UtcNow,
@@ -61,5 +43,32 @@ public class JWT(IConfiguration configuration)
         );
 
         return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+    }
+
+    public ClaimsPrincipal GetPrincipalFromExpiredToken(string expiredToken)
+    {
+        JwtSecurityTokenHandler tokenHandler = new()
+        {
+            MapInboundClaims = false
+        };
+        TokenValidationParameters tokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = JWTSettings.Issuer,
+            ValidAudience = JWTSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSettings.AuthenticationTokenSecret)),
+            ValidateLifetime = false,
+        };
+
+        ClaimsPrincipal principal = tokenHandler.ValidateToken(expiredToken, tokenValidationParameters, out SecurityToken securityToken);
+
+        if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw new SecurityTokenException("Invalid token");
+        }
+
+        return principal;
     }
 }

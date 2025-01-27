@@ -14,7 +14,6 @@ using Settings.Models;
 
 namespace API.Controllers
 {
-    [Authorize(AuthenticationSchemes = "AccessToken")]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController(JWT JWT, LDAP LDAP, IConfiguration configuration) : ControllerBase
@@ -69,19 +68,35 @@ namespace API.Controllers
 
                 LDAP.Dispose();
 
+                Claim[] accessTokenClaims =
+                [
+                    new Claim(JwtRegisteredClaimNames.Sub, jWTUser.Guid.ToString()),
+                    new Claim(JwtRegisteredClaimNames.UniqueName, jWTUser.Username),
+                    new Claim(JwtRegisteredClaimNames.Name, jWTUser.Name),
+                    new Claim(JWTClaims.role, jWTUser.Role),
+                    new Claim(JWTClaims.permissions, jWTUser.Permissions.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iss, _JWTSettings.Issuer),
+                    new Claim(JwtRegisteredClaimNames.Aud, _JWTSettings.Audience),
+                ];
+
+                Claim[] refreshTokenClaims =
+                [
+                    new Claim(JwtRegisteredClaimNames.Sub, jWTUser.Guid.ToString()),
+                ];
+
                 AuthenticationToken authenticationToken = new()
                 {
-                    Token = JWT.GenerateToken(jWTUser),
+                    Token = JWT.GenerateAccessToken(accessTokenClaims),
                     TokenType = "bearer"
                 };
                 
                 RefreshToken refreshToken = new()
                 {
-                    Token = JWT.GenerateRefreshToken(jWTUser),
+                    Token = JWT.GenerateRefreshToken(refreshTokenClaims),
                     TokenType = "bearer"
                 };
 
-                return Ok(new Login{
+                return Ok(new Auth{
                     AuthToken = authenticationToken,
                     RefreshToken = refreshToken
                 });
@@ -94,11 +109,37 @@ namespace API.Controllers
         [ProducesResponseType(typeof(AuthenticationToken), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Refresh([FromBody] string token)
+        public IActionResult Refresh([FromBody] string expiredToken)
         {
-            throw new NotImplementedException();
+            ClaimsPrincipal principal = JWT.GetPrincipalFromExpiredToken(expiredToken);
+
+            // TODO: Also check if we've revoked the token in the database
+            if (principal is null) return Unauthorized();
+
+            AuthenticationToken authenticationToken = new()
+            {
+                Token = JWT.GenerateAccessToken(principal.Claims),
+                TokenType = "bearer"
+            };
+
+            Claim[] refreshTokenClaims =
+            [
+                new Claim(JwtRegisteredClaimNames.Sub, principal.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? throw new ArgumentNullException(nameof(JwtRegisteredClaimNames.Sub))),
+            ];
+
+            RefreshToken refreshToken = new()
+            {
+                Token = JWT.GenerateRefreshToken(refreshTokenClaims),
+                TokenType = "bearer"
+            };
+
+            return Ok(new Auth{
+                AuthToken = authenticationToken,
+                RefreshToken = refreshToken
+            });
         }
 
+        [Authorize(AuthenticationSchemes = "AccessToken")]
         [HttpGet("WhoAmI")]
         [ProducesResponseType(typeof(JWTUser), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

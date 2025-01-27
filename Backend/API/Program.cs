@@ -61,7 +61,7 @@ builder.Services.AddAuthentication(cfg => {
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(jWTSettings.RefreshTokenSecret)
         ),
-        ValidateIssuer = true,
+        ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
