@@ -42,7 +42,7 @@ namespace API.Controllers
 
             if (_LDAP.connection.Bound)
             {
-                ObjectGuidAndMemberOf ldapUser = _LDAP.SearchUser<ObjectGuidAndMemberOf>();
+                ObjectGuidAndMemberOf ldapUser = _LDAP.SearchUser<ObjectGuidAndMemberOf>(userLogin.Username);
 
                 // TODO: This shuld be logged
                 if (ldapUser is null) return Unauthorized();
@@ -146,9 +146,9 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Logout()
         {
-            if (!Request.Headers.Authorization.IsNullOrEmpty()) return Unauthorized();
+            if (Request.Headers.Authorization.IsNullOrEmpty()) return Unauthorized();
 
-            if (!_JWT.TokenIsValid(Request.Headers.Authorization, _JWT.GetRefreshTokenValidationParameters())) return Unauthorized();
+            if (!_JWT.TokenIsValid(Request.Headers.Authorization!, _JWT.GetRefreshTokenValidationParameters())) return Unauthorized();
             
             // TODO: Log the token in the database so we can revoke it
             

@@ -126,19 +126,17 @@ public class LDAP
     }
 
     /// <summary>
-    /// Searches the LDAP directory for the user that is currently bound to the LDAP connection.
+    /// Searches the LDAP directory for a user with the specified username and maps the results to an object of type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The type of object to map the LDAP search results to. Must have a parameterless constructor.</typeparam>
     /// <returns>An object of type <typeparamref name="T"/> mapped from the LDAP search results.</returns>
     /// <exception cref="LDAPException.NotBound">Thrown if the LDAP connection is not bound.</exception>
-    public T SearchUser<T>() where T : new()
+    public T SearchUser<T>(string username) where T : new()
     {
-        string boundUsername = connection.AuthenticationDn;
-
         string domain = _LDAPSettings.FQDN.Split(".", 2).Last();
         
-        // DOMAIN\\username
-        string sAMAccountName = $"{string.Join("", domain.Split('.'))}\\\\{boundUsername}";
+        // NETBIOS\\username
+        string sAMAccountName = $"{string.Join("", domain.Split('.'))}\\\\{username}";
         // username@domain
         string userPrincipalName = $"{sAMAccountName.Split('\\').Last()}@{domain}";
         
