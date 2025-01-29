@@ -1,5 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 using API.Enums;
 using API.Exceptions;
 using API.Models.LDAP;
@@ -7,6 +10,8 @@ using API.Models.Requests;
 using API.Models.Responses;
 using API.Services;
 using Database.Enums;
+using Database.Models;
+using Database.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -16,11 +21,12 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(JWT jwt, LDAP ldap, IConfiguration configuration) : ControllerBase
+    public class AuthController(JWT jwt, LDAP ldap, IConfiguration configuration, IGenericRepository<RevokedRefreshTokenModel> genericRepository) : ControllerBase
     {
         private readonly JWT _JWT = jwt;
         private readonly LDAP _LDAP = ldap;
         private readonly JWTSettings _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
+        private readonly IGenericRepository<RevokedRefreshTokenModel> _genericRepository = genericRepository;
 
         [AllowAnonymous]
         [HttpPost]
@@ -111,12 +117,21 @@ namespace API.Controllers
         [ProducesResponseType(typeof(Auth), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Refresh([FromBody] string expiredToken)
+        public async Task<IActionResult> Refresh([FromBody] string expiredToken)
         {
+            if (Request.Headers.Authorization.IsNullOrEmpty()) return Unauthorized();
+
+            string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
+
+            if (!_JWT.TokenIsValid(token, _JWT.GetRefreshTokenValidationParameters())) return Unauthorized();
+            
             ClaimsPrincipal principal = _JWT.GetPrincipalFromExpiredToken(expiredToken);
 
             // TODO: Also check if we've revoked the token in the database
-            if (principal is null) return Unauthorized();
+            byte[] result = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            string stringToken = Convert.ToBase64String(result);
+            IEnumerable<RevokedRefreshTokenModel> tokens = await _genericRepository.GetAsync(q => q.Token == result);
+            if (principal is null || tokens.Any()) return Unauthorized();
 
             AuthenticationToken authenticationToken = new()
             {
@@ -146,14 +161,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
             if (Request.Headers.Authorization.IsNullOrEmpty()) return Unauthorized();
 
-            if (!_JWT.TokenIsValid(Request.Headers.Authorization!, _JWT.GetRefreshTokenValidationParameters())) return Unauthorized();
+            string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
+
+            if (!_JWT.TokenIsValid(token, _JWT.GetRefreshTokenValidationParameters())) return Unauthorized();
             
+            byte[] result = SHA256.HashData(Encoding.UTF8.GetBytes(token));
             // TODO: Log the token in the database so we can revoke it
-            
+            RevokedRefreshTokenModel revokedRefreshToken = new()
+            {
+                Token = result,
+                RevokedAt = DateTime.UtcNow
+            };
+            await _genericRepository.AddAsync(revokedRefreshToken);
+
             return Ok();
         }
 

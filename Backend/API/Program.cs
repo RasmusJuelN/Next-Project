@@ -7,6 +7,7 @@ using API.Utils;
 using Microsoft.OpenApi.Models;
 using Logging.Extensions;
 using Settings.Default;
+using Database.Repository;
 
 const string settingsFile = "config.json";
 
@@ -63,6 +64,9 @@ builder.Services.Configure<RouteOptions>(o => {
     o.LowercaseQueryStrings = true;
 });
 
+// Repositories
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(SQLGenericRepository<>));
+
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -93,7 +97,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddDbContext<Context>(o => o.UseSqlServer(databaseSettings.ConnectionString, b => b.MigrationsAssembly("Database")));
+builder.Services.AddDbContext<Context>(o => o.UseSqlServer(databaseSettings.ConnectionString, b => b.MigrationsAssembly("API")));
 
 var app = builder.Build();
 
