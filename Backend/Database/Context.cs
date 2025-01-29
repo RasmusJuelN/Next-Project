@@ -62,14 +62,20 @@ public class Context : DbContext
             e.HasOne(a => a.Student)
             .WithMany()
             .HasForeignKey(a => a.StudentId)
-            .HasPrincipalKey(u => u.Id);
+            .HasPrincipalKey(u => u.Id)
+            .OnDelete(DeleteBehavior.NoAction);
             e.HasOne(a => a.Teacher)
             .WithMany()
             .HasForeignKey(a => a.TeacherId)
-            .HasPrincipalKey(u => u.Id);
+            .HasPrincipalKey(u => u.Id)
+            .OnDelete(DeleteBehavior.NoAction);
             e.HasOne(a => a.QuestionnaireTemplate)
             .WithMany(q => q.ActiveQuestionnaires);
             e.HasMany(a => a.Answers)
+            .WithOne(a => a.ActiveQuestionnaire)
+            .HasForeignKey(a => a.ActiveQuestionnaireId)
+            .HasPrincipalKey(a => a.Id);
+            e.HasMany(a => a.ActiveQuestionnaireQuestions)
             .WithOne(a => a.ActiveQuestionnaire)
             .HasForeignKey(a => a.ActiveQuestionnaireId)
             .HasPrincipalKey(a => a.Id);
@@ -83,7 +89,6 @@ public class Context : DbContext
             .WithOne(a => a.ActiveQuestionnaireQuestion)
             .HasForeignKey(a => a.ActiveQuestionnaireQuestionId)
             .HasPrincipalKey(a => a.Id);
-            e.HasOne(a => a.ActiveQuestionnaire).WithMany(a => a.ActiveQuestionnaireQuestions);
             e.Property(a => a.Prompt)
             .HasMaxLength(500);
         });
@@ -150,6 +155,17 @@ public class Context : DbContext
             .HasPrincipalKey(u => u.Id);
         });
 
+        //
+        modelBuilder.Entity<RevokedRefreshTokenModel>(e => {
+            e.ToTable("RevokedRefreshToken");
+            e.HasKey(r => r.Id);
+            e.HasIndex(r => r.Token);
+            e.Property(r => r.Token)
+            .IsRequired();
+            e.Property(r => r.RevokedAt)
+            .HasDefaultValueSql("getdate()");
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 
@@ -162,4 +178,5 @@ public class Context : DbContext
     internal DbSet<ActiveQuestionnaireResponseModel> ActiveQuestionnaireResponses { get; set; }
     internal DbSet<CustomAnswerModel> CustomAnswers { get; set; }
     internal DbSet<UserModel> Users { get; set; }
+    internal DbSet<RevokedRefreshTokenModel> RevokedRefreshTokens { get; set; }
 }
