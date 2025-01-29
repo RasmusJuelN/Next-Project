@@ -16,8 +16,10 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(JWT _JWT, LDAP _LDAP, IConfiguration configuration) : ControllerBase
+    public class AuthController(JWT jwt, LDAP ldap, IConfiguration configuration) : ControllerBase
     {
+        private readonly JWT _JWT = jwt;
+        private readonly LDAP _LDAP = ldap;
         private readonly JWTSettings _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
 
         [AllowAnonymous]
