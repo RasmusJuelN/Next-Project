@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace API.Services;
 
@@ -11,7 +12,8 @@ public class Serializer
     {
         s_writeOptions = new()
         {
-            WriteIndented = true
+            WriteIndented = true,
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
         };
         s_readOptions = new()
         {
