@@ -5,6 +5,8 @@ using Settings.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using API.Utils;
 using Microsoft.OpenApi.Models;
+using Logging.Extensions;
+using Settings.Default;
 
 const string settingsFile = "config.json";
 
@@ -18,6 +20,11 @@ if (!settingsHelper.SettingsExists())
 }
 
 builder.Configuration.AddJsonFile(settingsFile, optional: false, reloadOnChange: true);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
+builder.Logging.AddConsole();
+builder.Logging.AddFileLogger(configure => builder.Configuration.GetSection("Loggings:FileLogger").Get<DefaultFileLogger>());
 
 // TODO: Check if config version is lower than default, and if it is, "upgrade" the config with any new settings
 

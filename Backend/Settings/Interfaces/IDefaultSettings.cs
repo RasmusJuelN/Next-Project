@@ -7,4 +7,5 @@ public interface IDefaultSettings
     public DefaultDatabase Database { get; }
     public DefaultJWT JWT { get; }
     public DefaultLDAP LDAP { get; }
+    public DefaultLogger Logging { get; }
 }
