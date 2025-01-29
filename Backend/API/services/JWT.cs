@@ -108,6 +108,10 @@ public class JWT(IConfiguration configuration)
     {
         return new()
         {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateActor = false,
+            ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_JWTSettings.RefreshTokenSecret)),
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
@@ -118,6 +122,10 @@ public class JWT(IConfiguration configuration)
     {
         return new()
         {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateActor = false,
+            ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
