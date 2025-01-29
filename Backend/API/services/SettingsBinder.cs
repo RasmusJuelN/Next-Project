@@ -4,18 +4,35 @@ namespace API.Services;
 
 public class SettingsBinder(IConfiguration configuration)
 {
+    private readonly IConfiguration _configuration = configuration;
+    
     /// <summary>
-    /// Binds a configuration section to an instance of type <typeparamref name="T"/>.
+    /// Binds a configuration section to an instance of the specified type.
+    /// <para></para>
+    /// If the configuration section has a key, the method will bind the values from the section with the key to the instance.<br />
+    /// If the configuration section does not have a key, the method will bind the values from the root of the configuration to the instance.
     /// </summary>
-    /// <typeparam name="T">The type of the object to bind the configuration section to. Must inherit from <see cref="Base"/> and have a parameterless constructor.</typeparam>
-    /// <returns>An instance of type <typeparamref name="T"/> with the configuration section bound to it.</returns>
-    /// <summary>
-    /// Binds the configuration section to the specified type.
-    /// </summary>
+    /// <typeparam name="T">The type of the configuration section to bind. Must inherit from <see cref="Base"/> and have a parameterless constructor.</typeparam>
+    /// <returns>An instance of the specified type with the configuration values bound to it.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the configuration section does not have a key.</exception>
     public T Bind<T>() where T : Base, new()
     {
         T configSection = new();
-        configuration.GetSection(configSection.Key).Bind(configSection);
+        
+        if (configSection.Key is null)
+        {
+            throw new InvalidOperationException("The configuration section must have a key.");
+        }
+
+        if (configSection.Key == string.Empty)
+        {
+            _configuration.Bind(configSection);
+        }
+        else
+        {
+            _configuration.GetSection(configSection.Key).Bind(configSection);
+        }
+        
         return configSection;
     }
 }
