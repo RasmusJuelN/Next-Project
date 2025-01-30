@@ -8,6 +8,8 @@ using Microsoft.OpenApi.Models;
 using Logging.Extensions;
 using Settings.Default;
 using Database.Repository;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 const string settingsFile = "config.json";
 
@@ -101,6 +103,17 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<Context>(o => o.UseSqlServer(databaseSettings.ConnectionString, b => b.MigrationsAssembly("API")));
 
 var app = builder.Build();
+
+// Ensure the database is created and migrated
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    IServiceProvider services = scope.ServiceProvider;
+    Context context = services.GetRequiredService<Context>();
+    if (context.Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator databaseCreator && !databaseCreator.Exists())
+    {
+        context.Database.Migrate();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
