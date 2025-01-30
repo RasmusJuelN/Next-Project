@@ -45,6 +45,14 @@ public sealed class DBLoggerProvider : ILoggerProvider
         _onChangeToken?.Dispose();
     }
 
+    /// <summary>
+    /// Continuously processes log entries from the log queue until the cancellation token is triggered.
+    /// </summary>
+    /// <remarks>
+    /// This method runs in a loop, attempting to take log entries from the queue and process them.
+    /// If there are log entries, it creates a new scope to resolve scoped services and saves the logs to the database.
+    /// </remarks>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task ProcessLogQueue()
     {
         try
@@ -81,6 +89,12 @@ public sealed class DBLoggerProvider : ILoggerProvider
         }
     }
 
+    /// <summary>
+    /// Saves the logs to the database.
+    /// </summary>
+    /// <param name="logs">The logs to save.</param>
+    /// <param name="repository">The repository to use to save the logs.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private static async Task SaveLogsToDatabase(List<ApplicationLogsModel> logs, IGenericRepository<ApplicationLogsModel> repository)
     {
         await repository.AddRangeAsync(logs);
