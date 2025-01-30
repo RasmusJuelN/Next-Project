@@ -158,7 +158,7 @@ public class Context : DbContext
             .HasPrincipalKey(u => u.Id);
         });
 
-        //
+        // RevokedRefreshTokenModel
         modelBuilder.Entity<RevokedRefreshTokenModel>(e => {
             e.ToTable("RevokedRefreshToken");
             e.HasKey(r => r.Id);
@@ -167,6 +167,25 @@ public class Context : DbContext
             .IsRequired();
             e.Property(r => r.RevokedAt)
             .HasDefaultValueSql("getdate()");
+        });
+
+        // ApplicationLogsModel
+        modelBuilder.Entity<ApplicationLogsModel>(e => {
+            e.ToTable("ApplicationLogs");
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Message)
+            .HasMaxLength(500)
+            .IsRequired();
+            e.Property(a => a.Timestamp)
+            .HasDefaultValueSql("getdate()");
+            e.Property(a => a.EventId)
+            .IsRequired();
+            e.Property(a => a.Category)
+            .HasMaxLength(150)
+            .IsRequired();
+            e.Property(a => a.Exception)
+            .HasMaxLength(500)
+            .IsRequired(false);
         });
 
         base.OnModelCreating(modelBuilder);
@@ -182,4 +201,5 @@ public class Context : DbContext
     internal DbSet<CustomAnswerModel> CustomAnswers { get; set; }
     internal DbSet<UserModel> Users { get; set; }
     internal DbSet<RevokedRefreshTokenModel> RevokedRefreshTokens { get; set; }
+    internal DbSet<ApplicationLogsModel> ApplicationLogs { get; set; }
 }

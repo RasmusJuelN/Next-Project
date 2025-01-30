@@ -12,6 +12,7 @@ using API.Services;
 using Database.Enums;
 using Database.Models;
 using Database.Repository;
+using Logging.LogEvents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -21,12 +22,22 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(JWT jwt, LDAP ldap, IConfiguration configuration, IGenericRepository<RevokedRefreshTokenModel> genericRepository) : ControllerBase
+    public class AuthController : ControllerBase
     {
-        private readonly JWT _JWT = jwt;
-        private readonly LDAP _LDAP = ldap;
-        private readonly JWTSettings _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
-        private readonly IGenericRepository<RevokedRefreshTokenModel> _genericRepository = genericRepository;
+        private readonly JWT _JWT;
+        private readonly LDAP _LDAP;
+        private readonly JWTSettings _JWTSettings;
+        private readonly IGenericRepository<RevokedRefreshTokenModel> _genericRepository;
+        private readonly ILogger _logger;
+
+        public AuthController(JWT jwt, LDAP ldap, IConfiguration configuration, IGenericRepository<RevokedRefreshTokenModel> genericRepository, ILoggerFactory loggerFactory)
+        {
+            _JWT = jwt;
+            _LDAP = ldap;
+            _genericRepository = genericRepository;
+            _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
+            _logger = loggerFactory.CreateLogger(GetType());
+        }
 
         [AllowAnonymous]
         [HttpPost]
@@ -103,6 +114,8 @@ namespace API.Controllers
                     Token = _JWT.GenerateRefreshToken(refreshTokenClaims),
                     TokenType = "bearer"
                 };
+
+                _logger.LogInformation(UserLogEvents.UserLogIn, "User {username} has logged in", userLogin.Username);
 
                 return Ok(new Auth{
                     AuthToken = authenticationToken,

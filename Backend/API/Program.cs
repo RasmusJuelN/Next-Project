@@ -26,6 +26,7 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();
 builder.Logging.AddFileLogger(configure => builder.Configuration.GetSection("Loggings:FileLogger").Get<DefaultFileLogger>());
+builder.Logging.AddDBLogger(configure => builder.Configuration.GetSection("Loggings:DBLogger").Get<DefaultDBLogger>());
 
 // TODO: Check if config version is lower than default, and if it is, "upgrade" the config with any new settings
 
