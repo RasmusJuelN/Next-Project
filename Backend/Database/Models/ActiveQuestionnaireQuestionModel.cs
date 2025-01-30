@@ -1,12 +1,12 @@
 namespace Database.Models;
 
-internal class ActiveQuestionnaireQuestionModel
+public class ActiveQuestionnaireQuestionModel
 {
-    internal int Id { get; set; }
-    internal required string Prompt { get; set; }
-    internal required int ActiveQuestionnaireId { get; set; }
+    public int Id { get; set; }
+    public required string Prompt { get; set; }
+    public required int ActiveQuestionnaireId { get; set; }
 
     // External navigational properties and references
-    internal required ActiveQuestionnaireModel ActiveQuestionnaire { get; set; }
-    internal required ICollection<ActiveQuestionnaireOptionModel> ActiveQuestionnaireOptions { get; set; }
+    public required ActiveQuestionnaireModel ActiveQuestionnaire { get; set; }
+    public required ICollection<ActiveQuestionnaireOptionModel> ActiveQuestionnaireOptions { get; set; }
 }

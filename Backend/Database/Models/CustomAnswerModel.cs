@@ -1,11 +1,11 @@
 namespace Database.Models;
 
-internal class CustomAnswerModel
+public class CustomAnswerModel
 {
-    internal int Id { get; set; }
-    internal required string Response { get; set; }
-    internal required int ActiveQuestionnaireResponseId { get; set; }
+    public int Id { get; set; }
+    public required string Response { get; set; }
+    public required int ActiveQuestionnaireResponseId { get; set; }
 
     // External navigational properties and references
-    internal required ActiveQuestionnaireResponseModel ActiveQuestionnaireResponse { get; set; }
+    public required ActiveQuestionnaireResponseModel ActiveQuestionnaireResponse { get; set; }
 }

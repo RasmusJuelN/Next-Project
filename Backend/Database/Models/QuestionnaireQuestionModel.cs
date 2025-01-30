@@ -1,13 +1,13 @@
 namespace Database.Models;
 
-internal class QuestionnaireQuestionModel
+public class QuestionnaireQuestionModel
 {
-    internal int Id { get; set; }
-    internal required string Prompt { get; set; }
-    internal required bool AllowCustom { get; set; }
-    internal required Guid QuestionnaireTemplateId { get; set; }
+    public int Id { get; set; }
+    public required string Prompt { get; set; }
+    public required bool AllowCustom { get; set; }
+    public required Guid QuestionnaireTemplateId { get; set; }
 
     // External navigational properties and references
-    internal required QuestionnaireTemplateModel QuestionnaireTemplate { get; set; }
-    internal required ICollection<QuestionnaireOptionModel> Options { get; set; }
+    public required QuestionnaireTemplateModel QuestionnaireTemplate { get; set; }
+    public required ICollection<QuestionnaireOptionModel> Options { get; set; }
 }

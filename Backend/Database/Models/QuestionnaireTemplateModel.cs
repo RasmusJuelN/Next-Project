@@ -1,14 +1,14 @@
 namespace Database.Models;
 
-internal class QuestionnaireTemplateModel
+public class QuestionnaireTemplateModel
 {
-    internal required Guid Id { get; set; }
-    internal required string TemplateTitle { get; set; }
-    internal DateTime CreatedAt { get; set; }
-    internal DateTime LastUpated { get; set; }
-    internal bool IsLocked { get; set; }
+    public required Guid Id { get; set; }
+    public required string TemplateTitle { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime LastUpated { get; set; }
+    public bool IsLocked { get; set; }
 
     // Navigational properties and references
-    internal required ICollection<QuestionnaireQuestionModel> Questions { get; set; }
-    internal ICollection<ActiveQuestionnaireModel>? ActiveQuestionnaires { get; set; }
+    public required ICollection<QuestionnaireQuestionModel> Questions { get; set; }
+    public ICollection<ActiveQuestionnaireModel>? ActiveQuestionnaires { get; set; }
 }
