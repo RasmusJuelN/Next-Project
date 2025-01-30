@@ -8,24 +8,28 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
     // TODO: Create custom exceptions and include logging
     private readonly Context _context = context;
 
-    public async Task<TEntity> GetAsync(int id)
+    public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
     {
-        return await _context.Set<TEntity>().FindAsync(id) ?? throw new Exception("No matching entry found");
+        IQueryable<TEntity> query = _context.Set<TEntity>().Where(predicate);
+
+        if (queryModifier is not null)
+        {
+            query = queryModifier(query);
+        }
+
+        return await query.ToListAsync();
     }
 
-    public async Task<TEntity> GetAsync(Guid id)
+    public async Task<IEnumerable<TEntity>> GetAllAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
     {
-        return await _context.Set<TEntity>().FindAsync(id) ?? throw new Exception("No matching entry found");
-    }
+        IQueryable<TEntity> query = _context.Set<TEntity>();
 
-    public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate)
-    {
-        return await _context.Set<TEntity>().Where(predicate).ToListAsync();
-    }
-
-    public async Task<IEnumerable<TEntity>> GetAllAsync()
-    {
-        return await _context.Set<TEntity>().ToListAsync();
+        if (queryModifier is not null)
+        {
+            query = queryModifier(query);
+        }
+        
+        return await query.ToListAsync();
     }
 
     public async Task<TEntity> AddAsync(TEntity entity)
@@ -52,24 +56,6 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         return entity;
     }
 
-    public async Task<TEntity> DeleteAsync(int id)
-    {
-        TEntity entity = await GetAsync(id);
-        _context.Set<TEntity>().Remove(entity);
-        await _context.SaveChangesAsync();
-
-        return entity;
-    }
-
-    public async Task<TEntity> DeleteAsync(Guid id)
-    {
-        TEntity entity = await GetAsync(id);
-        _context.Set<TEntity>().Remove(entity);
-        await _context.SaveChangesAsync();
-
-        return entity;
-    }
-
     public async Task<TEntity> DeleteAsync(TEntity entity)
     {
         _context.Set<TEntity>().Remove(entity);
@@ -81,6 +67,14 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
     public async Task<IEnumerable<TEntity>> DeleteAsync(Expression<Func<TEntity, bool>> predicate)
     {
         IEnumerable<TEntity> entities = await GetAsync(predicate);
+        _context.Set<TEntity>().RemoveRange(entities);
+        await _context.SaveChangesAsync();
+
+        return entities;
+    }
+
+    public async Task<IEnumerable<TEntity>> DeleteRangeAsync(IEnumerable<TEntity> entities)
+    {
         _context.Set<TEntity>().RemoveRange(entities);
         await _context.SaveChangesAsync();
 
