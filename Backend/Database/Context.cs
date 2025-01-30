@@ -53,6 +53,9 @@ public class Context : DbContext
         modelBuilder.Entity<ActiveQuestionnaireModel>(e => {
             e.ToTable("ActiveQuestionnaire");
             e.HasKey(a => a.Id);
+            e.Property(a => a.Title)
+            .HasMaxLength(150);
+            e.HasIndex(a => a.Title);
             e.Property(a => a.ActivatedAt)
             .HasDefaultValueSql("getdate()");
             e.Property(a => a.StudentCompletedAt)

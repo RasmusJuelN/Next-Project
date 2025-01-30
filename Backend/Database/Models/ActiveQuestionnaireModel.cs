@@ -3,6 +3,7 @@ namespace Database.Models;
 internal class ActiveQuestionnaireModel
 {
     internal int Id { get; set; }
+    internal required string Title { get; set; }
     internal required int StudentId { get; set; }
     internal required int TeacherId { get; set; }
     internal required Guid QuestionnaireTemplateId { get; set; }
