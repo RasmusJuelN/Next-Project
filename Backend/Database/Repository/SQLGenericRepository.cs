@@ -8,7 +8,7 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
     // TODO: Create custom exceptions and include logging
     private readonly Context _context = context;
 
-    public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
+    public async Task<List<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
     {
         IQueryable<TEntity> query = _context.Set<TEntity>().Where(predicate);
 
@@ -20,7 +20,7 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         return await query.ToListAsync();
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
+    public async Task<List<TEntity>> GetAllAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
     {
         IQueryable<TEntity> query = _context.Set<TEntity>();
 
@@ -40,7 +40,7 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         return entity;
     }
 
-    public async Task<IEnumerable<TEntity>> AddRangeAsync(IEnumerable<TEntity> entities)
+    public async Task<List<TEntity>> AddRangeAsync(List<TEntity> entities)
     {
         await _context.Set<TEntity>().AddRangeAsync(entities);
         await _context.SaveChangesAsync();
@@ -64,16 +64,16 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         return entity;
     }
 
-    public async Task<IEnumerable<TEntity>> DeleteAsync(Expression<Func<TEntity, bool>> predicate)
+    public async Task<List<TEntity>> DeleteAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        IEnumerable<TEntity> entities = await GetAsync(predicate);
+        List<TEntity> entities = await GetAsync(predicate);
         _context.Set<TEntity>().RemoveRange(entities);
         await _context.SaveChangesAsync();
 
         return entities;
     }
 
-    public async Task<IEnumerable<TEntity>> DeleteRangeAsync(IEnumerable<TEntity> entities)
+    public async Task<List<TEntity>> DeleteRangeAsync(List<TEntity> entities)
     {
         _context.Set<TEntity>().RemoveRange(entities);
         await _context.SaveChangesAsync();
