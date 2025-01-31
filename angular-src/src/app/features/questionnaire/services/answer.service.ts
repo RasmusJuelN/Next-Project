@@ -8,15 +8,12 @@ import { environment } from '../../../../environments/environment';
   providedIn: 'root',
 })
 export class AnswerService {
-    private apiUrl = environment.apiUrl; // Replace with your actual API URL
+  private apiUrl = environment.apiUrl; // Replace with your actual API URL
 
-    constructor(private http: HttpClient) {}
-  
-    getTemplates(): Observable<Questionnaire[]> {
-      return this.http.get<Questionnaire[]>(this.apiUrl);
-    }
+  constructor(private http: HttpClient) {}
 
-    getTemplateById(templateId: string): Observable<Questionnaire> {
-      return this.http.get<Questionnaire>(`${this.apiUrl}/${templateId}`);
-    }
+  // Get active questionnaire by instance ID
+  getActiveQuestionnaireById(instanceId: string): Observable<Questionnaire> {
+    return this.http.get<Questionnaire>(`${this.apiUrl}/active-questionnaires/${instanceId}`);
+  }
 }

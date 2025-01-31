@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { QuestionComponent } from './question/question.component';
 import { AnswerService } from './services/answer.service';
 import { Answer, QuestionnaireState } from './models/answer.model';
@@ -11,8 +12,9 @@ import { Answer, QuestionnaireState } from './models/answer.model';
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.css'],
 })
-export class QuestionnaireComponent {
+export class QuestionnaireComponent implements OnInit {
   private answerService = inject(AnswerService);
+  private route = inject(ActivatedRoute);
 
   state: QuestionnaireState = {
     template: {
@@ -28,9 +30,19 @@ export class QuestionnaireComponent {
     isCompleted: false,
   };
 
-  constructor() {
-    // Load the template (using subscription)
-    this.answerService.getTemplateById('questionnaire1').subscribe((template) => {
+  ngOnInit() {
+    this.route.paramMap.subscribe((params) => {
+      const questionnaireId = params.get('id');
+      if (questionnaireId) {
+        this.loadQuestionnaire(questionnaireId);
+      } else {
+        console.error('No questionnaire ID found in route!');
+      }
+    });
+  }
+
+  private loadQuestionnaire(id: string) {
+    this.answerService.getActiveQuestionnaireById(id).subscribe((template) => {
       if (template) {
         this.state.template = template;
         this.updateProgress();

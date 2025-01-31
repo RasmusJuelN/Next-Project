@@ -11,6 +11,8 @@ import { HomeService } from './features/home/services/home.service';
 import { MockHomeService } from './features/home/services/mock.home.service';
 import { AnswerService } from './features/questionnaire/services/answer.service';
 import { MockAnswerService } from './features/questionnaire/services/mock.answer.service';
+import { TemplateService } from './features/template-manager/services/template.service';
+import { MockTemplateService } from './features/template-manager/services/mock-template.service';
 
 
 export const appConfig: ApplicationConfig = {
@@ -28,6 +30,10 @@ export const appConfig: ApplicationConfig = {
 {
   provide: AnswerService,
   useClass: environment.useMock ? MockAnswerService : AnswerService,
+},
+{
+  provide: TemplateService,
+  useClass: environment.useMock ? MockTemplateService : TemplateService
 }
 ]
 };
