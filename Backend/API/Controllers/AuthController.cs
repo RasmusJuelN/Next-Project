@@ -27,14 +27,16 @@ namespace API.Controllers
         private readonly JWT _JWT;
         private readonly LDAP _LDAP;
         private readonly JWTSettings _JWTSettings;
-        private readonly IGenericRepository<RevokedRefreshTokenModel> _genericRepository;
+        private readonly IGenericRepository<RevokedRefreshTokenModel> _revokedRefreshTokenRepository;
+        private readonly IGenericRepository<UserModel> _userRepository;
         private readonly ILogger _logger;
 
-        public AuthController(JWT jwt, LDAP ldap, IConfiguration configuration, IGenericRepository<RevokedRefreshTokenModel> genericRepository, ILoggerFactory loggerFactory)
+        public AuthController(JWT jwt, LDAP ldap, IConfiguration configuration, IGenericRepository<RevokedRefreshTokenModel> revokedRefreshTokenRepository, IGenericRepository<UserModel> userRepository, ILoggerFactory loggerFactory)
         {
             _JWT = jwt;
             _LDAP = ldap;
-            _genericRepository = genericRepository;
+            _revokedRefreshTokenRepository = revokedRefreshTokenRepository;
+            _userRepository = userRepository;
             _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
             _logger = loggerFactory.CreateLogger(GetType());
         }
@@ -44,7 +46,7 @@ namespace API.Controllers
         [ProducesResponseType(typeof(Auth), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult Login([FromForm] UserLogin userLogin)
+        public async Task<IActionResult> Login([FromForm] UserLogin userLogin)
         {
             try
             {
@@ -63,18 +65,35 @@ namespace API.Controllers
             {
                 ObjectGuidAndMemberOf ldapUser = _LDAP.SearchUser<ObjectGuidAndMemberOf>(userLogin.Username);
 
-                // TODO: This shuld be logged
-                if (ldapUser is null) return Unauthorized();
+                if (ldapUser is null)
+                {
+                    _LDAP.Dispose();
+                    _logger.LogWarning(UserLogEvents.UserLogIn, "User {username} successfully logged in, yet the user query returned nothing.", userLogin.Username);
+                    return Unauthorized();
+                }
 
                 Guid userGuid = new(ldapUser.ObjectGUID.ByteValue);
 
                 string userRole = _JWTSettings.Roles.FirstOrDefault(x => ldapUser.MemberOf.StringValue.Contains(x.Key)).Value;
                 
-                // TODO: Also log this
-                if (userRole.IsNullOrEmpty()) return Unauthorized();
+                if (userRole.IsNullOrEmpty())
+                {
+                    _LDAP.Dispose();
+                    _logger.LogWarning(UserLogEvents.UserLogIn, "Could not determine the role for user {username}", userLogin.Username);
+                    return Unauthorized();
+                }
 
-                // TODO: Grab permissions from the database if they exist, otherwise default to the preset that matches the role
-                int permissions = (int)UserPermissions.Student;
+                UserModel? user = await _userRepository.GetSingleAsync(u => u.Id == userGuid);
+
+                UserPermissions permissions;
+                if (user is not null)
+                {
+                    permissions = user.Permissions;
+                }
+                else
+                {
+                    permissions = (UserPermissions)Enum.Parse(typeof(UserPermissions), userRole, true);
+                }
 
                 JWTUser jWTUser = new()
                 {
@@ -82,7 +101,7 @@ namespace API.Controllers
                     Username = userLogin.Username,
                     Name = ldapUser.Name.StringValue,
                     Role = userRole,
-                    Permissions = permissions
+                    Permissions = (int)permissions
                 };
 
                 _LDAP.Dispose();
@@ -115,7 +134,7 @@ namespace API.Controllers
                     TokenType = "bearer"
                 };
 
-                _logger.LogInformation(UserLogEvents.UserLogIn, "User {username} has logged in", userLogin.Username);
+                _logger.LogInformation(UserLogEvents.UserLogIn, "Successfull login from {username}.", userLogin.Username);
 
                 return Ok(new Auth{
                     AuthToken = authenticationToken,
@@ -143,7 +162,7 @@ namespace API.Controllers
             // TODO: Also check if we've revoked the token in the database
             byte[] result = SHA256.HashData(Encoding.UTF8.GetBytes(token));
             string stringToken = Convert.ToBase64String(result);
-            IEnumerable<RevokedRefreshTokenModel> tokens = await _genericRepository.GetAsync(q => q.Token == result);
+            IEnumerable<RevokedRefreshTokenModel> tokens = await _revokedRefreshTokenRepository.GetAsync(q => q.Token == result);
             if (principal is null || tokens.Any()) return Unauthorized();
 
             AuthenticationToken authenticationToken = new()
@@ -189,7 +208,7 @@ namespace API.Controllers
                 Token = result,
                 RevokedAt = DateTime.UtcNow
             };
-            await _genericRepository.AddAsync(revokedRefreshToken);
+            await _revokedRefreshTokenRepository.AddAsync(revokedRefreshToken);
 
             return Ok();
         }
