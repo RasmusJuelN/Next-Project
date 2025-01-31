@@ -6,7 +6,7 @@ using Settings.Models;
 
 namespace API.Services;
 
-public class JWT(IConfiguration configuration)
+public class JwtService(IConfiguration configuration)
 {
     private readonly JWTSettings _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
     public string GenerateAccessToken(IEnumerable<Claim> claims)

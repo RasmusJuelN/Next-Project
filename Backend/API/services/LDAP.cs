@@ -7,12 +7,12 @@ using API.Attributes;
 
 namespace API.Services;
 
-public class LDAP
+public class LdapService
 {
     private readonly LDAPSettings _LDAPSettings;
     public LdapConnection connection = new();
 
-    public LDAP(IConfiguration configuration)
+    public LdapService(IConfiguration configuration)
     {
         _LDAPSettings = new SettingsBinder(configuration).Bind<LDAPSettings>();
         LdapSearchConstraints constraints = connection.SearchConstraints;

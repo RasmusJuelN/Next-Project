@@ -37,9 +37,9 @@ JWTSettings jWTSettings = new SettingsBinder(builder.Configuration).Bind<JWTSett
 
 // Add services to the container.
 
-builder.Services.AddScoped<LDAP>();
+builder.Services.AddScoped<LdapService>();
 builder.Services.AddScoped<Serializer>();
-builder.Services.AddScoped<JWT>();
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,7 +47,7 @@ builder.Services.AddAuthentication(cfg => {
 }).AddJwtBearer("AccessToken", x => {
     x.RequireHttpsMetadata = false;
     x.SaveToken = false;
-    x.TokenValidationParameters = JWT.GetAccessTokenValidationParameters(jWTSettings.AccessTokenSecret, issuer: jWTSettings.Issuer, audience: jWTSettings.Audience);
+    x.TokenValidationParameters = JwtService.GetAccessTokenValidationParameters(jWTSettings.AccessTokenSecret, issuer: jWTSettings.Issuer, audience: jWTSettings.Audience);
 
     // ASP.NET likes to map JWT claim names to their own URL schema claims
     // making it difficult to work with incoming tokens. This disables that.
@@ -55,7 +55,7 @@ builder.Services.AddAuthentication(cfg => {
 }).AddJwtBearer("RefreshToken", x => {
     x.RequireHttpsMetadata = false;
     x.SaveToken = false;
-    x.TokenValidationParameters = JWT.GetRefreshTokenValidationParameters(jWTSettings.RefreshTokenSecret);
+    x.TokenValidationParameters = JwtService.GetRefreshTokenValidationParameters(jWTSettings.RefreshTokenSecret);
 
     // ASP.NET likes to map JWT claim names to their own URL schema claims
     // making it difficult to work with incoming tokens. This disables that.

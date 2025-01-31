@@ -24,17 +24,17 @@ namespace API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly JWT _JWT;
-        private readonly LDAP _LDAP;
+        private readonly JwtService _jwtService;
+        private readonly LdapService _ldapService;
         private readonly JWTSettings _JWTSettings;
         private readonly IGenericRepository<RevokedRefreshTokenModel> _revokedRefreshTokenRepository;
         private readonly IGenericRepository<UserModel> _userRepository;
         private readonly ILogger _logger;
 
-        public AuthController(JWT jwt, LDAP ldap, IConfiguration configuration, IGenericRepository<RevokedRefreshTokenModel> revokedRefreshTokenRepository, IGenericRepository<UserModel> userRepository, ILoggerFactory loggerFactory)
+        public AuthController(JwtService jwtService, LdapService ldapService, IConfiguration configuration, IGenericRepository<RevokedRefreshTokenModel> revokedRefreshTokenRepository, IGenericRepository<UserModel> userRepository, ILoggerFactory loggerFactory)
         {
-            _JWT = jwt;
-            _LDAP = ldap;
+            _jwtService = jwtService;
+            _ldapService = ldapService;
             _revokedRefreshTokenRepository = revokedRefreshTokenRepository;
             _userRepository = userRepository;
             _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
@@ -50,7 +50,7 @@ namespace API.Controllers
         {
             try
             {
-                _LDAP.Authenticate(userLogin.Username, userLogin.Password);
+                _ldapService.Authenticate(userLogin.Username, userLogin.Password);
             }
             catch (LDAPException.ConnectionError)
             {
@@ -61,13 +61,13 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            if (_LDAP.connection.Bound)
+            if (_ldapService.connection.Bound)
             {
-                ObjectGuidAndMemberOf ldapUser = _LDAP.SearchUser<ObjectGuidAndMemberOf>(userLogin.Username);
+                ObjectGuidAndMemberOf ldapUser = _ldapService.SearchUser<ObjectGuidAndMemberOf>(userLogin.Username);
 
                 if (ldapUser is null)
                 {
-                    _LDAP.Dispose();
+                    _ldapService.Dispose();
                     _logger.LogWarning(UserLogEvents.UserLogIn, "User {username} successfully logged in, yet the user query returned nothing.", userLogin.Username);
                     return Unauthorized();
                 }
@@ -78,7 +78,7 @@ namespace API.Controllers
                 
                 if (userRole.IsNullOrEmpty())
                 {
-                    _LDAP.Dispose();
+                    _ldapService.Dispose();
                     _logger.LogWarning(UserLogEvents.UserLogIn, "Could not determine the role for user {username}", userLogin.Username);
                     return Unauthorized();
                 }
@@ -104,7 +104,7 @@ namespace API.Controllers
                     Permissions = (int)permissions
                 };
 
-                _LDAP.Dispose();
+                _ldapService.Dispose();
 
                 Claim[] accessTokenClaims =
                 [
@@ -124,13 +124,13 @@ namespace API.Controllers
 
                 AuthenticationToken authenticationToken = new()
                 {
-                    Token = _JWT.GenerateAccessToken(accessTokenClaims),
+                    Token = _jwtService.GenerateAccessToken(accessTokenClaims),
                     TokenType = "bearer"
                 };
                 
                 RefreshToken refreshToken = new()
                 {
-                    Token = _JWT.GenerateRefreshToken(refreshTokenClaims),
+                    Token = _jwtService.GenerateRefreshToken(refreshTokenClaims),
                     TokenType = "bearer"
                 };
 
@@ -155,9 +155,11 @@ namespace API.Controllers
 
             string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
 
-            if (!_JWT.TokenIsValid(token, _JWT.GetRefreshTokenValidationParameters())) return Unauthorized();
+            if (!_jwtService.TokenIsValid(token, _jwtService.GetRefreshTokenValidationParameters())) return Unauthorized();
             
-            ClaimsPrincipal principal = _JWT.GetPrincipalFromExpiredToken(expiredToken);
+            ClaimsPrincipal principal = _jwtService.GetPrincipalFromExpiredToken(expiredToken);
+
+            if (User.FindFirstValue(JwtRegisteredClaimNames.Sub) != principal.FindFirstValue(JwtRegisteredClaimNames.Sub)) return Unauthorized();
 
             // TODO: Also check if we've revoked the token in the database
             byte[] result = SHA256.HashData(Encoding.UTF8.GetBytes(token));
@@ -167,7 +169,7 @@ namespace API.Controllers
 
             AuthenticationToken authenticationToken = new()
             {
-                Token = _JWT.GenerateAccessToken(principal.Claims),
+                Token = _jwtService.GenerateAccessToken(principal.Claims),
                 TokenType = "bearer"
             };
 
@@ -178,7 +180,7 @@ namespace API.Controllers
 
             RefreshToken refreshToken = new()
             {
-                Token = _JWT.GenerateRefreshToken(refreshTokenClaims),
+                Token = _jwtService.GenerateRefreshToken(refreshTokenClaims),
                 TokenType = "bearer"
             };
 
@@ -199,7 +201,7 @@ namespace API.Controllers
 
             string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
 
-            if (!_JWT.TokenIsValid(token, _JWT.GetRefreshTokenValidationParameters())) return Unauthorized();
+            if (!_jwtService.TokenIsValid(token, _jwtService.GetRefreshTokenValidationParameters())) return Unauthorized();
             
             byte[] result = SHA256.HashData(Encoding.UTF8.GetBytes(token));
             // TODO: Log the token in the database so we can revoke it
