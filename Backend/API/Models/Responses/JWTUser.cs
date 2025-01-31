@@ -1,5 +1,3 @@
-using Database.Enums;
-
 namespace API.Models.Responses;
 
 public record class JWTUser
