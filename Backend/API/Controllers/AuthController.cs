@@ -37,7 +37,7 @@ namespace API.Controllers
             _ldapService = ldapService;
             _revokedRefreshTokenRepository = revokedRefreshTokenRepository;
             _userRepository = userRepository;
-            _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
+            _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
             _logger = loggerFactory.CreateLogger(GetType());
         }
 

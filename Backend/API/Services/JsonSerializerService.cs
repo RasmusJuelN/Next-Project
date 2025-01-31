@@ -3,12 +3,12 @@ using System.Text.Json.Serialization;
 
 namespace API.Services;
 
-public class Serializer
+public class JsonSerializerService
 {
     private readonly JsonSerializerOptions s_writeOptions;
     private readonly JsonSerializerOptions s_readOptions;
 
-    public Serializer() 
+    public JsonSerializerService() 
     {
         s_writeOptions = new()
         {

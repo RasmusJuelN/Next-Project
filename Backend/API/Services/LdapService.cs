@@ -14,7 +14,7 @@ public class LdapService
 
     public LdapService(IConfiguration configuration)
     {
-        _LDAPSettings = new SettingsBinder(configuration).Bind<LDAPSettings>();
+        _LDAPSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
         LdapSearchConstraints constraints = connection.SearchConstraints;
         constraints.ReferralFollowing = true;
         connection.Constraints = constraints;

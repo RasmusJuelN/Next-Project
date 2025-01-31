@@ -7,7 +7,7 @@ public class SettingsHelper(string settingsFile)
 {
     private readonly string _settingsFile = settingsFile;
     private DefaultSettings _defaultSettings = new();
-    private Serializer _serializer = new();
+    private JsonSerializerService _serializer = new();
 
     public bool SettingsExists()
     {

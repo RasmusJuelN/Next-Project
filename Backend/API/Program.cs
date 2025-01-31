@@ -32,13 +32,13 @@ builder.Logging.AddDBLogger(configure => builder.Configuration.GetSection("Loggi
 
 // TODO: Check if config version is lower than default, and if it is, "upgrade" the config with any new settings
 
-DatabaseSettings databaseSettings = new SettingsBinder(builder.Configuration).Bind<DatabaseSettings>();
-JWTSettings jWTSettings = new SettingsBinder(builder.Configuration).Bind<JWTSettings>();
+DatabaseSettings databaseSettings = ConfigurationBinderService.Bind<DatabaseSettings>(builder.Configuration);
+JWTSettings jWTSettings = ConfigurationBinderService.Bind<JWTSettings>(builder.Configuration);
 
 // Add services to the container.
 
 builder.Services.AddScoped<LdapService>();
-builder.Services.AddScoped<Serializer>();
+builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

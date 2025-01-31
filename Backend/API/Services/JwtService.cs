@@ -8,7 +8,7 @@ namespace API.Services;
 
 public class JwtService(IConfiguration configuration)
 {
-    private readonly JWTSettings _JWTSettings = new SettingsBinder(configuration).Bind<JWTSettings>();
+    private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
         JwtSecurityToken jwtSecurityToken = new(

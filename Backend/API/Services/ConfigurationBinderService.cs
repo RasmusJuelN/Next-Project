@@ -2,10 +2,8 @@ using Settings.Models;
 
 namespace API.Services;
 
-public class SettingsBinder(IConfiguration configuration)
+public static class ConfigurationBinderService
 {
-    private readonly IConfiguration _configuration = configuration;
-    
     /// <summary>
     /// Binds a configuration section to an instance of the specified type.
     /// <para></para>
@@ -15,7 +13,7 @@ public class SettingsBinder(IConfiguration configuration)
     /// <typeparam name="T">The type of the configuration section to bind. Must inherit from <see cref="Base"/> and have a parameterless constructor.</typeparam>
     /// <returns>An instance of the specified type with the configuration values bound to it.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the configuration section does not have a key.</exception>
-    public T Bind<T>() where T : Base, new()
+    public static T Bind<T>(IConfiguration configuration) where T : Base, new()
     {
         T configSection = new();
         
@@ -26,11 +24,11 @@ public class SettingsBinder(IConfiguration configuration)
 
         if (configSection.Key == string.Empty)
         {
-            _configuration.Bind(configSection);
+            configuration.Bind(configSection);
         }
         else
         {
-            _configuration.GetSection(configSection.Key).Bind(configSection);
+            configuration.GetSection(configSection.Key).Bind(configSection);
         }
         
         return configSection;
