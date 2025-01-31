@@ -70,7 +70,7 @@ public class LdapService
 
 
     /// <summary>
-    /// Searches the LDAP directory using the specified search query and maps the results to a list of objects of type <typeparamref name="T"/>.
+    /// Searches the LDAP directory using the specified search query and maps the results to a list of objects of type <typeparamref name="TLdapResult"/>.
     /// <para></para>
     /// IMPORTANT: Please ensure any special characters that may need to be used in the query itself are properly escaped.
     /// They can either be escaped manually with <c>\\</c>, or by running the value you're searching for through <see cref="EscapeLDAPSearchFilter"/>
@@ -79,31 +79,31 @@ public class LdapService
     /// Negation (<c>!</c>), and Greater/Less than (<c>&gt;</c>|<c>&lt;</c>).
     /// <para></para>
     /// Examples:
-    /// <para></para>
+    /// <br></br>
     /// <c>(|(userPrincipalName=Nick)(sAMAccountName=Nick))</c> = userPrincipalName OR sAMAccountName is Nick.
-    /// <para></para>
+    /// <br></br>
     /// <c>(!(userPrincipalName=Nick))</c> = userPrincipalName is NOT Nick.
-    /// <para></para>
+    /// <br></br>
     /// <c>(userPrincipalName=*)</c> = Any object which has a value in userPrincipalName. Please don't actually do that :(
-    /// <para></para>
+    /// <br></br>
     /// <c>(userPrincipalName=*Nick*)</c> = Any object where "Nick" is in the value in userPrincipalName.
     /// <para></para>
     /// https://www.ldapexplorer.com/en/manual/109010000-ldap-filter-syntax.htm can be refered to for more insight.
     /// </summary>
-    /// <typeparam name="T">The type of objects to map the LDAP search results to. Must have a parameterless constructor.</typeparam>
+    /// <typeparam name="TLdapResult">The type of objects to map the LDAP search results to. Must have a parameterless constructor.</typeparam>
     /// <param name="searchQuery">The LDAP search query.</param>
     /// <param name="baseDN">The base distinguished name (DN) to search from.</param>
     /// <param name="scope">The scope of the search. Defaults to <see cref="LdapConnection.ScopeSub"/>.</param>
     /// <param name="attributes">The attributes to retrieve. Defaults to all attributes if not specified.</param>
-    /// <returns>A list of objects of type <typeparamref name="T"/> mapped from the LDAP search results.</returns>
+    /// <returns>A list of objects of type <typeparamref name="TLdapResult"/> mapped from the LDAP search results.</returns>
     /// <exception cref="LDAPException.NotBound">Thrown if the LDAP connection is not bound.</exception>
-    public List<T> SearchLDAP<T>(string searchQuery, string baseDN, int scope = LdapConnection.ScopeSub) where T : new()
+    public List<TLdapResult> SearchLDAP<TLdapResult>(string searchQuery, string baseDN, int scope = LdapConnection.ScopeSub) where TLdapResult : new()
     {
         if (!connection.Bound) throw new LDAPException.NotBound(
             "A bound connection is required. Please first use the authorization method."
             );
         
-        string[] attributes = GetQueryAttributes<T>();
+        string[] attributes = GetQueryAttributes<TLdapResult>();
 
         ILdapSearchResults searchResults = connection.Search(
             baseDN,
@@ -113,25 +113,25 @@ public class LdapService
             false
         );
 
-        List<T> mappedLdapResults = [];
+        List<TLdapResult> mappedLdapResults = [];
 
         while (searchResults.HasMore())
         {
             LdapEntry entry = searchResults.Next();
 
-            mappedLdapResults.Add(MapLdapEntry<T>(entry));
+            mappedLdapResults.Add(MapLdapEntry<TLdapResult>(entry));
         }
         
         return mappedLdapResults;
     }
 
     /// <summary>
-    /// Searches the LDAP directory for a user with the specified username and maps the results to an object of type <typeparamref name="T"/>.
+    /// Searches the LDAP directory for a user with the specified username and maps the results to an object of type <typeparamref name="TLdapUser"/>.
     /// </summary>
-    /// <typeparam name="T">The type of object to map the LDAP search results to. Must have a parameterless constructor.</typeparam>
-    /// <returns>An object of type <typeparamref name="T"/> mapped from the LDAP search results.</returns>
+    /// <typeparam name="TLdapUser">The type of object to map the LDAP search results to. Must have a parameterless constructor.</typeparam>
+    /// <returns>An object of type <typeparamref name="TLdapUser"/> mapped from the LDAP search results.</returns>
     /// <exception cref="LDAPException.NotBound">Thrown if the LDAP connection is not bound.</exception>
-    public T SearchUser<T>(string username) where T : new()
+    public TLdapUser SearchUser<TLdapUser>(string username) where TLdapUser : new()
     {
         string domain = _LDAPSettings.FQDN.Split(".", 2).Last();
         
@@ -142,7 +142,7 @@ public class LdapService
         
         string searchFilter = $"(|(userPrincipalName={userPrincipalName})(sAMAccountName={sAMAccountName}))";
 
-        T userSearch = SearchLDAP<T>(searchFilter, _LDAPSettings.BaseDN, LdapConnection.ScopeSub).First();
+        TLdapUser userSearch = SearchLDAP<TLdapUser>(searchFilter, _LDAPSettings.BaseDN, LdapConnection.ScopeSub).First();
 
         return userSearch;
     }
@@ -178,15 +178,15 @@ public class LdapService
     }
 
     /// <summary>
-    /// Retrieves the LDAP attributes to query based on the properties of type <typeparamref name="T"/> that have the <see cref="LDAPMapping"/> attribute.
+    /// Retrieves the LDAP attributes to query based on the properties of type <typeparamref name="LdapMappedEntity"/> that have the <see cref="LDAPMapping"/> attribute.
     /// </summary>
-    /// <typeparam name="T">The type to retrieve the LDAP attributes for.</typeparam>
+    /// <typeparam name="LdapMappedEntity">The type to retrieve the LDAP attributes for.</typeparam>
     /// <returns>An array of LDAP attributes to query.</returns>
-    private static string[] GetQueryAttributes<T>()
+    private static string[] GetQueryAttributes<LdapMappedEntity>()
     {
         List<string> queryAttributes = [];
 
-        foreach (PropertyInfo prop in typeof(T).GetProperties())
+        foreach (PropertyInfo prop in typeof(LdapMappedEntity).GetProperties())
         {
             foreach (LDAPMapping attr in prop.GetCustomAttributes<LDAPMapping>())
             {
@@ -198,14 +198,14 @@ public class LdapService
     }
 
     /// <summary>
-    /// Maps LDAP entries to objects of type <typeparamref name="T"/>.
+    /// Maps LDAP entries to objects of type <typeparamref name="LdapMappedEntity"/>.
     /// </summary>
-    /// <typeparam name="T">The type to which the LDAP entry will be mapped. Must have a parameterless constructor.</typeparam>
+    /// <typeparam name="LdapMappedEntity">The type to which the LDAP entry will be mapped. Must have a parameterless constructor.</typeparam>
     /// <param name="entry">The LDAP entry to be mapped.</param>
-    /// <returns>An instance of <typeparamref name="T"/> with properties set based on the LDAP entry attributes.</returns>
-    private static T MapLdapEntry<T>(LdapEntry entry) where T : new()
+    /// <returns>An instance of <typeparamref name="LdapMappedEntity"/> with properties set based on the LDAP entry attributes.</returns>
+    private static LdapMappedEntity MapLdapEntry<LdapMappedEntity>(LdapEntry entry) where LdapMappedEntity : new()
     {
-        T mappedLdapResult = new();
+        LdapMappedEntity mappedLdapResult = new();
 
         foreach (PropertyInfo prop in mappedLdapResult.GetType().GetProperties())
         {
