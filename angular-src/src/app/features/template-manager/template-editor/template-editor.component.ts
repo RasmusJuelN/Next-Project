@@ -27,27 +27,36 @@ export class TemplateEditorComponent {
     this.cancelEdit.emit();
   }
   
+  addQuestion() {
+    const newQuestion: Question = {
+      id: Date.now(),
+      title: 'New Question',
+      customAnswer: true,
+      options: []
+    };
   
-// Select a question for editing
-editQuestion(question: Question): void {
-  this.selectedQuestion = { ...question }; // Create a copy to avoid modifying the original directly
-}
-
-// Save the edited question
-onSaveQuestion(updatedQuestion: Question): void {
-  // Find the index of the question in the template
-  const questionIndex = this.template.questions.findIndex(q => q.id === updatedQuestion.id);
-
-  if (questionIndex > -1) {
-    // Update the question in the template's questions array
-    this.template.questions[questionIndex] = { ...updatedQuestion };
+    this.template.questions.push(newQuestion);
+  }
+  // Select a question for editing
+  editQuestion(question: Question): void {
+    this.selectedQuestion = { ...question }; // Create a copy to avoid modifying the original directly
   }
 
-  this.selectedQuestion = null; // Close the editor
-}
+  // Save the edited question
+  onSaveQuestion(updatedQuestion: Question): void {
+    // Find the index of the question in the template
+    const questionIndex = this.template.questions.findIndex(q => q.id === updatedQuestion.id);
 
-// Cancel editing
-onCancelEdit(): void {
-  this.selectedQuestion = null; // Close the editor
-}
+    if (questionIndex > -1) {
+      // Update the question in the template's questions array
+      this.template.questions[questionIndex] = { ...updatedQuestion };
+    }
+
+    this.selectedQuestion = null; // Close the editor
+  }
+
+  // Cancel editing
+  onCancelEdit(): void {
+    this.selectedQuestion = null; // Close the editor
+  }
 }

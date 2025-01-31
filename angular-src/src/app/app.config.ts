@@ -13,6 +13,8 @@ import { AnswerService } from './features/questionnaire/services/answer.service'
 import { MockAnswerService } from './features/questionnaire/services/mock.answer.service';
 import { TemplateService } from './features/template-manager/services/template.service';
 import { MockTemplateService } from './features/template-manager/services/mock-template.service';
+import { ActiveService } from './features/active-questionnaire-manager/services/active.service';
+import { MockActiveService } from './features/active-questionnaire-manager/services/mock.active.service';
 
 
 export const appConfig: ApplicationConfig = {
@@ -34,6 +36,10 @@ export const appConfig: ApplicationConfig = {
 {
   provide: TemplateService,
   useClass: environment.useMock ? MockTemplateService : TemplateService
+},
+{
+  provide: ActiveService,
+  useClass: environment.useMock ? MockActiveService : ActiveService,
 }
 ]
 };

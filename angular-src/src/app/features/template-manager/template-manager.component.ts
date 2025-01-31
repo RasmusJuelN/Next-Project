@@ -5,11 +5,12 @@ import { TemplateService } from './services/template.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-template-manager',
   standalone: true,
-  imports: [TemplateEditorComponent, FormsModule, CommonModule],
+  imports: [TemplateEditorComponent, FormsModule, CommonModule, PaginationComponent],
   templateUrl: './template-manager.component.html',
   styleUrls: ['./template-manager.component.css'],
 })
@@ -25,6 +26,10 @@ export class TemplateManagerComponent {
   hasNextPage: boolean = false;
   hasPreviousPage: boolean = false;
   selectedTemplate: Template | null = null;
+
+  pageSizeOptions: number[] = [5, 10, 15, 20];
+
+
   private searchSubject = new Subject<string>();
 
   ngOnInit(): void {
@@ -46,11 +51,51 @@ export class TemplateManagerComponent {
   }
 
   get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    const maxVisiblePages = 5; // Adjust as needed
+    const pages: number[] = [];
+  
+    if (this.totalPages <= maxVisiblePages) {
+      // If total pages are small, show all
+      return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    }
+  
+    const startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+    const endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+  
+    if (startPage > 1) {
+      pages.push(1); // Always show first page
+      if (startPage > 2) {
+        pages.push(-1); // Ellipsis "..."
+      }
+    }
+  
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+  
+    if (endPage < this.totalPages) {
+      if (endPage < this.totalPages - 1) {
+        pages.push(-1); // Ellipsis "..."
+      }
+      pages.push(this.totalPages); // Always show last page
+    }
+  
+    return pages;
   }
+  
 
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
+  }
+
+  // Handle changing page size
+  onPageSizeChange(newSize: string): void {
+    this.pageSize = parseInt(newSize, 10);
+    this.currentPage = 1; // Reset to first page when changing size
+    this.fetchTemplates();
+  }
+  isSelectedPageSize(size: number): boolean {
+    return size === this.pageSize;
   }
 
   onSearchTypeChange(type: string): void {
@@ -66,6 +111,8 @@ export class TemplateManagerComponent {
         next: (response) => {
           this.templates = response.items;
           this.totalItems = response.totalItems;
+          
+          // Calculate pagination state
           this.hasNextPage = this.currentPage < this.totalPages;
           this.hasPreviousPage = this.currentPage > 1;
         },
@@ -110,22 +157,26 @@ export class TemplateManagerComponent {
       this.fetchTemplates();
     }
   }
-
-  jumpToPage(page: string): void {
-    const pageNumber = +page;
-    if (pageNumber !== this.currentPage && pageNumber > 0 && pageNumber <= this.totalPages) {
-      this.currentPage = pageNumber;
-      this.fetchTemplates();
-    }
-  }
-
+  
   nextPage(): void {
     if (this.hasNextPage) {
       this.currentPage++;
       this.fetchTemplates();
     }
   }
-
+  
+  jumpToPage(page: number): void {
+    if (page !== this.currentPage && page > 0 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.fetchTemplates();
+    }
+  }
+  
+  onPageChange(newPage: number): void {
+    this.currentPage = newPage;
+    this.fetchTemplates();
+  }
+  
   selectTemplate(templateId: string): void {
     const template = this.templates.find(t => t.id === templateId);
     if (template) {

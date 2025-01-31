@@ -1,9 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { PaginationResponse, Template } from '../models/template.model';
+
 import { ApiService } from '../../../core/services/api.service';
 import { environment } from '../../../../environments/environment.development';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
+import { Template } from '../models/template.model';
+import { PaginationResponse } from '../../../shared/models/Pagination.model';
 
 @Injectable({
   providedIn: 'root',

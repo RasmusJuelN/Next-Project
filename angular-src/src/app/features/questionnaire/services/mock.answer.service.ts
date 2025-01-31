@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Questionnaire } from '../models/answer.model';
 import { Observable, of } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MockAnswerService {
+  private authService = inject(AuthService);
   // Mock question templates
   private mockTemplates: Questionnaire[] = [
     {
@@ -115,29 +117,42 @@ export class MockAnswerService {
     }
   ];
 
-  // Active questionnaire instances
-  private activeInstances: { id: string; templateId: string }[] = [
-    { id: 'active1', templateId: 'questionnaire1' },
-    { id: 'active2', templateId: 'questionnaire2' },
+  // Active questionnaire instances with allowed users
+  private activeInstances: { id: string; templateId: string; allowedUsers: string[] }[] = [
+    { id: 'active1', templateId: 'questionnaire1', allowedUsers: ['mockId12345', 'user2', 'user3'] },
+    { id: 'active2', templateId: 'questionnaire2', allowedUsers: ['user4', 'user5', 'user6'] },
   ];
 
-  // Get all mock templates
-  getTemplates(): Observable<Questionnaire[]> {
-    return of(this.mockTemplates);
+// Get active questionnaire by instance ID and check if user is allowed
+getActiveQuestionnaireById(instanceId: string): Observable<Questionnaire | undefined> {
+  const userId = this.authService.getUserId();
+  if (!userId) {
+    console.error('No user logged in.');
+    return of(undefined);
   }
 
-  // Get a specific template by ID as an Observable
-  getTemplateById(templateId: string): Observable<Questionnaire | undefined> {
+  const instance = this.activeInstances.find(inst => inst.id === instanceId);
+  if (!instance) {
+    console.error(`Instance ${instanceId} not found.`);
+    return of(undefined);
+  }
+
+  if (!this.isUserAllowed(instance, userId)) {
+    console.error(`User ${userId} is not allowed to access questionnaire ${instanceId}`);
+    return of(undefined);
+  }
+
+  return this.getTemplateById(instance.templateId);
+}
+
+  // Helper function to check if a user is allowed
+  private isUserAllowed(instance: { allowedUsers: string[] }, userId: string): boolean {
+    return instance.allowedUsers.includes(userId);
+  }
+
+  // Get a specific template by ID
+  private getTemplateById(templateId: string): Observable<Questionnaire | undefined> {
     const template = this.mockTemplates.find(template => template.id === templateId);
     return of(template);
-  }
-
-  // Get active questionnaire by instance ID
-  getActiveQuestionnaireById(instanceId: string): Observable<Questionnaire | undefined> {
-    const instance = this.activeInstances.find(inst => inst.id === instanceId);
-    if (instance) {
-      return this.getTemplateById(instance.templateId);
-    }
-    return of(undefined);
   }
 }

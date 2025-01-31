@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { PaginationResponse, Question, Template } from '../models/template.model';
+import { Question, Template } from '../models/template.model';
 import { Observable, of } from 'rxjs';
+import { PaginationResponse } from '../../../shared/models/Pagination.model';
 
 @Injectable({
   providedIn: 'root'

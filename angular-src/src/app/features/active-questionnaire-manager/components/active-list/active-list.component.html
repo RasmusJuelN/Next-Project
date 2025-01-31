@@ -1,0 +1,116 @@
+<div class="flex flex-col max-w-4xl w-full bg-white shadow-md rounded-lg p-6 sm:p-8">
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">Manage Active Questionnaires</h2>
+
+  <!-- Search & Actions -->
+  <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-4 items-center w-full">
+    <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded w-full sm:w-auto">
+      Assign New Questionnaire
+    </button>
+
+    <!-- Search Inputs -->
+    <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
+      <div class="flex flex-col w-full sm:w-auto">
+        <label class="text-gray-700 text-sm">Search by Student:</label>
+        <div class="flex items-center gap-2">
+          <select [(ngModel)]="searchStudentType" (change)="onSearchStudentTypeChange(searchStudentType.value)"
+          #searchStudentType
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+            <option value="fullName">Full Name</option>
+            <option value="userName">Username</option>
+            <option value="both" selected>Both</option>
+          </select>
+          <input type="text" placeholder="Type here..." [(ngModel)]="searchStudent"
+            (ngModelChange)="onSearchStudentChange($event)"
+            class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" />
+        </div>
+      </div>
+
+      <div class="flex flex-col w-full sm:w-auto">
+        <label class="text-gray-700 text-sm">Search by Teacher:</label>
+        <div class="flex items-center gap-2">
+          <select [(ngModel)]="searchTeacherType" (change)="onSearchTeacherTypeChange(searchTeacherType.value)"
+            #searchTeacherType
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+            <option value="fullName">Full Name</option>
+            <option value="userName">Username</option>
+            <option value="both" selected>Both</option>
+          </select>
+          <input type="text" placeholder="Type here..." [(ngModel)]="searchTeacher"
+            (ngModelChange)="onSearchTeacherChange($event)"
+            class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Size Selection -->
+    <div class="flex items-center gap-2">
+      <label class="text-gray-700 font-medium">Items per page:</label>
+      <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)"
+        class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[70px]">
+        <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Active Questionnaires List -->
+  <ul class="space-y-6 mt-6">
+    <li *ngFor="let questionnaire of activeQuestionnaires"
+      class="p-5 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 border border-gray-200">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- ID, Template & Created At - Now in one row -->
+        <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_3fr_2fr] gap-4">
+          <!-- Questionnaire ID -->
+          <div class="bg-white p-4 rounded-lg shadow-sm border">
+            <strong class="text-gray-800">Link ID:</strong>
+            <p class="text-sm text-gray-600">{{ questionnaire.id }}</p>
+          </div>
+
+          <!-- Template Name -->
+          <div class="bg-white p-4 rounded-lg shadow-sm border">
+            <strong class="text-gray-800">Template:</strong>
+            <p class="text-sm text-gray-600">{{ questionnaire.templateName }}</p>
+          </div>
+
+          <!-- Created At -->
+          <div class="bg-white p-4 rounded-lg shadow-sm border">
+            <strong class="text-gray-800">Created At:</strong>
+            <p class="text-sm text-gray-600">{{ questionnaire.createdAt | date:'short' }}</p>
+          </div>
+        </div>
+        <!-- Student & Teacher Info -->
+        <div class="bg-white p-4 rounded-lg shadow-sm border">
+          <strong class="text-gray-800">Student:</strong>
+          <p class="text-sm text-gray-600">{{ questionnaire.student.user.fullName }} ({{ questionnaire.student.user.userName }})</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm border">
+          <strong class="text-gray-800">Teacher:</strong>
+          <p class="text-sm text-gray-600">{{ questionnaire.teacher.user.fullName }} ({{ questionnaire.teacher.user.userName }})</p>
+        </div>
+
+        <!-- Completion Status & Answered When -->
+        <div class="bg-white p-4 rounded-lg shadow-sm border">
+          <strong class="text-gray-800">Student Completed:</strong>
+          <p class="text-sm font-semibold"
+            [ngClass]="{'text-red-500': !questionnaire.student.answered, 'text-green-500': questionnaire.student.answered}">
+            {{ questionnaire.student.answered ? "Completed" : "Not completed" }}
+          </p>
+          <p *ngIf="questionnaire.student.answeredWhen" class="text-xs text-gray-500">
+            {{ questionnaire.student.answeredWhen | date:'short' }}
+          </p>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm border">
+          <strong class="text-gray-800">Teacher Completed:</strong>
+          <p class="text-sm font-semibold"
+            [ngClass]="{'text-red-500': !questionnaire.teacher.answered, 'text-green-500': questionnaire.teacher.answered}">
+            {{ questionnaire.teacher.answered ? "Completed" : "Not completed" }}
+          </p>
+          <p *ngIf="questionnaire.teacher.answeredWhen" class="text-xs text-gray-500">
+            {{ questionnaire.teacher.answeredWhen | date:'short' }}
+          </p>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
