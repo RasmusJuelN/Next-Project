@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using API.Enums;
+using API.Models.Responses;
 using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
 
@@ -62,6 +64,26 @@ public class JwtService(IConfiguration configuration)
         {
             return false;
         }
+    }
+
+    public List<Claim> GetAccessTokenClaims(JWTUser user)
+    {
+        return [
+            new(JwtRegisteredClaimNames.Sub, user.Guid.ToString()),
+            new(JwtRegisteredClaimNames.UniqueName, user.Username),
+            new(JwtRegisteredClaimNames.Name, user.Name),
+            new(JWTClaims.role, user.Role),
+            new(JWTClaims.permissions, user.Permissions.ToString()),
+            new(JwtRegisteredClaimNames.Iss, _JWTSettings.Issuer),
+            new(JwtRegisteredClaimNames.Aud, _JWTSettings.Audience)
+        ];
+    }
+
+    public List<Claim> GetRefreshTokenClaims(string userId)
+    {
+        return [
+            new(JwtRegisteredClaimNames.Sub, userId),
+        ];
     }
 
     public static JwtSecurityTokenHandler GetTokenHandler()
