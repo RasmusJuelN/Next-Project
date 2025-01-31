@@ -10,6 +10,7 @@ using Settings.Default;
 using Database.Repository;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 const string settingsFile = "config.json";
 
@@ -70,7 +71,9 @@ builder.Services.Configure<RouteOptions>(o => {
 // Repositories
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(SQLGenericRepository<>));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>{
+    options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
