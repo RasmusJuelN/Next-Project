@@ -115,7 +115,8 @@ public class Context : DbContext
             e.Property(a => a.TeacherResponse)
             .IsRequired(false);
             e.HasOne(a => a.ActiveQuestionnaire)
-            .WithMany(a => a.Answers);
+            .WithMany(a => a.Answers)
+            .OnDelete(DeleteBehavior.NoAction);
             e.HasOne(a => a.CustomStudentResponse)
             .WithOne()
             .HasForeignKey<ActiveQuestionnaireResponseModel>(a => a.CustomStudentResponseId)

@@ -2,10 +2,10 @@ namespace Database.Models;
 
 public class ActiveQuestionnaireModel
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public required string Title { get; set; }
-    public required int StudentId { get; set; }
-    public required int TeacherId { get; set; }
+    public required Guid StudentId { get; set; }
+    public required Guid TeacherId { get; set; }
     public required Guid QuestionnaireTemplateId { get; set; }
     public DateTime ActivatedAt { get; set; }
     public DateTime? StudentCompletedAt { get; set; }

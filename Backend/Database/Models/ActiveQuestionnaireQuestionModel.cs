@@ -4,7 +4,7 @@ public class ActiveQuestionnaireQuestionModel
 {
     public int Id { get; set; }
     public required string Prompt { get; set; }
-    public required int ActiveQuestionnaireId { get; set; }
+    public required Guid ActiveQuestionnaireId { get; set; }
 
     // External navigational properties and references
     public required ActiveQuestionnaireModel ActiveQuestionnaire { get; set; }
