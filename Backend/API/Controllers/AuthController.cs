@@ -1,14 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using API.Enums;
 using API.Exceptions;
 using API.Models.LDAP;
 using API.Models.Requests;
 using API.Models.Responses;
 using API.Services;
+using API.Utils;
 using Database.Enums;
 using Database.Models;
 using Database.Repository;
@@ -31,7 +29,12 @@ namespace API.Controllers
         private readonly IGenericRepository<UserModel> _userRepository;
         private readonly ILogger _logger;
 
-        public AuthController(JwtService jwtService, LdapService ldapService, IConfiguration configuration, IGenericRepository<RevokedRefreshTokenModel> revokedRefreshTokenRepository, IGenericRepository<UserModel> userRepository, ILoggerFactory loggerFactory)
+        public AuthController(
+            JwtService jwtService,
+            LdapService ldapService,
+            IConfiguration configuration,
+            IGenericRepository<RevokedRefreshTokenModel> revokedRefreshTokenRepository,
+            IGenericRepository<UserModel> userRepository, ILoggerFactory loggerFactory)
         {
             _jwtService = jwtService;
             _ldapService = ldapService;
@@ -43,7 +46,7 @@ namespace API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        [ProducesResponseType(typeof(Auth), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthenticationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login([FromForm] UserLogin userLogin)
@@ -106,47 +109,26 @@ namespace API.Controllers
 
                 _ldapService.Dispose();
 
-                Claim[] accessTokenClaims =
-                [
-                    new Claim(JwtRegisteredClaimNames.Sub, jWTUser.Guid.ToString()),
-                    new Claim(JwtRegisteredClaimNames.UniqueName, jWTUser.Username),
-                    new Claim(JwtRegisteredClaimNames.Name, jWTUser.Name),
-                    new Claim(JWTClaims.role, jWTUser.Role),
-                    new Claim(JWTClaims.permissions, jWTUser.Permissions.ToString()),
-                    new Claim(JwtRegisteredClaimNames.Iss, _JWTSettings.Issuer),
-                    new Claim(JwtRegisteredClaimNames.Aud, _JWTSettings.Audience),
-                ];
+                List<Claim> accessTokenClaims = _jwtService.GetAccessTokenClaims(jWTUser);
 
-                Claim[] refreshTokenClaims =
-                [
-                    new Claim(JwtRegisteredClaimNames.Sub, jWTUser.Guid.ToString()),
-                ];
+                List<Claim> refreshTokenClaims = _jwtService.GetRefreshTokenClaims(jWTUser.Guid.ToString());
 
-                AuthenticationToken authenticationToken = new()
+                AuthenticationResponse response = new()
                 {
-                    Token = _jwtService.GenerateAccessToken(accessTokenClaims),
-                    TokenType = "bearer"
-                };
-                
-                RefreshToken refreshToken = new()
-                {
-                    Token = _jwtService.GenerateRefreshToken(refreshTokenClaims),
-                    TokenType = "bearer"
+                    AuthToken = _jwtService.GenerateAccessToken(accessTokenClaims),
+                    RefreshToken = _jwtService.GenerateRefreshToken(refreshTokenClaims)
                 };
 
                 _logger.LogInformation(UserLogEvents.UserLogIn, "Successfull login from {username}.", userLogin.Username);
 
-                return Ok(new Auth{
-                    AuthToken = authenticationToken,
-                    RefreshToken = refreshToken
-                });
+                return Ok(response);
             }
             else return Unauthorized();
         }
         
         [Authorize(AuthenticationSchemes = "RefreshToken")]
         [HttpPost("refresh")]
-        [ProducesResponseType(typeof(Auth), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthenticationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Refresh([FromBody] string expiredToken)
@@ -161,33 +143,19 @@ namespace API.Controllers
 
             if (User.FindFirstValue(JwtRegisteredClaimNames.Sub) != principal.FindFirstValue(JwtRegisteredClaimNames.Sub)) return Unauthorized();
 
-            // TODO: Also check if we've revoked the token in the database
-            byte[] result = SHA256.HashData(Encoding.UTF8.GetBytes(token));
-            string stringToken = Convert.ToBase64String(result);
+            byte[] result = Crypto.ToSha256(token);
             IEnumerable<RevokedRefreshTokenModel> tokens = await _revokedRefreshTokenRepository.GetAsync(q => q.Token == result);
             if (principal is null || tokens.Any()) return Unauthorized();
 
-            AuthenticationToken authenticationToken = new()
+            List<Claim> refreshTokenClaims = _jwtService.GetRefreshTokenClaims(principal.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+
+            AuthenticationResponse response = new()
             {
-                Token = _jwtService.GenerateAccessToken(principal.Claims),
-                TokenType = "bearer"
+                AuthToken = _jwtService.GenerateAccessToken(principal.Claims),
+                RefreshToken = _jwtService.GenerateRefreshToken(refreshTokenClaims)
             };
 
-            Claim[] refreshTokenClaims =
-            [
-                new Claim(JwtRegisteredClaimNames.Sub, principal.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? throw new ArgumentNullException(nameof(JwtRegisteredClaimNames.Sub))),
-            ];
-
-            RefreshToken refreshToken = new()
-            {
-                Token = _jwtService.GenerateRefreshToken(refreshTokenClaims),
-                TokenType = "bearer"
-            };
-
-            return Ok(new Auth{
-                AuthToken = authenticationToken,
-                RefreshToken = refreshToken
-            });
+            return Ok(response);
         }
 
         [Authorize(AuthenticationSchemes = "RefreshToken")]
@@ -203,8 +171,8 @@ namespace API.Controllers
 
             if (!_jwtService.TokenIsValid(token, _jwtService.GetRefreshTokenValidationParameters())) return Unauthorized();
             
-            byte[] result = SHA256.HashData(Encoding.UTF8.GetBytes(token));
-            // TODO: Log the token in the database so we can revoke it
+            byte[] result = Crypto.ToSha256(token);
+            
             RevokedRefreshTokenModel revokedRefreshToken = new()
             {
                 Token = result,

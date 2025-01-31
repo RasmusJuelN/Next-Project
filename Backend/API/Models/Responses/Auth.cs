@@ -1,7 +1,7 @@
 namespace API.Models.Responses;
 
-public record class Auth
+public record class AuthenticationResponse
 {
-    public required AuthenticationToken AuthToken { get; set; }
-    public required RefreshToken RefreshToken { get; set; }
+    public required string AuthToken { get; set; }
+    public required string RefreshToken { get; set; }
 }
