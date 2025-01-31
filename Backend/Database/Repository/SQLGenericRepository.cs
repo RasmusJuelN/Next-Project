@@ -20,6 +20,18 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         return await query.ToListAsync();
     }
 
+    public async Task<TEntity?> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
+    {
+        IQueryable<TEntity> query = _context.Set<TEntity>().Where(predicate);
+
+        if (queryModifier is not null)
+        {
+            query = queryModifier(query);
+        }
+
+        return await query.SingleOrDefaultAsync();
+    }
+
     public async Task<List<TEntity>> GetAllAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
     {
         IQueryable<TEntity> query = _context.Set<TEntity>();
