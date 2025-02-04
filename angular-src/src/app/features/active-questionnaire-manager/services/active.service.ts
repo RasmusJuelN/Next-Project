@@ -5,6 +5,8 @@ import { QuestionnaireSession } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
+import { User } from '../../../shared/models/user.model';
+import { Template } from '../../template-manager/models/template.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,5 +34,36 @@ export class ActiveService {
       .set('searchTeacherType', searchTeacherType);
 
     return this.apiService.get<PaginationResponse<QuestionnaireSession>>(this.apiUrl, params);
+  }
+
+  createActiveQuestionnaire(data: { studentId: string; teacherId: string; templateId: string }): Observable<QuestionnaireSession> {
+    return this.apiService.post<QuestionnaireSession>(this.apiUrl, data);
+  }
+
+  getActiveQuestionnaireById(id: string): Observable<QuestionnaireSession> {
+    return this.apiService.get<QuestionnaireSession>(`${this.apiUrl}/${id}`);
+  }
+
+  updateActiveQuestionnaire(id: string, data: Partial<QuestionnaireSession>): Observable<QuestionnaireSession> {
+    return this.apiService.put<QuestionnaireSession>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteActiveQuestionnaire(id: string): Observable<void> {
+    return this.apiService.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  searchUsers(term: string, role: 'student' | 'teacher', page: number): Observable<PaginationResponse<User>> {
+    let params = new HttpParams()
+      .set('term', term)
+      .set('role', role)
+      .set('page', page.toString());
+    return this.apiService.get<PaginationResponse<User>>(`${environment.apiUrl}/users/search`, params);
+  }
+
+  searchTemplates(term: string, page: number): Observable<PaginationResponse<Template>> {
+    let params = new HttpParams()
+      .set('term', term)
+      .set('page', page.toString());
+    return this.apiService.get<PaginationResponse<Template>>(`${environment.apiUrl}/templates/search`, params);
   }
 }

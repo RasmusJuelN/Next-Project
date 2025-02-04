@@ -1,20 +1,27 @@
-<div class="flex flex-col max-w-4xl w-full bg-white shadow-md rounded-lg p-6 sm:p-8">
-  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">Manage Active Questionnaires</h2>
+<div class="flex flex-col bg-white shadow-md rounded-lg p-6 sm:p-8 sm:min-w-[600px]">
+  <!-- Always Visible Search & Actions -->
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
+    Manage Active Questionnaires
+  </h2>
 
-  <!-- Search & Actions -->
-  <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-4 items-center w-full">
-    <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded w-full sm:w-auto">
+  <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 w-full">
+    <!-- Assign Button -->
+    <button 
+      (click)="onCreateNewQuestionnaire()"
+      class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded w-full sm:w-auto">
       Assign New Questionnaire
     </button>
 
+
     <!-- Search Inputs -->
-    <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
-      <div class="flex flex-col w-full sm:w-auto">
-        <label class="text-gray-700 text-sm">Search by Student:</label>
-        <div class="flex items-center gap-2">
-          <select [(ngModel)]="searchStudentType" (change)="onSearchStudentTypeChange(searchStudentType.value)"
-          #searchStudentType
-            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+      
+      <!-- Search by Student -->
+      <div class="flex flex-col w-full">
+        <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search by Student:</label>
+        <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
+          <select [(ngModel)]="searchStudentType" (change)="onSearchStudentTypeChange(searchStudentType)"
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[110px]">
             <option value="fullName">Full Name</option>
             <option value="userName">Username</option>
             <option value="both" selected>Both</option>
@@ -25,12 +32,12 @@
         </div>
       </div>
 
-      <div class="flex flex-col w-full sm:w-auto">
-        <label class="text-gray-700 text-sm">Search by Teacher:</label>
-        <div class="flex items-center gap-2">
-          <select [(ngModel)]="searchTeacherType" (change)="onSearchTeacherTypeChange(searchTeacherType.value)"
-            #searchTeacherType
-            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+      <!-- Search by Teacher -->
+      <div class="flex flex-col w-full">
+        <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search by Teacher:</label>
+        <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
+          <select [(ngModel)]="searchTeacherType" (change)="onSearchTeacherTypeChange(searchTeacherType)"
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[110px]">
             <option value="fullName">Full Name</option>
             <option value="userName">Username</option>
             <option value="both" selected>Both</option>
@@ -43,16 +50,26 @@
     </div>
 
     <!-- Page Size Selection -->
-    <div class="flex items-center gap-2">
+    <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
       <label class="text-gray-700 font-medium">Items per page:</label>
-      <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)"
-        class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[70px]">
+      <select [(ngModel)]="pageSize"(change)="onPageSizeChange(pageSize)"
+        class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[80px]">
         <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
       </select>
     </div>
   </div>
 
+  <!-- Clickable Section to Collapse Just the List -->
+  <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 cursor-pointer flex items-center justify-between"
+      (click)="toggleListCollapse()">
+    Active Questionnaires
+    <span [class.rotate-180]="isListCollapsed" class="transition-transform duration-300">
+      ▼
+    </span>
+  </h2>
+
   <!-- Active Questionnaires List -->
+  <div *ngIf="!isListCollapsed">
   <ul class="space-y-6 mt-6">
     <li *ngFor="let questionnaire of activeQuestionnaires"
       class="p-5 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 border border-gray-200">
@@ -113,4 +130,11 @@
       </div>
     </li>
   </ul>
+  <app-pagination 
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    (pageChange)="onPageChange($event)">
+</app-pagination>
+  </div>
+
 </div>

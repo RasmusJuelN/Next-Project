@@ -33,7 +33,6 @@ export class MockAnswerService {
             { id: 201, text: 'VS Code' },
             { id: 202, text: 'IntelliJ' },
             { id: 203, text: 'Eclipse' },
-            { id: 204, text: 'Other' },
           ],
           allowsCustomAnswer: true,
         },
@@ -55,7 +54,6 @@ export class MockAnswerService {
             { id: 401, text: 'Git' },
             { id: 402, text: 'SVN' },
             { id: 403, text: 'Mercurial' },
-            { id: 404, text: 'Other' },
           ],
           allowsCustomAnswer: true,
         },
@@ -86,7 +84,6 @@ export class MockAnswerService {
             { id: 601, text: 'Agile' },
             { id: 602, text: 'Waterfall' },
             { id: 603, text: 'Scrum' },
-            { id: 604, text: 'Other' },
           ],
           allowsCustomAnswer: true,
         },
@@ -96,8 +93,7 @@ export class MockAnswerService {
           options: [
             { id: 701, text: 'Object-Oriented Programming' },
             { id: 702, text: 'Functional Programming' },
-            { id: 703, text: 'Procedural Programming' },
-            { id: 704, text: 'Other' },
+            { id: 703, text: 'Procedural Programming' }
           ],
           allowsCustomAnswer: true,
         },

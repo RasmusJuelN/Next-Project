@@ -135,13 +135,9 @@ export class TemplateManagerComponent {
       description: 'Description for the new template',
       questions: [],
     };
-  
-    this.templateService.addTemplate(newTemplate).subscribe({
-      next: (createdTemplate: Template) => {
-        this.selectedTemplate = createdTemplate; // Automatically select the new template
-      },
-      error: () => console.error('Error adding template'),
-    });
+
+    this.selectedTemplate = newTemplate;
+
   }
 
   deleteTemplate(templateId: string): void {
@@ -191,16 +187,29 @@ export class TemplateManagerComponent {
   }
 
   onSaveTemplate(updatedTemplate: Template): void {
-    this.templateService.updateTemplate(updatedTemplate.id, updatedTemplate).subscribe({
-      complete: () => {
-        console.log('Template updated successfully:', updatedTemplate);
-        this.fetchTemplates(); // Refresh the template list to reflect changes
-        this.selectedTemplate = null; // Close the editor
-      },
-      error: (err) => {
-        console.error('Error updating template:', err);
-      },
-    });
+    if (!updatedTemplate.id) {
+      // New template: add it via the service.
+      this.templateService.addTemplate(updatedTemplate).subscribe({
+        next: (createdTemplate: Template) => {
+          console.log('Template added successfully:', createdTemplate);
+          this.selectedTemplate = null;
+          this.fetchTemplates(); // Refresh the list after adding
+        },
+        error: () => console.error('Error adding template'),
+      });
+    } else {
+      // Existing template: update it.
+      this.templateService.updateTemplate(updatedTemplate.id, updatedTemplate).subscribe({
+        complete: () => {
+          console.log('Template updated successfully:', updatedTemplate);
+          this.fetchTemplates(); // Refresh the template list to reflect changes
+          this.selectedTemplate = null; // Close the editor
+        },
+        error: (err) => {
+          console.error('Error updating template:', err);
+        },
+      });
+    }
   }
   
 

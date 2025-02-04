@@ -1,1 +1,75 @@
-<p>active-builder works!</p>
+<div class="flex flex-col max-w-6xl w-full bg-white shadow-md rounded-lg p-6 sm:p-8 sm:min-w-[600px]">
+
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
+    Create Active Questionnaire
+  </h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    <!-- Search for Student -->
+    <div class="flex flex-col w-full">
+      <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search for Student:</label>
+      <input type="text" placeholder="Enter student name..." [(ngModel)]="searchStudent"
+        (input)="onStudentInputChange(studentSearch.value)"
+        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" 
+        #studentSearch/>
+      <ul *ngIf="searchStudentResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+        <li *ngFor="let student of searchStudentResults" (click)="selectStudent(student)"
+          class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+          {{ student.fullName }} ({{ student.userName }})
+        </li>
+      </ul>
+      <div *ngIf="selectedStudent" class="mt-2 text-sm font-medium text-gray-700">
+        <strong>Selected Student:</strong> {{ selectedStudent.fullName }}
+      </div>
+    </div>
+
+    <!-- Search for Teacher -->
+    <div class="flex flex-col w-full">
+      <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search for Teacher:</label>
+      <input type="text" placeholder="Enter teacher name..." [(ngModel)]="searchTeacher"
+        (input)="onTeacherInputChange(teacherSearch.value)"
+        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" 
+        #teacherSearch/>
+      <ul *ngIf="searchTeacherResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+        <li *ngFor="let teacher of searchTeacherResults" (click)="selectTeacher(teacher)"
+          class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+          {{ teacher.fullName }} ({{ teacher.userName }})
+        </li>
+      </ul>
+      <div *ngIf="selectedTeacher" class="mt-2 text-sm font-medium text-gray-700">
+        <strong>Selected Teacher:</strong> {{ selectedTeacher.fullName }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Search for Template -->
+  <div class="flex flex-col w-full mt-4">
+    <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search for Template:</label>
+    <input type="text" placeholder="Enter template title..." [(ngModel)]="searchTemplate"
+      (input)="onTemplateInputChange(templateSearch.value)"
+      class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+      #templateSearch />
+    <ul *ngIf="searchTemplateResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+      <li *ngFor="let template of searchTemplateResults" (click)="selectTemplate(template)"
+        class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+        {{ template.title }}
+      </li>
+    </ul>
+    <div *ngIf="selectedTemplate" class="mt-2 text-sm font-medium text-gray-700">
+      <strong>Selected Template:</strong> {{ selectedTemplate.title }}
+    </div>
+  </div>
+
+  <!-- Finish Button -->
+  <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
+    <button [disabled]="!selectedStudent || !selectedTeacher || !selectedTemplate"
+      (click)="createActiveQuestionnaire()"
+      class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded">
+      Finish
+    </button>
+    <button (click)="onBackToList()"
+      class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+      Back to List
+    </button>
+  </div>
+</div>
