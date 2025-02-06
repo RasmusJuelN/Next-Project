@@ -12,10 +12,8 @@
       Assign New Questionnaire
     </button>
 
-
     <!-- Search Inputs -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-      
       <!-- Search by Student -->
       <div class="flex flex-col w-full">
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search by Student:</label>
@@ -52,7 +50,7 @@
     <!-- Page Size Selection -->
     <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
       <label class="text-gray-700 font-medium">Items per page:</label>
-      <select [(ngModel)]="pageSize"(change)="onPageSizeChange(pageSize)"
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)"
         class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[80px]">
         <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
       </select>
@@ -70,71 +68,85 @@
 
   <!-- Active Questionnaires List -->
   <div *ngIf="!isListCollapsed">
-  <ul class="space-y-6 mt-6">
-    <li *ngFor="let questionnaire of activeQuestionnaires"
-      class="p-5 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 border border-gray-200">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- ID, Template & Created At - Now in one row -->
-        <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_3fr_2fr] gap-4">
-          <!-- Questionnaire ID -->
-          <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">Link ID:</strong>
-            <p class="text-sm text-gray-600">{{ questionnaire.id }}</p>
+    <!-- Loading Indicator Inside Content -->
+    <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
+      <app-loading></app-loading>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="text-center p-4">
+      <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
+    </div>
+
+    <!-- Active Questionnaires List -->
+    <ul class="space-y-6 mt-6" *ngIf="!isLoading && !errorMessage">
+      <li *ngFor="let questionnaire of activeQuestionnaires"
+        class="p-5 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 border border-gray-200">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- ID, Template & Created At - Now in one row -->
+          <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_3fr_2fr] gap-4">
+            <!-- Questionnaire ID -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border">
+              <strong class="text-gray-800">Link ID:</strong>
+              <p class="text-sm text-gray-600">{{ questionnaire.id }}</p>
+            </div>
+
+            <!-- Template Name -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border">
+              <strong class="text-gray-800">Template:</strong>
+              <p class="text-sm text-gray-600">{{ questionnaire.templateName }}</p>
+            </div>
+
+            <!-- Created At -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border">
+              <strong class="text-gray-800">Created At:</strong>
+              <p class="text-sm text-gray-600">{{ questionnaire.createdAt | date:'short' }}</p>
+            </div>
           </div>
 
-          <!-- Template Name -->
+          <!-- Student & Teacher Info -->
           <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">Template:</strong>
-            <p class="text-sm text-gray-600">{{ questionnaire.templateName }}</p>
+            <strong class="text-gray-800">Student:</strong>
+            <p class="text-sm text-gray-600">{{ questionnaire.student.user.fullName }} ({{ questionnaire.student.user.userName }})</p>
           </div>
 
-          <!-- Created At -->
           <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">Created At:</strong>
-            <p class="text-sm text-gray-600">{{ questionnaire.createdAt | date:'short' }}</p>
+            <strong class="text-gray-800">Teacher:</strong>
+            <p class="text-sm text-gray-600">{{ questionnaire.teacher.user.fullName }} ({{ questionnaire.teacher.user.userName }})</p>
+          </div>
+
+          <!-- Completion Status & Answered When -->
+          <div class="bg-white p-4 rounded-lg shadow-sm border">
+            <strong class="text-gray-800">Student Completed:</strong>
+            <p class="text-sm font-semibold"
+              [ngClass]="{'text-red-500': !questionnaire.student.answered, 'text-green-500': questionnaire.student.answered}">
+              {{ questionnaire.student.answered ? "Completed" : "Not completed" }}
+            </p>
+            <p *ngIf="questionnaire.student.answeredWhen" class="text-xs text-gray-500">
+              {{ questionnaire.student.answeredWhen | date:'short' }}
+            </p>
+          </div>
+
+          <div class="bg-white p-4 rounded-lg shadow-sm border">
+            <strong class="text-gray-800">Teacher Completed:</strong>
+            <p class="text-sm font-semibold"
+              [ngClass]="{'text-red-500': !questionnaire.teacher.answered, 'text-green-500': questionnaire.teacher.answered}">
+              {{ questionnaire.teacher.answered ? "Completed" : "Not completed" }}
+            </p>
+            <p *ngIf="questionnaire.teacher.answeredWhen" class="text-xs text-gray-500">
+              {{ questionnaire.teacher.answeredWhen | date:'short' }}
+            </p>
           </div>
         </div>
-        <!-- Student & Teacher Info -->
-        <div class="bg-white p-4 rounded-lg shadow-sm border">
-          <strong class="text-gray-800">Student:</strong>
-          <p class="text-sm text-gray-600">{{ questionnaire.student.user.fullName }} ({{ questionnaire.student.user.userName }})</p>
-        </div>
+      </li>
+    </ul>
 
-        <div class="bg-white p-4 rounded-lg shadow-sm border">
-          <strong class="text-gray-800">Teacher:</strong>
-          <p class="text-sm text-gray-600">{{ questionnaire.teacher.user.fullName }} ({{ questionnaire.teacher.user.userName }})</p>
-        </div>
-
-        <!-- Completion Status & Answered When -->
-        <div class="bg-white p-4 rounded-lg shadow-sm border">
-          <strong class="text-gray-800">Student Completed:</strong>
-          <p class="text-sm font-semibold"
-            [ngClass]="{'text-red-500': !questionnaire.student.answered, 'text-green-500': questionnaire.student.answered}">
-            {{ questionnaire.student.answered ? "Completed" : "Not completed" }}
-          </p>
-          <p *ngIf="questionnaire.student.answeredWhen" class="text-xs text-gray-500">
-            {{ questionnaire.student.answeredWhen | date:'short' }}
-          </p>
-        </div>
-
-        <div class="bg-white p-4 rounded-lg shadow-sm border">
-          <strong class="text-gray-800">Teacher Completed:</strong>
-          <p class="text-sm font-semibold"
-            [ngClass]="{'text-red-500': !questionnaire.teacher.answered, 'text-green-500': questionnaire.teacher.answered}">
-            {{ questionnaire.teacher.answered ? "Completed" : "Not completed" }}
-          </p>
-          <p *ngIf="questionnaire.teacher.answeredWhen" class="text-xs text-gray-500">
-            {{ questionnaire.teacher.answeredWhen | date:'short' }}
-          </p>
-        </div>
-      </div>
-    </li>
-  </ul>
-  <app-pagination 
-    [currentPage]="currentPage"
-    [totalPages]="totalPages"
-    (pageChange)="onPageChange($event)">
-</app-pagination>
+    <!-- Pagination -->
+    <app-pagination 
+      *ngIf="!isLoading && !errorMessage"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
   </div>
-
 </div>

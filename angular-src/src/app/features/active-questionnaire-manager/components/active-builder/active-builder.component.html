@@ -1,5 +1,4 @@
 <div class="flex flex-col max-w-6xl w-full bg-white shadow-md rounded-lg p-6 sm:p-8 sm:min-w-[600px]">
-
   <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
     Create Active Questionnaire
   </h2>
@@ -10,16 +9,39 @@
       <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search for Student:</label>
       <input type="text" placeholder="Enter student name..." [(ngModel)]="searchStudent"
         (input)="onStudentInputChange(studentSearch.value)"
-        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" 
-        #studentSearch/>
-      <ul *ngIf="searchStudentResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
-        <li *ngFor="let student of searchStudentResults" (click)="selectStudent(student)"
-          class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
-          {{ student.fullName }} ({{ student.userName }})
-        </li>
-      </ul>
-      <div *ngIf="selectedStudent" class="mt-2 text-sm font-medium text-gray-700">
+        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+        #studentSearch />
+
+      <!-- Loading Indicator -->
+      <div *ngIf="isLoadingStudents" class="text-blue-500 text-sm mt-2">Loading students...</div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessageStudents" class="text-red-500 text-sm mt-2">{{ errorMessageStudents }}</div>
+
+      <!-- Search Results & Load More -->
+      <div *ngIf="searchStudentResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+        <ul class="space-y-1">
+          <li *ngFor="let student of searchStudentResults" 
+            (click)="selectStudent(student)"
+            class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+            {{ student.fullName }} ({{ student.userName }})
+          </li>
+        </ul>
+
+        <!-- Load More Students Button Inside Container -->
+        <button *ngIf="canLoadMoreStudents()"
+          (click)="loadMoreStudents()"
+          class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition">
+          Load More Students
+        </button>
+      </div>
+
+      <!-- Selected Student with Clear Option -->
+      <div *ngIf="selectedStudent" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
         <strong>Selected Student:</strong> {{ selectedStudent.fullName }}
+        <button (click)="clearSelectedStudent()" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
+          Clear
+        </button>
       </div>
     </div>
 
@@ -28,16 +50,39 @@
       <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search for Teacher:</label>
       <input type="text" placeholder="Enter teacher name..." [(ngModel)]="searchTeacher"
         (input)="onTeacherInputChange(teacherSearch.value)"
-        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" 
-        #teacherSearch/>
-      <ul *ngIf="searchTeacherResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
-        <li *ngFor="let teacher of searchTeacherResults" (click)="selectTeacher(teacher)"
-          class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
-          {{ teacher.fullName }} ({{ teacher.userName }})
-        </li>
-      </ul>
-      <div *ngIf="selectedTeacher" class="mt-2 text-sm font-medium text-gray-700">
+        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+        #teacherSearch />
+
+      <!-- Loading Indicator -->
+      <div *ngIf="isLoadingTeachers" class="text-blue-500 text-sm mt-2">Loading teachers...</div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessageTeachers" class="text-red-500 text-sm mt-2">{{ errorMessageTeachers }}</div>
+
+      <!-- Search Results & Load More -->
+      <div *ngIf="searchTeacherResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+        <ul class="space-y-1">
+          <li *ngFor="let teacher of searchTeacherResults" 
+            (click)="selectTeacher(teacher)"
+            class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+            {{ teacher.fullName }} ({{ teacher.userName }})
+          </li>
+        </ul>
+
+        <!-- Load More Teachers Button Inside Container -->
+        <button *ngIf="canLoadMoreTeachers()"
+          (click)="loadMoreTeachers()"
+          class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition">
+          Load More Teachers
+        </button>
+      </div>
+
+      <!-- Selected Teacher with Clear Option -->
+      <div *ngIf="selectedTeacher" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
         <strong>Selected Teacher:</strong> {{ selectedTeacher.fullName }}
+        <button (click)="clearSelectedTeacher()" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
+          Clear
+        </button>
       </div>
     </div>
   </div>
@@ -49,14 +94,37 @@
       (input)="onTemplateInputChange(templateSearch.value)"
       class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
       #templateSearch />
-    <ul *ngIf="searchTemplateResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
-      <li *ngFor="let template of searchTemplateResults" (click)="selectTemplate(template)"
-        class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
-        {{ template.title }}
-      </li>
-    </ul>
-    <div *ngIf="selectedTemplate" class="mt-2 text-sm font-medium text-gray-700">
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoadingTemplates" class="text-blue-500 text-sm mt-2">Loading templates...</div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessageTemplates" class="text-red-500 text-sm mt-2">{{ errorMessageTemplates }}</div>
+
+    <!-- Search Results & Load More -->
+    <div *ngIf="searchTemplateResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+      <ul class="space-y-1">
+        <li *ngFor="let template of searchTemplateResults" 
+          (click)="selectTemplate(template)"
+          class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+          {{ template.title }}
+        </li>
+      </ul>
+
+      <!-- Load More Templates Button Inside Container -->
+      <button *ngIf="canLoadMoreTemplates()"
+        (click)="loadMoreTemplates()"
+        class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition">
+        Load More Templates
+      </button>
+    </div>
+
+    <!-- Selected Template with Clear Option -->
+    <div *ngIf="selectedTemplate" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
       <strong>Selected Template:</strong> {{ selectedTemplate.title }}
+      <button (click)="clearSelectedTemplate()" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
+        Clear
+      </button>
     </div>
   </div>
 

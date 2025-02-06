@@ -17,6 +17,8 @@ import { ActiveService } from './features/active-questionnaire-manager/services/
 import { MockActiveService } from './features/active-questionnaire-manager/services/mock.active.service';
 import { ResultService } from './features/result/services/result.service';
 import { MockResultService } from './features/result/services/mock.result.service';
+import { TeacherService } from './features/teacher-dashboard/services/teacher.service';
+import { MockTeacherService } from './features/teacher-dashboard/services/mock.teacher.service';
 
 
 export const appConfig: ApplicationConfig = {
@@ -46,6 +48,10 @@ export const appConfig: ApplicationConfig = {
 {
   provide: ResultService,
   useClass: environment.useMock ? MockResultService : ResultService
+},
+{
+  provide: TeacherService,
+  useClass: environment.useMock ? MockTeacherService : TeacherService
 }
 ]
 };

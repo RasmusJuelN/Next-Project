@@ -28,6 +28,7 @@ export class HeaderComponent {
   navLinks: Record<'teacher' | 'admin', { name: string; route: string }[]> = {
     teacher: [
       { name: 'Overview', route: '/hub' },
+      {name: 'Teacher dashboard', route:'/teacher-dashboard'}
     ],
     admin: [
       { name: 'Overview', route: '/hub' },

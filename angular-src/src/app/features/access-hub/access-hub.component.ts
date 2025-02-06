@@ -13,14 +13,13 @@ import { RouterModule } from '@angular/router';
 export class AccessHubComponent {
   private authService = inject(AuthService);
 
-  // Explicitly define the roles as a union of specific strings
-  userRole: 'teacher' | 'admin' | null = null; // User role, matching keys in navLinks
-  isAuthenticated: boolean = false; // Tracks if the user is authenticated
+  userRole: 'teacher' | 'admin' | null = null;
+  isAuthenticated: boolean = false;
 
   // Define navLinks with a specific type
   navLinks: Record<'teacher' | 'admin', { name: string; route: string }[]> = {
     teacher: [
-      { name: 'Overview', route: '/hub' }
+      {name: 'Teacher dashboard', route:'/teacher-dashboard'}
     ],
     admin: [
       { name: 'Template Manager', route: '/templates' },
@@ -31,17 +30,12 @@ export class AccessHubComponent {
   };
 
   ngOnInit(): void {
-    // Refresh authentication state
-    this.authService.refreshAuthenticationState();
-
     // Subscribe to authentication state changes
     this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       this.isAuthenticated = isAuthenticated;
     });
 
-    // Subscribe to role changes
     this.authService.userRole$.subscribe((role) => {
-      // Ensure userRole is either 'teacher', 'admin', or null
       this.userRole = role as 'teacher' | 'admin' | null;
     });
   }

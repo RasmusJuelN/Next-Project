@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
 import { QuestionnaireSession } from '../../models/active.models';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { LoadingComponent } from '../../../../shared/loading/loading.component';
 
 @Component({
   selector: 'app-active-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent],
   templateUrl: './active-list.component.html',
   styleUrl: './active-list.component.css'
 })
@@ -26,6 +27,9 @@ export class ActiveListComponent implements OnInit {
   hasNextPage: boolean = false;
   hasPreviousPage: boolean = false;
   isListCollapsed: boolean = false;
+
+  isLoading = false; // Track loading state
+  errorMessage: string | null = null; // Store error messages
 
   @Output() createNewQuestionnaireEvent = new EventEmitter<void>();
 
@@ -137,6 +141,9 @@ export class ActiveListComponent implements OnInit {
   }
 
   private fetchActiveQuestionnaires(): void {
+    this.isLoading = true;
+    this.errorMessage = null; // Reset any previous error
+  
     this.activeService
       .getActiveQuestionnaires(
         this.currentPage,
@@ -152,8 +159,14 @@ export class ActiveListComponent implements OnInit {
           this.totalItems = response.totalItems;
           this.hasNextPage = this.currentPage < this.totalPages;
           this.hasPreviousPage = this.currentPage > 1;
+  
+          this.isLoading = false;
         },
-        error: () => console.error('Error fetching active questionnaires'),
+        error: (err) => {
+          console.error('Error fetching active questionnaires:', err);
+          this.errorMessage = 'Failed to load active questionnaires. Please try again.';
+          this.isLoading = false;
+        },
       });
   }
 

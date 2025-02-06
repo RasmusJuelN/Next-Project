@@ -19,7 +19,10 @@ export class QuestionEditorComponent {
 
   // Add a new option to the question
   addOption(): void {
-    const newOption: Option = { id: Date.now(), label: '' }; // Generate a unique id
+    const newOption: Option = {
+      id: -1 * (this.question.options.length + 1),
+      label: 'New Option',
+    };
     this.question.options.push(newOption);
   }
 

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Questionnaire } from '../models/answer.model';
-import { Observable, of } from 'rxjs';
+import { delay, Observable, of } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({
@@ -149,6 +149,6 @@ getActiveQuestionnaireById(instanceId: string): Observable<Questionnaire | undef
   // Get a specific template by ID
   private getTemplateById(templateId: string): Observable<Questionnaire | undefined> {
     const template = this.mockTemplates.find(template => template.id === templateId);
-    return of(template);
+    return of(template).pipe(delay(2000));
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Question, Template } from '../models/template.model';
-import { Observable, of } from 'rxjs';
+import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 
 @Injectable({
@@ -218,7 +218,7 @@ export class MockTemplateService {
       currentPage: page, // The current page
       pageSize: pageSize, // Items per page
       totalPages: totalPages, // Total number of pages
-    });
+    }).pipe(delay(2000));
   }
   
   updateTemplate(templateId: string, updatedTemplate: Template): Observable<void> {

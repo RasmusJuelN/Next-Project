@@ -23,7 +23,6 @@ export class HomeComponent implements OnInit {
   errorMessage: string | null = null;
 
   ngOnInit(): void {
-    this.authService.refreshAuthenticationState();
     // Check if an active questionnaire exists when logged in
     this.loggedInAlready$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {

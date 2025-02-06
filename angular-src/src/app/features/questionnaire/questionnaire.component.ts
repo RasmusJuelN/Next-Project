@@ -4,18 +4,18 @@ import { ActivatedRoute } from '@angular/router';
 import { QuestionComponent } from './question/question.component';
 import { AnswerService } from './services/answer.service';
 import { Answer, QuestionnaireState } from './models/answer.model';
+import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
   selector: 'app-answer-questionnaire',
   standalone: true,
-  imports: [CommonModule, QuestionComponent],
+  imports: [CommonModule, QuestionComponent, LoadingComponent],
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.css'],
 })
-export class QuestionnaireComponent implements OnInit {
+export class QuestionnaireComponent {
   private answerService = inject(AnswerService);
   private route = inject(ActivatedRoute);
-
   state: QuestionnaireState = {
     template: {
       id: '',
@@ -29,6 +29,8 @@ export class QuestionnaireComponent implements OnInit {
     progress: 0,
     isCompleted: false,
   };
+  isLoading = true;
+  errorMessage: string | null = null;
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
@@ -42,13 +44,22 @@ export class QuestionnaireComponent implements OnInit {
   }
 
   private loadQuestionnaire(id: string) {
-    this.answerService.getActiveQuestionnaireById(id).subscribe((template) => {
-      if (template) {
-        this.state.template = template;
-        this.updateProgress();
-      } else {
-        console.error('Template not found!');
-      }
+    this.isLoading = true;
+    this.answerService.getActiveQuestionnaireById(id).subscribe({
+      next: (template) => {
+        if (template) {
+          this.state.template = template;
+          this.updateProgress();
+        } else {
+          this.errorMessage = 'Could not find any data with that link.Did you write it correctly';
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading questionnaire:', error);
+        this.errorMessage = 'An error occurred while loading the questionnaire. Please try again later.';
+        this.isLoading = false;
+      },
     });
   }
 

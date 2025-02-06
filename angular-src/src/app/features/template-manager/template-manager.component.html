@@ -1,3 +1,4 @@
+<!-- Template List Section -->
 <div class="flex flex-col justify-center items-center w-full min-h-screen bg-gray-100 p-4 sm:p-8">
   <div class="flex flex-col max-w-4xl w-full bg-white shadow-md rounded-lg p-4 sm:p-8">
     <ng-container *ngIf="!selectedTemplate; else editor">
@@ -45,8 +46,18 @@
         </div>
       </div>
 
+      <!-- Loading Indicator Inside Content -->
+      <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
+        <app-loading></app-loading>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="text-center p-4">
+        <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
+      </div>
+
       <!-- Template List -->
-      <ul class="space-y-4 mt-4">
+      <ul class="space-y-4 mt-4" *ngIf="!isLoading && !errorMessage">
         <li
           *ngFor="let template of templates"
           class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100"
@@ -71,11 +82,11 @@
 
       <!-- Generic Pagination Component -->
       <app-pagination 
+        *ngIf="!isLoading && !errorMessage"
         [currentPage]="currentPage"
         [totalPages]="totalPages"
         (pageChange)="onPageChange($event)">
       </app-pagination>
-
     </ng-container>
 
     <!-- Template Editor -->

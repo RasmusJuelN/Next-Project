@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { QuestionnaireSession } from '../models/active.models';
 import { User } from '../../../shared/models/user.model';
@@ -9,12 +9,30 @@ import { Template } from '../../template-manager/models/template.model';
   providedIn: 'root',
 })
 export class MockActiveService {
-  private mockUsers: User[] = [
-    { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: 'student' },
-    { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: 'teacher' },
-    { id: 's2', userName: 'janes456', fullName: 'Jane Smith', role: 'student' },
-    { id: 't2', userName: 'johnsonT', fullName: 'Mr. Johnson', role: 'teacher' }
-  ];
+private mockUsers: User[] = [
+  { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: 'student' },
+  { id: 's2', userName: 'janes456', fullName: 'Jane Smith', role: 'student' },
+  { id: 's3', userName: 'jack789', fullName: 'Jack Brown', role: 'student' },
+  { id: 's4', userName: 'jessC', fullName: 'Jessica Carter', role: 'student' },
+  { id: 's5', userName: 'juliaS', fullName: 'Julia Sanchez', role: 'student' },
+  { id: 's6', userName: 'joelM', fullName: 'Joel Martinez', role: 'student' },
+  { id: 's7', userName: 'jacobR', fullName: 'Jacob Robinson', role: 'student' },
+  { id: 's8', userName: 'jordanD', fullName: 'Jordan Davis', role: 'student' },
+  { id: 's9', userName: 'jimB', fullName: 'Jim Brooks', role: 'student' },
+  { id: 's10', userName: 'jasmineW', fullName: 'Jasmine White', role: 'student' },
+
+  { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: 'teacher' },
+  { id: 't2', userName: 'johnsonT', fullName: 'Mr. Johnson', role: 'teacher' },
+  { id: 't3', userName: 'jacksonT', fullName: 'Ms. Jackson', role: 'teacher' },
+  { id: 't4', userName: 'jonesT', fullName: 'Dr. Jones', role: 'teacher' },
+  { id: 't5', userName: 'jamesT', fullName: 'Mr. James', role: 'teacher' },
+  { id: 't6', userName: 'jacobsT', fullName: 'Mrs. Jacobs', role: 'teacher' },
+  { id: 't7', userName: 'juliaT', fullName: 'Professor Julia', role: 'teacher' },
+  { id: 't8', userName: 'joanneT', fullName: 'Ms. Joanne', role: 'teacher' },
+  { id: 't9', userName: 'jaredT', fullName: 'Mr. Jared', role: 'teacher' },
+  { id: 't10', userName: 'julianT', fullName: 'Dr. Julian', role: 'teacher' },
+];
+
 
   private mockTemplates: Template[] = [
     { id: 't101', title: 'Math Quiz', description: 'A basic math quiz', questions: [] },
@@ -206,7 +224,7 @@ export class MockActiveService {
       currentPage: page,
       pageSize: pageSize,
       totalPages: Math.ceil(totalItems / pageSize),
-    });
+    }).pipe(delay(2000));
   }
   getActiveQuestionnaireById(id: string): Observable<QuestionnaireSession | undefined> {
     const questionnaire = this.activeQuestionnaires.find(q => q.id === id);
@@ -271,7 +289,7 @@ export class MockActiveService {
     const totalItems = filteredUsers.length;
     const startIndex = (page - 1) * 10;
     const paginatedUsers = filteredUsers.slice(startIndex, startIndex + 10);
-    return of({ items: paginatedUsers, totalItems, currentPage: page, pageSize: 10, totalPages: Math.ceil(totalItems / 10) });
+    return of({ items: paginatedUsers, totalItems, currentPage: page, pageSize: 10, totalPages: Math.ceil(totalItems / 10) }).pipe(delay(2000));;
   }
 
   searchTemplates(term: string, page: number): Observable<PaginationResponse<Template>> {

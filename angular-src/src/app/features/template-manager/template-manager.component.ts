@@ -6,11 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
   selector: 'app-template-manager',
   standalone: true,
-  imports: [TemplateEditorComponent, FormsModule, CommonModule, PaginationComponent],
+  imports: [TemplateEditorComponent, FormsModule, CommonModule, PaginationComponent, LoadingComponent],
   templateUrl: './template-manager.component.html',
   styleUrls: ['./template-manager.component.css'],
 })
@@ -31,6 +32,8 @@ export class TemplateManagerComponent {
 
 
   private searchSubject = new Subject<string>();
+  isLoading = false; // Track loading state
+  errorMessage: string | null = null; // Store error messages
 
   ngOnInit(): void {
     // Initialize debounce for search input
@@ -105,6 +108,9 @@ export class TemplateManagerComponent {
   }
 
   private fetchTemplates(): void {
+    this.isLoading = true;
+    this.errorMessage = null; // Reset any previous error
+  
     this.templateService
       .getTemplates(this.currentPage, this.pageSize, this.searchTerm, this.searchType)
       .subscribe({
@@ -115,9 +121,13 @@ export class TemplateManagerComponent {
           // Calculate pagination state
           this.hasNextPage = this.currentPage < this.totalPages;
           this.hasPreviousPage = this.currentPage > 1;
+  
+          this.isLoading = false;
         },
-        error: () => {
-          console.error('Error fetching templates');
+        error: (err) => {
+          console.error('Error fetching templates:', err);
+          this.errorMessage = 'Failed to load templates. Please try again.';
+          this.isLoading = false;
         },
       });
   }
@@ -130,15 +140,22 @@ export class TemplateManagerComponent {
 
   addTemplate(): void {
     const newTemplate: Template = {
-      id: '', // The ID will be assigned by the service or backend
+      id:"", // Temporary ID for template
       title: 'New Template',
       description: 'Description for the new template',
-      questions: [],
+      questions: [
+        {
+          id: -1, // Temporary negative ID
+          title: 'Default Question',
+          customAnswer: true,
+          options: [],
+        },
+      ],
     };
-
+  
     this.selectedTemplate = newTemplate;
-
   }
+  
 
   deleteTemplate(templateId: string): void {
     this.templateService.deleteTemplate(templateId).subscribe({
@@ -189,6 +206,7 @@ export class TemplateManagerComponent {
   onSaveTemplate(updatedTemplate: Template): void {
     if (!updatedTemplate.id) {
       // New template: add it via the service.
+       updatedTemplate.id=`temp-${Date.now()}`
       this.templateService.addTemplate(updatedTemplate).subscribe({
         next: (createdTemplate: Template) => {
           console.log('Template added successfully:', createdTemplate);
