@@ -24,5 +24,13 @@ namespace API.Controllers
             
             return [.. questionnaireTemplates.Select(q => q.ToDto())];
         }
+
+        [HttpPost("add")]
+        public async Task<IActionResult> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateAddRequest questionnaireTemplate)
+        {
+            await _QuestionnaireRepository.AddAsync(questionnaireTemplate.ToModel());
+
+            return Ok();
+        }
     }
 }

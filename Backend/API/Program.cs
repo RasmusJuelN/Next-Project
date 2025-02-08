@@ -112,7 +112,7 @@ using (IServiceScope scope = app.Services.CreateScope())
 {
     IServiceProvider services = scope.ServiceProvider;
     Context context = services.GetRequiredService<Context>();
-    if (context.Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator databaseCreator && !databaseCreator.Exists())
+    if (context.Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator databaseCreator)
     {
         context.Database.Migrate();
     }
