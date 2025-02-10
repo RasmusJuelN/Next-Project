@@ -12,7 +12,7 @@ public interface IGenericRepository<TEntity> where TEntity : class
     
     public IQueryable<TEntity> GetAsQueryable();
     
-    public int GetCount(Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null);
+    public int GetCount(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null);
 
     public Task<TEntity> AddAsync(TEntity entity);
 

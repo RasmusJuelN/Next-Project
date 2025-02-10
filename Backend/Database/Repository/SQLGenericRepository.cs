@@ -49,9 +49,14 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         return _context.Set<TEntity>();
     }
 
-    public int GetCount(Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
+    public int GetCount(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
     {
         IQueryable<TEntity> query = _context.Set<TEntity>();
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
 
         if (queryModifier is not null)
         {
