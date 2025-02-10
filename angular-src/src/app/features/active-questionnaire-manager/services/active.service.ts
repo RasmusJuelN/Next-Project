@@ -27,12 +27,34 @@ export class ActiveService {
   ): Observable<PaginationResponse<QuestionnaireSession>> {
     let params = new HttpParams()
       .set('page', page.toString())
-      .set('pageSize', pageSize.toString())
-      .set('searchStudent', searchStudent)
-      .set('searchStudentType', searchStudentType)
-      .set('searchTeacher', searchTeacher)
-      .set('searchTeacherType', searchTeacherType);
-
+      .set('pageSize', pageSize.toString());
+  
+    if (searchStudent.trim() !== '') {
+      if (searchStudentType === 'fullName') {
+        params = params.set('SearchStudentFullName', searchStudent);
+      } else if (searchStudentType === 'userName') {
+        params = params.set('SearchStudentUserName', searchStudent);
+      } else if (searchStudentType === 'both') {
+        // Set both parameters when searching by both.
+        params = params
+          .set('SearchStudentFullName', searchStudent)
+          .set('SearchStudentUserName', searchStudent);
+      }
+    }
+  
+    if (searchTeacher.trim() !== '') {
+      if (searchTeacherType === 'fullName') {
+        params = params.set('SearchTeacherFullName', searchTeacher);
+      } else if (searchTeacherType === 'userName') {
+        params = params.set('SearchTeacherUserName', searchTeacher);
+      } else if (searchTeacherType === 'both') {
+        // Set both parameters when searching by both.
+        params = params
+          .set('SearchTeacherFullName', searchTeacher)
+          .set('SearchTeacherUserName', searchTeacher);
+      }
+    }
+  
     return this.apiService.get<PaginationResponse<QuestionnaireSession>>(this.apiUrl, params);
   }
 

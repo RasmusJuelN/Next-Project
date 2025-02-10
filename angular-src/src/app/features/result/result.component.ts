@@ -39,7 +39,7 @@ export class ResultComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = 'Failed to load result.';
+        this.errorMessage = 'Result not found.';
         console.error(err);
         this.isLoading = false;
       },

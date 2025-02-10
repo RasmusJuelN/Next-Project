@@ -29,29 +29,28 @@ export const appConfig: ApplicationConfig = {
     provide: AuthService,
     useClass: environment.useMock ? MockAuthService : AuthService,
   },
-{
-  provide: HomeService,
-  useClass: environment.useMock ? MockHomeService : HomeService,
-},
-{
-  provide: AnswerService,
-  useClass: environment.useMock ? MockAnswerService : AnswerService,
-},
-{
-  provide: TemplateService,
-  useClass: environment.useMock ? MockTemplateService : TemplateService
-},
-{
-  provide: ActiveService,
-  useClass: environment.useMock ? MockActiveService : ActiveService,
-},
-{
-  provide: ResultService,
-  useClass: environment.useMock ? MockResultService : ResultService
-},
-{
-  provide: TeacherService,
-  useClass: environment.useMock ? MockTeacherService : TeacherService
-}
-]
+  {
+    provide: HomeService,
+    useClass: environment.useMock ? MockHomeService : HomeService,
+  },
+  {
+    provide: AnswerService,
+    useClass: environment.useMock ? MockAnswerService : AnswerService,
+  },
+  {
+    provide: TemplateService,
+    useClass: environment.useMock ? MockTemplateService : TemplateService
+  },
+  {
+    provide: ActiveService,
+    useClass: environment.useMock ? MockActiveService : ActiveService,
+  },
+  {
+    provide: ResultService,
+    useClass: environment.useMock ? MockResultService : ResultService
+  },
+  {
+    provide: TeacherService,
+    useClass: environment.useMock ? MockTeacherService : TeacherService
+  }]
 };

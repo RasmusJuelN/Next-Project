@@ -21,14 +21,20 @@ export class TemplateService {
     page: number,
     pageSize: number,
     searchTerm: string = '',
-    searchType: string = 'name'
+    searchType: 'name' | 'id' = 'name'
   ): Observable<PaginationResponse<Template>> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('page', page.toString())
-      .set('searchType', searchType)
-      .set('pageSize', pageSize.toString())
-      .set('search', searchTerm);
-      
+      .set('pageSize', pageSize.toString());
+  
+    if (searchTerm.trim() !== '') {
+      if (searchType === 'name') {
+        params = params.set('SearchPageName', searchTerm);
+      } else if (searchType === 'id') {
+        params = params.set('SearchPageId', searchTerm);
+      }
+    }
+    
     return this.apiService.get<PaginationResponse<Template>>(this.apiUrl, params);
   }
 

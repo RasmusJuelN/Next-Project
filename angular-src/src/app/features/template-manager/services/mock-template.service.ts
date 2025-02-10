@@ -188,18 +188,18 @@ export class MockTemplateService {
     page: number,
     pageSize: number,
     searchTerm: string = '',
-    searchType: string = 'name' // Default search type
+    searchType: 'name' | 'id' = 'name'
   ): Observable<PaginationResponse<Template>> {
     let filteredTemplates = this.templates;
   
     // Filter templates based on the search term and search type
-    if (searchTerm) {
+    if (searchTerm.trim() !== '') {
       if (searchType === 'name') {
-        filteredTemplates = filteredTemplates.filter((template) =>
+        filteredTemplates = filteredTemplates.filter(template =>
           template.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
       } else if (searchType === 'id') {
-        filteredTemplates = filteredTemplates.filter((template) =>
+        filteredTemplates = filteredTemplates.filter(template =>
           template.id.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
@@ -211,13 +211,13 @@ export class MockTemplateService {
     const start = (page - 1) * pageSize;
     const paginatedTemplates = filteredTemplates.slice(start, start + pageSize);
   
-    // Return the paginated response
+    // Return the paginated response, simulating network delay
     return of({
-      items: paginatedTemplates, // The current page of templates
-      totalItems: totalItems, // Total number of filtered items
-      currentPage: page, // The current page
-      pageSize: pageSize, // Items per page
-      totalPages: totalPages, // Total number of pages
+      items: paginatedTemplates,   // The current page of templates
+      totalItems: totalItems,      // Total number of filtered templates
+      currentPage: page,           // The current page
+      pageSize: pageSize,          // Items per page
+      totalPages: totalPages       // Total number of pages
     }).pipe(delay(2000));
   }
   

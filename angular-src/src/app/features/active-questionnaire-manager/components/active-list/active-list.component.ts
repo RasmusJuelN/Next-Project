@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,32 +12,49 @@ import { LoadingComponent } from '../../../../shared/loading/loading.component';
   standalone: true,
   imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent],
   templateUrl: './active-list.component.html',
-  styleUrl: './active-list.component.css'
+  styleUrls: ['./active-list.component.css']
 })
 export class ActiveListComponent implements OnInit {
   private activeService = inject(ActiveService);
 
+  // Pagination and search state
   pageSize: number = 5;
+  currentPage: number = 1;
+  totalItems: number = 0;
+  totalPages: number = 0; // Now we store the API-provided total pages
+
+  // Instead of computing total pages from totalItems, we use the API value.
+  get computedTotalPages(): number {
+    return this.totalPages;
+  }
+
+  // Search filters
   searchStudent: string = '';
   searchTeacher: string = '';
   searchStudentType: 'fullName' | 'userName' | 'both' = 'both';
   searchTeacherType: 'fullName' | 'userName' | 'both' = 'both';
-  currentPage: number = 1;
-  totalItems: number = 0;
-  hasNextPage: boolean = false;
-  hasPreviousPage: boolean = false;
+
+  // UI state
   isListCollapsed: boolean = false;
+  isLoading = false;
+  errorMessage: string | null = null;
 
-  isLoading = false; // Track loading state
-  errorMessage: string | null = null; // Store error messages
-
+  // Output for creating new questionnaires
   @Output() createNewQuestionnaireEvent = new EventEmitter<void>();
 
+  // Data list
   activeQuestionnaires: QuestionnaireSession[] = [];
-  private searchSubject = new Subject<{ student: string; studentType: string; teacher: string; teacherType: string }>();
+
+  // Debounced search subject
+  private searchSubject = new Subject<{
+    student: string;
+    studentType: string;
+    teacher: string;
+    teacherType: string;
+  }>();
 
   ngOnInit(): void {
-    // Debounced search to prevent excessive API calls
+    // Debounce search inputs to avoid flooding the API
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(({ student, studentType, teacher, teacherType }) => {
@@ -45,52 +62,15 @@ export class ActiveListComponent implements OnInit {
         this.searchStudentType = studentType as 'fullName' | 'userName' | 'both';
         this.searchTeacher = teacher;
         this.searchTeacherType = teacherType as 'fullName' | 'userName' | 'both';
-        this.currentPage = 1;
+        this.currentPage = 1; // Reset page on new search
         this.fetchActiveQuestionnaires();
-        console.log(this.currentPage)
       });
 
+    // Initial data load
     this.fetchActiveQuestionnaires();
   }
 
-  get totalPages(): number {
-    return this.totalItems > 0 ? Math.ceil(this.totalItems / this.pageSize) : 0;
-  }
-
-  get pages(): number[] {
-    const maxVisiblePages = 5;
-    const pages: number[] = [];
-  
-    if (this.totalPages <= maxVisiblePages) {
-      return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-    }
-  
-    const startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
-    const endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
-  
-    if (startPage > 1) {
-      pages.push(1);
-      if (startPage > 2) {
-        pages.push(-1); // Ellipsis
-      }
-    }
-  
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-  
-    if (endPage < this.totalPages) {
-      if (endPage < this.totalPages - 1) {
-        pages.push(-1);
-      }
-      pages.push(this.totalPages);
-    }
-  
-    return pages;
-  }
-  toggleListCollapse(): void {
-    this.isListCollapsed = !this.isListCollapsed;
-  }
+  // --- Search Methods ---
   onSearchStudentChange(value: string): void {
     this.searchSubject.next({
       student: value,
@@ -127,23 +107,27 @@ export class ActiveListComponent implements OnInit {
     });
   }
 
-  onPageChange(newPage: number): void {
+  // --- Pagination Handler ---
+  // This method is bound to the (pageChange) output of your PaginationComponent.
+  handlePageChange(newPage: number): void {
     if (newPage > 0 && newPage <= this.totalPages) {
       this.currentPage = newPage;
       this.fetchActiveQuestionnaires();
     }
   }
 
+  // --- Page Size Change ---
   onPageSizeChange(value: number): void {
     this.pageSize = value;
-    this.currentPage = 1;
+    this.currentPage = 1; // Reset to the first page when page size changes
     this.fetchActiveQuestionnaires();
   }
 
+  // --- Data Fetching ---
   private fetchActiveQuestionnaires(): void {
     this.isLoading = true;
-    this.errorMessage = null; // Reset any previous error
-  
+    this.errorMessage = null; // Reset previous errors
+
     this.activeService
       .getActiveQuestionnaires(
         this.currentPage,
@@ -157,9 +141,7 @@ export class ActiveListComponent implements OnInit {
         next: (response) => {
           this.activeQuestionnaires = response.items;
           this.totalItems = response.totalItems;
-          this.hasNextPage = this.currentPage < this.totalPages;
-          this.hasPreviousPage = this.currentPage > 1;
-  
+          this.totalPages = response.totalPages; // Use the API value here
           this.isLoading = false;
         },
         error: (err) => {
@@ -170,25 +152,9 @@ export class ActiveListComponent implements OnInit {
       });
   }
 
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.fetchActiveQuestionnaires();
-    }
-  }
-  
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.fetchActiveQuestionnaires();
-    }
-  }
-
-  jumpToPage(page: number): void {
-    if (page > 0 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.fetchActiveQuestionnaires();
-    }
+  // --- Other UI Actions ---
+  toggleListCollapse(): void {
+    this.isListCollapsed = !this.isListCollapsed;
   }
 
   onCreateNewQuestionnaire(): void {
