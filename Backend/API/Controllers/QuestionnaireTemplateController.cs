@@ -18,6 +18,7 @@ namespace API.Controllers
         private readonly IGenericRepository<QuestionnaireTemplateModel> _QuestionnaireRepository = QuestionnaireRepository;
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<QuestionnaireTemplateBaseDto>>> GetQuestionnaireTemplates([FromQuery] PaginationRequest request)
         {
             int start = (request.Page - 1) * request.PageSize;
@@ -43,6 +44,9 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
         public async Task<ActionResult<QuestionnaireTemplateDto>> GetQuestionnaireTemplate(Guid id)
         {
             QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id,
@@ -53,19 +57,30 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            return template.ToDto();
+            return Ok(template.ToDto());
         }
 
         [HttpPost("add")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(QuestionnaireTemplateBaseDto), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status201Created)]
         public async Task<ActionResult<QuestionnaireTemplateDto>> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateAddRequest questionnaireTemplate)
         {
+            QuestionnaireTemplateModel? existingTemplate = await _QuestionnaireRepository.GetSingleAsync(q => q.TemplateTitle == questionnaireTemplate.TemplateTitle);
+            
+            if (existingTemplate != null)
+            {
+                return Conflict(existingTemplate.ToDto());
+            }
+            
             QuestionnaireTemplateModel template = await _QuestionnaireRepository.AddAsync(questionnaireTemplate.ToModel());
 
             return CreatedAtRoute("", template.Id, template.ToDto());
         }
 
         [HttpDelete("delete/{id}")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<QuestionnaireTemplateDto>> DeleteQuestionnaireTemplate(Guid id)
         {
             QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id,
@@ -81,6 +96,7 @@ namespace API.Controllers
         }
 
         [HttpGet("amount")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<int> GetAmountOfQuestionnaireTemplates()
         {
             return Ok(_QuestionnaireRepository.GetCount());
