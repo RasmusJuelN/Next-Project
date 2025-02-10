@@ -10,7 +10,8 @@ public class DefaultFileLogger : IFileLoggerSettings
     {
         { "Default", Microsoft.Extensions.Logging.LogLevel.Warning },
         { "API", Microsoft.Extensions.Logging.LogLevel.Information },
-        { "Database", Microsoft.Extensions.Logging.LogLevel.Information}
+        { "Database", Microsoft.Extensions.Logging.LogLevel.Information},
+        { "Microsoft.EntityFrameworkCore.Migrations", Microsoft.Extensions.Logging.LogLevel.Information}
     };
     public string Path { get; set; } = "./app.log";
 }
