@@ -10,7 +10,7 @@ public static class QuestionnaireTemplateAddRequestExtensions
         return new QuestionnaireTemplateModel
         {
             TemplateTitle = questionnaireAddRequest.TemplateTitle,
-            Questions = [.. questionnaireAddRequest.QuestionnaireTemplateQuestions.Select(q => q.ToModel())]
+            Questions = [.. questionnaireAddRequest.Questions.Select(q => q.ToModel())]
         };
     }
 }

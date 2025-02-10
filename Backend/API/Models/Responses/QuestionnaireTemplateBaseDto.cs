@@ -1,6 +1,6 @@
 namespace API.Models.Responses;
 
-public record class QuestionnaireTemplateResponse
+public record class QuestionnaireTemplateBaseDto
 {
     public required Guid Id { get; set; }
     public required string TemplateTitle { get; set; }

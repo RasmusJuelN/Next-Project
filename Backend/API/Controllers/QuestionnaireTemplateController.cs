@@ -18,7 +18,7 @@ namespace API.Controllers
         private readonly IGenericRepository<QuestionnaireTemplateModel> _QuestionnaireRepository = QuestionnaireRepository;
 
         [HttpGet]
-        public async Task<List<QuestionnaireTemplateResponse>> GetQuestionnaireTemplates([FromQuery] PaginationRequest request)
+        public async Task<ActionResult<List<QuestionnaireTemplateBaseDto>>> GetQuestionnaireTemplates([FromQuery] PaginationRequest request)
         {
             int start = (request.Page - 1) * request.PageSize;
             int amount = request.PageSize;
@@ -39,13 +39,14 @@ namespace API.Controllers
 
             List<QuestionnaireTemplateModel> questionnaireTemplates = await query.ToListAsync();
             
-            return [.. questionnaireTemplates.Select(q => q.ToDto())];
+            return Ok(questionnaireTemplates.Select(q => q.ToBaseDto()).ToList());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<QuestionnaireTemplateResponse>> GetQuestionnaireTemplate(Guid id)
+        public async Task<ActionResult<QuestionnaireTemplateDto>> GetQuestionnaireTemplate(Guid id)
         {
-            QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id);
+            QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id,
+                query => query.Include(q => q.Questions).ThenInclude(q => q.Options));
 
             if (template == null)
             {
@@ -56,7 +57,8 @@ namespace API.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateAddRequest questionnaireTemplate)
+        [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status201Created)]
+        public async Task<ActionResult<QuestionnaireTemplateDto>> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateAddRequest questionnaireTemplate)
         {
             QuestionnaireTemplateModel template = await _QuestionnaireRepository.AddAsync(questionnaireTemplate.ToModel());
 
@@ -64,9 +66,10 @@ namespace API.Controllers
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult<QuestionnaireTemplateResponse>> DeleteQuestionnaireTemplate(Guid id)
+        public async Task<ActionResult<QuestionnaireTemplateDto>> DeleteQuestionnaireTemplate(Guid id)
         {
-            QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id);
+            QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id,
+                query => query.Include(q => q.Questions).ThenInclude(q => q.Options));
 
             if (template == null)
             {

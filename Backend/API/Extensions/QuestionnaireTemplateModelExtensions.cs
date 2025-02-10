@@ -5,15 +5,28 @@ namespace API.Extensions;
 
 public static class QuestionnaireTemplateModelExtensions
 {
-    public static QuestionnaireTemplateResponse ToDto(this QuestionnaireTemplateModel questionnaireTemplate)
+    public static QuestionnaireTemplateBaseDto ToBaseDto(this QuestionnaireTemplateModel questionnaireTemplate)
     {
-        return new QuestionnaireTemplateResponse
+        return new QuestionnaireTemplateBaseDto
         {
             Id = questionnaireTemplate.Id,
             TemplateTitle = questionnaireTemplate.TemplateTitle,
             CreatedAt = questionnaireTemplate.CreatedAt,
             LastUpdated = questionnaireTemplate.LastUpated,
             IsLocked = questionnaireTemplate.IsLocked,
+        };
+    }
+
+    public static QuestionnaireTemplateDto ToDto(this QuestionnaireTemplateModel questionnaireTemplate)
+    {
+        return new QuestionnaireTemplateDto
+        {
+            Id = questionnaireTemplate.Id,
+            TemplateTitle = questionnaireTemplate.TemplateTitle,
+            CreatedAt = questionnaireTemplate.CreatedAt,
+            LastUpdated = questionnaireTemplate.LastUpated,
+            IsLocked = questionnaireTemplate.IsLocked,
+            Questions = [.. questionnaireTemplate.Questions.Select(q => q.ToDto())]
         };
     }
 }

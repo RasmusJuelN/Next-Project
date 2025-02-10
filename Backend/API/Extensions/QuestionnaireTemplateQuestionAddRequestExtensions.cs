@@ -11,7 +11,7 @@ public static class QuestionnaireTemplateQuestionAddRequestExtensions
         {
             Prompt = question.Prompt,
             AllowCustom = question.AllowCustom,
-            Options = [.. question.QuestionnaireTemplateOptions.Select(q => q.ToModel())]
+            Options = [.. question.Options.Select(q => q.ToModel())]
         };
     }
 }
