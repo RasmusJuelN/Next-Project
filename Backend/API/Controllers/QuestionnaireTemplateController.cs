@@ -19,21 +19,22 @@ namespace API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<QuestionnaireTemplateBaseDto>>> GetQuestionnaireTemplates([FromQuery] PaginationRequest request)
+        [ProducesResponseType(typeof(List<QuestionnaireTemplateBaseDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<QuestionnaireTemplateBaseDto>>> GetQuestionnaireTemplates([FromQuery] QuestionnaireTemplatePaginationRequest request)
         {
             int start = (request.Page - 1) * request.PageSize;
             int amount = request.PageSize;
 
             IQueryable<QuestionnaireTemplateModel> query = _QuestionnaireRepository.GetAsQueryable();
 
-            if (request.SearchType != null && !string.IsNullOrEmpty(request.SearchTerm))
+            if (!string.IsNullOrEmpty(request.Title))
             {
-                query = request.SearchType switch
-                {
-                    SearchTypes.Title => query.Where(q => q.TemplateTitle.Contains(request.SearchTerm)),
-                    SearchTypes.Id => query.Where(q => q.Id.ToString().Contains(request.SearchTerm)),
-                    _ => query
-                };
+                query = query.Where(q => q.TemplateTitle.Contains(request.Title));
+            }
+            
+            if (request.Id != null)
+            {
+                query = query.Where(q => q.Id == request.Id);
             }
 
             query = query.OrderBy(c => c.CreatedAt).Skip(start).Take(amount);
