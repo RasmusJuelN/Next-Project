@@ -42,12 +42,39 @@ namespace API.Controllers
             return [.. questionnaireTemplates.Select(q => q.ToDto())];
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<QuestionnaireTemplateResponse>> GetQuestionnaireTemplate(Guid id)
+        {
+            QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id);
+
+            if (template == null)
+            {
+                return NotFound();
+            }
+
+            return template.ToDto();
+        }
+
         [HttpPost("add")]
         public async Task<IActionResult> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateAddRequest questionnaireTemplate)
         {
-            await _QuestionnaireRepository.AddAsync(questionnaireTemplate.ToModel());
+            QuestionnaireTemplateModel template = await _QuestionnaireRepository.AddAsync(questionnaireTemplate.ToModel());
 
-            return Ok();
+            return CreatedAtRoute("", template.Id, template.ToDto());
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult<QuestionnaireTemplateResponse>> DeleteQuestionnaireTemplate(Guid id)
+        {
+            QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id);
+
+            if (template == null)
+            {
+                return NotFound();
+            }
+
+            await _QuestionnaireRepository.DeleteAsync(template);
+            return Ok(template.ToDto());
         }
 
         [HttpGet("amount")]
