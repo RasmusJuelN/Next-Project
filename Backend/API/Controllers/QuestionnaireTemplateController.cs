@@ -32,5 +32,11 @@ namespace API.Controllers
 
             return Ok();
         }
+
+        [HttpGet("amount")]
+        public ActionResult<int> GetAmountOfQuestionnaireTemplates()
+        {
+            return Ok(_QuestionnaireRepository.GetCount());
+        }
     }
 }

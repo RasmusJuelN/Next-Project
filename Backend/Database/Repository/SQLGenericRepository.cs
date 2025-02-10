@@ -44,6 +44,18 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         return await query.ToListAsync();
     }
 
+    public int GetCount(Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
+    {
+        IQueryable<TEntity> query = _context.Set<TEntity>();
+
+        if (queryModifier is not null)
+        {
+            query = queryModifier(query);
+        }
+
+        return query.Count();
+    }
+
     public async Task<TEntity> AddAsync(TEntity entity)
     {
         await _context.Set<TEntity>().AddAsync(entity);
