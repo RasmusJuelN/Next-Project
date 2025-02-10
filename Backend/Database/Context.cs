@@ -25,6 +25,7 @@ public class Context : DbContext
             .HasPrincipalKey(q => q.Id)
             .IsRequired(false);
             e.Property(q => q.CreatedAt).HasDefaultValueSql("getdate()");
+            e.Property(q => q.LastUpated).HasDefaultValueSql("getdate()");
         });
         
         // QuestionnaireQuestion
