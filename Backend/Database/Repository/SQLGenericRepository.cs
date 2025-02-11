@@ -44,28 +44,6 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         return await query.ToListAsync();
     }
 
-    public IQueryable<TEntity> GetAsQueryable()
-    {
-        return _context.Set<TEntity>();
-    }
-
-    public int GetCount(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
-    {
-        IQueryable<TEntity> query = _context.Set<TEntity>();
-
-        if (predicate != null)
-        {
-            query = query.Where(predicate);
-        }
-
-        if (queryModifier is not null)
-        {
-            query = queryModifier(query);
-        }
-
-        return query.Count();
-    }
-
     public async Task<TEntity> AddAsync(TEntity entity)
     {
         await _context.Set<TEntity>().AddAsync(entity);
@@ -113,5 +91,27 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
         await _context.SaveChangesAsync();
 
         return entities;
+    }
+
+    public IQueryable<TEntity> GetAsQueryable()
+    {
+        return _context.Set<TEntity>();
+    }
+
+    public int GetCount(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
+    {
+        IQueryable<TEntity> query = _context.Set<TEntity>();
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+
+        if (queryModifier is not null)
+        {
+            query = queryModifier(query);
+        }
+
+        return query.Count();
     }
 }
