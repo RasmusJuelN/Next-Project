@@ -114,4 +114,11 @@ public class SQLGenericRepository<TEntity>(Context context) : IGenericRepository
 
         return query.Count();
     }
+
+    public async Task<bool> Exists(Expression<Func<TEntity, bool>> predicate)
+    {
+        List<TEntity> entities = await GetAsync(predicate);
+
+        return entities.Count > 0;
+    }
 }
