@@ -176,7 +176,7 @@ public class Context : DbContext
             e.ToTable("ApplicationLogs");
             e.HasKey(a => a.Id);
             e.Property(a => a.Message)
-            .HasMaxLength(500)
+            .HasMaxLength(1000)
             .IsRequired();
             e.Property(a => a.Timestamp)
             .HasDefaultValueSql("getdate()");
@@ -186,7 +186,7 @@ public class Context : DbContext
             .HasMaxLength(150)
             .IsRequired();
             e.Property(a => a.Exception)
-            .HasMaxLength(500)
+            .HasMaxLength(5000)
             .IsRequired(false);
         });
 
