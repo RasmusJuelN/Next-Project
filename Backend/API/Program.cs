@@ -103,7 +103,12 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddDbContext<Context>(o => o.UseSqlServer(databaseSettings.ConnectionString, b => b.MigrationsAssembly("API")));
+builder.Services.AddDbContext<Context>(o =>
+    o.UseSqlServer(databaseSettings.ConnectionString,
+        options => {
+            options.MigrationsAssembly("API");
+            options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            }));
 
 var app = builder.Build();
 
