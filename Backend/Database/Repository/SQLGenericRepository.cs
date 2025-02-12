@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -76,12 +77,7 @@ public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where T
 
     public async Task<TEntity> PatchAsync(TEntity existingEntity, object newValues)
     {
-        if (!ObjectMatchesEntity(newValues))
-        {
-            throw new Exception("Data object does not match entity type.");
-        }
-
-        Patch(existingEntity, newValues);
+        SQLGenericRepository<TEntity>.Patch(existingEntity, newValues);
         await _context.SaveChangesAsync();
 
         return existingEntity;
@@ -89,16 +85,11 @@ public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where T
 
     public async Task<List<TEntity>> PatchAsync(Expression<Func<TEntity, bool>> predicate, object newValues)
     {
-        if (!ObjectMatchesEntity(newValues))
-        {
-            throw new Exception("Data object does not match entity type.");
-        }
-
         List<TEntity> existingEntities = await GetAsync(predicate);
 
         foreach (TEntity existingEntity in existingEntities)
         {
-            Patch(existingEntity, newValues);
+            SQLGenericRepository<TEntity>.Patch(existingEntity, newValues);
         }
 
         await _context.SaveChangesAsync();
@@ -165,41 +156,20 @@ public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where T
         return _context.Set<TEntity>();
     }
 
-    private bool ObjectMatchesEntity(object dataObject)
-    {
-        Type entityType = typeof(TEntity);
-        Type dataObjectType = dataObject.GetType();
-        
-        foreach (PropertyInfo dataProperty in dataObjectType.GetProperties())
-        {
-            PropertyInfo? entityProperty = entityType.GetProperty(dataProperty.Name);
-            
-            if (entityProperty is null)
-            {
-                _logger.LogWarning("Property {dataPropertyName} not found in entity type", dataProperty.Name);
-                return false;
-            }
-
-            if (entityProperty.PropertyType != dataProperty.PropertyType)
-            {
-                _logger.LogWarning("Property {dataPropertyName} with type {dataPropertyDeclaringType} does not match entity property type {entityPropertyClrType}", dataProperty.Name, dataProperty.PropertyType, entityProperty.PropertyType);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
+    
     /// <summary>
     /// Updates the properties of an existing entity with the values from a data object.
-    /// Only non-null properties from the data object will be copied to the existing entity.
     /// </summary>
     /// <param name="existingEntity">The entity to be updated.</param>
     /// <param name="dataObject">The object containing the new values.</param>
-    /// <typeparam name="TEntity">The type of the entity being updated.</typeparam>
-    private static void Patch(TEntity existingEntity, object dataObject)
+    /// <remarks>
+    /// This method iterates through the properties of the data object and updates the corresponding properties
+    /// of the existing entity if they are not null and can be written to. If the property is a collection,
+    /// it calls the <see cref="SQLGenericRepository{TEntity}.PatchCollectible"/> method to update the collection.
+    /// </remarks>
+    private static void Patch(object existingEntity, object dataObject)
     {
-        Type entityType = typeof(TEntity);
+        Type entityType = existingEntity.GetType();
         Type dataObjectType = dataObject.GetType();
 
         foreach (PropertyInfo dataObjectProperty in dataObjectType.GetProperties())
@@ -212,9 +182,34 @@ public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where T
 
                 if (entityProperty is not null && entityProperty.CanWrite)
                 {
-                    entityProperty.SetValue(existingEntity, dataObjectValue);
+                    if (typeof(IEnumerable).IsAssignableFrom(entityProperty.PropertyType) && entityProperty.PropertyType != typeof(string))
+                    {
+                        if (entityProperty.GetValue(existingEntity) is IEnumerable<object> entityValues
+                        && dataObjectValue is IEnumerable<object> newValues)
+                        {
+                            SQLGenericRepository<TEntity>.PatchCollectible(entityValues, newValues);
+                        }
+                    }
+                    else
+                    {
+                        entityProperty.SetValue(existingEntity, dataObjectValue);
+                    }
                 }
             }
+        }
+    }
+
+    private static void PatchCollectible(IEnumerable<object> existingCollection, IEnumerable<object> newCollection)
+    {
+        foreach (object newEntity in newCollection)
+        {
+            // Get the primary key from the existing entity
+            object? primaryKey = newEntity.GetType().GetProperty("Id")?.GetValue(newEntity);
+
+            // Check if the primary key exists in the existing collection
+            object? existingItem = existingCollection.FirstOrDefault(e => e.GetType().GetProperty("Id")?.GetValue(e).Equals(primaryKey) ?? false);
+
+            SQLGenericRepository<TEntity>.Patch(existingItem, newEntity);
         }
     }
 }
