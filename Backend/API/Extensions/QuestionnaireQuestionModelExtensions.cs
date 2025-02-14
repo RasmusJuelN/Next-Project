@@ -9,6 +9,7 @@ public static class QuestionnaireQuestionModelExtensions
     {
         return new QuestionnaireTemplateQuestionDto
         {
+            Id = question.Id,
             Prompt = question.Prompt,
             AllowCustom = question.AllowCustom,
             Options = [.. question.Options.Select(o => o.ToDto())]

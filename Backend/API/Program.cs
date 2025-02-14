@@ -81,6 +81,9 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "NEXT questionnaire API", Version = "v1"});
 
+    options.UseAllOfToExtendReferenceSchemas();
+    options.UseOneOfForPolymorphism();
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",

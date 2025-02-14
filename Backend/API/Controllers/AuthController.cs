@@ -34,7 +34,8 @@ namespace API.Controllers
             LdapService ldapService,
             IConfiguration configuration,
             IGenericRepository<RevokedRefreshTokenModel> revokedRefreshTokenRepository,
-            IGenericRepository<UserModel> userRepository, ILoggerFactory loggerFactory)
+            IGenericRepository<UserModel> userRepository,
+            ILoggerFactory loggerFactory)
         {
             _jwtService = jwtService;
             _ldapService = ldapService;

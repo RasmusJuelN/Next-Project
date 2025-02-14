@@ -5,9 +5,9 @@ namespace API.Extensions;
 
 public static class QuestionnaireTemplateModelExtensions
 {
-    public static QuestionnaireTemplateBaseDto ToBaseDto(this QuestionnaireTemplateModel questionnaireTemplate)
+    public static QuestionnaireTemplateBaseDto.TemplateBase ToBaseDto(this QuestionnaireTemplateModel questionnaireTemplate)
     {
-        return new QuestionnaireTemplateBaseDto
+        return new QuestionnaireTemplateBaseDto.TemplateBase
         {
             Id = questionnaireTemplate.Id,
             TemplateTitle = questionnaireTemplate.TemplateTitle,

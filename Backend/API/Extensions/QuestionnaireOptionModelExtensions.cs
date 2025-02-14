@@ -9,6 +9,7 @@ public static class QuestionnaireOptionModelExtensions
     {
         return new QuestionnaireTemplateOptionDto
         {
+            Id = option.Id,
             OptionValue = option.OptionValue,
             DisplayText = option.DisplayText,
         };
