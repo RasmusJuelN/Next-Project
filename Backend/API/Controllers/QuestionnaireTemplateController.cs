@@ -1,5 +1,3 @@
-using System.Reflection;
-using API.Attributes;
 using API.Enums;
 using API.Extensions;
 using API.Models.Requests;
@@ -8,7 +6,6 @@ using Database.Models;
 using Database.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Extensions;
 
 namespace API.Controllers
 {
@@ -21,8 +18,8 @@ namespace API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(typeof(List<QuestionnaireTemplateBaseDto.PaginationResult>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<QuestionnaireTemplateBaseDto.PaginationResult>>> GetQuestionnaireTemplates([FromQuery] QuestionnaireBaseTemplateRequests.Get request)
+        [ProducesResponseType(typeof(QuestionnaireTemplateBaseDto.PaginationResult), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireTemplateBaseDto.PaginationResult>> GetQuestionnaireTemplates([FromQuery] QuestionnaireBaseTemplateRequests.Get request)
         {
             IQueryable<QuestionnaireTemplateModel> query = _QuestionnaireRepository.GetAsQueryable();
 
@@ -38,8 +35,11 @@ namespace API.Controllers
                 query = query.Where(q => q.Id == request.Id);
             }
 
-            if (request.NextCursor is not null)
+            if (!string.IsNullOrEmpty(request.QueryCursor))
             {
+                DateTime cursorCreatedAt = DateTime.Parse(request.QueryCursor.Split('_')[0]);
+                Guid cursorId = Guid.Parse(request.QueryCursor.Split('_')[1]);
+                
                 if (request.Order == QuestionnaireBaseTemplateOrdering.CreatedAtAsc)
                 {
                     // We reverse the order so that we "walk" through the rows
@@ -49,16 +49,17 @@ namespace API.Controllers
                     // row3 < row4 < row5 cursor_position < row2 < row1
                     // To:
                     // row5 < row4 < row3 cursor_position < row2 < row1
-                    query = query.Where(q => q.CreatedAt < request.NextCursor.CreatedAt
-                    || q.CreatedAt == request.NextCursor.CreatedAt && q.Id < request.NextCursor.Id).Reverse();
+                    query = query.Where(q => q.CreatedAt < cursorCreatedAt
+                    || q.CreatedAt == cursorCreatedAt && q.Id < cursorId).Reverse();
                 }
                 else
                 {
-                    query = query.Where(q => q.CreatedAt > request.NextCursor.CreatedAt
-                    || q.CreatedAt == request.NextCursor.CreatedAt && q.Id > request.NextCursor.Id).Reverse();
+                    query = query.Where(q => q.CreatedAt > cursorCreatedAt
+                    || q.CreatedAt == cursorCreatedAt && q.Id > cursorId).Reverse();
                 }
             }
 
+            int totalQueryCount = await query.CountAsync();
             query = query.Take(request.PageSize);
 
             List<QuestionnaireTemplateModel> questionnaireTemplates = await query.ToListAsync();
@@ -66,24 +67,17 @@ namespace API.Controllers
             List<QuestionnaireTemplateBaseDto.TemplateBase> questionnaireTemplatesDto = [.. questionnaireTemplates.Select(q => q.ToBaseDto())];
             QuestionnaireTemplateBaseDto.TemplateBase? lastTemplate = questionnaireTemplatesDto.Count != 0 ? questionnaireTemplatesDto.Last() : null;
 
-            QuestionnaireTemplateBaseDto.NextCursor nextCursor;
+            string? queryCursor = null;
             if (lastTemplate is not null)
             {
-                nextCursor = new()
-                {
-                    CreatedAt = lastTemplate.CreatedAt,
-                    Id = lastTemplate.Id,
-                };
-            }
-            else
-            {
-                nextCursor = new();
+                queryCursor = $"{lastTemplate.CreatedAt:O}_{lastTemplate.Id}";
             }
 
             return Ok(new QuestionnaireTemplateBaseDto.PaginationResult()
             {
                 TemplateBases = questionnaireTemplatesDto,
-                NextCursor = nextCursor
+                QueryCursor = queryCursor,
+                TotalCount = totalQueryCount
             });
         }
 
@@ -174,13 +168,6 @@ namespace API.Controllers
 
             await _QuestionnaireRepository.DeleteAsync(template);
             return Ok(template.ToDto());
-        }
-
-        [HttpGet("amount")]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<int> GetAmountOfQuestionnaireTemplates()
-        {
-            return Ok(_QuestionnaireRepository.GetCount());
         }
     }
 }

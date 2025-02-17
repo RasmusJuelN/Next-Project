@@ -5,7 +5,8 @@ public record class QuestionnaireTemplateBaseDto
     public record class PaginationResult
     {
         public List<TemplateBase> TemplateBases { get; set; } = [];
-        public NextCursor? NextCursor { get; set; }
+        public string? QueryCursor { get; set; }
+        public int TotalCount { get; set; }
     }
     
     public record class TemplateBase
@@ -15,11 +16,5 @@ public record class QuestionnaireTemplateBaseDto
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdated { get; set; }
         public bool IsLocked { get; set; }
-    }
-
-    public record class NextCursor
-    {
-        public DateTime? CreatedAt { get; set; }
-        public Guid? Id { get; set; }
     }
 }
