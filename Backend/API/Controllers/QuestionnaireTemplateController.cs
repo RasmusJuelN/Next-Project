@@ -16,6 +16,24 @@ namespace API.Controllers
     {
         private readonly IGenericRepository<QuestionnaireTemplateModel> _QuestionnaireRepository = QuestionnaireRepository;
 
+        /// <summary>
+        /// Retrieves a list of questionnaire templates based on the specified request parameters.
+        /// </summary>
+        /// <param name="request">The request parameters for retrieving questionnaire templates.</param>
+        /// <returns>
+        /// An <see cref="ActionResult"/> containing a list of <see cref="QuestionnaireTemplateBaseDto.PaginationResult"/>.
+        /// </returns>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     Get /api/questionnaire-template?PageSize=5&amp;Order=CreatedAtDesc
+        ///     
+        /// <para></para>
+        /// queryCursor is a unique combination of the lastUpdated and Id values of the last item in the result.
+        /// For subsequent queries, this can be included to indicate and control where the query should resume from.
+        /// </remarks>
+        /// <response code="200">Returns the list of questionnaire templates.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(QuestionnaireTemplateBaseDto.PaginationResult), StatusCodes.Status200OK)]
