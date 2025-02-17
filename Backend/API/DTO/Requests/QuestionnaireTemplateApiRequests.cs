@@ -3,9 +3,9 @@ using API.Enums;
 
 namespace API.Models.Requests;
 
-public record class QuestionnaireBaseTemplateRequests
+public record class QuestionnaireTemplateApiRequests
 {
-    public record class Get
+    public record class PaginationQuery
     {
         /// <summary>
         /// How many items the pagination query should return.
@@ -34,6 +34,27 @@ public record class QuestionnaireBaseTemplateRequests
         /// </summary>
         public string? QueryCursor { get; set; }
     }
+
+    public record class AddTemplate
+    {
+        public required string TemplateTitle { get; set; }
+        public required List<AddQuestion> Questions { get; set; }
+    }
+
+    public record class AddQuestion
+    {
+        public required string Prompt { get; set; }
+        public required bool AllowCustom { get; set; }
+        public required List<AddOption> Options { get; set; }
+    }
+
+    public record class AddOption
+    {
+        public int Id { get; set; }
+        public int OptionValue { get; set; }
+        public required string DisplayText { get; set; }
+    }
+    
     public record class Patch
     {
         public string? TemplateTitle { get; set; }

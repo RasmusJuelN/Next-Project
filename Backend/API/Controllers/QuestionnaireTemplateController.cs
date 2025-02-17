@@ -37,7 +37,7 @@ namespace API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(QuestionnaireTemplateBaseDto.PaginationResult), StatusCodes.Status200OK)]
-        public async Task<ActionResult<QuestionnaireTemplateBaseDto.PaginationResult>> GetQuestionnaireTemplates([FromQuery] QuestionnaireBaseTemplateRequests.Get request)
+        public async Task<ActionResult<QuestionnaireTemplateBaseDto.PaginationResult>> GetQuestionnaireTemplates([FromQuery] QuestionnaireTemplateApiRequests.PaginationQuery request)
         {
             IQueryable<QuestionnaireTemplateModel> query = _QuestionnaireRepository.GetAsQueryable();
 
@@ -103,7 +103,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(QuestionnaireTemplateBaseDto), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status201Created)]
-        public async Task<ActionResult<QuestionnaireTemplateDto>> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateAddRequest questionnaireTemplate)
+        public async Task<ActionResult<QuestionnaireTemplateDto>> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateApiRequests.AddTemplate questionnaireTemplate)
         {
             QuestionnaireTemplateModel? existingTemplate = await _QuestionnaireRepository.GetSingleAsync(q => q.TemplateTitle == questionnaireTemplate.TemplateTitle);
             
@@ -156,7 +156,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
-        public async Task<ActionResult<QuestionnaireTemplateDto>> PatchQuestionnaireTemplate(Guid id, [FromBody] QuestionnaireBaseTemplateRequests.Patch updateRequest)
+        public async Task<ActionResult<QuestionnaireTemplateDto>> PatchQuestionnaireTemplate(Guid id, [FromBody] QuestionnaireTemplateApiRequests.Patch updateRequest)
         {
             QuestionnaireTemplateModel? existingModel = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id, query => query.Include(q => q.Questions).ThenInclude(o => o.Options));
 

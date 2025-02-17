@@ -5,7 +5,7 @@ namespace API.Extensions;
 
 public static class QuestionnaireTemplateAddRequestExtensions
 {
-    public static QuestionnaireTemplateModel ToModel(this QuestionnaireTemplateAddRequest questionnaireAddRequest)
+    public static QuestionnaireTemplateModel ToModel(this QuestionnaireTemplateApiRequests.AddTemplate questionnaireAddRequest)
     {
         return new QuestionnaireTemplateModel
         {
