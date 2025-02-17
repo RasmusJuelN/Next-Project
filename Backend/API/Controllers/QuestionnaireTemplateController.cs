@@ -99,23 +99,6 @@ namespace API.Controllers
             });
         }
 
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
-        public async Task<ActionResult<QuestionnaireTemplateDto>> GetQuestionnaireTemplate(Guid id)
-        {
-            QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id,
-                query => query.Include(q => q.Questions).ThenInclude(q => q.Options));
-
-            if (template == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(template.ToDto());
-        }
-
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(QuestionnaireTemplateBaseDto), StatusCodes.Status409Conflict)]
@@ -134,11 +117,28 @@ namespace API.Controllers
             return CreatedAtRoute("", template.Id, template.ToDto());
         }
 
-        [HttpPost("update")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
-        public async Task<ActionResult<QuestionnaireTemplateDto>> UpdateQuestionnaireTemplate([FromBody] QuestionnaireTemplateUpdateRequest updateRequest)
+        public async Task<ActionResult<QuestionnaireTemplateDto>> GetQuestionnaireTemplate(Guid id)
+        {
+            QuestionnaireTemplateModel? template = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == id,
+                query => query.Include(q => q.Questions).ThenInclude(q => q.Options));
+
+            if (template == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(template.ToDto());
+        }
+
+        [HttpPut("{id}/update")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireTemplateDto>> UpdateQuestionnaireTemplate(int id, [FromBody] QuestionnaireTemplateUpdateRequest updateRequest)
         {
             QuestionnaireTemplateModel? existingModel = await _QuestionnaireRepository.GetSingleAsync(q => q.Id == updateRequest.Id, query => query.Include(q => q.Questions).ThenInclude(o => o.Options));
             
@@ -152,7 +152,7 @@ namespace API.Controllers
             throw new NotImplementedException();
         }
 
-        [HttpPatch("patch/{id}")]
+        [HttpPatch("{id}/patch")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
@@ -170,7 +170,7 @@ namespace API.Controllers
             return updatedModel.ToDto();
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}/delete")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
