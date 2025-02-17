@@ -161,38 +161,41 @@ public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where T
     /// Updates the properties of an existing entity with the values from a data object.
     /// </summary>
     /// <param name="existingEntity">The entity to be updated.</param>
-    /// <param name="dataObject">The object containing the new values.</param>
+    /// <param name="updateSource">The object containing the new values.</param>
     /// <remarks>
     /// This method iterates through the properties of the data object and updates the corresponding properties
     /// of the existing entity if they are not null and can be written to. If the property is a collection,
     /// it calls the <see cref="SQLGenericRepository{TEntity}.PatchCollectible"/> method to update the collection.
     /// </remarks>
-    private static void Patch(object existingEntity, object dataObject)
+    private static void Patch(object existingEntity, object updateSource)
     {
         Type entityType = existingEntity.GetType();
-        Type dataObjectType = dataObject.GetType();
+        Type sourceDataType = updateSource.GetType();
 
-        foreach (PropertyInfo dataObjectProperty in dataObjectType.GetProperties())
+        foreach (PropertyInfo sourceProperty in sourceDataType.GetProperties())
         {
-            object? dataObjectValue = dataObjectProperty.GetValue(dataObject);
+            object? sourcePropertyValue = sourceProperty.GetValue(updateSource);
 
-            if (dataObjectValue is not null)
+            // Check if the source has defined a new value; if not, don't patch it
+            if (sourcePropertyValue is not null)
             {
-                PropertyInfo? entityProperty = entityType.GetProperty(dataObjectProperty.Name);
+                PropertyInfo? entityProperty = entityType.GetProperty(sourceProperty.Name);
 
+                // Ensure the existing entity has a matching property, and can be written to
                 if (entityProperty is not null && entityProperty.CanWrite)
                 {
                     if (typeof(IEnumerable).IsAssignableFrom(entityProperty.PropertyType) && entityProperty.PropertyType != typeof(string))
                     {
-                        if (entityProperty.GetValue(existingEntity) is IEnumerable<object> entityValues
-                        && dataObjectValue is IEnumerable<object> newValues)
+                        // If the property is a collection, call the PatchCollectible method
+                        if (entityProperty.GetValue(existingEntity) is IEnumerable<object> existingRecords
+                        && sourcePropertyValue is IEnumerable<object> updatedRecords)
                         {
-                            SQLGenericRepository<TEntity>.PatchCollectible(entityValues, newValues);
+                            SQLGenericRepository<TEntity>.PatchCollectible(existingRecords, updatedRecords);
                         }
                     }
                     else
                     {
-                        entityProperty.SetValue(existingEntity, dataObjectValue);
+                        entityProperty.SetValue(existingEntity, sourcePropertyValue);
                     }
                 }
             }
@@ -207,9 +210,16 @@ public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where T
             object? primaryKey = newEntity.GetType().GetProperty("Id")?.GetValue(newEntity);
 
             // Check if the primary key exists in the existing collection
-            object? existingItem = existingCollection.FirstOrDefault(e => e.GetType().GetProperty("Id")?.GetValue(e).Equals(primaryKey) ?? false);
+            object? existingItem = existingCollection.FirstOrDefault(e => 
+            {
+                var idValue = e.GetType().GetProperty("Id")?.GetValue(e);
+                return idValue != null && idValue.Equals(primaryKey);
+            });
 
-            SQLGenericRepository<TEntity>.Patch(existingItem, newEntity);
+            if (existingItem != null)
+            {
+                SQLGenericRepository<TEntity>.Patch(existingItem, newEntity);
+            }
         }
     }
 }
