@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Question, Template } from '../models/template.model';
+import { NextCursor, Question, Template, TemplateBase, TemplateBaseResponse } from '../models/template.model';
 import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 
@@ -179,74 +179,167 @@ export class MockTemplateService {
         },
       ],
     },
+    {
+      id: '8',
+      title: 'Team Meeting Notes Template',
+      description: 'A template for recording notes during team meetings.',
+      questions: [
+        {
+          id: 13,
+          title: 'What is the meeting date?',
+          customAnswer: true,
+          options: [],
+        },
+        {
+          id: 14,
+          title: 'Summary of key points:',
+          customAnswer: true,
+          options: [],
+        },
+      ],
+    },
+    {
+      id: '8',
+      title: 'WHAT',
+      description: 'A template for recording notes during team meetings.',
+      questions: [
+        {
+          id: 13,
+          title: 'What is the meeting date?',
+          customAnswer: true,
+          options: [],
+        },
+        {
+          id: 14,
+          title: 'Summary of key points:',
+          customAnswer: true,
+          options: [],
+        },
+      ],
+    },
+    {
+      id: '8',
+      title: 'WHAT',
+      description: 'A template for recording notes during team meetings.',
+      questions: [
+        {
+          id: 13,
+          title: 'What is the meeting date?',
+          customAnswer: true,
+          options: [],
+        },
+        {
+          id: 14,
+          title: 'Summary of key points:',
+          customAnswer: true,
+          options: [],
+        },
+      ],
+    },
   ];
   
 
   constructor() {}
-
-  getTemplates(
-    page: number,
-    pageSize: number,
+  
+  getTemplateBases(
+    pageSize: number = 5,
+    nextCursorCreatedAt?: string,
+    nextCursorId?: string,
     searchTerm: string = '',
     searchType: 'name' | 'id' = 'name'
-  ): Observable<PaginationResponse<Template>> {
-    let filteredTemplates = this.templates;
-  
-    // Filter templates based on the search term and search type
+  ): Observable<TemplateBaseResponse> {
+    // 1. Filter based on searchTerm
+    let filtered = [...this.templates];
     if (searchTerm.trim() !== '') {
       if (searchType === 'name') {
-        filteredTemplates = filteredTemplates.filter(template =>
-          template.title.toLowerCase().includes(searchTerm.toLowerCase())
+        filtered = filtered.filter((t) =>
+          t.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
-      } else if (searchType === 'id') {
-        filteredTemplates = filteredTemplates.filter(template =>
-          template.id.toLowerCase().includes(searchTerm.toLowerCase())
+      } else {
+        filtered = filtered.filter((t) =>
+          t.id.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
     }
   
-    // Calculate pagination
-    const totalItems = filteredTemplates.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const start = (page - 1) * pageSize;
-    const paginatedTemplates = filteredTemplates.slice(start, start + pageSize);
-  
-    // Return the paginated response, simulating network delay
-    return of({
-      items: paginatedTemplates,   // The current page of templates
-      totalItems: totalItems,      // Total number of filtered templates
-      currentPage: page,           // The current page
-      pageSize: pageSize,          // Items per page
-      totalPages: totalPages       // Total number of pages
-    }).pipe(delay(2000));
-  }
-  
-  updateTemplate(templateId: string, updatedTemplate: Template): Observable<void> {
-    // Find the index of the template to update
-    const templateIndex = this.templates.findIndex((t) => t.id === templateId);
-  
-    if (templateIndex === -1) {
-      throw new Error(`Template with ID ${templateId} not found`);
+    // 2. Determine the effective page from the provided cursor.
+    //    If no nextCursorId is provided, we are on page 1.
+    let effectivePage = 1;
+    if (nextCursorId) {
+      // Assume cursor format: 'dummy-cursor-for-page-X'
+      const match = nextCursorId.match(/dummy-cursor-for-page-(\d+)/);
+      if (match && match[1]) {
+        effectivePage = parseInt(match[1]) - 1; // The current page is one less than the next page.
+      }
     }
   
-    // Update the template
-    this.templates[templateIndex] = { ...updatedTemplate };
+    // 3. Use effectivePage to calculate start and end indexes.
+    const startIndex = (effectivePage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const pageItems = filtered.slice(startIndex, endIndex);
   
-    // Simulate async response
-    return of();
+    // 4. Map full Template items to TemplateBase objects.
+    const templateBases: TemplateBase[] = pageItems.map((t) => ({
+      id: t.id,
+      templateTitle: t.title,
+      createdAt: '2025-02-17T09:11:51.7366667', // or new Date().toISOString()
+      lastUpdated: '2025-02-17T09:11:51.7366667',
+      isLocked: false,
+    }));
+  
+    // 5. Determine if there is more data beyond the current page.
+    const hasMore = endIndex < filtered.length;
+  
+    // 6. If more data exists, create a dummy nextCursor.
+    const newNextCursor: NextCursor | null = hasMore
+      ? {
+          createdAt: '2025-02-17T09:12:00.0000000',
+          // The next cursor indicates the next page number.
+          id: `dummy-cursor-for-page-${effectivePage + 2}`,
+        }
+      : null;
+  
+    // Build the response object.
+    const response: TemplateBaseResponse = {
+      templateBases,
+      nextCursor: newNextCursor,
+    };
+  
+    // Simulate network delay.
+    return of(response).pipe(delay(1000));
   }
   
   
+
+  getTemplateDetails(templateId: string): Observable<Template> {
+    const found = this.templates.find((t) => t.id === templateId);
+    if (!found) {
+      throw new Error(`Template with ID ${templateId} not found`);
+    }
+    return of(found).pipe(delay(500));
+  }
+
 
   addTemplate(template: Template): Observable<Template> {
-    const newTemplate = { ...template, id: Date.now().toString() }; // Generate a unique ID for the template
-    this.templates.push(newTemplate); // Add the new template to the list
-    return of(newTemplate); // Return the newly added template
+    const newTemplate = { ...template, id: Date.now().toString() };
+    this.templates.push(newTemplate);
+    return of(newTemplate).pipe(delay(500));
   }
-  
 
-  deleteTemplate(templateId: string) {
-    this.templates = this.templates.filter((template) => template.id !== templateId);
-    return of();
+  updateTemplate(templateId: string, updatedTemplate: Template): Observable<void> {
+    const index = this.templates.findIndex((t) => t.id === templateId);
+    if (index === -1) {
+      throw new Error(`Template with ID ${templateId} not found`);
+    }
+    this.templates[index] = { ...updatedTemplate };
+    return of(void 0).pipe(delay(500));
+  }
+
+  /**
+   * Delete a template by ID
+   */
+  deleteTemplate(templateId: string): Observable<void> {
+    this.templates = this.templates.filter((t) => t.id !== templateId);
+    return of(void 0).pipe(delay(500));
   }
 }

@@ -16,3 +16,23 @@ export interface Template {
     id: number;
     label: string;
   }
+
+
+  export interface TemplateBase {
+    id: string;
+    templateTitle: string;
+    createdAt: string;
+    lastUpdated: string;
+    isLocked: boolean;
+  }
+  
+  export interface NextCursor {
+    createdAt: string;
+    id: string;
+  }
+  
+  export interface TemplateBaseResponse {
+    templateBases: TemplateBase[];
+    nextCursor?: NextCursor | null;
+  }
+  
