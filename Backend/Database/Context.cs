@@ -25,6 +25,7 @@ public class Context : DbContext
             .HasPrincipalKey(q => q.Id)
             .IsRequired(false);
             e.Property(q => q.CreatedAt).HasDefaultValueSql("getdate()");
+            e.Property(q => q.LastUpated).HasDefaultValueSql("getdate()");
         });
         
         // QuestionnaireQuestion
@@ -53,6 +54,9 @@ public class Context : DbContext
         modelBuilder.Entity<ActiveQuestionnaireModel>(e => {
             e.ToTable("ActiveQuestionnaire");
             e.HasKey(a => a.Id);
+            e.Property(a => a.Title)
+            .HasMaxLength(150);
+            e.HasIndex(a => a.Title);
             e.Property(a => a.ActivatedAt)
             .HasDefaultValueSql("getdate()");
             e.Property(a => a.StudentCompletedAt)
@@ -62,14 +66,20 @@ public class Context : DbContext
             e.HasOne(a => a.Student)
             .WithMany()
             .HasForeignKey(a => a.StudentId)
-            .HasPrincipalKey(u => u.Id);
+            .HasPrincipalKey(u => u.Id)
+            .OnDelete(DeleteBehavior.NoAction);
             e.HasOne(a => a.Teacher)
             .WithMany()
             .HasForeignKey(a => a.TeacherId)
-            .HasPrincipalKey(u => u.Id);
+            .HasPrincipalKey(u => u.Id)
+            .OnDelete(DeleteBehavior.NoAction);
             e.HasOne(a => a.QuestionnaireTemplate)
             .WithMany(q => q.ActiveQuestionnaires);
             e.HasMany(a => a.Answers)
+            .WithOne(a => a.ActiveQuestionnaire)
+            .HasForeignKey(a => a.ActiveQuestionnaireId)
+            .HasPrincipalKey(a => a.Id);
+            e.HasMany(a => a.ActiveQuestionnaireQuestions)
             .WithOne(a => a.ActiveQuestionnaire)
             .HasForeignKey(a => a.ActiveQuestionnaireId)
             .HasPrincipalKey(a => a.Id);
@@ -83,7 +93,6 @@ public class Context : DbContext
             .WithOne(a => a.ActiveQuestionnaireQuestion)
             .HasForeignKey(a => a.ActiveQuestionnaireQuestionId)
             .HasPrincipalKey(a => a.Id);
-            e.HasOne(a => a.ActiveQuestionnaire).WithMany(a => a.ActiveQuestionnaireQuestions);
             e.Property(a => a.Prompt)
             .HasMaxLength(500);
         });
@@ -107,7 +116,8 @@ public class Context : DbContext
             e.Property(a => a.TeacherResponse)
             .IsRequired(false);
             e.HasOne(a => a.ActiveQuestionnaire)
-            .WithMany(a => a.Answers);
+            .WithMany(a => a.Answers)
+            .OnDelete(DeleteBehavior.NoAction);
             e.HasOne(a => a.CustomStudentResponse)
             .WithOne()
             .HasForeignKey<ActiveQuestionnaireResponseModel>(a => a.CustomStudentResponseId)
@@ -150,6 +160,36 @@ public class Context : DbContext
             .HasPrincipalKey(u => u.Id);
         });
 
+        // RevokedRefreshTokenModel
+        modelBuilder.Entity<RevokedRefreshTokenModel>(e => {
+            e.ToTable("RevokedRefreshToken");
+            e.HasKey(r => r.Id);
+            e.HasIndex(r => r.Token);
+            e.Property(r => r.Token)
+            .IsRequired();
+            e.Property(r => r.RevokedAt)
+            .HasDefaultValueSql("getdate()");
+        });
+
+        // ApplicationLogsModel
+        modelBuilder.Entity<ApplicationLogsModel>(e => {
+            e.ToTable("ApplicationLogs");
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Message)
+            .HasMaxLength(1000)
+            .IsRequired();
+            e.Property(a => a.Timestamp)
+            .HasDefaultValueSql("getdate()");
+            e.Property(a => a.EventId)
+            .IsRequired();
+            e.Property(a => a.Category)
+            .HasMaxLength(150)
+            .IsRequired();
+            e.Property(a => a.Exception)
+            .HasMaxLength(5000)
+            .IsRequired(false);
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 
@@ -162,4 +202,6 @@ public class Context : DbContext
     internal DbSet<ActiveQuestionnaireResponseModel> ActiveQuestionnaireResponses { get; set; }
     internal DbSet<CustomAnswerModel> CustomAnswers { get; set; }
     internal DbSet<UserModel> Users { get; set; }
+    internal DbSet<RevokedRefreshTokenModel> RevokedRefreshTokens { get; set; }
+    internal DbSet<ApplicationLogsModel> ApplicationLogs { get; set; }
 }

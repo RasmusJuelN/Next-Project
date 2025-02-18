@@ -1,12 +1,12 @@
 namespace Database.Models;
 
-internal class QuestionnaireOptionModel
+public class QuestionnaireOptionModel
 {
-    internal int Id { get; set; }
-    internal required int OptionValue { get; set; }
-    internal required string DisplayText { get; set; }
-    internal required int QuestionId { get; set; }
+    public int Id { get; set; }
+    public required int OptionValue { get; set; }
+    public required string DisplayText { get; set; }
+    public int QuestionId { get; set; }
 
     // External navigational properties and references
-    internal required QuestionnaireQuestionModel Question { get; set; }
+    public QuestionnaireQuestionModel? Question { get; set; }
 }

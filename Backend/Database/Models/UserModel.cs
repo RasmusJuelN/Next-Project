@@ -2,14 +2,14 @@ using Database.Enums;
 
 namespace Database.Models;
 
-internal class UserModel
+public class UserModel
 {
-    internal int Id { get; set; }
-    internal required string UserName { get; set; }
-    internal required string FullName { get; set; }
-    internal required UserRoles PrimaryRole { get; set; }
-    internal required UserPermissions Permissions { get; set; }
+    public Guid Id { get; set; }
+    public required string UserName { get; set; }
+    public required string FullName { get; set; }
+    public required UserRoles PrimaryRole { get; set; }
+    public required UserPermissions Permissions { get; set; }
 
     // Navigational properties and references
-    internal ICollection<ActiveQuestionnaireModel>? ActiveQuestionnaires { get; set; }
+    public ICollection<ActiveQuestionnaireModel>? ActiveQuestionnaires { get; set; }
 }
