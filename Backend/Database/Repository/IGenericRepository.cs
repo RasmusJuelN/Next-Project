@@ -14,12 +14,6 @@ public interface IGenericRepository<TEntity> where TEntity : class
 
     Task<List<TEntity>> AddRangeAsync(List<TEntity> entities);
 
-    Task<TEntity> UpdateAsync(TEntity entity, TEntity existingEntity);
-
-    Task<TEntity> PatchAsync(TEntity existingEntity, object newValues);
-    
-    Task<List<TEntity>> PatchAsync(Expression<Func<TEntity, bool>> predicate, object newValues);
-
     Task<TEntity> DeleteAsync(TEntity entity);
 
     Task<List<TEntity>> DeleteAsync(Expression<Func<TEntity, bool>> predicate);

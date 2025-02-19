@@ -53,11 +53,5 @@ public record class QuestionnaireTemplateApiRequests
         public int Id { get; set; }
         public int OptionValue { get; set; }
         public required string DisplayText { get; set; }
-    }
-    
-    public record class Patch
-    {
-        public string? TemplateTitle { get; set; }
-        public List<QuestionnaireTemplateQuestionUpdateRequest>? Questions { get; set; }
-    }
+    }   
 }

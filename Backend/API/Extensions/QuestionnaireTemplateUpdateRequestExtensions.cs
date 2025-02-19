@@ -5,34 +5,36 @@ namespace API.Extensions;
 
 public static class QuestionnaireTemplateUpdateRequestExtensions
 {
-    public static QuestionnaireOptionModel ToModel(this QuestionnaireTemplateOptionUpdateRequest option)
+    public static QuestionnaireOptionModel ToModel(this QuestionnaireTemplateOptionUpdateRequest updateRequest, QuestionnaireOptionModel existingEntity)
     {
         return new QuestionnaireOptionModel
         {
-            Id = option.Id,
-            OptionValue = option.OptionValue,
-            DisplayText = option.DisplayText,
+            Id = existingEntity.Id,
+            OptionValue = updateRequest.OptionValue,
+            DisplayText = updateRequest.DisplayText,
         };
     }
 
-    public static QuestionnaireQuestionModel ToModel(this QuestionnaireTemplateQuestionUpdateRequest question)
+    public static QuestionnaireQuestionModel ToModel(this QuestionnaireTemplateQuestionUpdateRequest updateRequest, QuestionnaireQuestionModel existingEntity)
     {
-        return new QuestionnaireQuestionModel
+        return new()
         {
-            Id = question.Id,
-            Prompt = question.Prompt,
-            AllowCustom = question.AllowCustom,
-            Options = [.. question.Options.Select(o => o.ToModel())]
+            Id = existingEntity.Id,
+            Prompt = updateRequest.Prompt,
+            AllowCustom = updateRequest.AllowCustom,
+            Options = [.. updateRequest.Options.Select(o => o.ToModel(existingEntity.Options.FirstOrDefault(e => e.Id == o.Id) ?? new QuestionnaireOptionModel{OptionValue = o.OptionValue, DisplayText = o.DisplayText}))]
         };
     }
 
-    public static QuestionnaireTemplateModel ToModel(this QuestionnaireTemplateUpdateRequest template)
+    public static QuestionnaireTemplateModel ToModel(this QuestionnaireTemplateUpdateRequest updateRequest, QuestionnaireTemplateModel existingEntity)
     {
-        return new QuestionnaireTemplateModel
+        return new()
         {
-            Id = template.Id,
-            TemplateTitle = template.TemplateTitle,
-            Questions = [.. template.Questions.Select(q => q.ToModel())]
+            Id = existingEntity.Id,
+            TemplateTitle = updateRequest.TemplateTitle,
+            CreatedAt = existingEntity.CreatedAt,
+            LastUpated = DateTime.UtcNow,
+            Questions = [.. updateRequest.Questions.Select(q => q.ToModel(existingEntity.Questions.FirstOrDefault(e => e.Id == q.Id) ?? new QuestionnaireQuestionModel{Prompt = q.Prompt, AllowCustom = q.AllowCustom}))],
         };
     }
 }
