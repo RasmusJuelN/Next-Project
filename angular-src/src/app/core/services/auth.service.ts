@@ -43,14 +43,14 @@ export class AuthService {
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
 
     return this.apiService
-      .post<{ AuthToken: string }>(url, body.toString(), undefined, headers)
+      .post<{ authToken: string }>(url, body.toString(), undefined, headers)
       .pipe(
         tap((response) => {
-          if (response.AuthToken) {
-            this.tokenService.setToken(response.AuthToken);
+          if (response.authToken) {
+            this.tokenService.setToken(response.authToken);
             this.isAuthenticatedSubject.next(true);
             this.userRoleSubject.next(this.getUserRole());
-            this.isOnlineSubject.next(true); // We just successfully hit the server
+            this.isOnlineSubject.next(true);
           }
         }),
         catchError((err) => {
