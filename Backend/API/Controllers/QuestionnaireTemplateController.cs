@@ -3,8 +3,8 @@ using API.Extensions;
 using API.Models.Requests;
 using API.Models.Responses;
 using Database.DTO.QuestionnaireTemplate;
+using Database.Interfaces;
 using Database.Models;
-using Database.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
