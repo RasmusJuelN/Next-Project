@@ -1,7 +1,7 @@
 using Database.DTO.QuestionnaireTemplate;
 using Database.Models;
 
-namespace Database.Repository;
+namespace Database.Interfaces;
 
 public interface IQuestionnaireTemplateRepository : IGenericRepository<QuestionnaireTemplateModel>
 {

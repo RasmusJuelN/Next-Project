@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
-using Database.Models;
+using Database.Interfaces;
 
 const string settingsFile = "config.json";
 
