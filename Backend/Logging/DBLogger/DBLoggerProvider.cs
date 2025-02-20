@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Runtime.Versioning;
+using Database.Interfaces;
 using Database.Models;
-using Database.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

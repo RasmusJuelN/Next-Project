@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
+using Database.Interfaces;
 
 const string settingsFile = "config.json";
 
@@ -71,6 +72,7 @@ builder.Services.Configure<RouteOptions>(o => {
 
 // Repositories
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(SQLGenericRepository<>));
+builder.Services.AddScoped<IQuestionnaireTemplateRepository, SQLQuestionnaireTemplateRepository>();
 
 builder.Services.AddControllers(options =>{
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
@@ -146,6 +148,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseWebSockets();
 
 app.MapControllers();
 
