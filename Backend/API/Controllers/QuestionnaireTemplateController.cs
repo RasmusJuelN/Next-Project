@@ -1,12 +1,10 @@
-using API.Enums;
-using API.Extensions;
+using API.Exceptions;
 using API.Models.Requests;
 using API.Models.Responses;
+using API.Services;
 using Database.DTO.QuestionnaireTemplate;
 using Database.Interfaces;
-using Database.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -14,11 +12,11 @@ namespace API.Controllers
     [ApiController]
     public class QuestionnaireTemplateController : ControllerBase
     {
-        private readonly IQuestionnaireTemplateRepository _QuestionnaireTemplateRepository;
+        private readonly QuestionnaireTemplateService _questionnaireTemplateService;
     
-        public QuestionnaireTemplateController(IQuestionnaireTemplateRepository questionnaireTemplateRepository)
+        public QuestionnaireTemplateController(IQuestionnaireTemplateRepository questionnaireTemplateRepository, QuestionnaireTemplateService questionnaireTemplateService)
         {
-            _QuestionnaireTemplateRepository = questionnaireTemplateRepository;
+            _questionnaireTemplateService = questionnaireTemplateService;
         }
 
         /// <summary>
@@ -44,64 +42,7 @@ namespace API.Controllers
         [ProducesResponseType(typeof(QuestionnaireTemplateBaseDto.PaginationResult), StatusCodes.Status200OK)]
         public async Task<ActionResult<QuestionnaireTemplateBaseDto.PaginationResult>> GetQuestionnaireTemplates([FromQuery] QuestionnaireTemplateApiRequests.PaginationQuery request)
         {
-            IQueryable<QuestionnaireTemplateModel> query = _QuestionnaireTemplateRepository.GetAsQueryable();
-
-            query = request.Order.ApplyQueryOrdering(query);
-
-            if (!string.IsNullOrEmpty(request.Title))
-            {
-                query = query.Where(q => q.TemplateTitle.Contains(request.Title));
-            }
-            
-            if (request.Id is not null)
-            {
-                query = query.Where(q => q.Id == request.Id);
-            }
-
-            if (!string.IsNullOrEmpty(request.QueryCursor))
-            {
-                DateTime cursorCreatedAt = DateTime.Parse(request.QueryCursor.Split('_')[0]);
-                Guid cursorId = Guid.Parse(request.QueryCursor.Split('_')[1]);
-                
-                if (request.Order == QuestionnaireBaseTemplateOrdering.CreatedAtAsc)
-                {
-                    // We reverse the order so that we "walk" through the rows
-                    // I.e. if we didn't reverse it, and was in the middle multiple rows
-                    // it'd select from the "outside" of the result, instead of from the inside
-                    // I.e. we go from:
-                    // row3 < row4 < row5 cursor_position < row2 < row1
-                    // To:
-                    // row5 < row4 < row3 cursor_position < row2 < row1
-                    query = query.Where(q => q.CreatedAt < cursorCreatedAt
-                    || q.CreatedAt == cursorCreatedAt && q.Id < cursorId).Reverse();
-                }
-                else
-                {
-                    query = query.Where(q => q.CreatedAt > cursorCreatedAt
-                    || q.CreatedAt == cursorCreatedAt && q.Id > cursorId).Reverse();
-                }
-            }
-
-            int totalQueryCount = await query.CountAsync();
-            query = query.Take(request.PageSize);
-
-            List<QuestionnaireTemplateModel> questionnaireTemplates = await query.ToListAsync();
-
-            List<QuestionnaireTemplateBaseDto.TemplateBase> questionnaireTemplatesDto = [.. questionnaireTemplates.Select(q => q.ToBaseDto())];
-            QuestionnaireTemplateBaseDto.TemplateBase? lastTemplate = questionnaireTemplatesDto.Count != 0 ? questionnaireTemplatesDto.Last() : null;
-
-            string? queryCursor = null;
-            if (lastTemplate is not null)
-            {
-                queryCursor = $"{lastTemplate.CreatedAt:O}_{lastTemplate.Id}";
-            }
-
-            return Ok(new QuestionnaireTemplateBaseDto.PaginationResult()
-            {
-                TemplateBases = questionnaireTemplatesDto,
-                QueryCursor = queryCursor,
-                TotalCount = totalQueryCount
-            });
+            return Ok(await _questionnaireTemplateService.GetTemplateBasesWithKeysetPagination(request));
         }
 
         [HttpPost("add")]
@@ -110,16 +51,18 @@ namespace API.Controllers
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status201Created)]
         public async Task<ActionResult<QuestionnaireTemplateDto>> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateApiRequests.AddTemplate questionnaireTemplate)
         {
-            QuestionnaireTemplateModel? existingTemplate = await _QuestionnaireTemplateRepository.GetSingleAsync(q => q.TemplateTitle == questionnaireTemplate.TemplateTitle);
-            
-            if (existingTemplate != null)
+            QuestionnaireTemplateDto template;
+            try
             {
-                return Conflict(existingTemplate.ToDto());
+                template = await _questionnaireTemplateService.AddTemplate(questionnaireTemplate);
+                
             }
-            
-            QuestionnaireTemplateModel template = await _QuestionnaireTemplateRepository.AddAsync(questionnaireTemplate.ToModel());
+            catch (SQLException.ItemAlreadyExists)
+            {
+                return Conflict();
+            }
 
-            return CreatedAtRoute("", template.Id, template.ToDto());
+            return CreatedAtRoute("", template.Id, template);
         }
 
         [HttpGet("{id}")]
@@ -128,15 +71,18 @@ namespace API.Controllers
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
         public async Task<ActionResult<QuestionnaireTemplateDto>> GetQuestionnaireTemplate(Guid id)
         {
-            QuestionnaireTemplateModel? template = await _QuestionnaireTemplateRepository.GetSingleAsync(q => q.Id == id,
-                query => query.Include(q => q.Questions).ThenInclude(q => q.Options));
-
-            if (template == null)
+            QuestionnaireTemplateDto template;
+            try
+            {
+                template = await _questionnaireTemplateService.GetTemplateById(id);
+                
+            }
+            catch (SQLException.ItemNotFound)
             {
                 return NotFound();
             }
-
-            return Ok(template.ToDto());
+            
+            return Ok(template);
         }
 
         [HttpPut("{id}/update")]
@@ -145,57 +91,55 @@ namespace API.Controllers
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
         public async Task<ActionResult<QuestionnaireTemplateDto>> UpdateQuestionnaireTemplate(Guid id, [FromBody] QuestionnaireTemplateUpdateRequest updateRequest)
         {
-            IQueryable<QuestionnaireTemplateModel> query = _QuestionnaireTemplateRepository.GetAsQueryable();
-            QuestionnaireTemplateModel? existingTemplate = await query
-                .AsNoTracking()
-                .Include(q => q.Questions)
-                .ThenInclude(q => q.Options)
-                .FirstOrDefaultAsync(q => q.Id == id);
-            
-            if (existingTemplate is null)
+            QuestionnaireTemplateDto updatedTemplate;
+            try
+            {
+                updatedTemplate = await _questionnaireTemplateService.UpdateTemplate(id, updateRequest);
+                
+            }
+            catch (SQLException.ItemNotFound)
             {
                 return NotFound();
             }
-
-            QuestionnaireTemplateModel updatedTemplate = await _QuestionnaireTemplateRepository.UpdateAsync(existingTemplate, updateRequest.ToModel(existingTemplate));
-
-            return Ok(updatedTemplate.ToDto());
+        
+            return Ok(updatedTemplate);
         }
 
         [HttpPatch("{id}/patch")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
-        public async Task<ActionResult<QuestionnaireTemplateDto>> PatchQuestionnaireTemplate(Guid id, [FromBody] QuestionnaireTemplatePatch updateRequest)
+        public async Task<ActionResult<QuestionnaireTemplateDto>> PatchQuestionnaireTemplate(Guid id, [FromBody] QuestionnaireTemplatePatch patchRequest)
         {
-            QuestionnaireTemplateModel? existingModel = await _QuestionnaireTemplateRepository.GetSingleAsync(q => q.Id == id, query => query.Include(q => q.Questions).ThenInclude(o => o.Options));
-
-            if (existingModel == null)
+            QuestionnaireTemplateDto patchedTemplate;
+            try
+            {
+                patchedTemplate = await _questionnaireTemplateService.PatchTemplate(id, patchRequest);
+            }
+            catch (SQLException.ItemNotFound)
             {
                 return NotFound();
             }
 
-            QuestionnaireTemplateModel updatedModel = await _QuestionnaireTemplateRepository.PatchAsync(existingModel, updateRequest);
-
-            return updatedModel.ToDto();
+            return Ok(patchedTemplate);
         }
 
         [HttpDelete("{id}/delete")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(QuestionnaireTemplateDto), StatusCodes.Status200OK)]
-        public async Task<ActionResult<QuestionnaireTemplateDto>> DeleteQuestionnaireTemplate(Guid id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> DeleteQuestionnaireTemplate(Guid id)
         {
-            QuestionnaireTemplateModel? template = await _QuestionnaireTemplateRepository.GetSingleAsync(q => q.Id == id,
-                query => query.Include(q => q.Questions).ThenInclude(q => q.Options));
-
-            if (template == null)
+            try
+            {
+                await _questionnaireTemplateService.DeleteTemplate(id);
+            }
+            catch (SQLException.ItemNotFound)
             {
                 return NotFound();
             }
 
-            await _QuestionnaireTemplateRepository.DeleteAsync(template);
-            return Ok(template.ToDto());
+            return NoContent();
         }
     }
 }

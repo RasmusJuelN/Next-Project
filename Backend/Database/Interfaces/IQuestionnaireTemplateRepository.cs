@@ -5,6 +5,6 @@ namespace Database.Interfaces;
 
 public interface IQuestionnaireTemplateRepository : IGenericRepository<QuestionnaireTemplateModel>
 {
-    Task<QuestionnaireTemplateModel> UpdateAsync(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplateModel updatedTemplate);
-    Task<QuestionnaireTemplateModel> PatchAsync(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplatePatch patchedTemplate);
+    QuestionnaireTemplateModel Update(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplateModel updatedTemplate);
+    QuestionnaireTemplateModel Patch(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplatePatch patchedTemplate);
 }

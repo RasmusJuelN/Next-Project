@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
 using Database.Interfaces;
+using API.Interfaces;
 
 const string settingsFile = "config.json";
 
@@ -43,6 +44,8 @@ JWTSettings jWTSettings = ConfigurationBinderService.Bind<JWTSettings>(builder.C
 builder.Services.AddScoped<LdapService>();
 builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<QuestionnaireTemplateService>();
 builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

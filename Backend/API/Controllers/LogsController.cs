@@ -1,5 +1,5 @@
+using Database.Interfaces;
 using Database.Models;
-using Database.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
