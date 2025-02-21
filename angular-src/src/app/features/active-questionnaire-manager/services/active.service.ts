@@ -1,12 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
-import { QuestionnaireSession } from '../models/active.models';
+import { QuestionnaireSession, Template } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { User } from '../../../shared/models/user.model';
-import { Template } from '../../template-manager/models/template.model';
 
 @Injectable({
   providedIn: 'root',

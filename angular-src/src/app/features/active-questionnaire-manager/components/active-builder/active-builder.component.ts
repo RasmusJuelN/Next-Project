@@ -4,9 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
-import { Template } from '../../../template-manager/models/template.model';
 import { PaginationResponse } from '../../../../shared/models/Pagination.model';
 import { SearchEntity } from '../../models/searchEntity.model';
+import { Template } from '../../models/active.models';
 
 type SearchType = 'student' | 'teacher' | 'template';
 
@@ -157,20 +157,24 @@ export class ActiveBuilderComponent implements OnInit {
     state.selected = null;
   }
   createActiveQuestionnaire(): void {
-    // Ensure everything that needs to be has been selected.
-    if (!this.student.selected || !this.teacher.selected || !this.template.selected) return;
-
+    // Ensure everything that needs to be selected is present.
+    if (!this.student.selected || !this.teacher.selected || !this.template.selected || !this.template.selected.id) {
+      console.error('Missing required selections for Active Questionnaire.');
+      return;
+    }
+  
     const newQuestionnaire = {
       studentId: this.student.selected.id,
       teacherId: this.teacher.selected.id,
       templateId: this.template.selected.id,
     };
-
+  
     this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
       alert('Active Questionnaire Created Successfully!');
       this.backToListEvent.emit();
     });
   }
+  
 
   onBackToList(): void {
     this.backToListEvent.emit();

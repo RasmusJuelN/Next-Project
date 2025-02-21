@@ -19,29 +19,36 @@ export class TemplateService {
   // Get templates with pagination and optional search term
   getTemplateBases(
     pageSize: number,
-    nextCursorCreatedAt?: string,
-    nextCursorId?: string,
+    queryCursor?: string,
     searchTerm: string = '',
     searchType: 'name' | 'id' = 'name'
   ): Observable<TemplateBaseResponse> {
-    let params = new HttpParams().set('PageSize', pageSize.toString());
+    let params = new HttpParams()
+      .set('PageSize', pageSize.toString())
+      .set('Order', 'CreatedAtDesc');
   
-    params = params.set('Order', 'CreatedAtDesc');
+    // ✅ Ensure queryCursor is correctly passed as a single string
+    if (queryCursor) {
+      params = params.set('QueryCursor', queryCursor);
+    }
   
-    if (nextCursorCreatedAt && nextCursorId) {
-      params = params.set('QueryCursor', `${nextCursorCreatedAt}_${nextCursorId}`);
+    if (searchTerm.trim()) {
+      params = searchType === 'name'
+        ? params.set('Title', searchTerm)
+        : params.set('Id', searchTerm);
     }
-    
-    if (searchTerm.trim() !== '') {
-      if (searchType === 'name') {
-        params = params.set('Title', searchTerm);
-      } else if (searchType === 'id') {
-        params = params.set('Id', searchTerm);
-      }
-    }
-    
+  
+    // ✅ Debugging log
+    console.log('Fetching Templates with Params:', {
+      pageSize,
+      queryCursor,
+      searchTerm,
+      searchType,
+    });
+  
     return this.apiService.get<TemplateBaseResponse>(this.apiUrl, params);
   }
+  
 
   getTemplateDetails(id: string): Observable<Template> {
     return this.apiService.get<Template>(`${this.apiUrl}/${id}`);

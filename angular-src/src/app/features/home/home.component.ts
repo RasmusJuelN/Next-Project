@@ -55,7 +55,7 @@ export class HomeComponent implements OnInit {
   }
 
   onLoginSuccess(){
-
+    
   }
 
   logout() {

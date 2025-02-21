@@ -1,17 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
+export interface PageChangeEvent {
+  page: number;
+  direction: 'forward' | 'backward' | 'jump';
+}
+
 @Component({
   selector: 'app-pagination',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './pagination.component.html',
-  styleUrl: './pagination.component.css'
+  styleUrls: ['./pagination.component.css']
 })
 export class PaginationComponent {
   @Input() currentPage: number = 1;
   @Input() totalPages: number = 1;
-  @Output() pageChange = new EventEmitter<number>();
+  // New input to control whether page numbers are shown.
+  @Input() showPageNumbers: boolean = true;
+  @Output() pageChange = new EventEmitter<PageChangeEvent>();
 
   get pages(): number[] {
     const maxVisiblePages = 5;
@@ -47,19 +54,21 @@ export class PaginationComponent {
 
   previousPage(): void {
     if (this.currentPage > 1) {
-      this.pageChange.emit(this.currentPage - 1);
+      const newPage = this.currentPage - 1;
+      this.pageChange.emit({ page: newPage, direction: 'backward' });
     }
   }
 
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
-      this.pageChange.emit(this.currentPage + 1);
+      const newPage = this.currentPage + 1;
+      this.pageChange.emit({ page: newPage, direction: 'forward' });
     }
   }
 
   jumpToPage(page: number): void {
     if (page !== this.currentPage && page > 0 && page <= this.totalPages) {
-      this.pageChange.emit(page);
+      this.pageChange.emit({ page, direction: 'jump' });
     }
   }
 }

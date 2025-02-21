@@ -1,4 +1,5 @@
-<div *ngIf="totalPages > 1" class="flex justify-center items-center mt-4 overflow-x-auto px-2 space-x-1 flex-wrap">
+<div *ngIf="totalPages > 1" class="flex flex-col items-center">
+  <div class="flex justify-center items-center mt-4 overflow-x-auto px-2 space-x-1 flex-wrap">
     <!-- Previous Button -->
     <button
       (click)="previousPage()"
@@ -6,22 +7,24 @@
       class="px-3 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 disabled:opacity-50 min-w-[40px] text-sm">
       Previous
     </button>
-  
-    <!-- Page Numbers -->
-    <div class="flex space-x-1">
-      <ng-container *ngFor="let page of pages">
-        <button
-          *ngIf="page !== -1"
-          (click)="jumpToPage(page)"
-          [class.bg-blue-500]="page === currentPage"
-          [class.text-white]="page === currentPage"
-          class="px-2 py-1 rounded-md hover:bg-blue-400 hover:text-white min-w-[30px] text-sm">
-          {{ page }}
-        </button>
-        <span *ngIf="page === -1" class="px-2 text-gray-500">...</span>
-      </ng-container>
-    </div>
-  
+
+    <!-- Conditionally show page numbers if enabled -->
+    <ng-container *ngIf="showPageNumbers">
+      <div class="flex space-x-1">
+        <ng-container *ngFor="let page of pages">
+          <button
+            *ngIf="page !== -1"
+            (click)="jumpToPage(page)"
+            [class.bg-blue-500]="page === currentPage"
+            [class.text-white]="page === currentPage"
+            class="px-2 py-1 rounded-md hover:bg-blue-400 hover:text-white min-w-[30px] text-sm">
+            {{ page }}
+          </button>
+          <span *ngIf="page === -1" class="px-2 text-gray-500">...</span>
+        </ng-container>
+      </div>
+    </ng-container>
+
     <!-- Next Button -->
     <button
       (click)="nextPage()"
@@ -30,4 +33,9 @@
       Next
     </button>
   </div>
-  
+
+  <!-- Total pages info -->
+  <div class="mt-2 text-sm text-gray-600">
+    Page {{ currentPage }} of {{ totalPages }}
+  </div>
+</div>

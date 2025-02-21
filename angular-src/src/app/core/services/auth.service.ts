@@ -105,7 +105,7 @@ export class AuthService {
    * Performs a simple server "ping" to confirm connectivity.
    */
   private checkServerConnection() {
-    return this.apiService.get<boolean>(`${this.baseUrl}/ping`).pipe(
+    return this.apiService.head<boolean>(`${this.baseUrl}/system/ping`).pipe(
       map(() => true),
       catchError(() => of(false))
     );
@@ -163,7 +163,7 @@ export class AuthService {
   }
 
   getUserRole(): string | null {
-    return this.getTokenInfo<string>('scope');
+    return this.getTokenInfo<string>('role');
   }
 
   /**

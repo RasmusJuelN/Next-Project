@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
-import { QuestionnaireSession } from '../models/active.models';
+import { QuestionnaireSession, Template } from '../models/active.models';
 import { User } from '../../../shared/models/user.model';
-import { Template } from '../../template-manager/models/template.model';
+
 
 @Injectable({
   providedIn: 'root',
@@ -35,8 +35,8 @@ private mockUsers: User[] = [
 
 
   private mockTemplates: Template[] = [
-    { id: 't101', title: 'Math Quiz', description: 'A basic math quiz', questions: [] },
-    { id: 't102', title: 'History Quiz', description: 'A history knowledge test', questions: [] }
+    { id: 't101', templateTitle: 'Math Quiz', description: 'A basic math quiz', questions: [] },
+    { id: 't102', templateTitle: 'History Quiz', description: 'A history knowledge test', questions: [] }
   ];
 
   private activeQuestionnaires: QuestionnaireSession[] = [
@@ -245,8 +245,8 @@ private mockUsers: User[] = [
 
     const newQuestionnaire: QuestionnaireSession = {
       id: `q${this.activeQuestionnaires.length + 1}`,
-      templateId: template.id,
-      templateName: template.title,
+      templateId: template?.id ?? 'unknown',
+      templateName: template.templateTitle,
       createdAt: new Date(),
       updatedAt: new Date(),
       student: {
@@ -283,22 +283,47 @@ private mockUsers: User[] = [
     return of(false);
   }
   searchUsers(term: string, role: 'student' | 'teacher', page: number): Observable<PaginationResponse<User>> {
+    // Normalize search term
+    const normalizedTerm = term.trim().toLowerCase();
+  
+    // Filter users by role and search term (checking both fullName & userName)
     let filteredUsers = this.mockUsers.filter(user =>
-      user.role === role && (user.fullName.toLowerCase().includes(term.toLowerCase()) || user.userName.toLowerCase().includes(term.toLowerCase()))
+      user.role === role &&
+      (user.fullName.toLowerCase().includes(normalizedTerm) || user.userName?.toLowerCase().includes(normalizedTerm))
     );
+  
     const totalItems = filteredUsers.length;
-    const startIndex = (page - 1) * 10;
+    const startIndex = Math.max(0, (page - 1) * 10);
     const paginatedUsers = filteredUsers.slice(startIndex, startIndex + 10);
-    return of({ items: paginatedUsers, totalItems, currentPage: page, pageSize: 10, totalPages: Math.ceil(totalItems / 10) }).pipe(delay(2000));;
+  
+    return of({
+      items: paginatedUsers,
+      totalItems,
+      currentPage: page,
+      pageSize: 10,
+      totalPages: Math.ceil(totalItems / 10),
+    }).pipe(delay(2000));
   }
-
+  
   searchTemplates(term: string, page: number): Observable<PaginationResponse<Template>> {
+    // Normalize search term
+    const normalizedTerm = term.trim().toLowerCase();
+  
+    // Filter templates based on title or description
     let filteredTemplates = this.mockTemplates.filter(template =>
-      template.title.toLowerCase().includes(term.toLowerCase()) || template.description.toLowerCase().includes(term.toLowerCase())
+      template.templateTitle.toLowerCase().includes(normalizedTerm) || template.description?.toLowerCase().includes(normalizedTerm)
     );
+  
     const totalItems = filteredTemplates.length;
-    const startIndex = (page - 1) * 10;
+    const startIndex = Math.max(0, (page - 1) * 10);
     const paginatedTemplates = filteredTemplates.slice(startIndex, startIndex + 10);
-    return of({ items: paginatedTemplates, totalItems, currentPage: page, pageSize: 10, totalPages: Math.ceil(totalItems / 10) });
+  
+    return of({
+      items: paginatedTemplates,
+      totalItems,
+      currentPage: page,
+      pageSize: 10,
+      totalPages: Math.ceil(totalItems / 10),
+    }).pipe(delay(500)); // Optional delay for a smoother UI effect
   }
 }

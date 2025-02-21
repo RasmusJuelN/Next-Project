@@ -82,7 +82,7 @@ export class MockAuthService {
   }
 
   public getUserRole(): string | null {
-    return this.getTokenInfo<string>('scope');
+    return this.getTokenInfo<string>('role');
   }
 
   /**
@@ -109,7 +109,7 @@ export class MockAuthService {
     const header = { alg: 'HS256', typ: 'JWT' };
     const payload = {
       sub: userId,
-      scope: userRole,
+      role: userRole,
       exp: Math.floor(Date.now() / 1000) + expiresInSeconds,
     };
     const base64UrlEncode = (obj: any) =>

@@ -2,6 +2,9 @@
     "/api": {
       "changeOrigin": true,
       "target": "https://127.0.0.1:7135",
-      "secure": false
+      "secure": false,
+      "headers": {
+        "Connection": "keep-alive"
+      }
     }
   }

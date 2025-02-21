@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NextCursor, Question, Template, TemplateBase, TemplateBaseResponse } from '../models/template.model';
+import { Question, Template, TemplateBase, TemplateBaseResponse } from '../models/template.model';
 import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 
@@ -10,304 +10,268 @@ export class MockTemplateService {
   private templates: Template[] = [
     {
       id: '1',
-      title: 'Employee Onboarding Template',
+      templateTitle: 'Employee Onboarding Template',
       description: 'A template for onboarding new employees.',
       questions: [
         {
-          id: 1,
-          title: 'What is your full name?',
-          customAnswer: true,
+          id: 101,
+          prompt: 'What is your full name?',
+          allowCustom: true,
           options: [],
         },
         {
-          id: 2,
-          title: 'Select your department:',
-          customAnswer: false,
+          id: 102,
+          prompt: 'Select your department:',
+          allowCustom: false,
           options: [
-            { id: 1, label: 'HR' },
-            { id: 2, label: 'Engineering' },
-            { id: 3, label: 'Marketing' },
+            { id: 1, optionValue: 1, displayText: 'HR' },
+            { id: 2, optionValue: 2, displayText: 'Engineering' },
+            { id: 3, optionValue: 3, displayText: 'Marketing' },
           ],
         },
       ],
     },
     {
       id: '2',
-      title: 'Customer Feedback Template',
+      templateTitle: 'Customer Feedback Template',
       description: 'A template for collecting customer feedback.',
       questions: [
         {
-          id: 3,
-          title: 'How satisfied are you with our service?',
-          customAnswer: false,
+          id: 103,
+          prompt: 'How satisfied are you with our service?',
+          allowCustom: false,
           options: [
-            { id: 1, label: 'Very Satisfied' },
-            { id: 2, label: 'Satisfied' },
-            { id: 3, label: 'Neutral' },
-            { id: 4, label: 'Dissatisfied' },
-            { id: 5, label: 'Very Dissatisfied' },
+            { id: 1, optionValue: 1, displayText: 'Very Satisfied' },
+            { id: 2, optionValue: 2, displayText: 'Satisfied' },
+            { id: 3, optionValue: 3, displayText: 'Neutral' },
+            { id: 4, optionValue: 4, displayText: 'Dissatisfied' },
+            { id: 5, optionValue: 5, displayText: 'Very Dissatisfied' },
           ],
         },
         {
-          id: 4,
-          title: 'Any additional comments?',
-          customAnswer: true,
+          id: 104,
+          prompt: 'Any additional comments?',
+          allowCustom: true,
           options: [],
         },
       ],
     },
     {
       id: '3',
-      title: 'Project Evaluation Template',
+      templateTitle: 'Project Evaluation Template',
       description: 'A template for evaluating project outcomes.',
       questions: [
         {
-          id: 5,
-          title: 'What is the name of the project?',
-          customAnswer: true,
+          id: 105,
+          prompt: 'What is the name of the project?',
+          allowCustom: true,
           options: [],
         },
         {
-          id: 6,
-          title: 'Rate the project success:',
-          customAnswer: false,
+          id: 106,
+          prompt: 'Rate the project success:',
+          allowCustom: false,
           options: [
-            { id: 1, label: '1 - Poor' },
-            { id: 2, label: '2 - Below Average' },
-            { id: 3, label: '3 - Average' },
-            { id: 4, label: '4 - Good' },
-            { id: 5, label: '5 - Excellent' },
+            { id: 1, optionValue: 1, displayText: '1 - Poor' },
+            { id: 2, optionValue: 2, displayText: '2 - Below Average' },
+            { id: 3, optionValue: 3, displayText: '3 - Average' },
+            { id: 4, optionValue: 4, displayText: '4 - Good' },
+            { id: 5, optionValue: 5, displayText: '5 - Excellent' },
           ],
         },
       ],
     },
     {
       id: '4',
-      title: 'Training Feedback Template',
+      templateTitle: 'Training Feedback Template',
       description: 'A template for collecting feedback on training sessions.',
       questions: [
         {
-          id: 7,
-          title: 'How useful was the training?',
-          customAnswer: false,
+          id: 107,
+          prompt: 'How useful was the training?',
+          allowCustom: false,
           options: [
-            { id: 1, label: 'Very Useful' },
-            { id: 2, label: 'Somewhat Useful' },
-            { id: 3, label: 'Not Useful' },
+            { id: 1, optionValue: 1, displayText: 'Very Useful' },
+            { id: 2, optionValue: 2, displayText: 'Somewhat Useful' },
+            { id: 3, optionValue: 3, displayText: 'Not Useful' },
           ],
         },
       ],
     },
     {
       id: '5',
-      title: 'Event Registration Template',
+      templateTitle: 'Event Registration Template',
       description: 'A template for registering attendees for an event.',
       questions: [
         {
-          id: 8,
-          title: 'What is your name?',
-          customAnswer: true,
+          id: 108,
+          prompt: 'What is your name?',
+          allowCustom: true,
           options: [],
         },
         {
-          id: 9,
-          title: 'What is your contact email?',
-          customAnswer: true,
+          id: 109,
+          prompt: 'What is your contact email?',
+          allowCustom: true,
           options: [],
         },
       ],
     },
     {
       id: '6',
-      title: 'Survey Template',
+      templateTitle: 'Survey Template',
       description: 'A simple survey template for various uses.',
       questions: [
         {
-          id: 10,
-          title: 'What is your age group?',
-          customAnswer: false,
+          id: 110,
+          prompt: 'What is your age group?',
+          allowCustom: false,
           options: [
-            { id: 1, label: '18-24' },
-            { id: 2, label: '25-34' },
-            { id: 3, label: '35-44' },
-            { id: 4, label: '45-54' },
-            { id: 5, label: '55+' },
+            { id: 1, optionValue: 1, displayText: '18-24' },
+            { id: 2, optionValue: 2, displayText: '25-34' },
+            { id: 3, optionValue: 3, displayText: '35-44' },
+            { id: 4, optionValue: 4, displayText: '45-54' },
+            { id: 5, optionValue: 5, displayText: '55+' },
           ],
         },
       ],
     },
     {
       id: '7',
-      title: 'Bug Report Template',
+      templateTitle: 'Bug Report Template',
       description: 'A template for reporting bugs in a software system.',
       questions: [
         {
-          id: 11,
-          title: 'Describe the bug:',
-          customAnswer: true,
+          id: 111,
+          prompt: 'Describe the bug:',
+          allowCustom: true,
           options: [],
         },
         {
-          id: 12,
-          title: 'What is the severity of the bug?',
-          customAnswer: false,
+          id: 112,
+          prompt: 'What is the severity of the bug?',
+          allowCustom: false,
           options: [
-            { id: 1, label: 'Low' },
-            { id: 2, label: 'Medium' },
-            { id: 3, label: 'High' },
-            { id: 4, label: 'Critical' },
+            { id: 1, optionValue: 1, displayText: 'Low' },
+            { id: 2, optionValue: 2, displayText: 'Medium' },
+            { id: 3, optionValue: 3, displayText: 'High' },
+            { id: 4, optionValue: 4, displayText: 'Critical' },
           ],
         },
       ],
     },
     {
       id: '8',
-      title: 'Team Meeting Notes Template',
+      templateTitle: 'Team Meeting Notes Template',
       description: 'A template for recording notes during team meetings.',
       questions: [
         {
-          id: 13,
-          title: 'What is the meeting date?',
-          customAnswer: true,
+          id: 113,
+          prompt: 'What is the meeting date?',
+          allowCustom: true,
           options: [],
         },
         {
-          id: 14,
-          title: 'Summary of key points:',
-          customAnswer: true,
+          id: 114,
+          prompt: 'Summary of key points:',
+          allowCustom: true,
           options: [],
         },
       ],
     },
     {
-      id: '8',
-      title: 'Team Meeting Notes Template',
+      id: '9',
+      templateTitle: 'WHAT',
       description: 'A template for recording notes during team meetings.',
       questions: [
         {
-          id: 13,
-          title: 'What is the meeting date?',
-          customAnswer: true,
+          id: 115,
+          prompt: 'What is the meeting date?',
+          allowCustom: true,
           options: [],
         },
         {
-          id: 14,
-          title: 'Summary of key points:',
-          customAnswer: true,
-          options: [],
-        },
-      ],
-    },
-    {
-      id: '8',
-      title: 'WHAT',
-      description: 'A template for recording notes during team meetings.',
-      questions: [
-        {
-          id: 13,
-          title: 'What is the meeting date?',
-          customAnswer: true,
-          options: [],
-        },
-        {
-          id: 14,
-          title: 'Summary of key points:',
-          customAnswer: true,
-          options: [],
-        },
-      ],
-    },
-    {
-      id: '8',
-      title: 'WHAT',
-      description: 'A template for recording notes during team meetings.',
-      questions: [
-        {
-          id: 13,
-          title: 'What is the meeting date?',
-          customAnswer: true,
-          options: [],
-        },
-        {
-          id: 14,
-          title: 'Summary of key points:',
-          customAnswer: true,
+          id: 116,
+          prompt: 'Summary of key points:',
+          allowCustom: true,
           options: [],
         },
       ],
     },
   ];
   
-
-  constructor() {}
   
+  
+
   getTemplateBases(
     pageSize: number = 5,
-    nextCursorCreatedAt?: string,
-    nextCursorId?: string,
+    queryCursor?: string,
     searchTerm: string = '',
     searchType: 'name' | 'id' = 'name'
   ): Observable<TemplateBaseResponse> {
-    // 1. Filter based on searchTerm
-    let filtered = [...this.templates];
-    if (searchTerm.trim() !== '') {
-      if (searchType === 'name') {
-        filtered = filtered.filter((t) =>
-          t.title.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      } else {
-        filtered = filtered.filter((t) =>
-          t.id.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+    // ✅ Normalize search term
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+  
+    // ✅ Filter templates based on search
+    let filteredTemplates = this.templates.filter((t) => {
+      const templateTitle = t.templateTitle.toLowerCase();
+      const templateId = t.id?.toLowerCase() || ''; // Ensure `id` is always a string
+  
+      return (
+        normalizedSearch === '' ||
+        (searchType === 'name' && templateTitle.includes(normalizedSearch)) ||
+        (searchType === 'id' && templateId.includes(normalizedSearch))
+      );
+    });
+  
+    // ✅ Determine pagination start index
+    let startIndex = 0;
+    if (queryCursor) {
+      const cursorParts = queryCursor.split('_'); // ✅ Split cursor format: "createdAt_id"
+      if (cursorParts.length === 2) {
+        const cursorId = cursorParts[1];
+  
+        // ✅ Find the index of the cursor's ID in the filtered list
+        const cursorIndex = filteredTemplates.findIndex((t) => t.id === cursorId);
+        if (cursorIndex !== -1) {
+          startIndex = cursorIndex + 1; // ✅ Start after the last cursor
+        }
       }
     }
   
-    // 2. Determine the effective page from the provided cursor.
-    //    If no nextCursorId is provided, we are on page 1.
-    let effectivePage = 1;
-    if (nextCursorId) {
-      // Assume cursor format: 'dummy-cursor-for-page-X'
-      const match = nextCursorId.match(/dummy-cursor-for-page-(\d+)/);
-      if (match && match[1]) {
-        effectivePage = parseInt(match[1]) - 1; // The current page is one less than the next page.
-      }
-    }
+    // ✅ Slice for pagination
+    const pageItems = filteredTemplates.slice(startIndex, startIndex + pageSize);
   
-    // 3. Use effectivePage to calculate start and end indexes.
-    const startIndex = (effectivePage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const pageItems = filtered.slice(startIndex, endIndex);
-  
-    // 4. Map full Template items to TemplateBase objects.
+    // ✅ Convert to `TemplateBase`
     const templateBases: TemplateBase[] = pageItems.map((t) => ({
-      id: t.id,
-      templateTitle: t.title,
-      createdAt: '2025-02-17T09:11:51.7366667', // or new Date().toISOString()
-      lastUpdated: '2025-02-17T09:11:51.7366667',
+      id: t.id ?? `temp-${Date.now()}`, // ✅ Ensure `id` is always a string
+      templateTitle: t.templateTitle,
+      createdAt: t.createdAt ?? new Date().toISOString(), // ✅ Preserve original `createdAt` if available
+      lastUpdated: t.lastUpdated ?? new Date().toISOString(),
       isLocked: false,
     }));
   
-    // 5. Determine if there is more data beyond the current page.
-    const hasMore = endIndex < filtered.length;
+    // ✅ Determine next cursor
+    const hasMore = startIndex + pageSize < filteredTemplates.length;
+    const newNextCursor: string | undefined = hasMore
+      ? `${filteredTemplates[startIndex + pageSize]?.createdAt}_${filteredTemplates[startIndex + pageSize]?.id}`
+      : undefined; // ✅ Use `undefined` instead of `null`
   
-    // 6. If more data exists, create a dummy nextCursor.
-    const newNextCursor: NextCursor | null = hasMore
-      ? {
-          createdAt: '2025-02-17T09:12:00.0000000',
-          // The next cursor indicates the next page number.
-          id: `dummy-cursor-for-page-${effectivePage + 2}`,
-        }
-      : null;
-  
-    // Build the response object.
+    // ✅ Return response
     const response: TemplateBaseResponse = {
       templateBases,
-      nextCursor: newNextCursor,
+      queryCursor: newNextCursor, // ✅ No more type errors
+      totalCount: filteredTemplates.length, // ✅ Ensure total count is accurate
     };
   
-    // Simulate network delay.
-    return of(response).pipe(delay(1000));
+    console.log('Returning Response:', response); // ✅ Debugging log
+  
+    return of(response).pipe(delay(500));
   }
+  
+  
+  
+
   
   
 

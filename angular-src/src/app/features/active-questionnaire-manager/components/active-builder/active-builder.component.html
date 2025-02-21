@@ -141,7 +141,7 @@
           (click)="select('template', temp)"
           class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded"
         >
-          {{ temp.title }}
+          {{ temp.templateTitle }}
         </li>
       </ul>
 
@@ -157,7 +157,7 @@
 
     <!-- Selected Template with Clear Option -->
     <div *ngIf="template.selected" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
-      <strong>Selected Template:</strong> {{ template.selected.title }}
+      <strong>Selected Template:</strong> {{ template.selected.templateTitle }}
       <button (click)="clearSelected('template')" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
         Clear
       </button>

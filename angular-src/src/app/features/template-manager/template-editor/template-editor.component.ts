@@ -30,8 +30,8 @@ export class TemplateEditorComponent {
   addQuestion() {
     const newQuestion: Question = {
       id: -1 * (this.template.questions.length + 1), // Unique negative ID
-      title: 'New Question',
-      customAnswer: true,
+      prompt: 'New Question',
+      allowCustom: true,
       options: [],
     };
   

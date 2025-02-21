@@ -21,7 +21,8 @@ export class QuestionEditorComponent {
   addOption(): void {
     const newOption: Option = {
       id: -1 * (this.question.options.length + 1),
-      label: 'New Option',
+      displayText: 'New Option',
+      optionValue: 0
     };
     this.question.options.push(newOption);
   }
@@ -36,17 +37,17 @@ export class QuestionEditorComponent {
     this.validationErrors = []; // Clear previous errors
 
     // 1. Ensure the title is not empty
-    if (!this.question.title || this.question.title.trim() === '') {
+    if (!this.question.prompt || this.question.prompt.trim() === '') {
       this.validationErrors.push('The question title cannot be empty.');
     }
 
     // 2. Ensure there are options or a custom answer is allowed
-    if (!this.question.customAnswer && (!this.question.options || this.question.options.length === 0)) {
+    if (!this.question.allowCustom && (!this.question.options || this.question.options.length === 0)) {
       this.validationErrors.push('The question must allow a custom answer or have at least one option.');
     }
 
     // 3. Ensure options have unique, non-empty labels
-    const labels = this.question.options.map(option => option.label.trim());
+    const labels = this.question.options.map(option => option.displayText.trim());
     const duplicateLabels = labels.filter((label, index) => labels.indexOf(label) !== index);
     if (labels.includes('') || duplicateLabels.length > 0) {
       this.validationErrors.push('All options must have unique, non-empty labels.');

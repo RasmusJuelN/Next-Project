@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
 import { QuestionnaireSession } from '../../models/active.models';
-import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { PageChangeEvent, PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../../../shared/loading/loading.component';
 
 @Component({
@@ -108,13 +108,14 @@ export class ActiveListComponent implements OnInit {
   }
 
   // --- Pagination Handler ---
-  // This method is bound to the (pageChange) output of your PaginationComponent.
-  handlePageChange(newPage: number): void {
+  handlePageChange(event: PageChangeEvent): void {
+    const newPage = event.page;
     if (newPage > 0 && newPage <= this.totalPages) {
       this.currentPage = newPage;
       this.fetchActiveQuestionnaires();
     }
   }
+  
 
   // --- Page Size Change ---
   onPageSizeChange(value: number): void {

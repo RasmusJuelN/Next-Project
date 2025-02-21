@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { PageChangeEvent, PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { Dashboard } from './models/dashboard.model';
 import { TeacherService } from './services/teacher.service';
 import { PaginationResponse } from '../../shared/models/Pagination.model';
@@ -114,8 +114,9 @@ export class TeacherDashboardComponent implements OnInit {
   }
 
   // Called when pagination component changes page
-  onPageChange(newPage: number): void {
-    this.currentPage = newPage;
+  onPageChange(event: PageChangeEvent): void {
+    this.currentPage = event.page;
     this.updateDisplay();
   }
+  
 }

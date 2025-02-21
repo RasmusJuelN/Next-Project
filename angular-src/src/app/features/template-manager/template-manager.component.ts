@@ -4,10 +4,10 @@ import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { TemplateBase, Template, NextCursor } from './models/template.model';
+import { TemplateBase, Template } from './models/template.model';
 import { TemplateService } from './services/template.service';
 import { TemplateEditorComponent } from './template-editor/template-editor.component';
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { PaginationComponent, PageChangeEvent } from '../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
@@ -18,7 +18,7 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
     FormsModule,
     CommonModule,
     PaginationComponent,
-    LoadingComponent
+    LoadingComponent,
   ],
   templateUrl: './template-manager.component.html',
   styleUrls: ['./template-manager.component.css'],
@@ -27,102 +27,97 @@ export class TemplateManagerComponent {
   private templateService = inject(TemplateService);
 
   templateBases: TemplateBase[] = [];
-
-  // Caches the cursor for each page number.
-  // For page 1, no cursor is needed.
-  // For page N, the cursor stored at cachedCursors[N-1] is used to load page N.
-  cachedCursors: { [pageNumber: number]: NextCursor | null } = {};
-
+  // Caching cursors using page numbers.
+  cachedCursors: { [pageNumber: number]: string | null } = {};
   selectedTemplate: Template | null = null;
 
-  searchTerm: string = '';
+  // Search & Pagination parameters.
+  searchTerm = '';
   searchType: 'name' | 'id' = 'name';
-
-  currentPage: number = 1;
-  pageSize: number = 5;
-  totalPages: number = 1; 
+  currentPage = 1;
+  pageSize = 5;
+  totalPages = 1;
   pageSizeOptions: number[] = [5, 10, 15, 20];
 
-  private searchSubject = new Subject<string>();
   isLoading = false;
   errorMessage: string | null = null;
+  private searchSubject = new Subject<string>();
 
   ngOnInit(): void {
-    // Debounce search input.
+    // Debounce search input to limit API calls.
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((term) => {
         this.searchTerm = term;
-        this.currentPage = 1;
-        // Clear cached cursors on new search.
-        this.cachedCursors = {};
+        this.resetData(); // Reset pagination and selection on new search.
         this.fetchTemplateBases();
       });
 
+    // Initial data load.
     this.fetchTemplateBases();
   }
 
+  // Called on each keystroke.
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
   }
 
+  // Called when page size changes.
   onPageSizeChange(newSize: string): void {
     this.pageSize = parseInt(newSize, 10);
-    this.currentPage = 1;
-
-    // Clear cached cursors when page size changes.
-    this.cachedCursors = {};
+    this.resetData();
     this.fetchTemplateBases();
   }
 
-  isSelectedPageSize(size: number): boolean {
-    return size === this.pageSize;
-  }
-
+  // Called when search type (name or id) is changed.
   onSearchTypeChange(type: string): void {
     if (type === 'name' || type === 'id') {
       this.searchType = type;
-      this.currentPage = 1;
-      this.cachedCursors = {};
+      this.resetData();
       this.fetchTemplateBases();
     }
   }
 
+  /**
+   * Resets key state values.
+   * @param resetSearch - If true, also resets searchTerm and searchType.
+   */
+  resetData(resetSearch: boolean = false): void {
+    this.currentPage = 1;
+    this.totalPages = 1;
+    this.cachedCursors = {};
+    this.selectedTemplate = null;
+    if (resetSearch) {
+      this.searchTerm = '';
+      this.searchType = 'name';
+    }
+  }
+
+  /**
+   * Fetches the template bases based on current state.
+   */
   private fetchTemplateBases(): void {
     this.isLoading = true;
     this.errorMessage = null;
-  
-    // For page 1, no cursor is needed.
-    // For pages > 1, get the cursor from the previous page.
-    const cursor = this.currentPage === 1 ? undefined : this.cachedCursors[this.currentPage - 1];
-    const nextCursorCreatedAt = cursor ? cursor.createdAt : undefined;
-    const nextCursorId = cursor ? cursor.id : undefined;
-  
+    const nextCursor = this.cachedCursors[this.currentPage] ?? undefined;
+
     this.templateService
-      .getTemplateBases(
-        this.pageSize,
-        nextCursorCreatedAt,
-        nextCursorId,
-        this.searchTerm,
-        this.searchType
-      )
+      .getTemplateBases(this.pageSize, nextCursor, this.searchTerm, this.searchType)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (response) => {
-          // Replace the current list with the fetched items.
           this.templateBases = response.templateBases;
-          // Cache the nextCursor for the current page.
-          // This cursor will be used to load the next page.
-          this.cachedCursors[this.currentPage] = response.nextCursor || null;
-  
-          // Update totalPages:
-          // If there's no nextCursor, then this is the last page.
-          // Otherwise, we assume at least one more page exists.
-          if (!response.nextCursor) {
+
+          if (response.templateBases.length === 0) {
+            // No data means we've hit the end.
             this.totalPages = this.currentPage;
+            this.cachedCursors[this.currentPage + 1] = null;
+          } else if (response.queryCursor) {
+            // Store the next cursor and calculate total pages from totalCount.
+            this.cachedCursors[this.currentPage + 1] = response.queryCursor;
+            this.totalPages = Math.ceil(response.totalCount / this.pageSize);
           } else {
-            // Simulate totalPages as the highest page number loaded plus one.
-            this.totalPages = Math.max(this.totalPages, this.currentPage + 1);
+            this.totalPages = this.currentPage;
           }
         },
         error: (err) => {
@@ -131,29 +126,37 @@ export class TemplateManagerComponent {
         },
       });
   }
-  
 
+  /**
+   * Handles page change events.
+   * Uses the event payload (new page number and direction) to update state and fetch data.
+   */
+  handlePageChange(event: PageChangeEvent): void {
+    // For forward, backward, or jump, update currentPage and then fetch data.
+    const newPage = event.page;
 
-  handlePageChange(newPage: number): void {
-    // For page 1, we can always load it.
-    // For pages > 1, ensure we have the previous page's cursor cached.
-    if (newPage === 1 || this.cachedCursors[newPage - 1] !== undefined) {
+    // If moving forward and the cursor isn't cached yet, fetch data.
+    if (event.direction === 'forward' && newPage > this.currentPage && !this.cachedCursors[newPage]) {
+      console.warn('Page not available yet. Fetching...');
       this.currentPage = newPage;
       this.fetchTemplateBases();
-    } else {
-      console.warn('That page is not available yet.');
+      return;
     }
+
+    // For backward or jump, we assume the cursor was already cached.
+    this.currentPage = newPage;
+    this.fetchTemplateBases();
   }
 
+  // Opens the editor for the given template.
   selectTemplate(templateBaseId: string): void {
     this.selectedTemplate = null;
     this.isLoading = true;
-    this.templateService.getTemplateDetails(templateBaseId)
-      .pipe(finalize(() => this.isLoading = false))
+    this.templateService
+      .getTemplateDetails(templateBaseId)
+      .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (fullTemplate) => {
-          this.selectedTemplate = fullTemplate;
-        },
+        next: (fullTemplate) => (this.selectedTemplate = fullTemplate),
         error: (err) => {
           console.error('Error fetching full template:', err);
           this.errorMessage = 'Failed to load the full template details.';
@@ -161,57 +164,69 @@ export class TemplateManagerComponent {
       });
   }
 
+  // Prepares a new template for creation.
   addTemplate(): void {
-    const newTemplate: Template = {
-      id: '', // New template has an empty id
-      title: 'New Template',
+    this.selectedTemplate = {
+      id: '',
+      templateTitle: 'New Template',
       description: 'Description for the new template',
       questions: [
         {
           id: -1,
-          title: 'Default Question',
-          customAnswer: true,
+          prompt: 'Default Question',
+          allowCustom: true,
           options: [],
         },
       ],
     };
-    this.selectedTemplate = newTemplate;
   }
 
+  isSelectedPageSize(size: number): boolean {
+    return size === this.pageSize;
+  }
+
+  // Deletes a template and then refreshes the list.
   deleteTemplate(templateId: string): void {
     this.templateService.deleteTemplate(templateId).subscribe({
-      complete: () => this.fetchTemplateBases(),
+      complete: () => {
+        this.resetData();
+        this.fetchTemplateBases();
+      },
       error: () => console.error('Error deleting template'),
     });
   }
 
+  // Saves a new or updated template.
   onSaveTemplate(updatedTemplate: Template): void {
     if (!updatedTemplate.id) {
-      // New template: assign a temporary id and add it.
+      // New template.
       updatedTemplate.id = `temp-${Date.now()}`;
       this.templateService.addTemplate(updatedTemplate).subscribe({
         next: (createdTemplate: Template) => {
           console.log('Template added successfully:', createdTemplate);
           this.selectedTemplate = null;
+          this.resetData();
           this.fetchTemplateBases();
         },
-        error: () => console.error('Error adding template'),
+        error: () => {
+          console.error('Error adding template');
+          updatedTemplate.id = undefined;
+        },
       });
     } else {
-      // Existing template: update it.
+      // Update existing template.
       this.templateService.updateTemplate(updatedTemplate.id, updatedTemplate).subscribe({
         complete: () => {
           console.log('Template updated successfully:', updatedTemplate);
           this.selectedTemplate = null;
           this.fetchTemplateBases();
         },
-        error: (err) => {
-          console.error('Error updating template:', err);
-        },
+        error: (err) => console.error('Error updating template:', err),
       });
     }
   }
 
+  // Cancels the template editor.
   onCancelEdit(): void {
     this.selectedTemplate = null;
   }

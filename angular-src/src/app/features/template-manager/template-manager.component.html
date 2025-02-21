@@ -85,7 +85,8 @@
         *ngIf="!isLoading && !errorMessage"
         [currentPage]="currentPage"
         [totalPages]="totalPages"
-        (pageChange)="handlePageChange($event)">
+        (pageChange)="handlePageChange($event)"
+        [showPageNumbers]="false">
       </app-pagination>
     </ng-container>
 

@@ -57,7 +57,7 @@ namespace API.Controllers
             {
                 query = query.Where(q => q.Id == request.Id);
             }
-
+            int totalQueryCount = await query.CountAsync();
             if (!string.IsNullOrEmpty(request.QueryCursor))
             {
                 DateTime cursorCreatedAt = DateTime.Parse(request.QueryCursor.Split('_')[0]);
@@ -82,7 +82,6 @@ namespace API.Controllers
                 }
             }
 
-            int totalQueryCount = await query.CountAsync();
             query = query.Take(request.PageSize);
 
             List<QuestionnaireTemplateModel> questionnaireTemplates = await query.ToListAsync();

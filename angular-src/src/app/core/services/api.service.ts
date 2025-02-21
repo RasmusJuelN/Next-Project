@@ -39,4 +39,9 @@ export class ApiService {
       .delete<T>(url, { params, headers })
       .pipe(catchError((error) => this.errorHandler.handleError(error, 'DELETE Request Failed')));
   }
+  head<T>(url: string, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
+    return this.http
+      .head<T>(url, { params, headers })
+      .pipe(catchError((error) => this.errorHandler.handleError(error, 'HEAD Request Failed')));
+  }
 }
