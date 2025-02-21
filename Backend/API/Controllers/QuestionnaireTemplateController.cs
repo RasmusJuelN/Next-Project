@@ -72,13 +72,13 @@ namespace API.Controllers
                     // row3 < row4 < row5 cursor_position < row2 < row1
                     // To:
                     // row5 < row4 < row3 cursor_position < row2 < row1
-                    query = query.Where(q => q.CreatedAt < cursorCreatedAt
-                    || q.CreatedAt == cursorCreatedAt && q.Id < cursorId).Reverse();
+                    query = query.Where(q => q.CreatedAt > cursorCreatedAt
+                    || q.CreatedAt == cursorCreatedAt && q.Id > cursorId);
                 }
                 else
                 {
-                    query = query.Where(q => q.CreatedAt > cursorCreatedAt
-                    || q.CreatedAt == cursorCreatedAt && q.Id > cursorId).Reverse();
+                    query = query.Where(q => q.CreatedAt < cursorCreatedAt
+                    || q.CreatedAt == cursorCreatedAt && q.Id < cursorId);
                 }
             }
 
