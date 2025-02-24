@@ -1,13 +1,13 @@
-using API.Models.Responses;
+using API.DTO.Responses.QuestionnaireTemplate;
 using Database.Models;
 
 namespace API.Extensions;
 
 public static class QuestionnaireQuestionModelExtensions
 {
-    public static QuestionnaireTemplateQuestionDto ToDto(this QuestionnaireQuestionModel question)
+    public static FetchQuestion ToDto(this QuestionnaireQuestionModel question)
     {
-        return new QuestionnaireTemplateQuestionDto
+        return new FetchQuestion
         {
             Id = question.Id,
             Prompt = question.Prompt,

@@ -1,4 +1,4 @@
-namespace API.Models.Requests;
+namespace API.DTO.Requests.Auth;
 
 public record class UserLogin
 {

@@ -1,13 +1,13 @@
-using API.Models.Responses;
+using API.DTO.Responses.QuestionnaireTemplate;
 using Database.Models;
 
 namespace API.Extensions;
 
 public static class QuestionnaireTemplateModelExtensions
 {
-    public static QuestionnaireTemplateBaseDto.TemplateBase ToBaseDto(this QuestionnaireTemplateModel questionnaireTemplate)
+    public static FetchTemplateBase ToBaseDto(this QuestionnaireTemplateModel questionnaireTemplate)
     {
-        return new QuestionnaireTemplateBaseDto.TemplateBase
+        return new FetchTemplateBase
         {
             Id = questionnaireTemplate.Id,
             TemplateTitle = questionnaireTemplate.TemplateTitle,
@@ -17,9 +17,9 @@ public static class QuestionnaireTemplateModelExtensions
         };
     }
 
-    public static QuestionnaireTemplateDto ToDto(this QuestionnaireTemplateModel questionnaireTemplate)
+    public static FetchTemplate ToDto(this QuestionnaireTemplateModel questionnaireTemplate)
     {
-        return new QuestionnaireTemplateDto
+        return new FetchTemplate
         {
             Id = questionnaireTemplate.Id,
             TemplateTitle = questionnaireTemplate.TemplateTitle,

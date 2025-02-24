@@ -1,7 +1,7 @@
 using API.Attributes;
 using Novell.Directory.Ldap;
 
-namespace API.Models.LDAP;
+namespace API.DTO.LDAP;
 
 public class ObjectGuidAndMemberOf
 {

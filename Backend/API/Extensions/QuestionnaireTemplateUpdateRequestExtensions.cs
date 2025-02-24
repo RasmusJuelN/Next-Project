@@ -1,11 +1,11 @@
-using API.Models.Requests;
+using API.DTO.Requests.QuestionnaireTemplate;
 using Database.Models;
 
 namespace API.Extensions;
 
 public static class QuestionnaireTemplateUpdateRequestExtensions
 {
-    public static QuestionnaireOptionModel ToModel(this QuestionnaireTemplateOptionUpdateRequest updateRequest, QuestionnaireOptionModel existingEntity)
+    public static QuestionnaireOptionModel ToModel(this UpdateOption updateRequest, QuestionnaireOptionModel existingEntity)
     {
         return new QuestionnaireOptionModel
         {
@@ -15,7 +15,7 @@ public static class QuestionnaireTemplateUpdateRequestExtensions
         };
     }
 
-    public static QuestionnaireQuestionModel ToModel(this QuestionnaireTemplateQuestionUpdateRequest updateRequest, QuestionnaireQuestionModel existingEntity)
+    public static QuestionnaireQuestionModel ToModel(this UpdateQuestion updateRequest, QuestionnaireQuestionModel existingEntity)
     {
         return new()
         {
@@ -26,7 +26,7 @@ public static class QuestionnaireTemplateUpdateRequestExtensions
         };
     }
 
-    public static QuestionnaireTemplateModel ToModel(this QuestionnaireTemplateUpdateRequest updateRequest, QuestionnaireTemplateModel existingEntity)
+    public static QuestionnaireTemplateModel ToModel(this UpdateTemplate updateRequest, QuestionnaireTemplateModel existingEntity)
     {
         return new()
         {

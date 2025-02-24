@@ -1,4 +1,4 @@
-namespace API.Models.Responses;
+namespace API.DTO.Responses.Auth;
 
 public record class JWTUser
 {

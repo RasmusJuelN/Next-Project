@@ -1,12 +1,12 @@
+using API.DTO.Requests.QuestionnaireTemplate;
 using API.Enums;
 using API.Exceptions;
 using API.Extensions;
 using API.Interfaces;
-using API.Models.Requests;
-using API.Models.Responses;
 using Database.DTO.QuestionnaireTemplate;
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
+using API.DTO.Responses.QuestionnaireTemplate;
 
 namespace API.Services;
 
@@ -21,9 +21,9 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
     /// </summary>
     /// <param name="request">The request parameters for retrieving questionnaire templates.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="QuestionnaireTemplateBaseDto.PaginationResult"/> object.
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="KeysetPaginationResult"/> object.
     /// </returns>
-    public async Task<QuestionnaireTemplateBaseDto.PaginationResult> GetTemplateBasesWithKeysetPagination(QuestionnaireTemplateApiRequests.PaginationQuery request)
+    public async Task<KeysetPaginationResult> GetTemplateBasesWithKeysetPagination(KeysetPaginationQuery request)
     {
         IQueryable<QuestionnaireTemplateModel> query = _unitOfWork.QuestionnaireTemplate.GetAsQueryable();
 
@@ -61,8 +61,8 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
         query = query.Take(request.PageSize);
 
         List<QuestionnaireTemplateModel> questionnaireTemplates = await query.ToListAsync();
-        List<QuestionnaireTemplateBaseDto.TemplateBase> questionnaireTemplatesDto = [.. questionnaireTemplates.Select(q => q.ToBaseDto())];
-        QuestionnaireTemplateBaseDto.TemplateBase? lastTemplate = questionnaireTemplatesDto.Count != 0 ? questionnaireTemplatesDto.Last() : null;
+        List<FetchTemplateBase> questionnaireTemplatesDto = [.. questionnaireTemplates.Select(q => q.ToBaseDto())];
+        FetchTemplateBase? lastTemplate = questionnaireTemplatesDto.Count != 0 ? questionnaireTemplatesDto.Last() : null;
 
         string? queryCursor = null;
         if (lastTemplate is not null)
@@ -70,7 +70,7 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
             queryCursor = $"{lastTemplate.CreatedAt:O}_{lastTemplate.Id}";
         }
 
-        return new QuestionnaireTemplateBaseDto.PaginationResult()
+        return new KeysetPaginationResult()
         {
             TemplateBases = questionnaireTemplatesDto,
             QueryCursor = queryCursor,
@@ -81,11 +81,11 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
     /// <summary>
     /// Adds a new questionnaire template to the database.
     /// </summary>
-    /// <param name="template">The template to be added, represented by <see cref="QuestionnaireTemplateApiRequests.AddTemplate"/>.</param>
+    /// <param name="template">The template to be added, represented by <see cref="DTO.Requests.QuestionnaireTemplate.AddTemplate"/>.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the added <see cref="QuestionnaireTemplateModel"/>.
     /// </returns>
-    public async Task<QuestionnaireTemplateDto> AddTemplate(QuestionnaireTemplateApiRequests.AddTemplate template)
+    public async Task<FetchTemplate> AddTemplate(AddTemplate template)
     {
         if (await TemplateExists(template.TemplateTitle)) throw new SQLException.ItemAlreadyExists();
         
@@ -97,7 +97,7 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
         return addedTemplate.ToDto();
     }
 
-    public async Task<QuestionnaireTemplateDto> GetTemplateById(Guid id)
+    public async Task<FetchTemplate> GetTemplateById(Guid id)
     {
         QuestionnaireTemplateModel template = await _unitOfWork.QuestionnaireTemplate.GetSingleAsync(t =>
             t.Id == id, query => query.Include(q => q.Questions).ThenInclude(o => o.Options)) ?? throw new SQLException.ItemNotFound();
@@ -105,7 +105,7 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
         return template.ToDto();
     }
 
-    public async Task<QuestionnaireTemplateDto> UpdateTemplate(Guid id, QuestionnaireTemplateUpdateRequest updateRequest)
+    public async Task<FetchTemplate> UpdateTemplate(Guid id, UpdateTemplate updateRequest)
     {
         QuestionnaireTemplateModel existingTemplate = await _unitOfWork.QuestionnaireTemplate.GetSingleAsync(t =>
             t.Id == id, query => query.AsNoTracking().Include(q => q.Questions).ThenInclude(o => o.Options)) ?? throw new SQLException.ItemNotFound();
@@ -116,7 +116,7 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
         return existingTemplate.ToDto();
     }
 
-    public async Task<QuestionnaireTemplateDto> PatchTemplate(Guid id, QuestionnaireTemplatePatch patchRequest)
+    public async Task<FetchTemplate> PatchTemplate(Guid id, QuestionnaireTemplatePatch patchRequest)
     {
         QuestionnaireTemplateModel existingTemplate = await _unitOfWork.QuestionnaireTemplate.GetSingleAsync(t =>
             t.Id == id, query => query.Include(q => q.Questions).ThenInclude(o => o.Options)) ?? throw new SQLException.ItemNotFound();

@@ -2,9 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using API.Enums;
-using API.Models.Responses;
 using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
+using API.DTO.Responses.Auth;
 
 namespace API.Services;
 

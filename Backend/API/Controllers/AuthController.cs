@@ -2,9 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using API.Enums;
 using API.Exceptions;
-using API.Models.LDAP;
-using API.Models.Requests;
-using API.Models.Responses;
+using API.DTO.LDAP;
 using API.Services;
 using API.Utils;
 using Database.Enums;
@@ -15,6 +13,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
+using API.DTO.Responses.Auth;
+using API.DTO.Requests.Auth;
 
 namespace API.Controllers
 {
@@ -196,7 +196,7 @@ namespace API.Controllers
                 Guid = new Guid(User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? "N/A"),
                 Username = User.FindFirstValue(JwtRegisteredClaimNames.UniqueName) ?? "N/A",
                 Name = User.FindFirstValue(JwtRegisteredClaimNames.Name) ?? "N/A",
-                Role = User.FindFirstValue(JWTClaims.role)  ?? "N/A",
+                Role = User.FindFirstValue(JWTClaims.role) ?? "N/A",
                 Permissions = Convert.ToInt32(User.FindFirstValue(JWTClaims.permissions) ?? "0")
             });
         }

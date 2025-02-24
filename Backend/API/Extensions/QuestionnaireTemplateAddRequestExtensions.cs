@@ -1,11 +1,11 @@
-using API.Models.Requests;
+using API.DTO.Requests.QuestionnaireTemplate;
 using Database.Models;
 
 namespace API.Extensions;
 
 public static class QuestionnaireTemplateAddRequestExtensions
 {
-    public static QuestionnaireTemplateModel ToModel(this QuestionnaireTemplateApiRequests.AddTemplate questionnaireAddRequest)
+    public static QuestionnaireTemplateModel ToModel(this AddTemplate questionnaireAddRequest)
     {
         return new QuestionnaireTemplateModel
         {
