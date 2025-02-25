@@ -147,6 +147,14 @@ public class LdapService
         return userSearch;
     }
 
+    public TLdapObject SearchByObjectGUID<TLdapObject>(Guid id) where TLdapObject : new()
+    {
+        string searchFilter = $"(objectGUID={EscapeGUID(id)})";
+        TLdapObject ldapObject = SearchLDAP<TLdapObject>(searchFilter, _LDAPSettings.BaseDN).First();
+
+        return ldapObject;
+    }
+
     /// <summary>
     /// Disconnects the LDAP connection and disposes of the connection object.
     /// </summary>
@@ -175,6 +183,12 @@ public class LdapService
         }
 
         return value;
+    }
+
+    private static string EscapeGUID(Guid guid)
+    {
+        byte[] bytes = guid.ToByteArray();
+        return string.Concat(bytes.Select(b => $"\\{b:X2}"));
     }
 
     /// <summary>
