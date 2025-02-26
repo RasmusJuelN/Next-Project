@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
 using API.DTO.Responses.Auth;
 using API.DTO.Requests.Auth;
+using Microsoft.Net.Http.Headers;
 
 namespace API.Controllers
 {
@@ -67,7 +68,7 @@ namespace API.Controllers
 
             if (_ldapService.connection.Bound)
             {
-                ObjectGuidAndMemberOf ldapUser = _ldapService.SearchUser<ObjectGuidAndMemberOf>(userLogin.Username);
+                BasicUserInfoWithObjectGuid ldapUser = _ldapService.SearchUser<BasicUserInfoWithObjectGuid>(userLogin.Username);
 
                 if (ldapUser is null)
                 {
@@ -103,7 +104,7 @@ namespace API.Controllers
                 {
                     Guid = userGuid,
                     Username = userLogin.Username,
-                    Name = ldapUser.Name.StringValue,
+                    Name = ldapUser.DisplayName.StringValue,
                     Role = userRole,
                     Permissions = (int)permissions
                 };
@@ -193,13 +194,7 @@ namespace API.Controllers
         {
             if (Request.Headers.Authorization.IsNullOrEmpty()) return Forbid();
 
-            return Ok(new JWTUser{
-                Guid = new Guid(User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? "N/A"),
-                Username = User.FindFirstValue(JwtRegisteredClaimNames.UniqueName) ?? "N/A",
-                Name = User.FindFirstValue(JwtRegisteredClaimNames.Name) ?? "N/A",
-                Role = User.FindFirstValue(JWTClaims.role) ?? "N/A",
-                Permissions = Convert.ToInt32(User.FindFirstValue(JWTClaims.permissions) ?? "0")
-            });
+            return Ok(_jwtService.DecodeAccessToken(Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer", "")));
         }
     }
 

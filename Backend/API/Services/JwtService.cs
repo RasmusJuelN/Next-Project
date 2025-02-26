@@ -161,4 +161,20 @@ public class JwtService(IConfiguration configuration)
             SecurityAlgorithms.HmacSha256
         );
     }
+
+    public static JWTUser DecodeAccessToken(string accessToken)
+    {
+        JwtSecurityTokenHandler tokenHandler = GetTokenHandler();
+
+        JwtSecurityToken jwtSecurityToken = tokenHandler.ReadJwtToken(accessToken);
+
+        return new JWTUser
+        {
+            Guid = Guid.Parse(jwtSecurityToken.Subject),
+            Username = jwtSecurityToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.UniqueName).Value,
+            Name = jwtSecurityToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Name).Value,
+            Role = jwtSecurityToken.Claims.First(x => x.Type == JWTClaims.role).Value,
+            Permissions = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == JWTClaims.permissions).Value)
+        };
+    }
 }
