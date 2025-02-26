@@ -79,6 +79,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(SQLGenericReposi
 builder.Services.AddScoped<IQuestionnaireTemplateRepository, SQLQuestionnaireTemplateRepository>();
 builder.Services.AddScoped<IActiveQuestionnaireRepository, ActiveQuestionnaireRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITrackedRefreshTokenRepository, TrackedRefreshTokenRepository>();
 
 builder.Services.AddControllers(options =>{
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
