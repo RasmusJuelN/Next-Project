@@ -29,4 +29,19 @@ public static class QuestionnaireTemplateModelExtensions
             Questions = [.. questionnaireTemplate.Questions.Select(q => q.ToDto())]
         };
     }
+
+    public static ActiveQuestionnaireModel ToActiveQuestionnaire(
+        this QuestionnaireTemplateModel questionnaireTemplate,
+        StudentModel student,
+        TeacherModel teacher)
+    {
+        return new ActiveQuestionnaireModel
+        {
+            Title = questionnaireTemplate.TemplateTitle,
+            Student = student,
+            Teacher = teacher,
+            QuestionnaireTemplate = questionnaireTemplate,
+            ActiveQuestionnaireQuestions = [.. questionnaireTemplate.Questions.Select(q => q.ToActiveQuestionnaireQuestion())]
+        };
+    }
 }
