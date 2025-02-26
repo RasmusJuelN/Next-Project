@@ -162,7 +162,7 @@ public class JwtService(IConfiguration configuration)
         );
     }
 
-    public static JWTUser DecodeAccessToken(string accessToken)
+    public JWTUser DecodeAccessToken(string accessToken)
     {
         JwtSecurityTokenHandler tokenHandler = GetTokenHandler();
 
