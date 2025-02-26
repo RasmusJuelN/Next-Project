@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace API.Services;
 
-public class UnitOfWork(Context context, IQuestionnaireTemplateRepository templateRepository) : IUnitOfWork
+public class UnitOfWork(Context context, IQuestionnaireTemplateRepository templateRepository, IActiveQuestionnaireRepository activeQuestionnaire, IUserRepository user) : IUnitOfWork
 {
     private readonly Context _context = context;
     private IDbContextTransaction? _transaction;
     public IQuestionnaireTemplateRepository QuestionnaireTemplate { get; } = templateRepository;
+    public IActiveQuestionnaireRepository ActiveQuestionnaire { get; } = activeQuestionnaire;
+    public IUserRepository User { get; } = user;
 
     public async Task<int> SaveChangesAsync()
     {

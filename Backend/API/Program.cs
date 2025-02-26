@@ -46,6 +46,7 @@ builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<QuestionnaireTemplateService>();
+builder.Services.AddScoped<ActiveQuestionnaireService>();
 builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -76,6 +77,8 @@ builder.Services.Configure<RouteOptions>(o => {
 // Repositories
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(SQLGenericRepository<>));
 builder.Services.AddScoped<IQuestionnaireTemplateRepository, SQLQuestionnaireTemplateRepository>();
+builder.Services.AddScoped<IActiveQuestionnaireRepository, ActiveQuestionnaireRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddControllers(options =>{
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
