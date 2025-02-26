@@ -10,6 +10,9 @@ public class TrackedRefreshTokenModel
 {
     [Key]
     public int Id { get; set; }
+
+    [Required]    
+    public required Guid UserGuid { get; set; }
     
     [Required]
     public required byte[] Token { get; set; }
@@ -20,11 +23,4 @@ public class TrackedRefreshTokenModel
     
     [Required]
     public bool IsRevoked { get; set; }
-    
-    [Required]
-    public int UserFK { get; set; }
-
-    [Required]
-    [ForeignKey(nameof(UserFK))]
-    public virtual UserBaseModel? User { get; set; }
 }
