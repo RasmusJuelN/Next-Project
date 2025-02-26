@@ -7,4 +7,5 @@ public interface IQuestionnaireTemplateRepository : IGenericRepository<Questionn
 {
     QuestionnaireTemplateModel Update(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplateModel updatedTemplate);
     QuestionnaireTemplateModel Patch(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplatePatch patchedTemplate);
+    Task<QuestionnaireTemplateModel?> GetEntireTemplate(Guid id);
 }
