@@ -4,19 +4,16 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace API.Migrations
+namespace Database.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20250211085615_IncreaseMaxSizeOfApplicationLogMessageAndException")]
-    partial class IncreaseMaxSizeOfApplicationLogMessageAndException
+    partial class ContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,6 +25,7 @@ namespace API.Migrations
             modelBuilder.Entity("Database.Models.ActiveQuestionnaireModel", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ActivatedAt")
@@ -35,37 +33,36 @@ namespace API.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<Guid>("QuestionnaireTemplateId")
+                    b.Property<Guid>("QuestionnaireTemplateFK")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("StudentCompletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("StudentFK")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("TeacherCompletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("TeacherId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("TeacherFK")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuestionnaireTemplateId");
+                    b.HasIndex("QuestionnaireTemplateFK");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentFK");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("TeacherFK");
 
                     b.HasIndex("Title");
 
-                    b.ToTable("ActiveQuestionnaire", (string)null);
+                    b.ToTable("ActiveQuestionnaire");
                 });
 
             modelBuilder.Entity("Database.Models.ActiveQuestionnaireOptionModel", b =>
@@ -76,22 +73,21 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ActiveQuestionnaireQuestionId")
+                    b.Property<int>("ActiveQuestionnaireQuestionFK")
                         .HasColumnType("int");
 
                     b.Property<string>("DisplayText")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OptionValue")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActiveQuestionnaireQuestionId");
+                    b.HasIndex("ActiveQuestionnaireQuestionFK");
 
-                    b.ToTable("ActiveQuestionnaireOption", (string)null);
+                    b.ToTable("ActiveQuestionnaireOption");
                 });
 
             modelBuilder.Entity("Database.Models.ActiveQuestionnaireQuestionModel", b =>
@@ -102,19 +98,18 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("ActiveQuestionnaireId")
+                    b.Property<Guid>("ActiveQuestionnaireFK")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Prompt")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActiveQuestionnaireId");
+                    b.HasIndex("ActiveQuestionnaireFK");
 
-                    b.ToTable("ActiveQuestionnaireQuestion", (string)null);
+                    b.ToTable("ActiveQuestionnaireQuestion");
                 });
 
             modelBuilder.Entity("Database.Models.ActiveQuestionnaireResponseModel", b =>
@@ -125,19 +120,16 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("ActiveQuestionnaireId")
+                    b.Property<Guid>("ActiveQuestionnaireFK")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ActiveQuestionnaireQuestionId")
+                    b.Property<int>("ActiveQuestionnaireQuestionFK")
                         .HasColumnType("int");
 
-                    b.Property<int>("CustomStudentResponseId")
+                    b.Property<int?>("CustomStudentResponseFK")
                         .HasColumnType("int");
 
-                    b.Property<int>("CustomTeacherResponseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuestionId")
+                    b.Property<int?>("CustomTeacherResponseFK")
                         .HasColumnType("int");
 
                     b.Property<string>("StudentResponse")
@@ -148,17 +140,19 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActiveQuestionnaireId");
+                    b.HasIndex("ActiveQuestionnaireFK");
 
-                    b.HasIndex("ActiveQuestionnaireQuestionId");
+                    b.HasIndex("ActiveQuestionnaireQuestionFK");
 
-                    b.HasIndex("CustomStudentResponseId")
-                        .IsUnique();
+                    b.HasIndex("CustomStudentResponseFK")
+                        .IsUnique()
+                        .HasFilter("[CustomStudentResponseFK] IS NOT NULL");
 
-                    b.HasIndex("CustomTeacherResponseId")
-                        .IsUnique();
+                    b.HasIndex("CustomTeacherResponseFK")
+                        .IsUnique()
+                        .HasFilter("[CustomTeacherResponseFK] IS NOT NULL");
 
-                    b.ToTable("ActiveQuestionnaireResponse", (string)null);
+                    b.ToTable("ActiveQuestionnaireResponse");
                 });
 
             modelBuilder.Entity("Database.Models.ApplicationLogsModel", b =>
@@ -171,8 +165,7 @@ namespace API.Migrations
 
                     b.Property<string>("Category")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("EventId")
                         .HasColumnType("int");
@@ -196,10 +189,10 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationLogs", (string)null);
+                    b.ToTable("ApplicationLogs");
                 });
 
-            modelBuilder.Entity("Database.Models.CustomAnswerModel", b =>
+            modelBuilder.Entity("Database.Models.CustomAnswerModelBase", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,20 +200,22 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ActiveQuestionnaireResponseId")
-                        .HasColumnType("int");
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("nvarchar(34)");
 
                     b.Property<string>("Response")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActiveQuestionnaireResponseId")
-                        .IsUnique();
+                    b.ToTable("CustomAnswer");
 
-                    b.ToTable("CustomAnswer", (string)null);
+                    b.HasDiscriminator().HasValue("CustomAnswerModelBase");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Database.Models.QuestionnaireOptionModel", b =>
@@ -233,20 +228,20 @@ namespace API.Migrations
 
                     b.Property<string>("DisplayText")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("OptionValue")
                         .HasColumnType("int");
 
-                    b.Property<int>("QuestionId")
+                    b.Property<int>("QuestionFK")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuestionId");
+                    b.HasIndex("QuestionFK");
 
-                    b.ToTable("QuestionnaireTemplateOption", (string)null);
+                    b.ToTable("QuestionnaireTemplateOption");
                 });
 
             modelBuilder.Entity("Database.Models.QuestionnaireQuestionModel", b =>
@@ -265,14 +260,14 @@ namespace API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<Guid>("QuestionnaireTemplateId")
+                    b.Property<Guid>("QuestionnaireTemplateFK")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuestionnaireTemplateId");
+                    b.HasIndex("QuestionnaireTemplateFK");
 
-                    b.ToTable("QuestionnaireTemplateQuestion", (string)null);
+                    b.ToTable("QuestionnaireTemplateQuestion");
                 });
 
             modelBuilder.Entity("Database.Models.QuestionnaireTemplateModel", b =>
@@ -304,10 +299,16 @@ namespace API.Migrations
                     b.HasIndex("TemplateTitle")
                         .IsUnique();
 
-                    b.ToTable("QuestionnaireTemplate", (string)null);
+                    b.HasIndex("CreatedAt", "Id")
+                        .IsDescending(true, false);
+
+                    b.HasIndex("TemplateTitle", "Id")
+                        .IsDescending(true, false);
+
+                    b.ToTable("QuestionnaireTemplate");
                 });
 
-            modelBuilder.Entity("Database.Models.RevokedRefreshTokenModel", b =>
+            modelBuilder.Entity("Database.Models.TrackedRefreshTokenModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -315,32 +316,50 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("RevokedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
 
                     b.Property<byte[]>("Token")
                         .IsRequired()
                         .HasColumnType("varbinary(900)");
 
+                    b.Property<int>("UserFK")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Token");
 
-                    b.ToTable("RevokedRefreshToken", (string)null);
+                    b.HasIndex("UserFK");
+
+                    b.ToTable("TrackedRefreshToken");
                 });
 
-            modelBuilder.Entity("Database.Models.UserModel", b =>
+            modelBuilder.Entity("Database.Models.UserBaseModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Permissions")
                         .HasColumnType("int");
@@ -359,30 +378,66 @@ namespace API.Migrations
                     b.HasIndex("UserName")
                         .IsUnique();
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User");
+
+                    b.HasDiscriminator().HasValue("UserBaseModel");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Database.Models.StudentCustomAnswerModel", b =>
+                {
+                    b.HasBaseType("Database.Models.CustomAnswerModelBase");
+
+                    b.ToTable("CustomAnswer");
+
+                    b.HasDiscriminator().HasValue("StudentCustomAnswerModel");
+                });
+
+            modelBuilder.Entity("Database.Models.TeacherCustomAnswerModel", b =>
+                {
+                    b.HasBaseType("Database.Models.CustomAnswerModelBase");
+
+                    b.ToTable("CustomAnswer");
+
+                    b.HasDiscriminator().HasValue("TeacherCustomAnswerModel");
+                });
+
+            modelBuilder.Entity("Database.Models.StudentModel", b =>
+                {
+                    b.HasBaseType("Database.Models.UserBaseModel");
+
+                    b.ToTable("User");
+
+                    b.HasDiscriminator().HasValue("StudentModel");
+                });
+
+            modelBuilder.Entity("Database.Models.TeacherModel", b =>
+                {
+                    b.HasBaseType("Database.Models.UserBaseModel");
+
+                    b.ToTable("User");
+
+                    b.HasDiscriminator().HasValue("TeacherModel");
                 });
 
             modelBuilder.Entity("Database.Models.ActiveQuestionnaireModel", b =>
                 {
-                    b.HasOne("Database.Models.UserModel", null)
-                        .WithMany("ActiveQuestionnaires")
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Database.Models.QuestionnaireTemplateModel", "QuestionnaireTemplate")
                         .WithMany("ActiveQuestionnaires")
-                        .HasForeignKey("QuestionnaireTemplateId");
-
-                    b.HasOne("Database.Models.UserModel", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
+                        .HasForeignKey("QuestionnaireTemplateFK")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Database.Models.UserModel", "Teacher")
-                        .WithMany()
-                        .HasForeignKey("TeacherId")
+                    b.HasOne("Database.Models.StudentModel", "Student")
+                        .WithMany("ActiveQuestionnaires")
+                        .HasForeignKey("StudentFK")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Database.Models.TeacherModel", "Teacher")
+                        .WithMany("ActiveQuestionnaires")
+                        .HasForeignKey("TeacherFK")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -397,7 +452,7 @@ namespace API.Migrations
                 {
                     b.HasOne("Database.Models.ActiveQuestionnaireQuestionModel", "ActiveQuestionnaireQuestion")
                         .WithMany("ActiveQuestionnaireOptions")
-                        .HasForeignKey("ActiveQuestionnaireQuestionId")
+                        .HasForeignKey("ActiveQuestionnaireQuestionFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -408,7 +463,7 @@ namespace API.Migrations
                 {
                     b.HasOne("Database.Models.ActiveQuestionnaireModel", "ActiveQuestionnaire")
                         .WithMany("ActiveQuestionnaireQuestions")
-                        .HasForeignKey("ActiveQuestionnaireId")
+                        .HasForeignKey("ActiveQuestionnaireFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -419,23 +474,23 @@ namespace API.Migrations
                 {
                     b.HasOne("Database.Models.ActiveQuestionnaireModel", "ActiveQuestionnaire")
                         .WithMany("Answers")
-                        .HasForeignKey("ActiveQuestionnaireId")
+                        .HasForeignKey("ActiveQuestionnaireFK")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Database.Models.ActiveQuestionnaireQuestionModel", "ActiveQuestionnaireQuestion")
                         .WithMany()
-                        .HasForeignKey("ActiveQuestionnaireQuestionId")
+                        .HasForeignKey("ActiveQuestionnaireQuestionFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Database.Models.CustomAnswerModel", "CustomStudentResponse")
-                        .WithOne()
-                        .HasForeignKey("Database.Models.ActiveQuestionnaireResponseModel", "CustomStudentResponseId");
+                    b.HasOne("Database.Models.StudentCustomAnswerModel", "CustomStudentResponse")
+                        .WithOne("ActiveQuestionnaireResponse")
+                        .HasForeignKey("Database.Models.ActiveQuestionnaireResponseModel", "CustomStudentResponseFK");
 
-                    b.HasOne("Database.Models.CustomAnswerModel", "CustomTeacherResponse")
-                        .WithOne()
-                        .HasForeignKey("Database.Models.ActiveQuestionnaireResponseModel", "CustomTeacherResponseId");
+                    b.HasOne("Database.Models.TeacherCustomAnswerModel", "CustomTeacherResponse")
+                        .WithOne("ActiveQuestionnaireResponse")
+                        .HasForeignKey("Database.Models.ActiveQuestionnaireResponseModel", "CustomTeacherResponseFK");
 
                     b.Navigation("ActiveQuestionnaire");
 
@@ -446,22 +501,11 @@ namespace API.Migrations
                     b.Navigation("CustomTeacherResponse");
                 });
 
-            modelBuilder.Entity("Database.Models.CustomAnswerModel", b =>
-                {
-                    b.HasOne("Database.Models.ActiveQuestionnaireResponseModel", "ActiveQuestionnaireResponse")
-                        .WithOne()
-                        .HasForeignKey("Database.Models.CustomAnswerModel", "ActiveQuestionnaireResponseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ActiveQuestionnaireResponse");
-                });
-
             modelBuilder.Entity("Database.Models.QuestionnaireOptionModel", b =>
                 {
                     b.HasOne("Database.Models.QuestionnaireQuestionModel", "Question")
                         .WithMany("Options")
-                        .HasForeignKey("QuestionId")
+                        .HasForeignKey("QuestionFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -472,11 +516,22 @@ namespace API.Migrations
                 {
                     b.HasOne("Database.Models.QuestionnaireTemplateModel", "QuestionnaireTemplate")
                         .WithMany("Questions")
-                        .HasForeignKey("QuestionnaireTemplateId")
+                        .HasForeignKey("QuestionnaireTemplateFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("QuestionnaireTemplate");
+                });
+
+            modelBuilder.Entity("Database.Models.TrackedRefreshTokenModel", b =>
+                {
+                    b.HasOne("Database.Models.UserBaseModel", "User")
+                        .WithMany("TrackedRefreshTokens")
+                        .HasForeignKey("UserFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Database.Models.ActiveQuestionnaireModel", b =>
@@ -503,7 +558,27 @@ namespace API.Migrations
                     b.Navigation("Questions");
                 });
 
-            modelBuilder.Entity("Database.Models.UserModel", b =>
+            modelBuilder.Entity("Database.Models.UserBaseModel", b =>
+                {
+                    b.Navigation("TrackedRefreshTokens");
+                });
+
+            modelBuilder.Entity("Database.Models.StudentCustomAnswerModel", b =>
+                {
+                    b.Navigation("ActiveQuestionnaireResponse");
+                });
+
+            modelBuilder.Entity("Database.Models.TeacherCustomAnswerModel", b =>
+                {
+                    b.Navigation("ActiveQuestionnaireResponse");
+                });
+
+            modelBuilder.Entity("Database.Models.StudentModel", b =>
+                {
+                    b.Navigation("ActiveQuestionnaires");
+                });
+
+            modelBuilder.Entity("Database.Models.TeacherModel", b =>
                 {
                     b.Navigation("ActiveQuestionnaires");
                 });

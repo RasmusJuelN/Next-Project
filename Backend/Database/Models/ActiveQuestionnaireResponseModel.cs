@@ -1,18 +1,38 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Database.Models;
 
+[Table("ActiveQuestionnaireResponse")]
 public class ActiveQuestionnaireResponseModel
 {
+    [Key]
     public int Id { get; set; }
-    public required int QuestionId { get; set; }
-    public required Guid ActiveQuestionnaireId { get; set; }
+    
+    [Required]
+    public int ActiveQuestionnaireQuestionFK { get; set; }
+    
+    [Required]
+    public Guid ActiveQuestionnaireFK { get; set; }
+    
     public string? StudentResponse { get; set; }
     public string? TeacherResponse { get; set; }
-    public int CustomStudentResponseId { get; set; }
-    public int CustomTeacherResponseId { get; set; }
+    
+    public int? CustomStudentResponseFK { get; set; }
+    public int? CustomTeacherResponseFK { get; set; }
 
     // Navigational properties and references
-    public required ActiveQuestionnaireQuestionModel ActiveQuestionnaireQuestion { get; set; }
-    public required ActiveQuestionnaireModel ActiveQuestionnaire { get; set; }
-    public CustomAnswerModel? CustomStudentResponse { get; set; }
-    public CustomAnswerModel? CustomTeacherResponse { get; set; }
+    [Required]
+    [ForeignKey(nameof(ActiveQuestionnaireQuestionFK))]
+    public virtual ActiveQuestionnaireQuestionModel? ActiveQuestionnaireQuestion { get; set; }
+    
+    [Required]
+    [ForeignKey(nameof(ActiveQuestionnaireFK))]
+    public virtual ActiveQuestionnaireModel? ActiveQuestionnaire { get; set; }
+    
+    [ForeignKey(nameof(CustomStudentResponseFK))]
+    public virtual StudentCustomAnswerModel? CustomStudentResponse { get; set; }
+    
+    [ForeignKey(nameof(CustomTeacherResponseFK))]
+    public virtual TeacherCustomAnswerModel? CustomTeacherResponse { get; set; }
 }
