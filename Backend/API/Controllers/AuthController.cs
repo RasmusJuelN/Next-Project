@@ -176,10 +176,13 @@ namespace API.Controllers
             if (!_jwtService.TokenIsValid(token, _jwtService.GetRefreshTokenValidationParameters())) return Unauthorized();
             
             byte[] encryptedToken = Crypto.ToSha256(token);
-            
+
+            Guid userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+
             TrackedRefreshTokenModel trackedRefreshToken = new()
             {
-                Token = encryptedToken,
+                UserGuid = userId,
+                Token = encryptedToken
             };
             await _revokedRefreshTokenRepository.AddAsync(trackedRefreshToken);
 
