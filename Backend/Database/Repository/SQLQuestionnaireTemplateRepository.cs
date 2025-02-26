@@ -74,4 +74,9 @@ public class SQLQuestionnaireTemplateRepository(Context context) : SQLGenericRep
 
         return existingTemplate;
     }
+
+    public async Task<QuestionnaireTemplateModel?> GetEntireTemplate(Guid id)
+    {
+        return await GetSingleAsync(t => t.Id == id, query => query.Include(t => t.Questions).ThenInclude(q => q.Options));
+    }
 }
