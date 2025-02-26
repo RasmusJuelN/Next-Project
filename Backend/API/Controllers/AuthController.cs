@@ -25,16 +25,16 @@ namespace API.Controllers
         private readonly JwtService _jwtService;
         private readonly LdapService _ldapService;
         private readonly JWTSettings _JWTSettings;
-        private readonly IGenericRepository<RevokedRefreshTokenModel> _revokedRefreshTokenRepository;
-        private readonly IGenericRepository<UserModel> _userRepository;
+        private readonly IGenericRepository<TrackedRefreshTokenModel> _revokedRefreshTokenRepository;
+        private readonly IGenericRepository<UserBaseModel> _userRepository;
         private readonly ILogger _logger;
 
         public AuthController(
             JwtService jwtService,
             LdapService ldapService,
             IConfiguration configuration,
-            IGenericRepository<RevokedRefreshTokenModel> revokedRefreshTokenRepository,
-            IGenericRepository<UserModel> userRepository,
+            IGenericRepository<TrackedRefreshTokenModel> revokedRefreshTokenRepository,
+            IGenericRepository<UserBaseModel> userRepository,
             ILoggerFactory loggerFactory)
         {
             _jwtService = jwtService;
@@ -87,7 +87,7 @@ namespace API.Controllers
                     return Unauthorized();
                 }
 
-                UserModel? user = await _userRepository.GetSingleAsync(u => u.Id == userGuid);
+                UserBaseModel? user = await _userRepository.GetSingleAsync(u => u.Guid == userGuid);
 
                 UserPermissions permissions;
                 if (user is not null)
@@ -145,7 +145,7 @@ namespace API.Controllers
             if (User.FindFirstValue(JwtRegisteredClaimNames.Sub) != principal.FindFirstValue(JwtRegisteredClaimNames.Sub)) return Unauthorized();
 
             byte[] result = Crypto.ToSha256(token);
-            IEnumerable<RevokedRefreshTokenModel> tokens = await _revokedRefreshTokenRepository.GetAsync(q => q.Token == result);
+            IEnumerable<TrackedRefreshTokenModel> tokens = await _revokedRefreshTokenRepository.GetAsync(q => q.Token == result);
             if (principal is null || tokens.Any()) return Unauthorized();
 
             List<Claim> refreshTokenClaims = _jwtService.GetRefreshTokenClaims(principal.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
@@ -166,20 +166,21 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Logout()
         {
+            // TODO: Fix this and make it match the logic of the new database model (Rather than storing only revoked token, we keep track of up to N token per user)
+            // If a token is found, mark it a revoked.
             if (Request.Headers.Authorization.IsNullOrEmpty()) return Unauthorized();
 
             string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
 
             if (!_jwtService.TokenIsValid(token, _jwtService.GetRefreshTokenValidationParameters())) return Unauthorized();
             
-            byte[] result = Crypto.ToSha256(token);
+            byte[] encryptedToken = Crypto.ToSha256(token);
             
-            RevokedRefreshTokenModel revokedRefreshToken = new()
+            TrackedRefreshTokenModel trackedRefreshToken = new()
             {
-                Token = result,
-                RevokedAt = DateTime.UtcNow
+                Token = encryptedToken,
             };
-            await _revokedRefreshTokenRepository.AddAsync(revokedRefreshToken);
+            await _revokedRefreshTokenRepository.AddAsync(trackedRefreshToken);
 
             return Ok();
         }
