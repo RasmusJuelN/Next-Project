@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.Services;
 using Database.Models;
@@ -21,20 +22,19 @@ namespace API.Controllers
         }
 
         [HttpGet("checkActive")]
-        public async Task<ActionResult<Guid?>> GetOldestActiveQuestionnaireForUser()
+        public async Task<ActionResult<Guid?>> CheckIfUserHasActiveQuestionnaire()
         {
-            string token;
-
+            Guid userId;
             try
             {
-                token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer", "");
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
             }
             catch (Exception)
             {
                 return Unauthorized();   
             }
-
-            throw new NotSupportedException();
+            
+            return await _questionnaireService.GetOldestActiveQuestionnaireForUser(userId);
         }
     }
 }
