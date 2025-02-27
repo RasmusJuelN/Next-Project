@@ -25,6 +25,14 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         return [.. activeQuestionnaires.Select(a => a.ToBaseDto())];
     }
 
+    public async Task<FetchActiveQuestionnaire> FetchActiveQuestionnaire(Guid id)
+    {
+        ActiveQuestionnaireModel activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.GetSingleAsync(a => a.Id == id, query => query.Include(a => a.Student).Include(a => a.Teacher).Include(a => a.ActiveQuestionnaireQuestions).ThenInclude(q => q.ActiveQuestionnaireOptions))
+            ?? throw new SQLException.ItemNotFound("Active questionnaire not found.");
+        
+        return activeQuestionnaire.ToDto();
+    }
+
     public async Task<ActiveQuestionnaireModel> ActivateTemplate(ActivateQuestionnaire request)
     {
         _ldap.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);

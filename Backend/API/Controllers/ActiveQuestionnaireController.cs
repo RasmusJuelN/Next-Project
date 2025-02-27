@@ -20,12 +20,18 @@ namespace API.Controllers
             return Ok(activeQuestionnaireBases);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<FetchActiveQuestionnaire>> GetActiveQuestionnaire(Guid id)
+        {
+            return Ok(await _questionnaireService.FetchActiveQuestionnaire(id));
+        }
+
         [HttpPost("activate")]
-        public async Task<ActionResult> AddQuestionnaire([FromForm] ActivateQuestionnaire request)
+        public async Task<ActionResult<FetchActiveQuestionnaire>> AddQuestionnaire([FromForm] ActivateQuestionnaire request)
         {
             ActiveQuestionnaireModel activeQuestionnaire = await _questionnaireService.ActivateTemplate(request);
 
-            return Ok();
+            return Ok(activeQuestionnaire);
         }
 
         [HttpGet("check")]
