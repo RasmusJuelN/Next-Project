@@ -1,10 +1,13 @@
 using API.DTO.LDAP;
 using API.DTO.Requests.ActiveQuestionnaire;
+using API.DTO.Responses.ActiveQuestionnaire;
 using API.Exceptions;
 using API.Extensions;
+using API.Extensions.ActiveQuestionnaire;
 using API.Interfaces;
 using Database.Enums;
 using Database.Models;
+using Microsoft.EntityFrameworkCore;
 using Settings.Models;
 
 namespace API.Services;
@@ -15,6 +18,12 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
     private readonly LdapService _ldap = ldap;
     private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
     private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
+
+    public async Task<List<FetchActiveQuestionnaireBase>> FetchActiveQuestionnaireBases()
+    {
+        List<ActiveQuestionnaireModel> activeQuestionnaires = await _unitOfWork.ActiveQuestionnaire.GetAllAsync(query => query.Include(a => a.Student).Include(a => a.Teacher));
+        return [.. activeQuestionnaires.Select(a => a.ToBaseDto())];
+    }
 
     public async Task<ActiveQuestionnaireModel> ActivateTemplate(ActivateQuestionnaire request)
     {
