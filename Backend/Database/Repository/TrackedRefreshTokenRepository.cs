@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Database.Interfaces;
 using Database.Models;
 using Microsoft.Extensions.Logging;
@@ -15,6 +14,14 @@ public class TrackedRefreshTokenRepository(Context context, ILoggerFactory logge
         return;
     }
 
+    public async Task RevokeToken(byte[] hashedRefreshToken)
+    {
+        TrackedRefreshTokenModel trackedRefreshToken = await GetSingleAsync(t => t.Token == hashedRefreshToken) ?? throw new Exception("Token not found");
+
+        trackedRefreshToken.IsRevoked = true;
+        return;
+    }
+
     public async Task RevokeOldTokensUntilThereAreNValid(Guid id, int n)
     {
         List<TrackedRefreshTokenModel> trackedRefreshTokens = await GetAsync(q => q.UserGuid == id, query => query.OrderBy(t => t.ValidFrom));
@@ -26,7 +33,17 @@ public class TrackedRefreshTokenRepository(Context context, ILoggerFactory logge
 
         List<TrackedRefreshTokenModel> tokensToRevoke = [.. trackedRefreshTokens.Take(trackedRefreshTokens.Count - n)];
 
-        DeleteRange(tokensToRevoke);
+        foreach (TrackedRefreshTokenModel tokenToRevoke in tokensToRevoke)
+        {
+            if (tokenToRevoke.ValidTo > DateTime.UtcNow)
+            {
+                Delete(tokenToRevoke);
+            }
+            else
+            {
+                tokenToRevoke.IsRevoked = true;
+            }
+        }
         return;
     }
 
