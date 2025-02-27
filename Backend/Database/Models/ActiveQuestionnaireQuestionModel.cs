@@ -11,6 +11,9 @@ public class ActiveQuestionnaireQuestionModel
     
     [Required]
     public required string Prompt { get; set; }
+
+    [Required]
+    public required bool AllowCustom { get; set; }
     
     [Required]
     public Guid ActiveQuestionnaireFK { get; set; }

@@ -21,6 +21,7 @@ public static class QuestionnaireQuestionModelExtensions
         return new ActiveQuestionnaireQuestionModel
         {
             Prompt = question.Prompt,
+            AllowCustom = question.AllowCustom,
             ActiveQuestionnaireOptions = [.. question.Options.Select(o => o.ToActiveQuestionnaireOption())]
         };
     }
