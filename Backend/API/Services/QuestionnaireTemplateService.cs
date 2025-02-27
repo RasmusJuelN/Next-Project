@@ -32,7 +32,7 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
 
         if (!string.IsNullOrEmpty(request.Title))
         {
-            query = query.Where(q => q.TemplateTitle.Contains(request.Title));
+            query = query.Where(q => q.Title.Contains(request.Title));
         }
         
         if (request.Id is not null)
@@ -88,7 +88,7 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
     /// </returns>
     public async Task<FetchTemplate> AddTemplate(AddTemplate template)
     {
-        if (await TemplateExists(template.TemplateTitle)) throw new SQLException.ItemAlreadyExists();
+        if (await TemplateExists(template.Title)) throw new SQLException.ItemAlreadyExists();
         
         QuestionnaireTemplateModel addedTemplate = template.ToModel();
 
@@ -159,6 +159,6 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
     /// </returns>
     public async Task<bool> TemplateExists(string templateTitle)
     {
-        return await _unitOfWork.QuestionnaireTemplate.GetSingleAsync(t => t.TemplateTitle == templateTitle) is not null;
+        return await _unitOfWork.QuestionnaireTemplate.GetSingleAsync(t => t.Title == templateTitle) is not null;
     }
 }

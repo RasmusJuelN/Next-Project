@@ -10,7 +10,7 @@ public static class QuestionnaireTemplateModelExtensions
         return new FetchTemplateBase
         {
             Id = questionnaireTemplate.Id,
-            TemplateTitle = questionnaireTemplate.TemplateTitle,
+            Title = questionnaireTemplate.Title,
             CreatedAt = questionnaireTemplate.CreatedAt,
             LastUpdated = questionnaireTemplate.LastUpated,
             IsLocked = questionnaireTemplate.IsLocked,
@@ -22,7 +22,7 @@ public static class QuestionnaireTemplateModelExtensions
         return new FetchTemplate
         {
             Id = questionnaireTemplate.Id,
-            TemplateTitle = questionnaireTemplate.TemplateTitle,
+            Title = questionnaireTemplate.Title,
             CreatedAt = questionnaireTemplate.CreatedAt,
             LastUpdated = questionnaireTemplate.LastUpated,
             IsLocked = questionnaireTemplate.IsLocked,
@@ -37,7 +37,7 @@ public static class QuestionnaireTemplateModelExtensions
     {
         return new ActiveQuestionnaireModel
         {
-            Title = questionnaireTemplate.TemplateTitle,
+            Title = questionnaireTemplate.Title,
             Student = student,
             Teacher = teacher,
             QuestionnaireTemplate = questionnaireTemplate,

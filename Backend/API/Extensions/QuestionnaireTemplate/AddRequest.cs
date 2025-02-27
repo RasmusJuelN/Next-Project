@@ -9,7 +9,7 @@ public static class AddRequest
     {
         return new QuestionnaireTemplateModel
         {
-            TemplateTitle = questionnaireAddRequest.TemplateTitle,
+            Title = questionnaireAddRequest.Title,
             Questions = [.. questionnaireAddRequest.Questions.Select(q => q.ToModel())]
         };
     }

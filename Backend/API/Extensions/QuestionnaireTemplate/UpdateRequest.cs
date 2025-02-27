@@ -31,7 +31,7 @@ public static class UpdateRequest
         return new()
         {
             Id = existingEntity.Id,
-            TemplateTitle = updateRequest.TemplateTitle,
+            Title = updateRequest.Title,
             CreatedAt = existingEntity.CreatedAt,
             LastUpated = DateTime.UtcNow,
             Questions = [.. updateRequest.Questions.Select(q => q.ToModel(existingEntity.Questions.FirstOrDefault(e => e.Id == q.Id) ?? new QuestionnaireQuestionModel{Prompt = q.Prompt, AllowCustom = q.AllowCustom}))],
