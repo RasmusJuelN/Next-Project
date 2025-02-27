@@ -17,7 +17,7 @@ public class TrackedRefreshTokenRepository(Context context, ILoggerFactory logge
 
     public async Task RevokeOldTokensUntilThereAreNValid(Guid id, int n)
     {
-        List<TrackedRefreshTokenModel> trackedRefreshTokens = await GetAsync(q => q.UserGuid == id, query => query.OrderBy(t => t.CreatedAt));
+        List<TrackedRefreshTokenModel> trackedRefreshTokens = await GetAsync(q => q.UserGuid == id, query => query.OrderBy(t => t.ValidFrom));
 
         if (trackedRefreshTokens.Count <= n)
         {

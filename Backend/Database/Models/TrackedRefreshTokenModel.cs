@@ -19,7 +19,10 @@ public class TrackedRefreshTokenModel
     
     // Default value configured in Fluent API
     [Required]
-    public DateTime CreatedAt { get; set; }
+    public DateTime ValidFrom { get; set; }
+
+    [Required]
+    public required DateTime ValidTo { get; set; }
     
     [Required]
     public bool IsRevoked { get; set; }

@@ -1,6 +1,5 @@
 ﻿using Database.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Database;
 
@@ -13,14 +12,14 @@ public class Context : DbContext
     {
         // QuestionnaireTemplate
         modelBuilder.Entity<QuestionnaireTemplateModel>(e => {
-            e.Property(q => q.CreatedAt).HasDefaultValueSql("getdate()");
-            e.Property(q => q.LastUpated).HasDefaultValueSql("getdate()");
+            e.Property(q => q.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            e.Property(q => q.LastUpated).HasDefaultValueSql("SYSUTCDATETIME()");
         });
         
         // ActiveQuestionnaireModel
         modelBuilder.Entity<ActiveQuestionnaireModel>(e => {
             e.Property(a => a.ActivatedAt)
-            .HasDefaultValueSql("getdate()");
+            .HasDefaultValueSql("SYSUTCDATETIME()");
             e.HasOne(a => a.Student)
             .WithMany(u => u.ActiveQuestionnaires)
             .OnDelete(DeleteBehavior.NoAction);
@@ -47,14 +46,14 @@ public class Context : DbContext
 
         // RevokedRefreshTokenModel
         modelBuilder.Entity<TrackedRefreshTokenModel>(e => {
-            e.Property(r => r.CreatedAt)
-            .HasDefaultValueSql("getdate()");
+            e.Property(r => r.ValidFrom)
+            .HasDefaultValueSql("SYSUTCDATETIME()");
         });
 
         // ApplicationLogsModel
         modelBuilder.Entity<ApplicationLogsModel>(e => {
             e.Property(a => a.Timestamp)
-            .HasDefaultValueSql("getdate()");
+            .HasDefaultValueSql("SYSUTCDATETIME()");
         });
 
         base.OnModelCreating(modelBuilder);
