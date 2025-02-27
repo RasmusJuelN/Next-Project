@@ -16,6 +16,7 @@ using Settings.Models;
 using API.DTO.Responses.Auth;
 using API.DTO.Requests.Auth;
 using Microsoft.Net.Http.Headers;
+using API.Interfaces;
 
 namespace API.Controllers
 {
@@ -28,6 +29,7 @@ namespace API.Controllers
         private readonly JWTSettings _JWTSettings;
         private readonly IGenericRepository<TrackedRefreshTokenModel> _revokedRefreshTokenRepository;
         private readonly IGenericRepository<UserBaseModel> _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
 
         public AuthController(
@@ -36,6 +38,7 @@ namespace API.Controllers
             IConfiguration configuration,
             IGenericRepository<TrackedRefreshTokenModel> revokedRefreshTokenRepository,
             IGenericRepository<UserBaseModel> userRepository,
+            IUnitOfWork unitOfWork,
             ILoggerFactory loggerFactory)
         {
             _jwtService = jwtService;
@@ -43,6 +46,7 @@ namespace API.Controllers
             _revokedRefreshTokenRepository = revokedRefreshTokenRepository;
             _userRepository = userRepository;
             _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
+            _unitOfWork = unitOfWork;
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
@@ -167,8 +171,6 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Logout()
         {
-            // TODO: Fix this and make it match the logic of the new database model (Rather than storing only revoked token, we keep track of up to N token per user)
-            // If a token is found, mark it a revoked.
             if (Request.Headers.Authorization.IsNullOrEmpty()) return Unauthorized();
 
             string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
@@ -177,14 +179,8 @@ namespace API.Controllers
             
             byte[] encryptedToken = Crypto.ToSha256(token);
 
-            Guid userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
-
-            TrackedRefreshTokenModel trackedRefreshToken = new()
-            {
-                UserGuid = userId,
-                Token = encryptedToken
-            };
-            await _revokedRefreshTokenRepository.AddAsync(trackedRefreshToken);
+            await _unitOfWork.TrackedRefreshToken.RevokeToken(encryptedToken);
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok();
         }
