@@ -1,9 +1,9 @@
 using API.DTO.Requests.QuestionnaireTemplate;
 using Database.Models;
 
-namespace API.Extensions;
+namespace API.Extensions.QuestionnaireTemplate;
 
-public static class QuestionnaireTemplateUpdateRequestExtensions
+public static class UpdateRequest
 {
     public static QuestionnaireOptionModel ToModel(this UpdateOption updateRequest, QuestionnaireOptionModel existingEntity)
     {

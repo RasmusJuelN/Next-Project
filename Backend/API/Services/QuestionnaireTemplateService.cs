@@ -7,6 +7,7 @@ using Database.DTO.QuestionnaireTemplate;
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
 using API.DTO.Responses.QuestionnaireTemplate;
+using API.Extensions.QuestionnaireTemplate;
 
 namespace API.Services;
 
