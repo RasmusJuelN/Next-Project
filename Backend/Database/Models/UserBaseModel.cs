@@ -7,6 +7,7 @@ namespace Database.Models;
 
 [Table("User")]
 [Index(nameof(UserName), IsUnique = true)]
+[Index(nameof(Guid), IsUnique = true)]
 public class UserBaseModel
 {
     [Key]
