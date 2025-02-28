@@ -6,12 +6,12 @@ public static class IQueryableExtensions
 {
     public static IQueryable<QuestionnaireTemplateModel> OrderByTitleAsc(this IQueryable<QuestionnaireTemplateModel> query)
     {
-        return query.OrderBy(q => q.TemplateTitle).ThenBy(q => q.Id);
+        return query.OrderBy(q => q.Title).ThenBy(q => q.Id);
     }
 
     public static IQueryable<QuestionnaireTemplateModel> OrderByTitleDesc(this IQueryable<QuestionnaireTemplateModel> query)
     {
-        return query.OrderByDescending(q => q.TemplateTitle).ThenBy(q => q.Id);
+        return query.OrderByDescending(q => q.Title).ThenBy(q => q.Id);
     }
 
     public static IQueryable<QuestionnaireTemplateModel> OrderByCreatedAtAsc(this IQueryable<QuestionnaireTemplateModel> query)

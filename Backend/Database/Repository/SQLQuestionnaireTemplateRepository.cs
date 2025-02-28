@@ -10,7 +10,7 @@ public class SQLQuestionnaireTemplateRepository(Context context) : SQLGenericRep
 {
     private readonly Context _context = context;
 
-    public async Task<QuestionnaireTemplateModel> UpdateAsync(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplateModel updatedTemplate)
+    public QuestionnaireTemplateModel Update(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplateModel updatedTemplate)
     {
         // TODO: The logic of updating values should probably happen in here instead of from the DTOs
         HashSet<int> updatedQuestionIds = [.. updatedTemplate.Questions.Select(q => q.Id)];
@@ -36,14 +36,12 @@ public class SQLQuestionnaireTemplateRepository(Context context) : SQLGenericRep
 
         _context.Update(updatedTemplate);
 
-        await _context.SaveChangesAsync();
-
         return updatedTemplate;
     }
 
-    public async Task<QuestionnaireTemplateModel> PatchAsync(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplatePatch patchedTemplate)
+    public QuestionnaireTemplateModel Patch(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplatePatch patchedTemplate)
     {
-        existingTemplate.TemplateTitle = patchedTemplate.TemplateTitle ?? existingTemplate.TemplateTitle;
+        existingTemplate.Title = patchedTemplate.TemplateTitle ?? existingTemplate.Title;
         if (patchedTemplate.Questions is not null && patchedTemplate.Questions.Count != 0)
         {
             HashSet<int> patchedQuestionIds = [.. patchedTemplate.Questions.Select(q => q.Id)];
@@ -74,8 +72,11 @@ public class SQLQuestionnaireTemplateRepository(Context context) : SQLGenericRep
 
         existingTemplate.LastUpated = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
-
         return existingTemplate;
+    }
+
+    public async Task<QuestionnaireTemplateModel?> GetEntireTemplate(Guid id)
+    {
+        return await GetSingleAsync(t => t.Id == id, query => query.Include(t => t.Questions).ThenInclude(q => q.Options));
     }
 }

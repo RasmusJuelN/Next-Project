@@ -57,53 +57,17 @@ public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where T
         return await query.ToListAsync();
     }
 
-    public async Task<TEntity> AddAsync(TEntity entity)
-    {
-        await _dbSet.AddAsync(entity);
-        await _context.SaveChangesAsync();
+    public async Task AddAsync(TEntity entity) => await _dbSet.AddAsync(entity);
 
-        return entity;
-    }
+    public async Task AddRangeAsync(List<TEntity> entities) => await _dbSet.AddRangeAsync(entities);
 
-    public async Task<List<TEntity>> AddRangeAsync(List<TEntity> entities)
-    {
-        await _dbSet.AddRangeAsync(entities);
-        await _context.SaveChangesAsync();
+    public void Delete(TEntity entity) => _dbSet.Remove(entity);
 
-        return entities;
-    }
+    public void DeleteRange(List<TEntity> entities) => _dbSet.RemoveRange(entities);
 
-    public async Task<TEntity> DeleteAsync(TEntity entity)
-    {
-        _dbSet.Remove(entity);
-        await _context.SaveChangesAsync();
+    public IQueryable<TEntity> GetAsQueryable() => _dbSet;
 
-        return entity;
-    }
-
-    public async Task<List<TEntity>> DeleteAsync(Expression<Func<TEntity, bool>> predicate)
-    {
-        List<TEntity> entities = await GetAsync(predicate);
-        _dbSet.RemoveRange(entities);
-        await _context.SaveChangesAsync();
-
-        return entities;
-    }
-
-    public async Task<List<TEntity>> DeleteRangeAsync(List<TEntity> entities)
-    {
-        _dbSet.RemoveRange(entities);
-        await _context.SaveChangesAsync();
-
-        return entities;
-    }
-
-    public IQueryable<TEntity> GetAsQueryable()
-    {
-        return _dbSet;
-    }
-
-    public int GetCount(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
+    public int Count(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
     {
         IQueryable<TEntity> query = _dbSet;
 
@@ -122,7 +86,7 @@ public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where T
 
     public bool Exists(Expression<Func<TEntity, bool>> predicate)
     {
-        int entityCount = GetCount(predicate);
+        int entityCount = Count(predicate);
 
         return entityCount > 0;
     }

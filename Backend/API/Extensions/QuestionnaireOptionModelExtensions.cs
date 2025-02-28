@@ -1,13 +1,13 @@
-using API.Models.Responses;
+using API.DTO.Responses.QuestionnaireTemplate;
 using Database.Models;
 
 namespace API.Extensions;
 
 public static class QuestionnaireOptionModelExtensions
 {
-    public static QuestionnaireTemplateOptionDto ToDto(this QuestionnaireOptionModel option)
+    public static FetchOption ToDto(this QuestionnaireOptionModel option)
     {
-        return new QuestionnaireTemplateOptionDto
+        return new FetchOption
         {
             Id = option.Id,
             OptionValue = option.OptionValue,

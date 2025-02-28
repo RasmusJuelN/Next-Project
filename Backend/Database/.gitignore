@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+appsettings.json
+DbContext.Mermaid.t4
+
 # dotenv files
 .env
 

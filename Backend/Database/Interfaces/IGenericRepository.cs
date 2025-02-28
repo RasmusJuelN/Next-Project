@@ -10,19 +10,17 @@ public interface IGenericRepository<TEntity> where TEntity : class
 
     Task<List<TEntity>> GetAllAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null);
 
-    Task<TEntity> AddAsync(TEntity entity);
+    Task AddAsync(TEntity entity);
 
-    Task<List<TEntity>> AddRangeAsync(List<TEntity> entities);
+    Task AddRangeAsync(List<TEntity> entities);
 
-    Task<TEntity> DeleteAsync(TEntity entity);
+    void Delete(TEntity entity);
 
-    Task<List<TEntity>> DeleteAsync(Expression<Func<TEntity, bool>> predicate);
-
-    Task<List<TEntity>> DeleteRangeAsync(List<TEntity> entities);
+    void DeleteRange(List<TEntity> entities);
     
     IQueryable<TEntity> GetAsQueryable();
     
-    int GetCount(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null);
+    int Count(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null);
 
     bool Exists(Expression<Func<TEntity, bool>> predicate);
 }

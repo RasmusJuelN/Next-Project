@@ -1,32 +1,46 @@
-using API.Models.Responses;
+using API.DTO.Responses.QuestionnaireTemplate;
 using Database.Models;
 
 namespace API.Extensions;
 
 public static class QuestionnaireTemplateModelExtensions
 {
-    public static QuestionnaireTemplateBaseDto.TemplateBase ToBaseDto(this QuestionnaireTemplateModel questionnaireTemplate)
+    public static FetchTemplateBase ToBaseDto(this QuestionnaireTemplateModel questionnaireTemplate)
     {
-        return new QuestionnaireTemplateBaseDto.TemplateBase
+        return new FetchTemplateBase
         {
             Id = questionnaireTemplate.Id,
-            TemplateTitle = questionnaireTemplate.TemplateTitle,
+            Title = questionnaireTemplate.Title,
             CreatedAt = questionnaireTemplate.CreatedAt,
             LastUpdated = questionnaireTemplate.LastUpated,
             IsLocked = questionnaireTemplate.IsLocked,
         };
     }
 
-    public static QuestionnaireTemplateDto ToDto(this QuestionnaireTemplateModel questionnaireTemplate)
+    public static FetchTemplate ToDto(this QuestionnaireTemplateModel questionnaireTemplate)
     {
-        return new QuestionnaireTemplateDto
+        return new FetchTemplate
         {
             Id = questionnaireTemplate.Id,
-            TemplateTitle = questionnaireTemplate.TemplateTitle,
+            Title = questionnaireTemplate.Title,
             CreatedAt = questionnaireTemplate.CreatedAt,
             LastUpdated = questionnaireTemplate.LastUpated,
             IsLocked = questionnaireTemplate.IsLocked,
             Questions = [.. questionnaireTemplate.Questions.Select(q => q.ToDto())]
+        };
+    }
+
+    public static ActiveQuestionnaireModel ToActiveQuestionnaire(
+        this QuestionnaireTemplateModel questionnaireTemplate,
+        StudentModel student,
+        TeacherModel teacher)
+    {
+        return new ActiveQuestionnaireModel
+        {
+            Title = questionnaireTemplate.Title,
+            Student = student,
+            Teacher = teacher,
+            QuestionnaireTemplate = questionnaireTemplate
         };
     }
 }

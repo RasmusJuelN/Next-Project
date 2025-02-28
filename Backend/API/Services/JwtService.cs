@@ -2,9 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using API.Enums;
-using API.Models.Responses;
 using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
+using API.DTO.Responses.Auth;
 
 namespace API.Services;
 
@@ -160,5 +160,21 @@ public class JwtService(IConfiguration configuration)
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
             SecurityAlgorithms.HmacSha256
         );
+    }
+
+    public JWTUser DecodeAccessToken(string accessToken)
+    {
+        JwtSecurityTokenHandler tokenHandler = GetTokenHandler();
+
+        JwtSecurityToken jwtSecurityToken = tokenHandler.ReadJwtToken(accessToken);
+
+        return new JWTUser
+        {
+            Guid = Guid.Parse(jwtSecurityToken.Subject),
+            Username = jwtSecurityToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.UniqueName).Value,
+            Name = jwtSecurityToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Name).Value,
+            Role = jwtSecurityToken.Claims.First(x => x.Type == JWTClaims.role).Value,
+            Permissions = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == JWTClaims.permissions).Value)
+        };
     }
 }

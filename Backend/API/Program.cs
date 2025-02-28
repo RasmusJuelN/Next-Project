@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
 using Database.Interfaces;
+using API.Interfaces;
 
 const string settingsFile = "config.json";
 
@@ -43,6 +44,9 @@ JWTSettings jWTSettings = ConfigurationBinderService.Bind<JWTSettings>(builder.C
 builder.Services.AddScoped<LdapService>();
 builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<QuestionnaireTemplateService>();
+builder.Services.AddScoped<ActiveQuestionnaireService>();
 builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -73,6 +77,9 @@ builder.Services.Configure<RouteOptions>(o => {
 // Repositories
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(SQLGenericRepository<>));
 builder.Services.AddScoped<IQuestionnaireTemplateRepository, SQLQuestionnaireTemplateRepository>();
+builder.Services.AddScoped<IActiveQuestionnaireRepository, ActiveQuestionnaireRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITrackedRefreshTokenRepository, TrackedRefreshTokenRepository>();
 
 builder.Services.AddControllers(options =>{
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
@@ -85,7 +92,6 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "NEXT questionnaire API", Version = "v1"});
 
     options.UseAllOfToExtendReferenceSchemas();
-    options.UseOneOfForPolymorphism();
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -116,7 +122,6 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<Context>(o =>
     o.UseSqlServer(databaseSettings.ConnectionString,
         options => {
-            options.MigrationsAssembly("API");
             options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
             }));
 
