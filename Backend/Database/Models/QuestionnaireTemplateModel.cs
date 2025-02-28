@@ -39,7 +39,7 @@ public class QuestionnaireTemplateModel
     [Required]
     public DateTime LastUpated { get; set; }
     
-    public bool IsLocked => _context?.Set<ActiveQuestionnaireModel>().Select(q => Id == q.QuestionnaireTemplateFK).Any() ?? false;
+    public bool IsLocked => _context?.Set<ActiveQuestionnaireModel>().Where(q => Id == q.QuestionnaireTemplateFK).Any() ?? false;
 
     // Navigational properties and references
     public virtual ICollection<QuestionnaireQuestionModel> Questions { get; set; } = [];
