@@ -21,20 +21,31 @@ export class QuestionComponent implements OnChanges {
   readonly maxCustomAnswerLength: number = 500;
 
   ngOnChanges(changes: SimpleChanges): void {
+    // When the question changes, reset the custom answer state
+    if (changes['question']) {
+      this.isCustomAnswerSelected = false;
+      this.customAnswer = '';
+    }
+    
+    // Update internal state if the answer changes
     if (changes['answer']) {
       const newAnswer = changes['answer'].currentValue;
-
       if (newAnswer) {
-        if (newAnswer.customAnswer !== undefined) {
+        if (newAnswer.customAnswer !== undefined && newAnswer.customAnswer.trim() !== '') {
           this.isCustomAnswerSelected = true;
           this.customAnswer = newAnswer.customAnswer;
         } else if (newAnswer.selectedOptionId !== undefined) {
           this.isCustomAnswerSelected = false;
           this.customAnswer = '';
         }
+      } else {
+        // If there's no answer, clear the state
+        this.isCustomAnswerSelected = false;
+        this.customAnswer = '';
       }
     }
   }
+  
 
   // Handle standard option selection
   onOptionSelect(optionId: number): void {
@@ -45,6 +56,7 @@ export class QuestionComponent implements OnChanges {
 
   // Handle custom answer selection
   onCustomAnswerSelect(): void {
+    this.isCustomAnswerSelected = true; // Ensure the flag is set
     this.ToFewCharacters = true;
     this.emitAnswer({ questionId: this.question.id, customAnswer: '' });
   }

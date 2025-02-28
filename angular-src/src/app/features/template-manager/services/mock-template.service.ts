@@ -198,6 +198,118 @@ export class MockTemplateService {
         },
       ],
     },
+    {
+      id: '10',
+      templateTitle: 'Evaluering af SKP-elever',
+      description: 'Gennemførelsesprocedure for SKP-elever ved PRAKTIK NORD',
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+      isLocked: false,
+      questions: [
+        {
+          id: 1,
+          prompt: 'Indlæringsevne',
+          allowCustom: false,
+          options: [
+            { id: 1, optionValue: 1, displayText: 'Viser lidt eller ingen forståelse for arbejdsopgaverne.' },
+            { id: 2, optionValue: 2, displayText: 'Forstår arbejdsopgaverne, men kan ikke anvende den i praksis. Har svært ved at tilegne sig ny viden.' },
+            { id: 3, optionValue: 3, displayText: 'Let ved at forstå arbejdsopgaverne og anvende den i praksis. Har let ved at tilegne sig ny viden.' },
+            { id: 4, optionValue: 4, displayText: 'Mindre behov for oplæring end normalt. Kan selv finde/tilegne sig ny viden.' },
+            { id: 5, optionValue: 5, displayText: 'Behøver næsten ingen oplæring. Kan ved selvstudium, endog ved svært tilgængeligt materiale, tilegne sig ny viden.' }
+          ]
+        },
+        {
+          id: 2,
+          prompt: 'Kreativitet og selvstændighed',
+          allowCustom: false,
+          options: [
+            { id: 8, optionValue: 1, displayText: 'Viser intet initiativ. Er passiv, uinteresseret og uselvstændig.' },
+            { id: 9, optionValue: 2, displayText: 'Viser ringe initiativ. Kommer ikke selv med løsningsforslag. Viser ingen interesse i at tilrettelægge eget arbejde.' },
+            { id: 10, optionValue: 3, displayText: 'Viser normalt initiativ. Kommer selv med løsningsforslag. Tilrettelægger eget arbejde.' },
+            { id: 11, optionValue: 4, displayText: 'Meget initiativrig. Kommer selv med løsningsforslag. Gode evner for at tilrettelægge eget og andres arbejde.' },
+            { id: 12, optionValue: 5, displayText: 'Overordentlig initiativrig. Løser selv problemerne. Tilrettelægger selvstændigt arbejdet for mig selv og andre.' }
+          ]
+        },
+        {
+          id: 3,
+          prompt: 'Arbejdsindsats',
+          allowCustom: false,
+          options: [
+            { id: 13, optionValue: 1, displayText: 'Uacceptabel' },
+            { id: 14, optionValue: 2, displayText: 'Under middel' },
+            { id: 15, optionValue: 3, displayText: 'Middel' },
+            { id: 16, optionValue: 4, displayText: 'Over middel' },
+            { id: 17, optionValue: 5, displayText: 'Særdeles god' }
+          ]
+        },
+        {
+          id: 4,
+          prompt: 'Orden og omhyggelighed',
+          allowCustom: false,
+          options: [
+            { id: 18, optionValue: 1, displayText: 'Omgås materialer, maskiner og værktøj på en sløset og ligegyldig måde. Holder ikke sin arbejdsplads ordentlig.' },
+            { id: 19, optionValue: 2, displayText: 'Bruger maskiner og værktøj uden megen omtanke. Mindre god orden og omhyggelighed.' },
+            { id: 20, optionValue: 3, displayText: 'Påpasselighed og omhyggelighed middel. Rimelig god orden.' },
+            { id: 21, optionValue: 4, displayText: 'Meget påpasselig både i praktik og teori. God orden.' },
+            { id: 22, optionValue: 5, displayText: 'I høj grad påpasselig. God forståelse for materialevalg. Særdeles god orden.' }
+          ]
+        },
+        {
+          id: 8,
+          prompt: 'Mødestabilitet',
+          allowCustom: false,
+          options: [
+            { id: 23, optionValue: 1, displayText: 'Du møder ikke hver dag til tiden.' },
+            { id: 24, optionValue: 2, displayText: 'Du møder næsten hver dag til tiden.' },
+            { id: 25, optionValue: 3, displayText: 'Du møder hver dag til tiden.' }
+          ]
+        },
+        {
+          id: 9,
+          prompt: 'Sygdom',
+          allowCustom: false,
+          options: [
+            { id: 26, optionValue: 1, displayText: 'Du melder ikke afbud ved sygdom.' },
+            { id: 27, optionValue: 2, displayText: 'Du melder, for det meste afbud, når du er syg.' },
+            { id: 28, optionValue: 3, displayText: 'Du melder afbud, når du er syg.' }
+          ]
+        },
+        {
+          id: 10,
+          prompt: 'Fravær',
+          allowCustom: false,
+          options: [
+            { id: 29, optionValue: 1, displayText: 'Du har et stort fravær.' },
+            { id: 30, optionValue: 2, displayText: 'Du har noget fravær.' },
+            { id: 31, optionValue: 3, displayText: 'Du har stort set ingen fravær.' },
+            { id: 32, optionValue: 4, displayText: 'Du har ingen fravær.' }
+          ]
+        },
+        {
+          id: 11,
+          prompt: 'Praktikpladssøgning',
+          allowCustom: false,
+          options: [
+            { id: 33, optionValue: 1, displayText: 'Du søger ingen praktikpladser.' },
+            { id: 34, optionValue: 2, displayText: 'Du ved, at du skal søge alle relevante praktikpladser, men det kniber med handlingen.' },
+            { id: 35, optionValue: 3, displayText: 'Du søger alle relevante praktikpladser, men skal have hjælp til at søge praktikpladser, der ligger længere væk end i din bopælskommune.' },
+            { id: 36, optionValue: 4, displayText: 'Du søger alle relevante praktikpladser også dem der ligger uden for din bopælskommune.' },
+            { id: 37, optionValue: 5, displayText: 'Du søger alle relevante praktikpladser også dem der ligger uden for din bopælskommune. Du søger også praktikplads inden for en anden uddannelse, som dit GF giver adgang til.' }
+          ]
+        },
+        {
+          id: 12,
+          prompt: 'Synlighed',
+          allowCustom: false,
+          options: [
+            { id: 38, optionValue: 1, displayText: 'Du har ikke en synlig profil på praktikpladsen.dk.' },
+            { id: 39, optionValue: 2, displayText: 'Du skal ofte påmindes om at synliggøre din profil på praktikpladsen.dk.' },
+            { id: 40, optionValue: 3, displayText: 'Du har altid en synlig, men ikke opdateret profil på praktikpladsen.dk.' },
+            { id: 41, optionValue: 4, displayText: 'Du har altid en opdateret og synlig profil på praktikpladsen.dk.' }
+          ]
+        }
+      ]
+    }
   ];
   
   

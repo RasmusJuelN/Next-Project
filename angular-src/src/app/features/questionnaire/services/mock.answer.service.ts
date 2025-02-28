@@ -11,7 +11,7 @@ export class MockAnswerService {
   // Mock question templates
   private mockTemplates: Questionnaire[] = [
     {
-      id: 'questionnaire1',
+      id: 'questionnaire1-TEST',
       title: 'Programming Questionnaire',
       description: 'A short questionnaire about programming preferences.',
       questions: [
@@ -110,7 +110,135 @@ export class MockAnswerService {
         },
       ],
       createdAt: new Date(),
-    }
+    },
+    {
+      id: 'questionnaire1',
+      title: 'Evaluering af SKP-elever',
+      description: 'Gennemførelsesprocedure for SKP-elever ved PRAKTIK NORD',
+      createdAt: new Date(),
+      questions: [
+        {
+          id: 1,
+          text: 'Indlæringsevne',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 1, text: 'Viser lidt eller ingen forståelse for arbejdsopgaverne.' },
+            { id: 2, text: 'Forstår arbejdsopgaverne, men kan ikke anvende den i praksis. Har svært ved at tilegne sig ny viden.' },
+            { id: 3, text: 'Let ved at forstå arbejdsopgaverne og anvende den i praksis. Har let ved at tilegne sig ny viden.' },
+            { id: 4, text: 'Mindre behov for oplæring end normalt. Kan selv finde/tilegne sig ny viden.' },
+            { id: 5, text: 'Behøver næsten ingen oplæring. Kan ved selvstudium, endog ved svært tilgængeligt materiale, tilegne sig ny viden.' }
+          ]
+        },
+        {
+          id: 2,
+          text: 'Kreativitet og selvstændighed',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 8, text: 'Viser intet initiativ. Er passiv, uinteresseret og uselvstændig.' },
+            { id: 9, text: 'Viser ringe initiativ. Kommer ikke selv med løsningsforslag. Viser ingen interesse i at tilrettelægge eget arbejde.' },
+            { id: 10, text: 'Viser normalt initiativ. Kommer selv med løsningsforslag. Tilrettelægger eget arbejde.' },
+            { id: 11, text: 'Meget initiativrig. Kommer selv med løsningsforslag. Gode evner for at tilrettelægge eget og andres arbejde.' },
+            { id: 12, text: 'Overordentlig initiativrig. Løser selv problemerne. Tilrettelægger selvstændigt arbejdet for mig selv og andre.' }
+          ]
+        },
+        {
+          id: 3,
+          text: 'Arbejdsindsats',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 13, text: 'Uacceptabel' },
+            { id: 14, text: 'Under middel' },
+            { id: 15, text: 'Middel' },
+            { id: 16, text: 'Over middel' },
+            { id: 17, text: 'Særdeles god' }
+          ]
+        },
+        {
+          id: 4,
+          text: 'Orden og omhyggelighed',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 18, text: 'Omgås materialer, maskiner og værktøj på en sløset og ligegyldig måde. Holder ikke sin arbejdsplads ordentlig.' },
+            { id: 19, text: 'Bruger maskiner og værktøj uden megen omtanke. Mindre god orden og omhyggelighed.' },
+            { id: 20, text: 'Påpasselighed og omhyggelighed middel. Rimelig god orden.' },
+            { id: 21, text: 'Meget påpasselig både i praktik og teori. God orden.' },
+            { id: 22, text: 'I høj grad påpasselig. God forståelse for materialevalg. Særdeles god orden.' }
+          ]
+        },
+        {
+          id: 5,
+          text : "Ukent",
+          allowsCustomAnswer: true,
+          options: []
+        },
+        {
+          id: 6,
+          text : "Ukent",
+          allowsCustomAnswer: true,
+          options: []
+        },
+        {
+          id: 7,
+          text : "Ukent",
+          allowsCustomAnswer: true,
+          options: []
+        },
+        {
+          id: 8,
+          text: 'Mødestabilitet',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 23, text: 'Du møder ikke hver dag til tiden.' },
+            { id: 24, text: 'Du møder næsten hver dag til tiden.' },
+            { id: 25, text: 'Du møder hver dag til tiden.' }
+          ]
+        },
+        {
+          id: 9,
+          text: 'Sygdom',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 26, text: 'Du melder ikke afbud ved sygdom.' },
+            { id: 27, text: 'Du melder, for det meste afbud, når du er syg.' },
+            { id: 28, text: 'Du melder afbud, når du er syg.' }
+          ]
+        },
+        {
+          id: 10,
+          text: 'Fravær',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 29, text: 'Du har et stort fravær.' },
+            { id: 30, text: 'Du har noget fravær.' },
+            { id: 31, text: 'Du har stort set ingen fravær.' },
+            { id: 32, text: 'Du har ingen fravær.' }
+          ]
+        },
+        {
+          id: 11,
+          text: 'Praktikpladssøgning',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 33, text: 'Du søger ingen praktikpladser.' },
+            { id: 34, text: 'Du ved, at du skal søge alle relevante praktikpladser, men det kniber med handlingen.' },
+            { id: 35, text: 'Du søger alle relevante praktikpladser, men skal have hjælp til at søge praktikpladser, der ligger længere væk end i din bopælskommune.' },
+            { id: 36, text: 'Du søger alle relevante praktikpladser også dem der ligger uden for din bopælskommune.' },
+            { id: 37, text: 'Du søger alle relevante praktikpladser også dem der ligger uden for din bopælskommune. Du søger også praktikplads inden for en anden uddannelse, som dit GF giver adgang til.' }
+          ]
+        },
+        {
+          id: 12,
+          text: 'Synlighed',
+          allowsCustomAnswer: false,
+          options: [
+            { id: 38, text: 'Du har ikke en synlig profil på praktikpladsen.dk.' },
+            { id: 39, text: 'Du skal ofte påmindes om at synliggøre din profil på praktikpladsen.dk.' },
+            { id: 40, text: 'Du har altid en synlig, men ikke opdateret profil på praktikpladsen.dk.' },
+            { id: 41, text: 'Du har altid en opdateret og synlig profil på praktikpladsen.dk.' }
+          ]
+        }
+      ]
+    }    
   ];
 
   // Active questionnaire instances with allowed users

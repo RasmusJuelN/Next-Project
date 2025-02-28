@@ -27,7 +27,6 @@ export class TemplateService {
       .set('PageSize', pageSize.toString())
       .set('Order', 'CreatedAtDesc');
   
-    // ✅ Ensure queryCursor is correctly passed as a single string
     if (queryCursor) {
       params = params.set('QueryCursor', queryCursor);
     }
@@ -37,14 +36,6 @@ export class TemplateService {
         ? params.set('Title', searchTerm)
         : params.set('Id', searchTerm);
     }
-  
-    // ✅ Debugging log
-    console.log('Fetching Templates with Params:', {
-      pageSize,
-      queryCursor,
-      searchTerm,
-      searchType,
-    });
   
     return this.apiService.get<TemplateBaseResponse>(this.apiUrl, params);
   }
