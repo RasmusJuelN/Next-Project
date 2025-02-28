@@ -22,7 +22,7 @@ public class TrackedRefreshTokenModel
     public DateTime ValidFrom { get; set; }
 
     [Required]
-    public required DateTime ValidTo { get; set; }
+    public required DateTime ValidUntil { get; set; }
     
     [Required]
     public bool IsRevoked { get; set; }

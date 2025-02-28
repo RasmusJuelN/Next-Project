@@ -85,12 +85,7 @@ public class Context : DbContext
     internal DbSet<QuestionnaireQuestionModel> QuestionnaireQuestions { get; set; }
     internal DbSet<QuestionnaireOptionModel> QuestionnaireOptions { get; set; }
     internal DbSet<ActiveQuestionnaireModel> ActiveQuestionnaires { get; set; }
-    internal DbSet<ActiveQuestionnaireQuestionModel> ActiveQuestionnaireQuestions { get; set; }
-    internal DbSet<ActiveQuestionnaireOptionModel> ActiveQuestionnaireOptions { get; set; }
     internal DbSet<ActiveQuestionnaireResponseModel> ActiveQuestionnaireResponses { get; set; }
-    internal DbSet<CustomAnswerModelBase> CustomAnswers { get; set; }
-    internal DbSet<StudentCustomAnswerModel> StudentCustomAnswers { get; set; }
-    internal DbSet<TeacherCustomAnswerModel> TeacherCustomAnswers { get; set; }
     internal DbSet<UserBaseModel> Users { get; set; }
     internal DbSet<StudentModel> Students { get; set; }
     internal DbSet<TeacherModel> Teachers { get; set; }

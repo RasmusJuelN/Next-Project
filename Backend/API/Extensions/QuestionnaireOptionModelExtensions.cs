@@ -14,13 +14,4 @@ public static class QuestionnaireOptionModelExtensions
             DisplayText = option.DisplayText,
         };
     }
-
-    public static ActiveQuestionnaireOptionModel ToActiveQuestionnaireOption(this QuestionnaireOptionModel option)
-    {
-        return new ActiveQuestionnaireOptionModel
-        {
-            OptionValue = option.OptionValue,
-            DisplayText = option.DisplayText
-        };
-    }
 }

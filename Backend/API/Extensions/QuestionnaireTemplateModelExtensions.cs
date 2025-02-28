@@ -40,8 +40,7 @@ public static class QuestionnaireTemplateModelExtensions
             Title = questionnaireTemplate.Title,
             Student = student,
             Teacher = teacher,
-            QuestionnaireTemplate = questionnaireTemplate,
-            ActiveQuestionnaireQuestions = [.. questionnaireTemplate.Questions.Select(q => q.ToActiveQuestionnaireQuestion())]
+            QuestionnaireTemplate = questionnaireTemplate
         };
     }
 }

@@ -15,14 +15,4 @@ public static class QuestionnaireQuestionModelExtensions
             Options = [.. question.Options.Select(o => o.ToDto())]
         };
     }
-
-    public static ActiveQuestionnaireQuestionModel ToActiveQuestionnaireQuestion(this QuestionnaireQuestionModel question)
-    {
-        return new ActiveQuestionnaireQuestionModel
-        {
-            Prompt = question.Prompt,
-            AllowCustom = question.AllowCustom,
-            ActiveQuestionnaireOptions = [.. question.Options.Select(o => o.ToActiveQuestionnaireOption())]
-        };
-    }
 }

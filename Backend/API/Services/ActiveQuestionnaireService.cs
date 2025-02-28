@@ -27,7 +27,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
 
     public async Task<FetchActiveQuestionnaire> FetchActiveQuestionnaire(Guid id)
     {
-        ActiveQuestionnaireModel activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.GetSingleAsync(a => a.Id == id, query => query.Include(a => a.Student).Include(a => a.Teacher).Include(a => a.ActiveQuestionnaireQuestions).ThenInclude(q => q.ActiveQuestionnaireOptions))
+        ActiveQuestionnaireModel activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.GetSingleAsync(a => a.Id == id, query => query.Include(a => a.Student).Include(a => a.Teacher).Include(a => a.QuestionnaireTemplate.Questions).ThenInclude(q => q.Options))
             ?? throw new SQLException.ItemNotFound("Active questionnaire not found.");
         
         return activeQuestionnaire.ToDto();

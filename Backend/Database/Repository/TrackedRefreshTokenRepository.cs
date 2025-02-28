@@ -35,7 +35,7 @@ public class TrackedRefreshTokenRepository(Context context, ILoggerFactory logge
 
         foreach (TrackedRefreshTokenModel tokenToRevoke in tokensToRevoke)
         {
-            if (tokenToRevoke.ValidTo > DateTime.UtcNow)
+            if (tokenToRevoke.ValidUntil > DateTime.UtcNow)
             {
                 Delete(tokenToRevoke);
             }

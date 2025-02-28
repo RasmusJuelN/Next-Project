@@ -13,6 +13,14 @@ namespace Database.Models;
 [Index(nameof(Title), nameof(Id), IsDescending = [true, false])]
 public class QuestionnaireTemplateModel
 {
+    private readonly DbContext? _context;
+    
+    public QuestionnaireTemplateModel() {}
+    public QuestionnaireTemplateModel(DbContext context)
+    {
+        _context = context;
+    }
+    
     [Key]
     public Guid Id { get; set; }
     
@@ -20,6 +28,7 @@ public class QuestionnaireTemplateModel
     [MaxLength(150)]
     public required string Title { get; set; }
 
+    [MaxLength(500)]
     public string? Description { get; set; }
     
     // Default value configured in Fluent API
@@ -30,9 +39,7 @@ public class QuestionnaireTemplateModel
     [Required]
     public DateTime LastUpated { get; set; }
     
-    // Figure out if and what we're gonna use this for
-    [Required]
-    public bool IsLocked { get; set; }
+    public bool IsLocked => _context?.Set<ActiveQuestionnaireModel>().Select(q => Id == q.QuestionnaireTemplateFK).Any() ?? false;
 
     // Navigational properties and references
     public virtual ICollection<QuestionnaireQuestionModel> Questions { get; set; } = [];
