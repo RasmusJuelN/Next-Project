@@ -11,13 +11,14 @@ export class HomeService {
   private apiService = inject(ApiService);
 
   // Method to check for active questionnaires
-  checkForExistingActiveQuestionnaires(userId: string): Observable<{ exists: boolean; id: string | null }> {
-    const url = `${this.apiUrl}/questionnaire/active/check/${userId}`;
+  checkForExistingActiveQuestionnaires(): Observable<{ exists: boolean; id: string | null }> {
+    // Updated URL without a userId parameter, as the backend extracts the user from the token
+    const url = `${this.apiUrl}/active-questionnaire/check`;
 
-    return this.apiService.get<{ active: boolean; questionnaireId: string | null }>(url).pipe(
-      map((response) => ({
-        exists: response.active,
-        id: response.questionnaireId
+    return this.apiService.get<string | null>(url).pipe(
+      map((questionnaireId) => ({
+        exists: !!questionnaireId,
+        id: questionnaireId
       }))
     );
   }

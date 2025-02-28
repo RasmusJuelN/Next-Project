@@ -168,7 +168,7 @@ export class TemplateManagerComponent {
   addTemplate(): void {
     this.selectedTemplate = {
       id: '',
-      templateTitle: 'New Template',
+      title: 'New Template',
       description: 'Description for the new template',
       questions: [
         {

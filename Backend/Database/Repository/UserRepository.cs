@@ -21,7 +21,7 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : SQL
 
     public async Task<Guid?> GetIdOfOldestActiveQuestionnaire(Guid id)
     {
-        UserBaseModel user = await GetSingleAsync(u => u.Guid == id, query => query.Include(u => u.ActiveQuestionnaires))
+        UserBaseModel user = await GetSingleAsync(u => u.Guid == id, query => query.Include(u => (u as StudentModel).ActiveQuestionnaires))
             ?? throw new Exception("User not found");
 
         return user.ActiveQuestionnaires.OrderBy(a => a.ActivatedAt).Select(a => a.Id).FirstOrDefault();

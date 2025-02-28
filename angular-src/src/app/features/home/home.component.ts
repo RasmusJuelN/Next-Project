@@ -27,14 +27,11 @@ export class HomeComponent implements OnInit {
     this.loggedInAlready$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.userRole = this.authService.getUserRole();
-        const userId = this.authService.getUserId();
-        if (userId) {
-          this.homeService
-            .checkForExistingActiveQuestionnaires(userId)
-            .subscribe((response: any) => {
-              this.activeQuestionnaireString = response?.id || '';
-            });
-        }
+        this.homeService
+          .checkForExistingActiveQuestionnaires()
+          .subscribe((response: any) => {
+            this.activeQuestionnaireString = response?.id || '';
+          });
       } else {
         this.userRole = null;
         this.activeQuestionnaireString = '';

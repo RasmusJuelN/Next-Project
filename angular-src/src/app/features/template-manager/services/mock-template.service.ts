@@ -10,7 +10,7 @@ export class MockTemplateService {
   private templates: Template[] = [
     {
       id: '1',
-      templateTitle: 'Employee Onboarding Template',
+      title: 'Employee Onboarding Template',
       description: 'A template for onboarding new employees.',
       questions: [
         {
@@ -33,7 +33,7 @@ export class MockTemplateService {
     },
     {
       id: '2',
-      templateTitle: 'Customer Feedback Template',
+      title: 'Customer Feedback Template',
       description: 'A template for collecting customer feedback.',
       questions: [
         {
@@ -58,7 +58,7 @@ export class MockTemplateService {
     },
     {
       id: '3',
-      templateTitle: 'Project Evaluation Template',
+      title: 'Project Evaluation Template',
       description: 'A template for evaluating project outcomes.',
       questions: [
         {
@@ -83,7 +83,7 @@ export class MockTemplateService {
     },
     {
       id: '4',
-      templateTitle: 'Training Feedback Template',
+      title: 'Training Feedback Template',
       description: 'A template for collecting feedback on training sessions.',
       questions: [
         {
@@ -100,7 +100,7 @@ export class MockTemplateService {
     },
     {
       id: '5',
-      templateTitle: 'Event Registration Template',
+      title: 'Event Registration Template',
       description: 'A template for registering attendees for an event.',
       questions: [
         {
@@ -119,7 +119,7 @@ export class MockTemplateService {
     },
     {
       id: '6',
-      templateTitle: 'Survey Template',
+      title: 'Survey Template',
       description: 'A simple survey template for various uses.',
       questions: [
         {
@@ -138,7 +138,7 @@ export class MockTemplateService {
     },
     {
       id: '7',
-      templateTitle: 'Bug Report Template',
+      title: 'Bug Report Template',
       description: 'A template for reporting bugs in a software system.',
       questions: [
         {
@@ -162,7 +162,7 @@ export class MockTemplateService {
     },
     {
       id: '8',
-      templateTitle: 'Team Meeting Notes Template',
+      title: 'Team Meeting Notes Template',
       description: 'A template for recording notes during team meetings.',
       questions: [
         {
@@ -181,7 +181,7 @@ export class MockTemplateService {
     },
     {
       id: '9',
-      templateTitle: 'WHAT',
+      title: 'WHAT',
       description: 'A template for recording notes during team meetings.',
       questions: [
         {
@@ -200,7 +200,7 @@ export class MockTemplateService {
     },
     {
       id: '10',
-      templateTitle: 'Evaluering af SKP-elever',
+      title: 'Evaluering af SKP-elever',
       description: 'Gennemførelsesprocedure for SKP-elever ved PRAKTIK NORD',
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
@@ -326,7 +326,7 @@ export class MockTemplateService {
   
     // ✅ Filter templates based on search
     let filteredTemplates = this.templates.filter((t) => {
-      const templateTitle = t.templateTitle.toLowerCase();
+      const templateTitle = t.title.toLowerCase();
       const templateId = t.id?.toLowerCase() || ''; // Ensure `id` is always a string
   
       return (
@@ -357,7 +357,7 @@ export class MockTemplateService {
     // ✅ Convert to `TemplateBase`
     const templateBases: TemplateBase[] = pageItems.map((t) => ({
       id: t.id ?? `temp-${Date.now()}`, // ✅ Ensure `id` is always a string
-      templateTitle: t.templateTitle,
+      title: t.title,
       createdAt: t.createdAt ?? new Date().toISOString(), // ✅ Preserve original `createdAt` if available
       lastUpdated: t.lastUpdated ?? new Date().toISOString(),
       isLocked: false,

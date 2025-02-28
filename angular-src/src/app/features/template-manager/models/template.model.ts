@@ -1,6 +1,6 @@
 export interface Template {
   id?: string; // Optional because some templates may not have an ID yet
-  templateTitle: string; // Matches API field
+  title: string; // Matches API field
   description?: string; // Optional since API does not specify this field
   createdAt?: string; // ✅ Added (ISO Date format)
   lastUpdated?: string; // ✅ Added (ISO Date format)
@@ -26,7 +26,7 @@ export interface Option {
 
   export interface TemplateBase {
     id: string;
-    templateTitle: string;
+    title: string;
     createdAt: string;
     lastUpdated: string;
     isLocked: boolean;

@@ -3,6 +3,7 @@ using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
 using API.Services;
 using Database.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -33,7 +34,8 @@ namespace API.Controllers
 
             return Ok(activeQuestionnaire);
         }
-
+        
+        [Authorize(AuthenticationSchemes = "AccessToken")]
         [HttpGet("check")]
         public async Task<ActionResult<Guid?>> CheckIfUserHasActiveQuestionnaire()
         {
