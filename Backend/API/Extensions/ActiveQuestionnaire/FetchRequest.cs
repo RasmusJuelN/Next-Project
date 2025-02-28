@@ -11,6 +11,7 @@ public static class FetchRequest
         {
             Id = activeQuestionnaire.Id,
             Title = activeQuestionnaire.Title,
+            Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
             Student = new()
             {
@@ -33,6 +34,7 @@ public static class FetchRequest
         {
             Id = activeQuestionnaire.Id,
             Title = activeQuestionnaire.Title,
+            Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
             Student = new()
             {

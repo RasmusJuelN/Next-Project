@@ -11,6 +11,7 @@ public static class QuestionnaireTemplateModelExtensions
         {
             Id = questionnaireTemplate.Id,
             Title = questionnaireTemplate.Title,
+            Description = questionnaireTemplate.Description,
             CreatedAt = questionnaireTemplate.CreatedAt,
             LastUpdated = questionnaireTemplate.LastUpated,
             IsLocked = questionnaireTemplate.IsLocked,
@@ -38,6 +39,7 @@ public static class QuestionnaireTemplateModelExtensions
         return new ActiveQuestionnaireModel
         {
             Title = questionnaireTemplate.Title,
+            Description = questionnaireTemplate.Description,
             Student = student,
             Teacher = teacher,
             QuestionnaireTemplate = questionnaireTemplate
