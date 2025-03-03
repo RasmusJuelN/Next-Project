@@ -3,6 +3,7 @@ namespace Database.DTO.QuestionnaireTemplate;
 public record class QuestionnaireTemplatePatch
 {
     public string? TemplateTitle { get; set; }
+    public string? Description { get; set; }
     public List<QuestionnaireQuestionPatch>? Questions { get; set; }
 }
 

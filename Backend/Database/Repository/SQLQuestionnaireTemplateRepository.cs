@@ -42,6 +42,7 @@ public class SQLQuestionnaireTemplateRepository(Context context) : SQLGenericRep
     public QuestionnaireTemplateModel Patch(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplatePatch patchedTemplate)
     {
         existingTemplate.Title = patchedTemplate.TemplateTitle ?? existingTemplate.Title;
+        existingTemplate.Description = patchedTemplate.Description ?? existingTemplate.Description;
         if (patchedTemplate.Questions is not null && patchedTemplate.Questions.Count != 0)
         {
             HashSet<int> patchedQuestionIds = [.. patchedTemplate.Questions.Select(q => q.Id)];
