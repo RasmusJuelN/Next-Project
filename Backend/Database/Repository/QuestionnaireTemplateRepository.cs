@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
-public class SQLQuestionnaireTemplateRepository(Context context) : SQLGenericRepository<QuestionnaireTemplateModel>(context, new LoggerFactory()), IQuestionnaireTemplateRepository
+public class QuestionnaireTemplateRepository(Context context) : GenericRepository<QuestionnaireTemplateModel>(context, new LoggerFactory()), IQuestionnaireTemplateRepository
 {
     private readonly Context _context = context;
 

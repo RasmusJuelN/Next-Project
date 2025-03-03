@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
-public class UserRepository(Context context, ILoggerFactory loggerFactory) : SQLGenericRepository<UserBaseModel>(context, loggerFactory), IUserRepository
+public class UserRepository(Context context, ILoggerFactory loggerFactory) : GenericRepository<UserBaseModel>(context, loggerFactory), IUserRepository
 {
     private readonly Context _context = context;
 

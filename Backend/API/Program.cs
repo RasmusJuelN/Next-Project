@@ -75,8 +75,8 @@ builder.Services.Configure<RouteOptions>(o => {
 });
 
 // Repositories
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(SQLGenericRepository<>));
-builder.Services.AddScoped<IQuestionnaireTemplateRepository, SQLQuestionnaireTemplateRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IQuestionnaireTemplateRepository, QuestionnaireTemplateRepository>();
 builder.Services.AddScoped<IActiveQuestionnaireRepository, ActiveQuestionnaireRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITrackedRefreshTokenRepository, TrackedRefreshTokenRepository>();

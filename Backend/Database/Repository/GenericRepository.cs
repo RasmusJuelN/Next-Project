@@ -5,14 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
-public class SQLGenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
 {
     // TODO: Create custom exceptions and include logging
     private readonly Context _context;
     private readonly DbSet<TEntity> _dbSet;
     private readonly ILogger _logger;
 
-    public SQLGenericRepository(Context context, ILoggerFactory loggerFactory)
+    public GenericRepository(Context context, ILoggerFactory loggerFactory)
     {
         _context = context;
         _dbSet = _context.Set<TEntity>();

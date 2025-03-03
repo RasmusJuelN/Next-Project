@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
-public class TrackedRefreshTokenRepository(Context context, ILoggerFactory loggerFactory) : SQLGenericRepository<TrackedRefreshTokenModel>(context, loggerFactory), ITrackedRefreshTokenRepository
+public class TrackedRefreshTokenRepository(Context context, ILoggerFactory loggerFactory) : GenericRepository<TrackedRefreshTokenModel>(context, loggerFactory), ITrackedRefreshTokenRepository
 {
     private readonly Context _context = context;
 
