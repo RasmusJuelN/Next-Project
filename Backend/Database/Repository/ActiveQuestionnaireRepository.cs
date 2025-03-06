@@ -93,7 +93,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             }
         }
 
-        List<ActiveQuestionnaireModel> questionnaireTemplates = await query.Take(amount).ToListAsync();
+        List<ActiveQuestionnaireModel> questionnaireTemplates = await query.Include(q => q.Student).Include(q => q.Teacher).Take(amount).ToListAsync();
         List<ActiveQuestionnaireBase> questionnaireTemplateBases = [.. questionnaireTemplates.Select(t => t.ToBaseDto())];
 
         return (questionnaireTemplateBases, totalCount);
