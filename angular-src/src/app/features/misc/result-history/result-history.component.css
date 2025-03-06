@@ -1,0 +1,146 @@
+.results-container {
+    margin: 1rem;
+  }
+  
+  /* Each result block has a border, padding, etc. */
+  .result-block {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* The table that shows A–E columns */
+  .rating-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .rating-table th,
+  .rating-table td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: center;
+  }
+  
+  /* The clickable div inside each cell */
+  .clickable-area {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+  
+  /* Filled teacher rating cells: for example, green background */
+  .filled-teacher {
+    background-color: #5cb85c;
+    color: white;
+  }
+  
+  /* Filled student rating cells: for example, blue background */
+  .filled-student {
+    background-color: #337ab7;
+    color: white;
+  }
+  
+  /* For the custom answer row that shows “?” */
+  .custom-answer {
+    background-color: #f0ad4e; /* a distinct color, or none if you prefer */
+    color: #fff;
+    text-align: center;
+  }
+  
+  /* Simple modal overlay */
+  .details-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .details-modal-content {
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    max-width: 600px;
+    width: 90%;
+  }
+  
+  .rating-table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Let the table auto-size columns except for the forced width below */
+    table-layout: auto;
+  }
+  
+  /* Make the question column narrower; let text wrap */
+  .rating-table th:first-child,
+  .rating-table td[rowspan="2"] {
+    width: 20%;             /* or 15%, or a fixed px if you prefer */
+    white-space: normal;    /* allow wrapping */
+    word-wrap: break-word;  /* break long words if needed */
+    vertical-align: top;    /* so question text stays at the top if it wraps */
+  }
+  
+  .details-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999; /* Ensure it's above other content */
+  }
+  
+  .details-modal-content {
+    background: #fff;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+  }
+  
+  /* Header bar with a subtle background */
+  .details-header {
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Body with extra spacing */
+  .details-body {
+    padding: 1rem;
+    line-height: 1.6;
+  }
+  
+  /* Footer area with close button */
+  .details-footer {
+    padding: 0.5rem 1rem 1rem 1rem;
+    border-top: 1px solid #ddd;
+    text-align: right;
+  }
+  
+  /* Style the button nicely */
+  .details-footer button {
+    background-color: #337ab7;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .details-footer button:hover {
+    background-color: #286090;
+  }
+  

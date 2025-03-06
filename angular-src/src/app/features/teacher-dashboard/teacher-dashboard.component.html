@@ -1,0 +1,135 @@
+<!-- Main container -->
+<div class="flex flex-col justify-center items-center w-full h-full bg-gray-100 p-4 sm:p-8">
+  <div class="flex flex-col w-full max-w-full sm:max-w-4xl bg-white shadow-md rounded-lg p-4 sm:p-8">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center sm:text-left">
+      Overview over active questionnaires.
+    </h2>
+
+    <!-- Search & Filters Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-4 items-center w-full">
+      <!-- Search & Filters -->
+      <div class="flex flex-col sm:flex-row w-full gap-2">
+        <select
+          #searchSelect
+          (change)="onSearchTypeChange(searchSelect.value)"
+          class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-w-0 sm:min-w-[150px]"
+        >
+          <option value="name" selected>Search by Student Name</option>
+          <option value="id">Search by ID Link</option>
+        </select>
+
+        <input
+          #searchInput
+          type="text"
+          (input)="onSearchChange(searchInput.value)"
+          placeholder="Search..."
+          class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 
+                focus:border-blue-500 text-sm w-full sm:flex-grow min-w-0"
+        />
+      </div>
+
+      <!-- Completion Filters -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+        <label class="flex items-center gap-1">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterStudentCompleted"
+            (change)="onCompletionFilterChange()"
+          />
+          <span class="text-sm">Student Completed</span>
+        </label>
+        <label class="flex items-center gap-1">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterTeacherCompleted"
+            (change)="onCompletionFilterChange()"
+          />
+          <span class="text-sm">Teacher Completed</span>
+        </label>
+      </div>
+
+      <!-- Page Size Selector -->
+      <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
+        <label for="pageSize" class="text-gray-700 font-medium"> Items per page: </label>
+        <select
+          #pageSize
+          id="pageSize"
+          (change)="onPageSizeChange(pageSize.value)"
+          class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-auto"
+        >
+          <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading Indicator Inside Content -->
+    <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
+      <app-loading></app-loading>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="text-center p-4">
+      <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
+    </div>
+
+    <!-- Questionnaire List -->
+    <ul class="space-y-4 mt-6" *ngIf="!isLoading && !errorMessage">
+      <li
+        *ngFor="let questionnaire of displayedQuestionnaires"
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center border rounded-lg shadow-sm bg-white p-4"
+      >
+        <div class="flex flex-col gap-3 w-full sm:w-auto">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+            <span class="font-medium text-gray-800">{{ questionnaire.studentName }}</span>
+            <span class="text-sm text-gray-500"> ID Link: {{ questionnaire.activeQuestionaireUrlLink }} </span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-2">
+            <span
+              class="px-3 py-1 rounded-full text-sm font-medium text-white"
+              [ngClass]="questionnaire.studentCompleted ? 'bg-green-500' : 'bg-red-500'"
+            >
+              Student: {{ questionnaire.studentCompleted ? 'Completed' : 'Pending' }}
+            </span>
+            <span
+              class="px-3 py-1 rounded-full text-sm font-medium text-white"
+              [ngClass]="questionnaire.teacherCompleted ? 'bg-green-500' : 'bg-red-500'"
+            >
+              Teacher: {{ questionnaire.teacherCompleted ? 'Completed' : 'Pending' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-4 sm:mt-0 flex gap-2">
+          <button
+            *ngIf="!questionnaire.teacherCompleted"
+            [routerLink]="['/answer', questionnaire.activeQuestionaireUrlLink]"
+            class="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
+          >
+            Answer
+          </button>
+
+          <button
+            *ngIf="questionnaire.teacherCompleted && questionnaire.studentCompleted"
+            [routerLink]="['/results', questionnaire.activeQuestionaireUrlLink]"
+            class="px-4 py-2 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none"
+          >
+            View Results
+          </button>
+        </div>
+      </li>
+    </ul>
+
+    <!-- Pagination -->
+    <app-pagination
+      *ngIf="!isLoading && !errorMessage"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      (pageChange)="onPageChange($event)"
+      class="mt-6"
+    >
+    </app-pagination>
+  </div>
+</div>

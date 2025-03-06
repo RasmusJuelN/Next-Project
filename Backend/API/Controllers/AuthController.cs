@@ -12,11 +12,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
-using API.DTO.Responses.Auth;
-using API.DTO.Requests.Auth;
-using Microsoft.Net.Http.Headers;
-using API.Interfaces;
-using Database.DTO.User;
 
 namespace API.Controllers
 {
@@ -27,14 +22,16 @@ namespace API.Controllers
         private readonly JwtService _jwtService;
         private readonly LdapService _ldapService;
         private readonly JWTSettings _JWTSettings;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IGenericRepository<RevokedRefreshTokenModel> _revokedRefreshTokenRepository;
+        private readonly IGenericRepository<UserModel> _userRepository;
         private readonly ILogger _logger;
 
         public AuthController(
             JwtService jwtService,
             LdapService ldapService,
             IConfiguration configuration,
-            IUnitOfWork unitOfWork,
+            IGenericRepository<RevokedRefreshTokenModel> revokedRefreshTokenRepository,
+            IGenericRepository<UserModel> userRepository,
             ILoggerFactory loggerFactory)
         {
             _jwtService = jwtService;
@@ -86,7 +83,7 @@ namespace API.Controllers
                     return Unauthorized();
                 }
 
-                User? user = await _unitOfWork.User.GetUserAsync(userGuid);
+                UserModel? user = await _userRepository.GetSingleAsync(u => u.Id == userGuid);
 
                 UserPermissions permissions;
                 if (user is not null)
@@ -143,8 +140,9 @@ namespace API.Controllers
 
             if (User.FindFirstValue(JwtRegisteredClaimNames.Sub) != principal.FindFirstValue(JwtRegisteredClaimNames.Sub)) return Unauthorized();
 
-            byte[] hashedToken = Crypto.ToSha256(token);
-            if (principal is null || await _unitOfWork.TrackedRefreshToken.IsTokenRevoked(hashedToken)) return Unauthorized();
+            byte[] result = Crypto.ToSha256(token);
+            IEnumerable<RevokedRefreshTokenModel> tokens = await _revokedRefreshTokenRepository.GetAsync(q => q.Token == result);
+            if (principal is null || tokens.Any()) return Unauthorized();
 
             List<Claim> refreshTokenClaims = _jwtService.GetRefreshTokenClaims(principal.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
 
@@ -186,7 +184,13 @@ namespace API.Controllers
         {
             if (Request.Headers.Authorization.IsNullOrEmpty()) return Forbid();
 
-            return Ok(_jwtService.DecodeAccessToken(Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer", "")));
+            return Ok(new JWTUser{
+                Guid = new Guid(User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? "N/A"),
+                Username = User.FindFirstValue(JwtRegisteredClaimNames.UniqueName) ?? "N/A",
+                Name = User.FindFirstValue(JwtRegisteredClaimNames.Name) ?? "N/A",
+                Role = User.FindFirstValue(JWTClaims.role)  ?? "N/A",
+                Permissions = Convert.ToInt32(User.FindFirstValue(JWTClaims.permissions) ?? "0")
+            });
         }
     }
 

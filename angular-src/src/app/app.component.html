@@ -1,23 +1,8 @@
-<div style="background-color: white; height: auto;">
-    <div class="header">
-      <!-- Welcome Section -->
-      <div class="welcome">
-        <h1 *ngIf="userName" class="header-title">Welcome {{ userName }}</h1>
-        <h1 *ngIf="!userName" class="header-title">User is not logged in</h1>
-      </div>
-  
-      <!-- Navigation Buttons -->
-      <div class="nav">
-        <button class="btn btn-primary" routerLink="/">Home</button>
-        <button class="btn btn-primary" routerLink="/dashboard/nav" *ngIf="isAuthenticated$ | async">Dashboard</button>
-      </div>
-  
-      <!-- Token Management -->
-      <div class="token-actions">
-        <button *ngIf="isAuthenticated$ | async" class="btn btn-danger" (click)="logout()">Logout</button>
-      </div>
-    </div>
-  
-    <router-outlet></router-outlet>
+<div class="flex flex-col h-screen">
+    <app-header></app-header>
+    
+    <main class="flex-grow overflow-auto">
+      <router-outlet></router-outlet>
+    </main>
   </div>
   

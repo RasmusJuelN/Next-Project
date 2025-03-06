@@ -1,0 +1,9 @@
+<div class="flex flex-col items-center w-full min-h-full bg-gray-100 p-4 sm:p-8">
+  <div *ngIf="!showBuilder">
+    <app-active-list (createNewQuestionnaireEvent)="handleCreateNewQuestionnaire()"></app-active-list>
+  </div>
+
+  <div *ngIf="showBuilder" class="flex flex-col items-center w-full min-h-full bg-gray-100 p-4 sm:p-8">
+    <app-active-questionnaire-builder (backToListEvent)="showList()"></app-active-questionnaire-builder>
+  </div>
+</div>

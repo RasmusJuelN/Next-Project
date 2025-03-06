@@ -1,7 +1,10 @@
 {
-    "/api/v1": {
+    "/api": {
       "changeOrigin": true,
-      "target": "http://127.0.0.1:8000",
-      "secure": false
+      "target": "https://127.0.0.1:7135",
+      "secure": false,
+      "headers": {
+        "Connection": "keep-alive"
+      }
     }
   }

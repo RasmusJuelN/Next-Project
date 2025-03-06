@@ -1,0 +1,183 @@
+<div class="flex flex-col max-w-6xl w-full bg-white shadow-md rounded-lg p-6 sm:p-8 sm:min-w-[600px]">
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
+    Create Active Questionnaire
+  </h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    <!-- Search for Student -->
+    <div class="flex flex-col w-full">
+      <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search for Student:</label>
+      <input
+        type="text"
+        placeholder="Enter student name..."
+        [(ngModel)]="student.searchInput"
+        (input)="onInputChange('student', studentSearch.value)"
+        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+        #studentSearch
+      />
+
+      <!-- Loading Indicator -->
+      <div *ngIf="student.isLoading" class="text-blue-500 text-sm mt-2">
+        Loading students...
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="student.errorMessage" class="text-red-500 text-sm mt-2">
+        {{ student.errorMessage }}
+      </div>
+
+      <!-- Search Results & Load More -->
+      <div *ngIf="student.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+        <ul class="space-y-1">
+          <li
+            *ngFor="let stud of student.searchResults"
+            (click)="select('student', stud)"
+            class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded"
+          >
+            {{ stud.fullName }} ({{ stud.userName }})
+          </li>
+        </ul>
+
+        <!-- Load More Button -->
+        <button
+          *ngIf="student.page < student.totalPages"
+          (click)="loadMore('student')"
+          class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition"
+        >
+          Load More Students
+        </button>
+      </div>
+
+      <!-- Selected Student with Clear Option -->
+      <div *ngIf="student.selected" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
+        <strong>Selected Student:</strong> {{ student.selected.fullName }}
+        <button (click)="clearSelected('student')" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Search for Teacher -->
+    <div class="flex flex-col w-full">
+      <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search for Teacher:</label>
+      <input
+        type="text"
+        placeholder="Enter teacher name..."
+        [(ngModel)]="teacher.searchInput"
+        (input)="onInputChange('teacher', teacherSearch.value)"
+        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+        #teacherSearch
+      />
+
+      <!-- Loading Indicator -->
+      <div *ngIf="teacher.isLoading" class="text-blue-500 text-sm mt-2">
+        Loading teachers...
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="teacher.errorMessage" class="text-red-500 text-sm mt-2">
+        {{ teacher.errorMessage }}
+      </div>
+
+      <!-- Search Results & Load More -->
+      <div *ngIf="teacher.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+        <ul class="space-y-1">
+          <li
+            *ngFor="let teach of teacher.searchResults"
+            (click)="select('teacher', teach)"
+            class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded"
+          >
+            {{ teach.fullName }} ({{ teach.userName }})
+          </li>
+        </ul>
+
+        <!-- Load More Button -->
+        <button
+          *ngIf="teacher.page < teacher.totalPages"
+          (click)="loadMore('teacher')"
+          class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition"
+        >
+          Load More Teachers
+        </button>
+      </div>
+
+      <!-- Selected Teacher with Clear Option -->
+      <div *ngIf="teacher.selected" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
+        <strong>Selected Teacher:</strong> {{ teacher.selected.fullName }}
+        <button (click)="clearSelected('teacher')" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search for Template -->
+  <div class="flex flex-col w-full mt-4">
+    <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search for Template:</label>
+    <input
+      type="text"
+      placeholder="Enter template title..."
+      [(ngModel)]="template.searchInput"
+      (input)="onInputChange('template', templateSearch.value)"
+      class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+      #templateSearch
+    />
+
+    <!-- Loading Indicator -->
+    <div *ngIf="template.isLoading" class="text-blue-500 text-sm mt-2">
+      Loading templates...
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="template.errorMessage" class="text-red-500 text-sm mt-2">
+      {{ template.errorMessage }}
+    </div>
+
+    <!-- Search Results & Load More -->
+    <div *ngIf="template.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+      <ul class="space-y-1">
+        <li
+          *ngFor="let temp of template.searchResults"
+          (click)="select('template', temp)"
+          class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded"
+        >
+          {{ temp.templateTitle }}
+        </li>
+      </ul>
+
+      <!-- Load More Button -->
+      <button
+        *ngIf="template.page < template.totalPages"
+        (click)="loadMore('template')"
+        class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition"
+      >
+        Load More Templates
+      </button>
+    </div>
+
+    <!-- Selected Template with Clear Option -->
+    <div *ngIf="template.selected" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
+      <strong>Selected Template:</strong> {{ template.selected.templateTitle }}
+      <button (click)="clearSelected('template')" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Finish and Back Buttons -->
+  <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
+    <button
+      [disabled]="!student.selected || !teacher.selected || !template.selected"
+      (click)="createActiveQuestionnaire()"
+      class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded"
+    >
+      Finish
+    </button>
+    <button
+      (click)="onBackToList()"
+      class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
