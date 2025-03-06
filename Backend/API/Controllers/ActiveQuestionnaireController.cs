@@ -32,6 +32,7 @@ namespace API.Controllers
             return Ok(await _questionnaireService.ActivateTemplate(request));
         }
 
+        [Authorize(AuthenticationSchemes = "AccessToken")]
         [HttpGet("check")]
         public async Task<ActionResult<Guid?>> CheckIfUserHasActiveQuestionnaire()
         {
