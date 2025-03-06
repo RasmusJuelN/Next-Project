@@ -5,9 +5,9 @@ namespace Database.Interfaces;
 
 public interface IUserRepository
 {
-    Task<User> GetStudentAsync(Guid id);
-    Task<User> GetTeacherAsync(Guid id);
-    Task<User> GetUserAsync(Guid id);
+    Task<User?> GetStudentAsync(Guid id);
+    Task<User?> GetTeacherAsync(Guid id);
+    Task<User?> GetUserAsync(Guid id);
     Task<Guid?> GetIdOfOldestActiveQuestionnaire(Guid id);
     bool UserExists(Guid id);
     bool UserExists(int primaryKey);
