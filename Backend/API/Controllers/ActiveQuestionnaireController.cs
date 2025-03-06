@@ -3,6 +3,7 @@ using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
 using API.Services;
 using Database.DTO.ActiveQuestionnaire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -45,6 +46,25 @@ namespace API.Controllers
             }
             
             return await _questionnaireService.GetOldestActiveQuestionnaireForUser(userId);
+        }
+
+        [Authorize(AuthenticationSchemes = "AccessToken")]
+        [HttpPut("{id}/submitAnswer")]
+        public async Task<ActionResult> SubmitQuestionnaireAnswer(Guid id, [FromBody] AnswerSubmission submission)
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();   
+            }
+
+            await _questionnaireService.SubmitAnswers(id, userId, submission);
+
+            return Ok();
         }
     }
 }

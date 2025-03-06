@@ -30,12 +30,11 @@ public class Context : DbContext
             e.HasOne(a => a.QuestionnaireTemplate)
             .WithMany(t => t.ActiveQuestionnaires)
             .OnDelete(DeleteBehavior.NoAction);
-        });
-
-        // ActiveQuestionnaireResponseModel
-        modelBuilder.Entity<ActiveQuestionnaireResponseModel>(e => {
-            e.HasOne(r => r.ActiveQuestionnaire)
-            .WithMany(a => a.Answers)
+            e.HasMany(a => a.StudentAnswers)
+            .WithOne(r => r.ActiveQuestionnaire)
+            .OnDelete(DeleteBehavior.NoAction);
+            e.HasMany(a => a.TeacherAnswers)
+            .WithOne(r => r.ActiveQuestionnaire)
             .OnDelete(DeleteBehavior.NoAction);
         });
 
@@ -85,7 +84,9 @@ public class Context : DbContext
     internal DbSet<QuestionnaireQuestionModel> QuestionnaireQuestions { get; set; }
     internal DbSet<QuestionnaireOptionModel> QuestionnaireOptions { get; set; }
     internal DbSet<ActiveQuestionnaireModel> ActiveQuestionnaires { get; set; }
-    internal DbSet<ActiveQuestionnaireResponseModel> ActiveQuestionnaireResponses { get; set; }
+    internal DbSet<ActiveQuestionnaireResponseBaseModel> ActiveQuestionnaireResponses { get; set; }
+    internal DbSet<ActiveQuestionnaireStudentResponseModel> ActiveQuestionnaireStudentResponses { get; set; }
+    internal DbSet<ActiveQuestionnaireTeacherResponseModel> ActiveQuestionnaireTeacherResponses { get; set; }
     internal DbSet<UserBaseModel> Users { get; set; }
     internal DbSet<StudentModel> Students { get; set; }
     internal DbSet<TeacherModel> Teachers { get; set; }

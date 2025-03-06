@@ -18,4 +18,5 @@ public interface IActiveQuestionnaireRepository
         ActiveQuestionnaireOrderingOptions sortOrder,
         string? titleQuery,
         Guid? idQuery);
+    Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission);
 }

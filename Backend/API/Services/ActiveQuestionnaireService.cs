@@ -6,7 +6,6 @@ using Database.DTO.ActiveQuestionnaire;
 using Database.Enums;
 using Settings.Models;
 using Database.DTO.User;
-using API.DTO.Requests.QuestionnaireTemplate;
 
 namespace API.Services;
 
@@ -87,6 +86,12 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
     public async Task<Guid?> GetOldestActiveQuestionnaireForUser(Guid id)
     {
         return await _unitOfWork.User.GetIdOfOldestActiveQuestionnaire(id);
+    }
+
+    public async Task SubmitAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission)
+    {
+        await _unitOfWork.ActiveQuestionnaire.AddAnswers(activeQuestionnaireId, userId, submission);
+        await _unitOfWork.SaveChangesAsync();
     }
 
     // The new() constraint on generics don't allow classes with required properties, so we can't make this generic :v

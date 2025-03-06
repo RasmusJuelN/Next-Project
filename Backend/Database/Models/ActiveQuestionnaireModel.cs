@@ -45,5 +45,6 @@ public class ActiveQuestionnaireModel
     [ForeignKey(nameof(QuestionnaireTemplateFK))]
     public required QuestionnaireTemplateModel QuestionnaireTemplate { get; set; }
     
-    public virtual ICollection<ActiveQuestionnaireResponseModel> Answers { get; set; } = [];
+    public virtual ICollection<ActiveQuestionnaireStudentResponseModel> StudentAnswers { get; set; } = [];
+    public virtual ICollection<ActiveQuestionnaireTeacherResponseModel> TeacherAnswers { get; set; } = [];
 }

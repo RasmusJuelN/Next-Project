@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20250306101701_Split ActiveQuestionnaireReponseModel into separate entities for student and teacher")]
+    partial class SplitActiveQuestionnaireReponseModelintoseparateentitiesforstudentandteacher
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,17 +90,13 @@ namespace Database.Migrations
                         .HasMaxLength(55)
                         .HasColumnType("nvarchar(55)");
 
-                    b.Property<int?>("OptionFK")
+                    b.Property<int?>("OptionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("QuestionFK")
+                    b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OptionFK");
-
-                    b.HasIndex("QuestionFK");
 
                     b.ToTable("ActiveQuestionnaireResponse");
 
@@ -777,23 +776,6 @@ namespace Database.Migrations
                     b.Navigation("Student");
 
                     b.Navigation("Teacher");
-                });
-
-            modelBuilder.Entity("Database.Models.ActiveQuestionnaireResponseBaseModel", b =>
-                {
-                    b.HasOne("Database.Models.QuestionnaireOptionModel", "Option")
-                        .WithMany()
-                        .HasForeignKey("OptionFK");
-
-                    b.HasOne("Database.Models.QuestionnaireQuestionModel", "Question")
-                        .WithMany()
-                        .HasForeignKey("QuestionFK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Option");
-
-                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("Database.Models.QuestionnaireOptionModel", b =>

@@ -98,4 +98,37 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
 
         return (questionnaireTemplateBases, totalCount);
     }
+
+    public async Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission)
+    {
+        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires.FirstAsync(a => a.Id == activeQuestionnaireId);
+        UserBaseModel user = await _context.Users.OfType<UserBaseModel>().SingleAsync(u => u.Guid == userId);
+
+        if (user.GetType().Equals(typeof(StudentModel)))
+        {
+            foreach (Answer answer in submission.Answers)
+            {
+                ActiveQuestionnaireStudentResponseModel response = new()
+                {
+                    QuestionFK = answer.QuestionId,
+                    OptionFK = answer.OptionId,
+                    CustomResponse = answer.CustomAnswer,
+                };
+                activeQuestionnaire.StudentAnswers.Add(response);
+            }
+        }
+        else if (user.GetType().Equals(typeof(TeacherModel)))
+        {
+            foreach (Answer answer in submission.Answers)
+            {
+                ActiveQuestionnaireTeacherResponseModel response = new()
+                {
+                    QuestionFK = answer.QuestionId,
+                    OptionFK = answer.OptionId,
+                    CustomResponse = answer.CustomAnswer,
+                };
+                activeQuestionnaire.TeacherAnswers.Add(response);
+            }
+        }
+    }
 }
