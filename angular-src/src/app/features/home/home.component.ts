@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from '../login/login.component';
 import { HomeService } from './services/home.service';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +20,7 @@ export class HomeComponent implements OnInit {
 
   loggedInAlready$ = this.authService.isAuthenticated$;
   activeQuestionnaireString = '';
-  userRole: string | null = null; // User's role: e.g., teacher, administrator
+  userRole: string | null = null;
   errorMessage: string | null = null;
 
   ngOnInit(): void {
@@ -27,11 +28,14 @@ export class HomeComponent implements OnInit {
     this.loggedInAlready$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.userRole = this.authService.getUserRole();
-        this.homeService
-          .checkForExistingActiveQuestionnaires()
-          .subscribe((response: any) => {
-            this.activeQuestionnaireString = response?.id || '';
-          });
+        if (this.userRole !== 'admin') {
+          this.homeService
+            .checkForExistingActiveQuestionnaires()
+            .pipe(catchError((error) => of({ exists: false, id: null })))
+            .subscribe((response: any) => {
+              this.activeQuestionnaireString = response?.id || '';
+            });
+        }
       } else {
         this.userRole = null;
         this.activeQuestionnaireString = '';

@@ -192,8 +192,12 @@ namespace API.Controllers
         public IActionResult WhoAmI()
         {
             if (Request.Headers.Authorization.IsNullOrEmpty()) return Forbid();
+            var token = Request.Headers[HeaderNames.Authorization]
+                .ToString()
+                .Replace("Bearer", "")
+                .Trim();
 
-            return Ok(_jwtService.DecodeAccessToken(Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer", "")));
+            return Ok(_jwtService.DecodeAccessToken(token));
         }
     }
 

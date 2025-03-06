@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Role } from '../../shared/models/user.model';
 
 @Component({
   selector: 'app-access-hub',
@@ -13,15 +14,16 @@ import { RouterModule } from '@angular/router';
 export class AccessHubComponent {
   private authService = inject(AuthService);
 
-  userRole: 'teacher' | 'admin' | null = null;
+  userRole:Role | null = null;
   isAuthenticated: boolean = false;
 
   // Define navLinks with a specific type
-  navLinks: Record<'teacher' | 'admin', { name: string; route: string }[]> = {
-    teacher: [
-      {name: 'Teacher dashboard', route:'/teacher-dashboard'}
+  navLinks: Partial<Record<Role, { name: string; route: string }[]>> = {
+    [Role.Student]: [],
+    [Role.Teacher]: [
+      { name: 'Teacher dashboard', route: '/teacher-dashboard' }
     ],
-    admin: [
+    [Role.Admin]: [
       { name: 'Template Manager', route: '/templates' },
       { name: 'Active Questionnaire Manager', route: '/active-questionnaire' },
       { name: 'Settings', route: '/settings' },
@@ -36,7 +38,7 @@ export class AccessHubComponent {
     });
 
     this.authService.userRole$.subscribe((role) => {
-      this.userRole = role as 'teacher' | 'admin' | null;
+      this.userRole = role as Role
     });
   }
 }

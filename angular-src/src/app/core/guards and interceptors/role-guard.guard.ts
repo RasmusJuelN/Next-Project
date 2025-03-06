@@ -3,15 +3,15 @@ import { inject } from '@angular/core';
 import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { map } from 'rxjs';
+import { Role } from '../../shared/models/user.model';
 
-type UserRole = 'teacher' | 'admin' | 'student';
 
 export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
   // Retrieve the array of allowed roles from route data
-  const allowedRoles: UserRole[] = route.data?.['roles'] || [];
+  const allowedRoles: Role[] = route.data?.['roles'] || [];
 
   // Subscribe to the current userRole via userRole$
   return authService.userRole$.pipe(
@@ -21,15 +21,16 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
         return false;
       }
 
-      // Check if the userRole is one of the allowed roles
-      const hasAccess = allowedRoles.includes(userRole as UserRole);
+      // Explicitly cast the userRole (which is a string) to Role
+      const role = userRole as Role;
+
+      // Check if the role is one of the allowed roles
+      const hasAccess = allowedRoles.includes(role);
       if (!hasAccess) {
-        // User doesn't have a matching role: redirect or show an error page
         router.navigate(['/']);
         return false;
       }
 
-      // Role is allowed
       return true;
     })
   );

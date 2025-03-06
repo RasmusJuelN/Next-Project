@@ -10,39 +10,45 @@ import { TemplateManagerComponent } from './features/template-manager/template-m
 import { ActiveQuestionnaireManagerComponent } from './features/active-questionnaire-manager/active-questionnaire-manager.component';
 import { TeacherDashboardComponent } from './features/teacher-dashboard/teacher-dashboard.component';
 import { roleGuard } from './core/guards and interceptors/role-guard.guard';
+import { ResultHistoryComponent } from './features/misc/result-history/result-history.component';
+import { Role } from './shared/models/user.model';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent },
-    {path: 'hub', component: AccessHubComponent, canActivate: [authGuard]},
-    {
-        path: 'results/:id',
-        component: ResultComponent,
-        canActivate: [roleGuard],
-        data: { roles: ['teacher', 'student'] },
-      },
-    {
-        path: 'answer/:id',
-        component: QuestionnaireComponent,
-        canActivate: [authGuard, roleGuard],
-        data: { roles: ['teacher', 'student'] },
-      },
-      {
-        path: 'active-questionnaire',
-        component: ActiveQuestionnaireManagerComponent,
-        canActivate: [authGuard, roleGuard],
-        data: { roles: ['admin'] },
-      },
-    { 
-        path: 'templates',
-        component: TemplateManagerComponent,
-        canActivate: [authGuard, roleGuard],
-        data: { roles: ['admin'] },
-    },
-    {
-        path: 'teacher-dashboard',
-        component: TeacherDashboardComponent,
-        canActivate: [authGuard, roleGuard],
-        data: { roles: ['teacher'] },
-      },
-    { path: '**', component: PageNotFoundComponent}
-]
+  { path: '', component: HomeComponent },
+  { path: 'hub', component: AccessHubComponent, canActivate: [authGuard] },
+  {
+    path: 'results/:id',
+    component: ResultComponent,
+    canActivate: [roleGuard],
+    data: { roles: [Role.Teacher, Role.Student, Role.Admin] },
+  },
+  { // WIP FOR LATER
+    path: 'result-history',
+    component: ResultHistoryComponent,
+  },
+  {
+    path: 'answer/:id',
+    component: QuestionnaireComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.Teacher, Role.Student] },
+  },
+  {
+    path: 'active-questionnaire',
+    component: ActiveQuestionnaireManagerComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.Admin] },
+  },
+  { 
+    path: 'templates',
+    component: TemplateManagerComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.Admin] },
+  },
+  {
+    path: 'teacher-dashboard',
+    component: TeacherDashboardComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.Teacher] },
+  },
+  { path: '**', component: PageNotFoundComponent }
+];

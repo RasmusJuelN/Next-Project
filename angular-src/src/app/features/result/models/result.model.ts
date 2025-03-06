@@ -20,12 +20,3 @@ export interface Result {
     isTeacherCustomAnswer: boolean;
   }[];
 }
-
-
-
-
-
-
-
-
-

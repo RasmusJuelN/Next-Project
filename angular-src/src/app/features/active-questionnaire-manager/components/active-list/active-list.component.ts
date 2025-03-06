@@ -146,7 +146,6 @@ export class ActiveListComponent implements OnInit {
           this.isLoading = false;
         },
         error: (err) => {
-          console.error('Error fetching active questionnaires:', err);
           this.errorMessage = 'Failed to load active questionnaires. Please try again.';
           this.isLoading = false;
         },

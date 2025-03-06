@@ -78,7 +78,6 @@ export class TeacherDashboardComponent implements OnInit {
           this.isLoading = false;
         },
         error: (err) => {
-          console.error('Error fetching data:', err);
           this.errorMessage = 'Failed to load data. Please try again.';
           this.isLoading = false;
         }

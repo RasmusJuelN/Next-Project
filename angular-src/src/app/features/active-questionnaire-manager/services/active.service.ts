@@ -65,10 +65,6 @@ export class ActiveService {
     return this.apiService.get<QuestionnaireSession>(`${this.apiUrl}/${id}`);
   }
 
-  updateActiveQuestionnaire(id: string, data: Partial<QuestionnaireSession>): Observable<QuestionnaireSession> {
-    return this.apiService.put<QuestionnaireSession>(`${this.apiUrl}/${id}`, data);
-  }
-
   deleteActiveQuestionnaire(id: string): Observable<void> {
     return this.apiService.delete<void>(`${this.apiUrl}/${id}`);
   }

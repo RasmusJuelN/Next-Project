@@ -3,7 +3,7 @@ import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { MenuSvgComponent } from '../../../shared/components/menu-svg/menu-svg.component';
-
+import { Role } from '../../../shared/models/user.model';
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -16,21 +16,23 @@ export class HeaderComponent {
   private router = inject(Router);
 
   isAuthenticated = false;
-  userRole: 'teacher' | 'admin' | null = null;
+  // Now userRole can be one of the Role enum values or null
+  userRole: Role | null = null;
   isMenuOpen = false; // For toggling the mobile menu
 
-  // Global navigation links (always shown)
+  // Global navigation links
   globalNavLinks: { name: string; route: string }[] = [
     { name: 'Home', route: '/' },
   ];
 
   // Role-specific navigation links
-  navLinks: Record<'teacher' | 'admin', { name: string; route: string }[]> = {
-    teacher: [
+  navLinks: Record<Role, { name: string; route: string }[]> = {
+    [Role.Student]: [],
+    [Role.Teacher]: [
       { name: 'Overview', route: '/hub' },
-      {name: 'Teacher dashboard', route:'/teacher-dashboard'}
+      { name: 'Teacher dashboard', route: '/teacher-dashboard' }
     ],
-    admin: [
+    [Role.Admin]: [
       { name: 'Overview', route: '/hub' },
       { name: 'Templates', route: '/templates' },
       { name: 'Settings', route: '/settings' },
@@ -43,9 +45,14 @@ export class HeaderComponent {
       this.isAuthenticated = isAuthenticated;
     });
 
-    // Subscribe to role changes
+    // Subscribe to role changes and cast the value to the Role enum if necessary.
     this.authService.userRole$.subscribe((role) => {
-      this.userRole = role as 'teacher' | 'admin' | null;
+      // Assuming your AuthService returns a string that matches Role values:
+      if (role === Role.Teacher || role === Role.Admin || role === Role.Student) {
+        this.userRole = role as Role;
+      } else {
+        this.userRole = null;
+      }
     });
   }
 
