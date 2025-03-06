@@ -1,0 +1,38 @@
+using Database.DTO.ActiveQuestionnaire;
+using Database.Models;
+
+namespace Database.Extensions;
+
+public static class ActiveQuestionnaireMapper
+{
+    public static ActiveQuestionnaireBase ToBaseDto(this ActiveQuestionnaireModel activeQuestionnaire)
+    {
+        return new()
+        {
+            Id = activeQuestionnaire.Id,
+            Title = activeQuestionnaire.Title,
+            Description = activeQuestionnaire.Description,
+            ActivatedAt = activeQuestionnaire.ActivatedAt,
+            Student = activeQuestionnaire.Student.ToBaseDto(),
+            Teacher = activeQuestionnaire.Teacher.ToBaseDto(),
+            StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
+            TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt
+        };
+    }
+
+    public static ActiveQuestionnaire ToDto(this ActiveQuestionnaireModel activeQuestionnaire)
+    {
+        return new()
+        {
+            Id = activeQuestionnaire.Id,
+            Title = activeQuestionnaire.Title,
+            Description = activeQuestionnaire.Description,
+            ActivatedAt = activeQuestionnaire.ActivatedAt,
+            Student = activeQuestionnaire.Student.ToBaseDto(),
+            Teacher = activeQuestionnaire.Teacher.ToBaseDto(),
+            StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
+            TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt,
+            Questions = [.. activeQuestionnaire.QuestionnaireTemplate.Questions.Select(q => q.ToDto())]
+        };
+    }
+}

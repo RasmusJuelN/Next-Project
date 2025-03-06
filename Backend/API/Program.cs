@@ -75,11 +75,11 @@ builder.Services.Configure<RouteOptions>(o => {
 });
 
 // Repositories
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IQuestionnaireTemplateRepository, QuestionnaireTemplateRepository>();
 builder.Services.AddScoped<IActiveQuestionnaireRepository, ActiveQuestionnaireRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITrackedRefreshTokenRepository, TrackedRefreshTokenRepository>();
+builder.Services.AddScoped<IApplicationLogRepository, ApplicationLogRepository>();
 
 builder.Services.AddControllers(options =>{
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));

@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
 using API.Services;
-using Database.Models;
+using Database.DTO.ActiveQuestionnaire;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -14,24 +14,21 @@ namespace API.Controllers
         private readonly ActiveQuestionnaireService _questionnaireService = questionnaireService;
 
         [HttpGet]
-        public async Task<ActionResult<List<FetchActiveQuestionnaireBase>>> GetActiveQuestionnaires()
+        public async Task<ActionResult<ActiveQuestionnaireKeysetPaginationResult>> GetActiveQuestionnaires([FromQuery] ActiveQuestionnaireKeysetPaginationRequest request)
         {
-            List<FetchActiveQuestionnaireBase> activeQuestionnaireBases = await _questionnaireService.FetchActiveQuestionnaireBases();
-            return Ok(activeQuestionnaireBases);
+            return Ok(await _questionnaireService.FetchActiveQuestionnaireBases(request));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<FetchActiveQuestionnaire>> GetActiveQuestionnaire(Guid id)
+        public async Task<ActionResult<ActiveQuestionnaire>> GetActiveQuestionnaire(Guid id)
         {
             return Ok(await _questionnaireService.FetchActiveQuestionnaire(id));
         }
 
         [HttpPost("activate")]
-        public async Task<ActionResult<FetchActiveQuestionnaire>> AddQuestionnaire([FromForm] ActivateQuestionnaire request)
+        public async Task<ActionResult<ActiveQuestionnaire>> ActivateQuestionnaire([FromForm] ActivateQuestionnaire request)
         {
-            ActiveQuestionnaireModel activeQuestionnaire = await _questionnaireService.ActivateTemplate(request);
-
-            return Ok(activeQuestionnaire);
+            return Ok(await _questionnaireService.ActivateTemplate(request));
         }
 
         [HttpGet("check")]

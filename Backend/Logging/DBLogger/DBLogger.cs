@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using Database.Models;
+using Database.DTO.ApplicationLog;
 using Microsoft.Extensions.Logging;
 using Settings.Default;
 
@@ -7,11 +7,11 @@ namespace Logging.DBLogger;
 
 public sealed class DBLogger(
     string categoryName,
-    BlockingCollection<ApplicationLogsModel> logQueue,
+    BlockingCollection<ApplicationLog> logQueue,
     Func<DefaultDBLogger> getCurrentConfig) : ILogger
 {
     private readonly string _categoryName = categoryName;
-    private readonly BlockingCollection<ApplicationLogsModel> _logQueue = logQueue;
+    private readonly BlockingCollection<ApplicationLog> _logQueue = logQueue;
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 
@@ -50,7 +50,7 @@ public sealed class DBLogger(
         string message = formatter(state, exception);
         if (string.IsNullOrEmpty(message)) return;
 
-        ApplicationLogsModel log = new()
+        ApplicationLog log = new()
         {
             Message = message,
             LogLevel = logLevel,

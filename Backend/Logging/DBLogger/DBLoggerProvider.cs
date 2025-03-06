@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Runtime.Versioning;
+using Database.DTO.ApplicationLog;
 using Database.Interfaces;
-using Database.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +17,7 @@ public sealed class DBLoggerProvider : ILoggerProvider
     private DefaultDBLogger _currentConfig;
     private readonly ConcurrentDictionary<string, DBLogger> _loggers =
         new(StringComparer.OrdinalIgnoreCase);
-    private readonly BlockingCollection<ApplicationLogsModel> _logQueue = new( new ConcurrentQueue<ApplicationLogsModel>(), 1000);
+    private readonly BlockingCollection<ApplicationLog> _logQueue = new( new ConcurrentQueue<ApplicationLog>(), 1000);
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _outputTask;
     private readonly IServiceProvider _serviceProvider;
@@ -60,9 +60,9 @@ public sealed class DBLoggerProvider : ILoggerProvider
             // Keep processing log entries until the token is cancelled
             while (!_cts.Token.IsCancellationRequested)
             {
-                List<ApplicationLogsModel> logs = [];
+                List<ApplicationLog> logs = [];
 
-                while (_logQueue.TryTake(out ApplicationLogsModel? log, TimeSpan.FromSeconds(1)))
+                while (_logQueue.TryTake(out ApplicationLog? log, TimeSpan.FromSeconds(1)))
                 {
                     if (log != null)
                     {
@@ -74,7 +74,7 @@ public sealed class DBLoggerProvider : ILoggerProvider
                 {
                     // ILoggerProvider is a singleton, so we need to create a new scope to resolve scoped services
                     using IServiceScope scope = _serviceProvider.CreateScope();
-                    IGenericRepository<ApplicationLogsModel> repository = scope.ServiceProvider.GetRequiredService<IGenericRepository<ApplicationLogsModel>>();
+                    IApplicationLogRepository repository = scope.ServiceProvider.GetRequiredService<IApplicationLogRepository>();
                     await SaveLogsToDatabase(logs, repository);
                 }
             }
@@ -95,7 +95,7 @@ public sealed class DBLoggerProvider : ILoggerProvider
     /// <param name="logs">The logs to save.</param>
     /// <param name="repository">The repository to use to save the logs.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    private static async Task SaveLogsToDatabase(List<ApplicationLogsModel> logs, IGenericRepository<ApplicationLogsModel> repository)
+    private static async Task SaveLogsToDatabase(List<ApplicationLog> logs, IApplicationLogRepository repository)
     {
         await repository.AddRangeAsync(logs);
     }

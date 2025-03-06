@@ -7,9 +7,9 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LogsController(IGenericRepository<ApplicationLogsModel> ApplicationLogsRepository) : ControllerBase
+    public class LogsController(IApplicationLogRepository ApplicationLogsRepository) : ControllerBase
     {
-        private readonly IGenericRepository<ApplicationLogsModel> _ApplicationLogsRepository = ApplicationLogsRepository;
+        private readonly IApplicationLogRepository _ApplicationLogsRepository = ApplicationLogsRepository;
 
         [HttpGet("DB")]
         public async Task<IActionResult> GetDatabaseLogs()
@@ -20,10 +20,7 @@ namespace API.Controllers
         [HttpGet("DBCategories")]
         public async Task<IActionResult> GetDatabaseLogCategories()
         {
-            List<string> categories = await _ApplicationLogsRepository.GetAsQueryable()
-                .Select(q => q.Category).Distinct().ToListAsync();
-            
-            return Ok(categories);
+            return Ok(await _ApplicationLogsRepository.GetLogCategoriesAsync());
         }
     }
 }

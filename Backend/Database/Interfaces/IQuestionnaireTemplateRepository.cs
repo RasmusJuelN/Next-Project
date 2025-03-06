@@ -1,11 +1,21 @@
 using Database.DTO.QuestionnaireTemplate;
-using Database.Models;
+using Database.Enums;
 
 namespace Database.Interfaces;
 
-public interface IQuestionnaireTemplateRepository : IGenericRepository<QuestionnaireTemplateModel>
+public interface IQuestionnaireTemplateRepository
 {
-    QuestionnaireTemplateModel Update(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplateModel updatedTemplate);
-    QuestionnaireTemplateModel Patch(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplatePatch patchedTemplate);
-    Task<QuestionnaireTemplateModel?> GetEntireTemplate(Guid id);
+    Task<QuestionnaireTemplate> AddAsync(QuestionnaireTemplateAdd questionnaire);
+    Task<QuestionnaireTemplate> Update(Guid id, QuestionnaireTemplateUpdate updatedTemplate);
+    Task<QuestionnaireTemplate> Patch(Guid id, QuestionnaireTemplatePatch patchedTemplate);
+    Task DeleteAsync(Guid id);
+    Task<QuestionnaireTemplateBase?> GetQuestionnaireTemplateBaseAsync(Guid id);
+    Task<QuestionnaireTemplate?> GetFullQuestionnaireTemplateAsync(Guid id);
+    Task<(List<QuestionnaireTemplateBase>, int)> PaginationQueryWithKeyset(
+        int amount,
+        Guid? cursorIdPosition,
+        DateTime? cursorCreatedAtPosition,
+        TemplateOrderingOptions sortOrder,
+        string? titleQuery,
+        Guid? idQuery);
 }

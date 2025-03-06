@@ -1,4 +1,6 @@
 using Database.DTO.QuestionnaireTemplate;
+using Database.Enums;
+using Database.Extensions;
 using Database.Interfaces;
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
@@ -6,43 +8,81 @@ using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
-public class QuestionnaireTemplateRepository(Context context) : GenericRepository<QuestionnaireTemplateModel>(context, new LoggerFactory()), IQuestionnaireTemplateRepository
+public class QuestionnaireTemplateRepository(Context context, ILoggerFactory loggerFactory) : IQuestionnaireTemplateRepository
 {
     private readonly Context _context = context;
+    private readonly GenericRepository<QuestionnaireTemplateModel> _genericRepository = new(context, loggerFactory);
 
-    public QuestionnaireTemplateModel Update(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplateModel updatedTemplate)
+    public async Task<QuestionnaireTemplate> Update(Guid id, QuestionnaireTemplateUpdate updatedTemplate)
     {
-        // TODO: The logic of updating values should probably happen in here instead of from the DTOs
-        HashSet<int> updatedQuestionIds = [.. updatedTemplate.Questions.Select(q => q.Id)];
+        QuestionnaireTemplateModel existingTemplate = await _genericRepository.GetSingleAsync(t => t.Id == id,
+            query => query.Include(t => t.Questions).ThenInclude(q => q.Options)) ?? throw new Exception("Template not found.");
+        
+        existingTemplate.Title = updatedTemplate.Title;
+        existingTemplate.Description = updatedTemplate.Description;
+
+        HashSet<int> updatedQuestionIds = [.. updatedTemplate.Questions.Where(q => q.Id is not null).Select(q => q.Id!.Value)];
         IEnumerable<QuestionnaireQuestionModel> oldQuestions = existingTemplate.Questions.Where(e => !updatedQuestionIds.Contains(e.Id));
         
-        foreach (QuestionnaireQuestionModel oldQuestion in oldQuestions)
+        // Remove existing questions
+        _context.RemoveRange(oldQuestions);
+
+        foreach (QuestionnaireQuestionUpdate updatedQuestion in updatedTemplate.Questions)
         {
-            _context.Entry(oldQuestion).State = EntityState.Deleted;
-        }
+            QuestionnaireQuestionModel? existingQuestion = existingTemplate.Questions.SingleOrDefault(q => q.Id == updatedQuestion.Id);
 
-        foreach (QuestionnaireQuestionModel updatedQuestion in updatedTemplate.Questions)
-        {
-            QuestionnaireQuestionModel existingQuestion = existingTemplate.Questions.Single(q => q.Id == updatedQuestion.Id);
-
-            HashSet<int> updatedOptionIds = [.. updatedQuestion.Options.Select(o => o.Id)];
-            IEnumerable<QuestionnaireOptionModel> oldOptions = existingQuestion.Options.Where(e => !updatedOptionIds.Contains(e.Id));
-
-            foreach (QuestionnaireOptionModel oldOption in oldOptions)
+            if (existingQuestion is not null)
             {
-                _context.Entry(oldOption).State = EntityState.Deleted;
+                // Update existing question and check its options
+                existingQuestion.Prompt = updatedQuestion.Prompt;
+                existingQuestion.AllowCustom = updatedQuestion.AllowCustom;
+
+                HashSet<int> updatedOptionIds = [.. updatedQuestion.Options.Where(o => o.Id is not null).Select(o => o.Id!.Value)];
+                IEnumerable<QuestionnaireOptionModel> oldOptions = existingQuestion.Options.Where(e => !updatedOptionIds.Contains(e.Id));
+
+                // Remove existing options
+                _context.RemoveRange(oldOptions);
+
+                List<QuestionnaireOptionModel> newOptions = [];
+
+                foreach (QuestionnaireOptionUpdate updatedOption in updatedQuestion.Options)
+                {
+                    QuestionnaireOptionModel? existingOption = existingQuestion.Options.SingleOrDefault(o => o.Id == updatedOption.Id);
+
+                    if (existingOption is not null)
+                    {
+                        // Update existing option
+                        existingOption.OptionValue = updatedOption.OptionValue;
+                        existingOption.DisplayText = updatedOption.DisplayText;
+                    }
+                    else
+                    {
+                        // Create new option
+                        QuestionnaireOptionModel newOption = updatedOption.ToModel();
+                        existingQuestion.Options.Add(newOption);
+                    }
+                }
+            }
+            else
+            {
+                // Create new question
+                QuestionnaireQuestionModel newQuestion = updatedQuestion.ToModel();
+                existingTemplate.Questions.Add(newQuestion);
             }
         }
 
-        _context.Update(updatedTemplate);
-
-        return updatedTemplate;
+        return existingTemplate.ToDto();
     }
 
-    public QuestionnaireTemplateModel Patch(QuestionnaireTemplateModel existingTemplate, QuestionnaireTemplatePatch patchedTemplate)
+    public async Task<QuestionnaireTemplate> Patch(Guid id, QuestionnaireTemplatePatch patchedTemplate)
     {
+        // TODO: Add/Port over existing custom SQL exceptions and use here
+        QuestionnaireTemplateModel existingTemplate = await _genericRepository.GetSingleAsync(t => t.Id == id,
+            query => query.Include(t => t.Questions).ThenInclude(q => q.Options)) ?? throw new Exception("Template not found.");
+
         existingTemplate.Title = patchedTemplate.TemplateTitle ?? existingTemplate.Title;
         existingTemplate.Description = patchedTemplate.Description ?? existingTemplate.Description;
+        
         if (patchedTemplate.Questions is not null && patchedTemplate.Questions.Count != 0)
         {
             HashSet<int> patchedQuestionIds = [.. patchedTemplate.Questions.Select(q => q.Id)];
@@ -73,11 +113,77 @@ public class QuestionnaireTemplateRepository(Context context) : GenericRepositor
 
         existingTemplate.LastUpated = DateTime.UtcNow;
 
-        return existingTemplate;
+        return existingTemplate.ToDto();
     }
 
-    public async Task<QuestionnaireTemplateModel?> GetEntireTemplate(Guid id)
+    public async Task<QuestionnaireTemplateBase?> GetQuestionnaireTemplateBaseAsync(Guid id)
     {
-        return await GetSingleAsync(t => t.Id == id, query => query.Include(t => t.Questions).ThenInclude(q => q.Options));
+        QuestionnaireTemplateModel? questionnaire = await _genericRepository.GetSingleAsync(t => t.Id == id);
+        return questionnaire?.ToBaseDto();
+    }
+
+    public async Task<QuestionnaireTemplate?> GetFullQuestionnaireTemplateAsync(Guid id)
+    {
+        QuestionnaireTemplateModel? questionnaire = await _genericRepository.GetSingleAsync(t => t.Id == id,
+            query => query.Include(t => t.Questions).ThenInclude(q => q.Options));
+        return questionnaire?.ToDto();
+    }
+
+    public async Task<QuestionnaireTemplate> AddAsync(QuestionnaireTemplateAdd questionnaire)
+    {
+        QuestionnaireTemplateModel questionnaireTemplate = questionnaire.ToModel();
+        await _genericRepository.AddAsync(questionnaireTemplate);
+        return questionnaireTemplate.ToDto();
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        QuestionnaireTemplateModel existingTemplate = await _genericRepository.GetSingleAsync(t => t.Id == id) ?? throw new Exception("Template not found.");
+
+        _genericRepository.Delete(existingTemplate);
+    }
+
+    public async Task<(List<QuestionnaireTemplateBase>, int)> PaginationQueryWithKeyset(
+        int amount,
+        Guid? cursorIdPosition,
+        DateTime? cursorCreatedAtPosition,
+        TemplateOrderingOptions sortOrder,
+        string? titleQuery,
+        Guid? idQuery)
+    {
+        IQueryable<QuestionnaireTemplateModel> query = _genericRepository.GetAsQueryable();
+
+        query = sortOrder.ApplyQueryOrdering(query);
+
+        if (!string.IsNullOrEmpty(titleQuery))
+        {
+            query = query.Where(q => q.Title.Contains(titleQuery));
+        }
+
+        if (idQuery is not null)
+        {
+            query = query.Where(q => q.Id.ToString().Contains(idQuery.ToString()!));
+        }
+
+        int totalCount = await query.CountAsync();
+
+        if (cursorIdPosition is not null && cursorCreatedAtPosition is not null)
+        {
+            if (sortOrder == TemplateOrderingOptions.CreatedAtAsc)
+            {
+                query = query.Where(q => q.CreatedAt > cursorCreatedAtPosition
+                || q.CreatedAt == cursorCreatedAtPosition && q.Id > cursorIdPosition);
+            }
+            else
+            {
+                query = query.Where(q => q.CreatedAt < cursorCreatedAtPosition
+                || q.CreatedAt == cursorCreatedAtPosition && q.Id < cursorIdPosition);
+            }
+        }
+
+        List<QuestionnaireTemplateModel> questionnaireTemplates = await query.Take(amount).ToListAsync();
+        List<QuestionnaireTemplateBase> questionnaireTemplateBases = [.. questionnaireTemplates.Select(t => t.ToBaseDto())];
+
+        return (questionnaireTemplateBases, totalCount);
     }
 }

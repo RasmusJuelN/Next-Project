@@ -2,7 +2,7 @@ using Database.Models;
 
 namespace Database.Interfaces;
 
-public interface ITrackedRefreshTokenRepository : IGenericRepository<TrackedRefreshTokenModel>
+public interface ITrackedRefreshTokenRepository
 {
     void RevokeToken(TrackedRefreshTokenModel trackedRefreshToken);
     Task RevokeToken(byte[] hashedRefreshToken);

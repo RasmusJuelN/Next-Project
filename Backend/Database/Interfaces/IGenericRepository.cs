@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace Database.Interfaces;
 
-public interface IGenericRepository<TEntity> where TEntity : class
+internal interface IGenericRepository<TEntity> where TEntity : class
 {
     Task<List<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null);
     

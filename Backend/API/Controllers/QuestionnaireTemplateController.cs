@@ -24,7 +24,7 @@ namespace API.Controllers
         /// </summary>
         /// <param name="request">The request parameters for retrieving questionnaire templates.</param>
         /// <returns>
-        /// An <see cref="ActionResult"/> containing a list of <see cref="KeysetPaginationResult"/>.
+        /// An <see cref="ActionResult"/> containing a list of <see cref="TemplateKeysetPaginationResult"/>.
         /// </returns>
         /// <remarks>
         /// Sample request:
@@ -39,18 +39,18 @@ namespace API.Controllers
         /// <response code="500">If an internal server error occurs.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(typeof(KeysetPaginationResult), StatusCodes.Status200OK)]
-        public async Task<ActionResult<KeysetPaginationResult>> GetQuestionnaireTemplates([FromQuery] KeysetPaginationQuery request)
+        [ProducesResponseType(typeof(TemplateKeysetPaginationResult), StatusCodes.Status200OK)]
+        public async Task<ActionResult<TemplateKeysetPaginationResult>> GetQuestionnaireTemplates([FromQuery] TemplateKeysetPaginationRequest request)
         {
             return Ok(await _questionnaireTemplateService.GetTemplateBasesWithKeysetPagination(request));
         }
 
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(typeof(FetchTemplate), StatusCodes.Status201Created)]
-        public async Task<ActionResult<FetchTemplate>> AddQuestionnaireTemplate([FromBody] AddTemplate questionnaireTemplate)
+        [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status201Created)]
+        public async Task<ActionResult<QuestionnaireTemplate>> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateAdd questionnaireTemplate)
         {
-            FetchTemplate template;
+            QuestionnaireTemplate template;
             try
             {
                 template = await _questionnaireTemplateService.AddTemplate(questionnaireTemplate);
@@ -67,10 +67,10 @@ namespace API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FetchTemplate), StatusCodes.Status200OK)]
-        public async Task<ActionResult<FetchTemplate>> GetQuestionnaireTemplate(Guid id)
+        [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireTemplate>> GetQuestionnaireTemplate(Guid id)
         {
-            FetchTemplate template;
+            QuestionnaireTemplate template;
             try
             {
                 template = await _questionnaireTemplateService.GetTemplateById(id);
@@ -87,10 +87,10 @@ namespace API.Controllers
         [HttpPut("{id}/update")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FetchTemplate), StatusCodes.Status200OK)]
-        public async Task<ActionResult<FetchTemplate>> UpdateQuestionnaireTemplate(Guid id, [FromBody] UpdateTemplate updateRequest)
+        [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireTemplate>> UpdateQuestionnaireTemplate(Guid id, [FromBody] QuestionnaireTemplateUpdate updateRequest)
         {
-            FetchTemplate updatedTemplate;
+            QuestionnaireTemplate updatedTemplate;
             try
             {
                 updatedTemplate = await _questionnaireTemplateService.UpdateTemplate(id, updateRequest);
@@ -107,10 +107,10 @@ namespace API.Controllers
         [HttpPatch("{id}/patch")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FetchTemplate), StatusCodes.Status200OK)]
-        public async Task<ActionResult<FetchTemplate>> PatchQuestionnaireTemplate(Guid id, [FromBody] QuestionnaireTemplatePatch patchRequest)
+        [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireTemplate>> PatchQuestionnaireTemplate(Guid id, [FromBody] QuestionnaireTemplatePatch patchRequest)
         {
-            FetchTemplate patchedTemplate;
+            QuestionnaireTemplate patchedTemplate;
             try
             {
                 patchedTemplate = await _questionnaireTemplateService.PatchTemplate(id, patchRequest);

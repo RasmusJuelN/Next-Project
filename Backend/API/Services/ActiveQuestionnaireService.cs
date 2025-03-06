@@ -1,14 +1,12 @@
 using API.DTO.LDAP;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
-using API.Exceptions;
-using API.Extensions;
-using API.Extensions.ActiveQuestionnaire;
 using API.Interfaces;
+using Database.DTO.ActiveQuestionnaire;
 using Database.Enums;
-using Database.Models;
-using Microsoft.EntityFrameworkCore;
 using Settings.Models;
+using Database.DTO.User;
+using API.DTO.Requests.QuestionnaireTemplate;
 
 namespace API.Services;
 
@@ -19,38 +17,68 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
     private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
     private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
 
-    public async Task<List<FetchActiveQuestionnaireBase>> FetchActiveQuestionnaireBases()
+    public async Task<ActiveQuestionnaireKeysetPaginationResult> FetchActiveQuestionnaireBases(ActiveQuestionnaireKeysetPaginationRequest request)
     {
-        List<ActiveQuestionnaireModel> activeQuestionnaires = await _unitOfWork.ActiveQuestionnaire.GetAllAsync(query => query.Include(a => a.Student).Include(a => a.Teacher));
-        return [.. activeQuestionnaires.Select(a => a.ToBaseDto())];
+        DateTime? cursorActivatedAt = null;
+        Guid? cursorId = null;
+
+        if (!string.IsNullOrEmpty(request.QueryCursor))
+        {
+            cursorActivatedAt = DateTime.Parse(request.QueryCursor.Split('_')[0]);
+            cursorId = Guid.Parse(request.QueryCursor.Split('_')[1]);
+        }
+
+        (List<ActiveQuestionnaireBase> activeQuestionnaireBases, int totalCount) = await _unitOfWork.ActiveQuestionnaire
+        .PaginationQueryWithKeyset(
+            request.PageSize,
+            cursorId,
+            cursorActivatedAt,
+            request.Order,
+            request.Title,
+            request.Id
+        );
+
+        ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;
+
+        string? queryCursor = null;
+        if (lastActiveQuestionnaire is not null)
+        {
+            queryCursor = $"{lastActiveQuestionnaire.ActivatedAt:O}_{lastActiveQuestionnaire.Id}";
+        }
+
+        return new()
+        {
+            ActiveQuestionnaireBases = activeQuestionnaireBases,
+            QueryCursor = queryCursor,
+            TotalCount = totalCount
+        };
     }
 
-    public async Task<FetchActiveQuestionnaire> FetchActiveQuestionnaire(Guid id)
+    public async Task<ActiveQuestionnaire> FetchActiveQuestionnaire(Guid id)
     {
-        ActiveQuestionnaireModel activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.GetSingleAsync(a => a.Id == id, query => query.Include(a => a.Student).Include(a => a.Teacher).Include(a => a.QuestionnaireTemplate.Questions).ThenInclude(q => q.Options))
-            ?? throw new SQLException.ItemNotFound("Active questionnaire not found.");
-        
-        return activeQuestionnaire.ToDto();
+        return await _unitOfWork.ActiveQuestionnaire.GetFullActiveQuestionnaireAsync(id);
     }
 
-    public async Task<ActiveQuestionnaireModel> ActivateTemplate(ActivateQuestionnaire request)
+    public async Task<ActiveQuestionnaire> ActivateTemplate(ActivateQuestionnaire request)
     {
         _ldap.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
 
         if (!_ldap.connection.Bound) throw new Exception("Failed to bind to the LDAP server.");
 
-        // If the student or teacher is not found in the database, generate a new model for them.
-        StudentModel student = await _unitOfWork.User.GetStudentAsync(request.StudentId) ?? GenerateStudentModel(request.StudentId);
+        // If the student or teacher is not found in the database, create and add them to the database
+        if (!_unitOfWork.User.UserExists(request.StudentId))
+        {
+            UserAdd student = GenerateStudent(request.StudentId);
+            await _unitOfWork.User.AddStudentAsync(student);
+        }
 
-        TeacherModel teacher = await _unitOfWork.User.GetTeacherAsync(request.TeacherId) ?? GenerateTeacherModel(request.TeacherId);
+        if (!_unitOfWork.User.UserExists(request.TeacherId))
+        {
+            UserAdd teacher = GenerateTeacher(request.TeacherId);
+            await _unitOfWork.User.AddTeacherAsync(teacher);
+        }
 
-        QuestionnaireTemplateModel questionnaireTemplate = await _unitOfWork.QuestionnaireTemplate.GetEntireTemplate(request.TemplateId)
-            ?? throw new SQLException.ItemNotFound("Questionnaire template not found.");
-
-        ActiveQuestionnaireModel activeQuestionnaire = questionnaireTemplate.ToActiveQuestionnaire(student, teacher);
-
-        await _unitOfWork.ActiveQuestionnaire.AddAsync(activeQuestionnaire);
-
+        ActiveQuestionnaire activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.ActivateQuestionnaireAsync(request.TemplateId, request.StudentId, request.TeacherId);
         await _unitOfWork.SaveChangesAsync();
 
         return activeQuestionnaire;
@@ -62,7 +90,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
     }
 
     // The new() constraint on generics don't allow classes with required properties, so we can't make this generic :v
-    private StudentModel GenerateStudentModel(Guid id)
+    private UserAdd GenerateStudent(Guid id)
     {
         BasicUserInfo ldapStudent = _ldap.SearchByObjectGUID<BasicUserInfo>(id);
         string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.StringValue.Contains(x.Key)).Value;
@@ -77,7 +105,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         };
     }
 
-    private TeacherModel GenerateTeacherModel(Guid id)
+    private UserAdd GenerateTeacher(Guid id)
     {
         BasicUserInfo ldapTeacher = _ldap.SearchByObjectGUID<BasicUserInfo>(id);
         string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.StringValue.Contains(x.Key)).Value;
