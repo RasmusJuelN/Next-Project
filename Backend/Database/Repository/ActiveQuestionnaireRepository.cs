@@ -24,7 +24,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     public async Task<ActiveQuestionnaire> GetFullActiveQuestionnaireAsync(Guid id)
     {
         ActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
-            query => query.Include(a => a.Teacher).Include(a => a.Teacher).Include(a => a.QuestionnaireTemplate.Questions)) ?? throw new Exception("Active questionnaire not found.");
+            query => query.Include(a => a.Student).Include(a => a.Teacher).Include(a => a.QuestionnaireTemplate.Questions)) ?? throw new Exception("Active questionnaire not found.");
         
         return activeQuestionnaire.ToDto();
     }
