@@ -27,7 +27,6 @@ export class TemplateManagerComponent {
   private templateService = inject(TemplateService);
 
   templateBases: TemplateBase[] = [];
-  // Caching cursors using page numbers.
   cachedCursors: { [pageNumber: number]: string | null } = {};
   selectedTemplate: Template | null = null;
 
@@ -43,33 +42,31 @@ export class TemplateManagerComponent {
   errorMessage: string | null = null;
   private searchSubject = new Subject<string>();
 
+  // Deletion confirmation states.
+  templateToDelete: string | null = null;
+  deleteConfirmationStep: number = 0; // 0 for first message, 1 for final warning
+
   ngOnInit(): void {
-    // Debounce search input to limit API calls.
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((term) => {
         this.searchTerm = term;
-        this.resetData(); // Reset pagination and selection on new search.
+        this.resetData();
         this.fetchTemplateBases();
       });
-
-    // Initial data load.
     this.fetchTemplateBases();
   }
 
-  // Called on each keystroke.
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
   }
 
-  // Called when page size changes.
   onPageSizeChange(newSize: string): void {
     this.pageSize = parseInt(newSize, 10);
     this.resetData();
     this.fetchTemplateBases();
   }
 
-  // Called when search type (name or id) is changed.
   onSearchTypeChange(type: string): void {
     if (type === 'name' || type === 'id') {
       this.searchType = type;
@@ -78,10 +75,6 @@ export class TemplateManagerComponent {
     }
   }
 
-  /**
-   * Resets key state values.
-   * @param resetSearch - If true, also resets searchTerm and searchType.
-   */
   resetData(resetSearch: boolean = false): void {
     this.currentPage = 1;
     this.totalPages = 1;
@@ -93,27 +86,20 @@ export class TemplateManagerComponent {
     }
   }
 
-  /**
-   * Fetches the template bases based on current state.
-   */
   private fetchTemplateBases(): void {
     this.isLoading = true;
     this.errorMessage = null;
     const nextCursor = this.cachedCursors[this.currentPage] ?? undefined;
-
     this.templateService
       .getTemplateBases(this.pageSize, nextCursor, this.searchTerm, this.searchType)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (response) => {
           this.templateBases = response.templateBases;
-
           if (response.templateBases.length === 0) {
-            // No data means we've hit the end.
             this.totalPages = this.currentPage;
             this.cachedCursors[this.currentPage + 1] = null;
           } else if (response.queryCursor) {
-            // Store the next cursor and calculate total pages from totalCount.
             this.cachedCursors[this.currentPage + 1] = response.queryCursor;
             this.totalPages = Math.ceil(response.totalCount / this.pageSize);
           } else {
@@ -127,28 +113,18 @@ export class TemplateManagerComponent {
       });
   }
 
-  /**
-   * Handles page change events.
-   * Uses the event payload (new page number and direction) to update state and fetch data.
-   */
   handlePageChange(event: PageChangeEvent): void {
-    // For forward, backward, or jump, update currentPage and then fetch data.
     const newPage = event.page;
-
-    // If moving forward and the cursor isn't cached yet, fetch data.
     if (event.direction === 'forward' && newPage > this.currentPage && !this.cachedCursors[newPage]) {
       console.warn('Page not available yet. Fetching...');
       this.currentPage = newPage;
       this.fetchTemplateBases();
       return;
     }
-
-    // For backward or jump, we assume the cursor was already cached.
     this.currentPage = newPage;
     this.fetchTemplateBases();
   }
 
-  // Opens the editor for the given template.
   selectTemplate(templateBaseId: string): void {
     this.selectedTemplate = null;
     this.isLoading = true;
@@ -164,7 +140,6 @@ export class TemplateManagerComponent {
       });
   }
 
-  // Prepares a new template for creation.
   addTemplate(): void {
     this.selectedTemplate = {
       id: '',
@@ -185,21 +160,37 @@ export class TemplateManagerComponent {
     return size === this.pageSize;
   }
 
-  // Deletes a template and then refreshes the list.
-  deleteTemplate(templateId: string): void {
-    this.templateService.deleteTemplate(templateId).subscribe({
-      complete: () => {
-        this.resetData();
-        this.fetchTemplateBases();
-      },
-      error: () => console.error('Error deleting template'),
-    });
+  // Opens the modal and resets the confirmation step.
+  openDeleteModal(templateId: string): void {
+    this.templateToDelete = templateId;
+    this.deleteConfirmationStep = 0;
   }
 
-  // Saves a new or updated template.
+  // Handles confirm click: if first step, update text; if already at final warning, delete.
+  confirmDelete(): void {
+    if (this.deleteConfirmationStep === 0) {
+      this.deleteConfirmationStep = 1;
+    } else {
+      if (this.templateToDelete) {
+        this.templateService.deleteTemplate(this.templateToDelete).subscribe({
+          complete: () => {
+            this.cancelDelete();
+            this.resetData();
+            this.fetchTemplateBases();
+          },
+          error: () => console.error('Error deleting template'),
+        });
+      }
+    }
+  }
+
+  cancelDelete(): void {
+    this.templateToDelete = null;
+    this.deleteConfirmationStep = 0;
+  }
+
   onSaveTemplate(updatedTemplate: Template): void {
     if (!updatedTemplate.id) {
-      // New template.
       updatedTemplate.id = `temp-${Date.now()}`;
       this.templateService.addTemplate(updatedTemplate).subscribe({
         next: (createdTemplate: Template) => {
@@ -214,7 +205,6 @@ export class TemplateManagerComponent {
         },
       });
     } else {
-      // Update existing template.
       this.templateService.updateTemplate(updatedTemplate.id, updatedTemplate).subscribe({
         complete: () => {
           console.log('Template updated successfully:', updatedTemplate);
@@ -226,7 +216,6 @@ export class TemplateManagerComponent {
     }
   }
 
-  // Cancels the template editor.
   onCancelEdit(): void {
     this.selectedTemplate = null;
   }

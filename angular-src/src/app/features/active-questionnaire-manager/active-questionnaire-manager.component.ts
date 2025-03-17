@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { QuestionnaireSession } from './models/active.models';
+import { ActiveQuestionnaire } from './models/active.models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActiveListComponent } from './components/active-list/active-list.component';

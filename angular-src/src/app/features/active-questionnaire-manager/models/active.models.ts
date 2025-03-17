@@ -1,24 +1,15 @@
 import { User } from "../../../shared/models/user.model";
 
-export interface QuestionnaireSession {
+export interface ActiveQuestionnaire {
     id: string;
-    templateId: string;
-    templateName: string;
-    createdAt: Date;
-    updatedAt: Date;
-  
-    student: {
-      user: User;
-      answered: boolean;
-      answeredWhen: Date | null;
-    };
-  
-    teacher: {
-      user: User;
-      answered: boolean;
-      answeredWhen: Date | null;
-    };
-  }
+    title: string;
+    description?: string;
+    activatedAt: Date;
+    student: User;
+    teacher: User;
+    studentCompletedAt: Date | null;
+    teacherCompletedAt: Date | null;
+}
   
 
   export interface Template {
@@ -44,3 +35,20 @@ export interface QuestionnaireSession {
     displayText: string; // Matches API field
   }
   
+  export interface ActiveQuestionnaireBase {
+    id: string;
+    title?: string
+    description?: string
+    activatedAt: Date
+    student: User
+    teacher: User
+    studentCompletedAt: Date | null;
+    teacherCompletedAt: Date | null;
+  }
+
+
+    export interface ResponseActiveQuestionnaireBase {
+      activeQuestionnaireBase: ActiveQuestionnaireBase[];
+      queryCursor?: string; // Cursor for next items.
+      totalCount: number;
+    }

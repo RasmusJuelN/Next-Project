@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
-import { QuestionnaireSession, Template } from '../models/active.models';
+import { ActiveQuestionnaire, ActiveQuestionnaireBase, ResponseActiveQuestionnaireBase, Template } from '../models/active.models';
 import { User } from '../../../shared/models/user.model';
 
 
@@ -39,199 +39,156 @@ private mockUsers: User[] = [
     { id: 't102', templateTitle: 'History Quiz', description: 'A history knowledge test', questions: [] }
   ];
 
-  private activeQuestionnaires: QuestionnaireSession[] = [
+  private activeQuestionnaires: ActiveQuestionnaireBase[] = [
     {
       id: 'q1',
-      templateId: 't101',
-      templateName: 'Math Quiz',
-      createdAt: new Date('2024-02-10T12:00:00'),
-      updatedAt: new Date(),
-  
-      student: {
-        user: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: 'test' },
-        answered: false,
-        answeredWhen: null,
-      },
-  
-      teacher: {
-        user: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: 'test' },
-        answered: true,
-        answeredWhen: new Date('2024-02-10T14:30:00'),
-      },
+      title: 'Math Quiz',
+      activatedAt: new Date('2024-02-10T12:00:00'),
+      student: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: 'test' },
+      teacher: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: 'test' },
+      studentCompletedAt: null,
+      teacherCompletedAt: new Date('2024-02-10T14:30:00')
     },
     {
       id: 'q2',
-      templateId: 't102',
-      templateName: 'History Quiz',
-      createdAt: new Date('2024-02-10T12:30:00'),
-      updatedAt: new Date(),
-  
-      student: {
-        user: { id: 's2', userName: 'janes456', fullName: 'Jane Smith', role: 'test' },
-        answered: true,
-        answeredWhen: new Date('2024-02-10T13:00:00'),
-      },
-  
-      teacher: {
-        user: { id: 't2', userName: 'johnsonT', fullName: 'Mr. Johnson', role: 'test' },
-        answered: true,
-        answeredWhen: new Date('2024-02-10T13:15:00'),
-      },
+      title: 'History Quiz',
+      activatedAt: new Date('2024-02-10T12:30:00'),
+      student: { id: 's2', userName: 'janes456', fullName: 'Jane Smith', role: 'test' },
+      teacher: { id: 't2', userName: 'johnsonT', fullName: 'Mr. Johnson', role: 'test' },
+      studentCompletedAt: new Date('2024-02-10T13:00:00'),
+      teacherCompletedAt: new Date('2024-02-10T13:15:00')
     },
     {
       id: 'q3',
-      templateId: 't103',
-      templateName: 'Science Exam',
-      createdAt: new Date('2024-02-11T09:15:00'),
-      updatedAt: new Date(),
-  
-      student: {
-        user: { id: 's3', userName: 'markS99', fullName: 'Mark Spencer', role: 'test' },
-        answered: false,
-        answeredWhen: null,
-      },
-  
-      teacher: {
-        user: { id: 't3', userName: 'leeT', fullName: 'Dr. Lee', role: 'test' },
-        answered: false,
-        answeredWhen: null,
-      },
+      title: 'Science Exam',
+      activatedAt: new Date('2024-02-11T09:15:00'),
+      student: { id: 's3', userName: 'markS99', fullName: 'Mark Spencer', role: 'test' },
+      teacher: { id: 't3', userName: 'leeT', fullName: 'Dr. Lee', role: 'test' },
+      studentCompletedAt: null,
+      teacherCompletedAt: null
     },
     {
       id: 'q4',
-      templateId: 't104',
-      templateName: 'English Grammar Test',
-      createdAt: new Date('2024-02-12T14:00:00'),
-      updatedAt: new Date(),
-  
-      student: {
-        user: { id: 's4', userName: 'emilyG', fullName: 'Emily Green', role: 'test' },
-        answered: true,
-        answeredWhen: new Date('2024-02-12T14:45:00'),
-      },
-  
-      teacher: {
-        user: { id: 't4', userName: 'wilsonT', fullName: 'Ms. Wilson', role: 'test' },
-        answered: false,
-        answeredWhen: null,
-      },
+      title: 'English Grammar Test',
+      activatedAt: new Date('2024-02-12T14:00:00'),
+      student: { id: 's4', userName: 'emilyG', fullName: 'Emily Green', role: 'test' },
+      teacher: { id: 't4', userName: 'wilsonT', fullName: 'Ms. Wilson', role: 'test' },
+      studentCompletedAt: new Date('2024-02-12T14:45:00'),
+      teacherCompletedAt: null
     },
     {
       id: 'q5',
-      templateId: 't105',
-      templateName: 'Geography Quiz',
-      createdAt: new Date('2024-02-13T08:30:00'),
-      updatedAt: new Date(),
-  
-      student: {
-        user: { id: 's5', userName: 'lucasB', fullName: 'Lucas Brown', role: 'test' },
-        answered: false,
-        answeredWhen: null,
-      },
-  
-      teacher: {
-        user: { id: 't5', userName: 'hallT', fullName: 'Mr. Hall', role: 'test' },
-        answered: true,
-        answeredWhen: new Date('2024-02-13T10:00:00'),
-      },
+      title: 'Geography Quiz',
+      activatedAt: new Date('2024-02-13T08:30:00'),
+      student: { id: 's5', userName: 'lucasB', fullName: 'Lucas Brown', role: 'test' },
+      teacher: { id: 't5', userName: 'hallT', fullName: 'Mr. Hall', role: 'test' },
+      studentCompletedAt: null,
+      teacherCompletedAt: new Date('2024-02-13T10:00:00')
     },
     {
       id: 'q6',
-      templateId: 't106',
-      templateName: 'Physics Assessment',
-      createdAt: new Date('2024-02-14T11:10:00'),
-      updatedAt: new Date(),
-  
-      student: {
-        user: { id: 's6', userName: 'sophiaW', fullName: 'Sophia White', role: 'test' },
-        answered: true,
-        answeredWhen: new Date('2024-02-14T11:55:00'),
-      },
-  
-      teacher: {
-        user: { id: 't6', userName: 'jonesT', fullName: 'Dr. Jones', role: 'test' },
-        answered: true,
-        answeredWhen: new Date('2024-02-14T12:15:00'),
-      },
+      title: 'Physics Assessment',
+      activatedAt: new Date('2024-02-14T11:10:00'),
+      student: { id: 's6', userName: 'sophiaW', fullName: 'Sophia White', role: 'test' },
+      teacher: { id: 't6', userName: 'jonesT', fullName: 'Dr. Jones', role: 'test' },
+      studentCompletedAt: new Date('2024-02-14T11:55:00'),
+      teacherCompletedAt: new Date('2024-02-14T12:15:00')
     },
     {
       id: 'q7',
-      templateId: 't107',
-      templateName: 'Chemistry Lab Test',
-      createdAt: new Date('2024-02-15T16:45:00'),
-      updatedAt: new Date(),
-  
-      student: {
-        user: { id: 's7', userName: 'oliverR', fullName: 'Oliver Reynolds', role: 'test' },
-        answered: false,
-        answeredWhen: null,
-      },
-  
-      teacher: {
-        user: { id: 't7', userName: 'smithJ', fullName: 'Mr. Smith', role: 'test' },
-        answered: false,
-        answeredWhen: null,
-      },
-    },
+      title: 'Chemistry Lab Test',
+      activatedAt: new Date('2024-02-15T16:45:00'),
+      student: { id: 's7', userName: 'oliverR', fullName: 'Oliver Reynolds', role: 'test' },
+      teacher: { id: 't7', userName: 'smithJ', fullName: 'Mr. Smith', role: 'test' },
+      studentCompletedAt: null,
+      teacherCompletedAt: null
+    }
   ];
   
 
   constructor() {}
 
   getActiveQuestionnaires(
-    page: number,
     pageSize: number,
-    searchStudent: string = '',
-    searchStudentType: 'fullName' | 'userName' | 'both' = 'both',
-    searchTeacher: string = '',
-    searchTeacherType: 'fullName' | 'userName' | 'both' = 'both'
-  ): Observable<PaginationResponse<QuestionnaireSession>> {
+    queryCursor: string = '',
+    studentSearch: string = '',
+    studentSearchType: 'fullName' | 'userName' | 'both' = 'both',
+    teacherSearch: string = '',
+    teacherSearchType: 'fullName' | 'userName' | 'both' = 'both'
+  ): Observable<ResponseActiveQuestionnaireBase> {
+    // Start with a copy of all active questionnaires.
     let filteredData = [...this.activeQuestionnaires];
 
-    const filterByType = (value: string, search: string, type: 'fullName' | 'userName' | 'both') => {
-      if (type === 'fullName') return value.toLowerCase().includes(search.toLowerCase());
-      if (type === 'userName') return value.toLowerCase().includes(search.toLowerCase());
-      return (
-        value.toLowerCase().includes(search.toLowerCase()) ||
-        value.toLowerCase().includes(search.toLowerCase())
-      );
-    };
-
-    // Apply search filters
-    if (searchStudent.trim()) {
+    // Apply student search filter if provided.
+    if (studentSearch.trim()) {
       filteredData = filteredData.filter(q =>
-        filterByType(q.student.user.fullName, searchStudent, searchStudentType) ||
-        filterByType(q.student.user.userName, searchStudent, searchStudentType)
+        this.filterByType(q.student.fullName, studentSearch, studentSearchType) ||
+        this.filterByType(q.student.userName, studentSearch, studentSearchType)
       );
     }
 
-    if (searchTeacher.trim()) {
+    // Apply teacher search filter if provided.
+    if (teacherSearch.trim()) {
       filteredData = filteredData.filter(q =>
-        filterByType(q.teacher.user.fullName, searchTeacher, searchTeacherType) ||
-        filterByType(q.teacher.user.userName, searchTeacher, searchTeacherType)
+        this.filterByType(q.teacher.fullName, teacherSearch, teacherSearchType) ||
+        this.filterByType(q.teacher.userName, teacherSearch, teacherSearchType)
       );
     }
 
-    // Pagination Logic
-    const totalItems = filteredData.length;
-    const startIndex = (page - 1) * pageSize;
+    // Sort data by activatedAt descending.
+    filteredData.sort((a, b) => b.activatedAt.getTime() - a.activatedAt.getTime());
+
+    // Implement keyset pagination:
+    // If a queryCursor is provided, it should be in the format "activatedAt_ISO_{id}"
+    let startIndex = 0;
+    if (queryCursor.trim()) {
+      // Attempt to find the index of the record that matches the cursor.
+      const [cursorDate, cursorId] = queryCursor.split('_');
+      const cursorTime = new Date(cursorDate).getTime();
+      startIndex = filteredData.findIndex(q => {
+        // We match if activatedAt equals cursorTime and id matches.
+        return q.activatedAt.getTime() === cursorTime && q.id === cursorId;
+      });
+      // If found, start with the next record.
+      if (startIndex !== -1) {
+        startIndex = startIndex + 1;
+      } else {
+        startIndex = 0;
+      }
+    }
+
+    // Slice the data for the given pageSize.
     const paginatedData = filteredData.slice(startIndex, startIndex + pageSize);
 
-    // Return paginated response
-    return of({
-      items: paginatedData,
-      totalItems: totalItems,
-      currentPage: page,
-      pageSize: pageSize,
-      totalPages: Math.ceil(totalItems / pageSize),
-    }).pipe(delay(2000));
+    // Create a new query cursor from the last record (if any).
+    let newQueryCursor = '';
+    if (paginatedData.length > 0) {
+      const lastRecord = paginatedData[paginatedData.length - 1];
+      newQueryCursor = `${lastRecord.activatedAt.toISOString()}_${lastRecord.id}`;
+    }
+
+    // Construct the response object.
+    const response: ResponseActiveQuestionnaireBase = {
+      activeQuestionnaireBase: paginatedData,
+      queryCursor: newQueryCursor,
+      totalCount: filteredData.length,
+    };
+
+    return of(response).pipe(delay(2000));
   }
-  getActiveQuestionnaireById(id: string): Observable<QuestionnaireSession | undefined> {
+
+  private filterByType(value: string, search: string, type: 'fullName' | 'userName' | 'both'): boolean {
+    // For this mock, both cases simply do a case-insensitive search.
+    return value.toLowerCase().includes(search.toLowerCase());
+  }
+
+
+  getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaireBase | undefined> {
     const questionnaire = this.activeQuestionnaires.find(q => q.id === id);
     return of(questionnaire);
   }
 
-  createActiveQuestionnaire(data: { studentId: string; teacherId: string; templateId: string }): Observable<QuestionnaireSession | null> {
+  createActiveQuestionnaire(data: { studentId: string; teacherId: string; templateId: string }): Observable<ActiveQuestionnaire | null> {
     // Find the existing student, teacher, and template
     const student = this.mockUsers.find(user => user.id === data.studentId && user.role === 'student');
     const teacher = this.mockUsers.find(user => user.id === data.teacherId && user.role === 'teacher');
@@ -243,36 +200,30 @@ private mockUsers: User[] = [
       return of(null);
     }
 
-    const newQuestionnaire: QuestionnaireSession = {
+    const newQuestionnaire: ActiveQuestionnaire = {
       id: `q${this.activeQuestionnaires.length + 1}`,
-      templateId: template?.id ?? 'unknown',
-      templateName: template.templateTitle,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      student: {
-        user: student,
-        answered: false,
-        answeredWhen: null,
-      },
-      teacher: {
-        user: teacher,
-        answered: false,
-        answeredWhen: null,
-      },
+      title: template?.templateTitle ?? 'unknown',
+      activatedAt: new Date(),
+      student: student,
+      teacher: teacher,
+      studentCompletedAt: null,
+      teacherCompletedAt: null,
     };
+    
 
     this.activeQuestionnaires.push(newQuestionnaire);
     return of(newQuestionnaire);
   }
 
-  updateActiveQuestionnaire(id: string, data: Partial<QuestionnaireSession>): Observable<QuestionnaireSession | undefined> {
+  updateActiveQuestionnaire(id: string, data: Partial<ActiveQuestionnaire>): Observable<ActiveQuestionnaireBase | undefined> {
     const index = this.activeQuestionnaires.findIndex(q => q.id === id);
     if (index !== -1) {
-      this.activeQuestionnaires[index] = { ...this.activeQuestionnaires[index], ...data, updatedAt: new Date() };
+      this.activeQuestionnaires[index] = { ...this.activeQuestionnaires[index], ...data };
       return of(this.activeQuestionnaires[index]);
     }
     return of(undefined);
   }
+  
 
   deleteActiveQuestionnaire(id: string): Observable<boolean> {
     const index = this.activeQuestionnaires.findIndex(q => q.id === id);

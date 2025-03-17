@@ -24,6 +24,10 @@ export interface Answer {
   customAnswer?: string; // The custom answer provided by the user (if any)
 }
 
+export interface AnswerSubmission{
+  answers: Answer[]
+}
+
 export interface QuestionnaireState {
   template: Questionnaire;
   currentQuestionIndex: number;

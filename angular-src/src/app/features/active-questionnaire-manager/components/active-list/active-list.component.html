@@ -83,7 +83,7 @@
       <li *ngFor="let questionnaire of activeQuestionnaires"
         class="p-5 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 border border-gray-200">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- ID, Template & Created At - Now in one row -->
+          <!-- ID, Title & Activated At - Now in one row -->
           <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_3fr_2fr] gap-4">
             <!-- Questionnaire ID -->
             <div class="bg-white p-4 rounded-lg shadow-sm border">
@@ -91,50 +91,54 @@
               <p class="text-sm text-gray-600">{{ questionnaire.id }}</p>
             </div>
 
-            <!-- Template Name -->
+            <!-- Title -->
             <div class="bg-white p-4 rounded-lg shadow-sm border">
-              <strong class="text-gray-800">Template:</strong>
-              <p class="text-sm text-gray-600">{{ questionnaire.templateName }}</p>
+              <strong class="text-gray-800">Title:</strong>
+              <p class="text-sm text-gray-600">{{ questionnaire.title }}</p>
             </div>
 
-            <!-- Created At -->
+            <!-- Activated At -->
             <div class="bg-white p-4 rounded-lg shadow-sm border">
-              <strong class="text-gray-800">Created At:</strong>
-              <p class="text-sm text-gray-600">{{ questionnaire.createdAt | date:'short' }}</p>
+              <strong class="text-gray-800">Activated At:</strong>
+              <p class="text-sm text-gray-600">{{ questionnaire.activatedAt | date:'short' }}</p>
             </div>
           </div>
 
           <!-- Student & Teacher Info -->
           <div class="bg-white p-4 rounded-lg shadow-sm border">
             <strong class="text-gray-800">Student:</strong>
-            <p class="text-sm text-gray-600">{{ questionnaire.student.user.fullName }} ({{ questionnaire.student.user.userName }})</p>
+            <p class="text-sm text-gray-600">
+              {{ questionnaire.student.fullName }} ({{ questionnaire.student.userName }})
+            </p>
           </div>
 
           <div class="bg-white p-4 rounded-lg shadow-sm border">
             <strong class="text-gray-800">Teacher:</strong>
-            <p class="text-sm text-gray-600">{{ questionnaire.teacher.user.fullName }} ({{ questionnaire.teacher.user.userName }})</p>
+            <p class="text-sm text-gray-600">
+              {{ questionnaire.teacher.fullName }} ({{ questionnaire.teacher.userName }})
+            </p>
           </div>
 
-          <!-- Completion Status & Answered When -->
+          <!-- Completion Status & Completion Dates -->
           <div class="bg-white p-4 rounded-lg shadow-sm border">
             <strong class="text-gray-800">Student Completed:</strong>
             <p class="text-sm font-semibold"
-              [ngClass]="{'text-red-500': !questionnaire.student.answered, 'text-green-500': questionnaire.student.answered}">
-              {{ questionnaire.student.answered ? "Completed" : "Not completed" }}
+              [ngClass]="{'text-red-500': !questionnaire.studentCompletedAt, 'text-green-500': questionnaire.studentCompletedAt}">
+              {{ questionnaire.studentCompletedAt ? "Completed" : "Not completed" }}
             </p>
-            <p *ngIf="questionnaire.student.answeredWhen" class="text-xs text-gray-500">
-              {{ questionnaire.student.answeredWhen | date:'short' }}
+            <p *ngIf="questionnaire.studentCompletedAt" class="text-xs text-gray-500">
+              {{ questionnaire.studentCompletedAt | date:'short' }}
             </p>
           </div>
 
           <div class="bg-white p-4 rounded-lg shadow-sm border">
             <strong class="text-gray-800">Teacher Completed:</strong>
             <p class="text-sm font-semibold"
-              [ngClass]="{'text-red-500': !questionnaire.teacher.answered, 'text-green-500': questionnaire.teacher.answered}">
-              {{ questionnaire.teacher.answered ? "Completed" : "Not completed" }}
+              [ngClass]="{'text-red-500': !questionnaire.teacherCompletedAt, 'text-green-500': questionnaire.teacherCompletedAt}">
+              {{ questionnaire.teacherCompletedAt ? "Completed" : "Not completed" }}
             </p>
-            <p *ngIf="questionnaire.teacher.answeredWhen" class="text-xs text-gray-500">
-              {{ questionnaire.teacher.answeredWhen | date:'short' }}
+            <p *ngIf="questionnaire.teacherCompletedAt" class="text-xs text-gray-500">
+              {{ questionnaire.teacherCompletedAt | date:'short' }}
             </p>
           </div>
         </div>

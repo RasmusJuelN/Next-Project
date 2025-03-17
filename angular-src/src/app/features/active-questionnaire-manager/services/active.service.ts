@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
-import { QuestionnaireSession, Template } from '../models/active.models';
+import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, Template } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
@@ -11,19 +11,19 @@ import { User } from '../../../shared/models/user.model';
   providedIn: 'root',
 })
 export class ActiveService {
-  private apiUrl = `${environment.apiUrl}/active-questionnaires`;
+  private apiUrl = `${environment.apiUrl}/active-questionnaire`;
   private apiService = inject(ApiService);
 
   constructor() {}
 
-  getActiveQuestionnaires(
+  testgetActiveQuestionnaires(
     page: number,
     pageSize: number,
     searchStudent: string = '',
     searchStudentType: 'fullName' | 'userName' | 'both' = 'both',
     searchTeacher: string = '',
     searchTeacherType: 'fullName' | 'userName' | 'both' = 'both'
-  ): Observable<PaginationResponse<QuestionnaireSession>> {
+  ): Observable<PaginationResponse<ActiveQuestionnaire>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
@@ -54,19 +54,49 @@ export class ActiveService {
       }
     }
   
-    return this.apiService.get<PaginationResponse<QuestionnaireSession>>(this.apiUrl, params);
+    return this.apiService.get<PaginationResponse<ActiveQuestionnaire>>(this.apiUrl, params);
   }
 
-  createActiveQuestionnaire(data: { studentId: string; teacherId: string; templateId: string }): Observable<QuestionnaireSession> {
-    return this.apiService.post<QuestionnaireSession>(this.apiUrl, data);
+  getActiveQuestionnaires(
+    pageSize: number,
+    queryCursor: string = '',
+    studentSearch: string = '',
+    studentSearchType: 'fullName' | 'userName' | 'both' = 'both',
+    teacherSearch: string = '',
+    teacherSearchType: 'fullName' | 'userName' | 'both' = 'both'
+  ): Observable<ResponseActiveQuestionnaireBase> {
+    let params = new HttpParams().set('PageSize', pageSize.toString());
+  
+    if (queryCursor.trim() !== '') {
+      params = params.set('QueryCursor', queryCursor);
+    }
+  
+    if (studentSearch.trim() !== '') {
+      params = params.set('StudentSearch', studentSearch);
+      params = params.set('StudentSearchType', studentSearchType);
+    }
+  
+    if (teacherSearch.trim() !== '') {
+      params = params.set('TeacherSearch', teacherSearch);
+      params = params.set('TeacherSearchType', teacherSearchType);
+    }
+  
+    return this.apiService.get<ResponseActiveQuestionnaireBase>(this.apiUrl, params);
+  }
+  
+  
+
+
+  createActiveQuestionnaire(aq: { studentId: string; teacherId: string; templateId: string }): Observable<ActiveQuestionnaire> {
+    const formData = new FormData();
+    formData.append('StudentId', aq.studentId);
+    formData.append('TeacherId', aq.teacherId);
+    formData.append('TemplateId', aq.templateId);
+    return this.apiService.post<ActiveQuestionnaire>(`${this.apiUrl}/activate`, formData);
   }
 
-  getActiveQuestionnaireById(id: string): Observable<QuestionnaireSession> {
-    return this.apiService.get<QuestionnaireSession>(`${this.apiUrl}/${id}`);
-  }
-
-  deleteActiveQuestionnaire(id: string): Observable<void> {
-    return this.apiService.delete<void>(`${this.apiUrl}/${id}`);
+  getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire> {
+    return this.apiService.get<ActiveQuestionnaire>(`${this.apiUrl}/${id}`);
   }
 
   searchUsers(term: string, role: 'student' | 'teacher', page: number): Observable<PaginationResponse<User>> {

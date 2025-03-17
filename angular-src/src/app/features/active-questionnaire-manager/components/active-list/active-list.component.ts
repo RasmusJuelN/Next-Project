@@ -3,7 +3,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
-import { QuestionnaireSession } from '../../models/active.models';
+import { ActiveQuestionnaire, ActiveQuestionnaireBase } from '../../models/active.models';
 import { PageChangeEvent, PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../../../shared/loading/loading.component';
 
@@ -21,9 +21,10 @@ export class ActiveListComponent implements OnInit {
   pageSize: number = 5;
   currentPage: number = 1;
   totalItems: number = 0;
-  totalPages: number = 0; // Now we store the API-provided total pages
+  totalPages: number = 0;
+  queryCursor: string = '';
 
-  // Instead of computing total pages from totalItems, we use the API value.
+  // Instead of computing total pages from totalItems, we use the API value (or compute it)
   get computedTotalPages(): number {
     return this.totalPages;
   }
@@ -43,7 +44,7 @@ export class ActiveListComponent implements OnInit {
   @Output() createNewQuestionnaireEvent = new EventEmitter<void>();
 
   // Data list
-  activeQuestionnaires: QuestionnaireSession[] = [];
+  activeQuestionnaires: ActiveQuestionnaireBase[] = [];
 
   // Debounced search subject
   private searchSubject = new Subject<{
@@ -62,7 +63,9 @@ export class ActiveListComponent implements OnInit {
         this.searchStudentType = studentType as 'fullName' | 'userName' | 'both';
         this.searchTeacher = teacher;
         this.searchTeacherType = teacherType as 'fullName' | 'userName' | 'both';
-        this.currentPage = 1; // Reset page on new search
+        // Reset pagination cursor and page on new search
+        this.currentPage = 1;
+        this.queryCursor = '';
         this.fetchActiveQuestionnaires();
       });
 
@@ -112,15 +115,17 @@ export class ActiveListComponent implements OnInit {
     const newPage = event.page;
     if (newPage > 0 && newPage <= this.totalPages) {
       this.currentPage = newPage;
+      // For cursor-based pagination, you might need to store a mapping of page numbers to cursors.
+      // Here we assume that moving to a different page resets the cursor.
       this.fetchActiveQuestionnaires();
     }
   }
   
-
   // --- Page Size Change ---
   onPageSizeChange(value: number): void {
     this.pageSize = value;
     this.currentPage = 1; // Reset to the first page when page size changes
+    this.queryCursor = '';
     this.fetchActiveQuestionnaires();
   }
 
@@ -131,8 +136,8 @@ export class ActiveListComponent implements OnInit {
 
     this.activeService
       .getActiveQuestionnaires(
-        this.currentPage,
         this.pageSize,
+        this.queryCursor,
         this.searchStudent,
         this.searchStudentType,
         this.searchTeacher,
@@ -140,9 +145,13 @@ export class ActiveListComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          this.activeQuestionnaires = response.items;
-          this.totalItems = response.totalItems;
-          this.totalPages = response.totalPages; // Use the API value here
+          // Note: updated interface returns 'templateBases' instead of the previous property name
+          this.activeQuestionnaires = response.activeQuestionnaireBase;
+          // Update the query cursor from the API response (if provided)
+          this.queryCursor = response.queryCursor || '';
+          this.totalItems = response.totalCount;
+          // Compute total pages from total count and page size
+          this.totalPages = Math.ceil(response.totalCount / this.pageSize);
           this.isLoading = false;
         },
         error: (err) => {

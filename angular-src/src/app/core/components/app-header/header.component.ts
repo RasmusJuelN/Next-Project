@@ -29,12 +29,13 @@ export class HeaderComponent {
   navLinks: Record<Role, { name: string; route: string }[]> = {
     [Role.Student]: [],
     [Role.Teacher]: [
-      { name: 'Overview', route: '/hub' },
+      //{ name: 'Overview', route: '/hub' },
       { name: 'Teacher dashboard', route: '/teacher-dashboard' }
     ],
     [Role.Admin]: [
-      { name: 'Overview', route: '/hub' },
-      { name: 'Templates', route: '/templates' },
+      //{ name: 'Overview', route: '/hub' },
+      { name: 'Questionnaire Templates', route: '/templates' },
+      { name: 'Assign Questionnaire', route: '/active-questionnaire' },
       { name: 'Settings', route: '/settings' },
     ],
   };
