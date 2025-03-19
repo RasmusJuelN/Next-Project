@@ -17,6 +17,8 @@ public interface IActiveQuestionnaireRepository
         DateTime? cursorActivatedAtPosition,
         ActiveQuestionnaireOrderingOptions sortOrder,
         string? titleQuery,
+        string? student,
+        string? teacher,
         Guid? idQuery);
     Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission);
 }

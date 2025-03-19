@@ -62,6 +62,8 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         DateTime? cursorActivatedAtPosition,
         ActiveQuestionnaireOrderingOptions sortOrder,
         string? titleQuery,
+        string? student,
+        string? teacher,
         Guid? idQuery)
     {
         IQueryable<ActiveQuestionnaireModel> query = _genericRepository.GetAsQueryable();
@@ -75,6 +77,16 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         if (idQuery is not null)
         {
             query = query.Where(q => q.Id.ToString().Contains(idQuery.ToString()!));
+        }
+
+        if (!string.IsNullOrEmpty(student))
+        {
+            query = query.Where(q => q.Student.FullName.Contains(student) || q.Student.UserName.Contains(student));
+        }
+
+        if (!string.IsNullOrEmpty(teacher))
+        {
+            query = query.Where(q => q.Teacher.FullName.Contains(teacher) || q.Teacher.UserName.Contains(teacher));
         }
 
         int totalCount = await query.CountAsync();
