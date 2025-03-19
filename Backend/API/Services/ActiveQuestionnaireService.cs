@@ -34,6 +34,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
             cursorActivatedAt,
             request.Order,
             request.Title,
+            request.Student,
+            request.Teacher,
             request.Id
         );
 

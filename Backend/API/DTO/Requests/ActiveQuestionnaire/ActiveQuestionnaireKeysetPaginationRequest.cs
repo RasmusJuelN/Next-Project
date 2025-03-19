@@ -22,6 +22,10 @@ public record class ActiveQuestionnaireKeysetPaginationRequest
     /// </summary>
     public string? Title { get; set; }
 
+    public string? Teacher { get; set; }
+    
+    public string? Student { get; set; }
+
     /// <summary>
     /// The ID of the exact template. Partial search is not supported.
     /// </summary>
