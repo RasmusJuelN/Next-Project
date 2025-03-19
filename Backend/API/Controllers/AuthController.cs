@@ -100,7 +100,7 @@ namespace API.Controllers
                 {
                     Guid = userGuid,
                     Username = userLogin.Username,
-                    Name = ldapUser.DisplayName.StringValue,
+                    Name = ldapUser.Name.StringValue,
                     Role = userRole,
                     Permissions = (int)permissions
                 };

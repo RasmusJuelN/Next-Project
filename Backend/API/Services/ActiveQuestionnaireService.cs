@@ -104,7 +104,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         {
             Guid = id,
             UserName = ldapStudent.Username.StringValue,
-            FullName = ldapStudent.DisplayName.StringValue,
+            FullName = ldapStudent.Name.StringValue,
             PrimaryRole = (UserRoles)Enum.Parse(typeof(UserRoles), studentRole, true),
             Permissions = (UserPermissions)Enum.Parse(typeof(UserPermissions), studentRole, true)
         };
@@ -119,7 +119,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         {
             Guid = id,
             UserName = ldapTeacher.Username.StringValue,
-            FullName = ldapTeacher.DisplayName.StringValue,
+            FullName = ldapTeacher.Name.StringValue,
             PrimaryRole = (UserRoles)Enum.Parse(typeof(UserRoles), teacherRole, true),
             Permissions = (UserPermissions)Enum.Parse(typeof(UserPermissions), teacherRole, true)
         };
