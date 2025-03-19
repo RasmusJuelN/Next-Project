@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
 using Database.Interfaces;
 using API.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 
 const string settingsFile = "config.json";
 
@@ -47,6 +48,9 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<QuestionnaireTemplateService>();
 builder.Services.AddScoped<ActiveQuestionnaireService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddSingleton<LdapSessionCacheService>();
+builder.Services.AddMemoryCache();
 builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -5,8 +5,6 @@ using API.DTO.LDAP;
 using API.Services;
 using API.Utils;
 using Database.Enums;
-using Database.Interfaces;
-using Database.Models;
 using Logging.LogEvents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -102,7 +100,7 @@ namespace API.Controllers
                 {
                     Guid = userGuid,
                     Username = userLogin.Username,
-                    Name = ldapUser.DisplayName.StringValue,
+                    Name = ldapUser.Name.StringValue,
                     Role = userRole,
                     Permissions = (int)permissions
                 };

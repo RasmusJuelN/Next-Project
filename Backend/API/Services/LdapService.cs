@@ -4,20 +4,25 @@ using Novell.Directory.Ldap.Sasl;
 using API.Exceptions;
 using System.Reflection;
 using API.Attributes;
+using Novell.Directory.Ldap.Controls;
+using API.DTO.LDAP;
+using System.Net;
 
 namespace API.Services;
 
 public class LdapService
 {
     private readonly LDAPSettings _LDAPSettings;
+    private readonly LdapSessionCacheService _ldapSessionCache;
     public LdapConnection connection = new();
 
-    public LdapService(IConfiguration configuration)
+    public LdapService(IConfiguration configuration, LdapSessionCacheService ldapSessionCache)
     {
         _LDAPSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
         LdapSearchConstraints constraints = connection.SearchConstraints;
         constraints.ReferralFollowing = true;
         connection.Constraints = constraints;
+        _ldapSessionCache = ldapSessionCache;
     }
 
     /// <summary>
@@ -30,6 +35,57 @@ public class LdapService
     /// <exception cref="LDAPException">Thrown if an unknown LDAP error occurs.</exception>
     public void Authenticate(string username, string password)
     {
+        try
+        {
+            connection.Connect(_LDAPSettings.Host, _LDAPSettings.Port);
+
+            if (connection.IsSaslMechanismSupported(SaslConstants.Mechanism.DigestMd5))
+            {
+                WithSASL(username, password);
+            }
+            else WithSimple(username, password);
+        }
+        catch (LdapException e)
+        {
+            // https://ldap.com/ldap-result-code-reference/
+
+            while (e is not null)
+            {
+                // TODO: Create custom exceptions and/or look into better way of handling the various LDAP errors that may occur
+                if (e.ResultCode == 91)
+                {
+                    throw new LDAPException.ConnectionError();
+                }
+                else if (e.ResultCode == 49)
+                {
+                    throw new LDAPException.InvalidCredentials();
+                }
+                else
+                {
+                    if (e.InnerException is LdapException ldapException)
+                    {
+                        e = ldapException;
+                    }
+                    else throw;
+                }
+            }
+            
+        }
+    }
+
+    /// <summary>
+    /// Authenticates using the service account and password specified in the configuration file
+    /// </summary>
+    /// <param name="username">The username of the user to authenticate.</param>
+    /// <param name="password">The password of the user to authenticate.</param>
+    /// <exception cref="LDAPException.ConnectionError">Thrown if there is an error connecting to the LDAP server.</exception>
+    /// <exception cref="LDAPException.InvalidCredentials">Thrown if the provided credentials are invalid.</exception>
+    /// <exception cref="LDAPException">Thrown if an unknown LDAP error occurs.</exception>
+    public void Authenticate()
+    {
+        string username = _LDAPSettings.SA;
+        string password = _LDAPSettings.SAPassword;
+
         try
         {
             connection.Connect(_LDAPSettings.Host, _LDAPSettings.Port);
@@ -166,6 +222,87 @@ public class LdapService
         connection.Dispose();
     }
 
+    public TLdapGroup SearchGroup<TLdapGroup>(string groupName) where TLdapGroup : new()
+    {
+        string searchFilter = $"(&(objectCategory=group)(cn={EscapeLDAPSearchFilter(groupName)}))";
+        TLdapGroup ldapGroup = SearchLDAP<TLdapGroup>(searchFilter, _LDAPSettings.BaseDN).First();
+
+        return ldapGroup;
+    }
+
+    public (List<TLdapUser>, string, bool) SearchUserPagination<TLdapUser>(string username, string? userRole, int pageSize, string? sessionId) where TLdapUser : new()
+    {
+        byte[]? cookie;
+        SessionData? sessionData = null;
+        if (sessionId is not null)
+        {
+            sessionData = _ldapSessionCache.GetSession(sessionId);
+            if (sessionData is null)
+            {
+                throw new HttpResponseException(HttpStatusCode.Gone, "Session ID is no longer valid. Please restart the pagination.");
+            }
+        }
+        else
+        {
+            sessionId = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        }
+        
+        if (sessionData is not null)
+        {
+            connection = sessionData.Connection;
+            cookie = sessionData.Cookie;
+        }
+        else
+        {
+            Authenticate();
+            cookie = null;
+        }
+
+        LdapSearchConstraints constraints = new();
+        constraints.SetControls(
+        [
+            new SimplePagedResultsControl(pageSize, cookie)
+        ]);
+
+        string escapedUsername = EscapeLDAPSearchFilter(username);
+
+        string searchFilter = $"(|(userPrincipalName=*{escapedUsername}*)(sAMAccountName=*{escapedUsername}*)(name=*{escapedUsername}*))";
+        if (userRole is not null)
+        {
+            GroupDistinguishedName group = SearchGroup<GroupDistinguishedName>(userRole);
+            searchFilter = $"(&{searchFilter}(memberOf={group.DistinguishedName.StringValue}))";
+        }
+
+        ILdapSearchResults searchResult = connection.Search(
+            _LDAPSettings.BaseDN,
+            LdapConnection.ScopeSub,
+            searchFilter,
+            GetQueryAttributes<TLdapUser>(),
+            false,
+            constraints
+        );
+
+        List<TLdapUser> ldapUsers = [];
+
+        while (searchResult.HasMore())
+        {
+            LdapEntry entry = searchResult.Next();
+            ldapUsers.Add(MapLdapEntry<TLdapUser>(entry));
+        }
+
+        foreach (LdapControl control in searchResult?.ResponseControls ?? [])
+        {
+            if (control is SimplePagedResultsControl response)
+            {
+                cookie = response.Cookie;
+            }
+        }
+
+        _ldapSessionCache.StoreSession(sessionId, connection, cookie);
+
+        return (ldapUsers, sessionId, cookie is not null && cookie.Length > 0);
+    }
+
     /// <summary>
     /// Escapes special characters in an LDAP search filter.
     /// </summary>
@@ -252,5 +389,4 @@ public class LdapService
         // and sAMAccountName (domain\username) also works.
         connection.Bind(username, password);
     }
-
 }
