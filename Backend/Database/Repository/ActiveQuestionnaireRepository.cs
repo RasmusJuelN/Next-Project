@@ -34,8 +34,8 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         Guid studentId,
         Guid teacherId)
     {
-        StudentModel student = await _context.Users.OfType<StudentModel>().SingleAsync(u => u.Guid == studentId);
-        TeacherModel teacher = await _context.Users.OfType<TeacherModel>().SingleAsync(u => u.Guid == teacherId);
+        StudentModel student = _context.Users.Local.OfType<StudentModel>().Single(u => u.Guid == studentId);
+        TeacherModel teacher = _context.Users.Local.OfType<TeacherModel>().Single(u => u.Guid == teacherId);
 
         QuestionnaireTemplateModel questionnaireTemplate = await _context.QuestionnaireTemplates
             .Include(t => t.Questions)
