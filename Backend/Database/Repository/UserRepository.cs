@@ -32,10 +32,11 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
 
     public async Task<Guid?> GetIdOfOldestActiveQuestionnaire(Guid id)
     {
-        UserBaseModel user = await _genericRepository.GetSingleAsync(u => u.Guid == id, query => query.Include(u => (u as StudentModel).ActiveQuestionnaires))
-            ?? throw new Exception("User not found");
-
-        return user.ActiveQuestionnaires.OrderBy(a => a.ActivatedAt).Select(a => a.Id).FirstOrDefault();
+        return await _context.ActiveQuestionnaires
+            .Where(a => a.Student.Guid == id || a.Teacher.Guid == id)
+            .OrderBy(a => a.ActivatedAt)
+            .Select(a => (Guid?)a.Id)
+            .FirstOrDefaultAsync();
     }
 
     public bool UserExists(Guid id)
