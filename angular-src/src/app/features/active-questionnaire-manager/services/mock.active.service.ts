@@ -169,7 +169,7 @@ private mockUsers: User[] = [
 
     // Construct the response object.
     const response: ResponseActiveQuestionnaireBase = {
-      activeQuestionnaireBase: paginatedData,
+      activeQuestionnaireBases: paginatedData,
       queryCursor: newQueryCursor,
       totalCount: filteredData.length,
     };

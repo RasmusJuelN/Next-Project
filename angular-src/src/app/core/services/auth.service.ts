@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, catchError, interval, map, of, switchMap, takeUntil, tap, timer } from 'rxjs';
+import { BehaviorSubject, catchError, interval, map, of, switchMap, takeUntil, tap, timer,firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -29,10 +29,6 @@ export class AuthService {
    */
   private retryInterval = 5000;
   private retrySubscription: any;
-
-  constructor() {
-    this.initializeAuthState();
-  }
 
   public login(userName: string, password: string) {
     const url = `${this.baseUrl}/Auth`;
@@ -75,31 +71,32 @@ export class AuthService {
    * 2) If valid, tries server connectivity
    * 3) If server is offline, attempts to retry instead of immediate logout
    */
-  private initializeAuthState(): void {
+  public initializeAuthState(): Promise<boolean> {
     const tokenExists = this.tokenService.tokenExists();
     const tokenValid = !this.tokenService.isTokenExpired();
-
-    // If no local token or it's expired -> treat as logged out
+  
     if (!tokenExists || !tokenValid) {
       this.logout();
-      return;
+      return Promise.resolve(false);
     }
-
-    // If we have a valid token, do an initial connectivity check
-    this.checkServerConnection().subscribe((serverIsOnline) => {
-      if (serverIsOnline) {
-        // If server is reachable, mark user as authenticated
-        this.isOnlineSubject.next(true);
-        this.isAuthenticatedSubject.next(true);
-        this.userRoleSubject.next(this.getUserRole());
-      } else {
-        // Server offline - set isOnline to false but do NOT logout
-        this.isOnlineSubject.next(false);
-        // Start retry mechanism
-        this.startRetryingConnection();
-      }
-    });
+  
+    return firstValueFrom(
+      this.checkServerConnection().pipe(
+        tap((serverIsOnline) => {
+          if (serverIsOnline) {
+            this.isOnlineSubject.next(true);
+            this.isAuthenticatedSubject.next(true);
+            this.userRoleSubject.next(this.getUserRole());
+          } else {
+            this.isOnlineSubject.next(false);
+            // Start retrying connectivity if needed
+            this.startRetryingConnection();
+          }
+        })
+      )
+    );
   }
+
 
   /**
    * Performs a simple server "ping" to confirm connectivity.

@@ -48,7 +48,27 @@ export interface ActiveQuestionnaire {
 
 
     export interface ResponseActiveQuestionnaireBase {
-      activeQuestionnaireBase: ActiveQuestionnaireBase[];
+      activeQuestionnaireBases: ActiveQuestionnaireBase[];
+      queryCursor?: string; // Cursor for next items.
+      totalCount: number;
+    }
+
+    export interface UserPaginationResult {
+      userBases: User[];
+      sessionId: string;
+      hasMore: boolean;
+    }
+
+    export interface TemplateBase {
+      id: string;
+      title: string;
+      createdAt: string;
+      lastUpdated: string;
+      isLocked: boolean;
+    }
+    
+    export interface TemplateBaseResponse {
+      templateBases: TemplateBase[];
       queryCursor?: string; // Cursor for next items.
       totalCount: number;
     }

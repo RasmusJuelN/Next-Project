@@ -4,9 +4,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
-import { PaginationResponse } from '../../../../shared/models/Pagination.model';
 import { SearchEntity } from '../../models/searchEntity.model';
-import { Template } from '../../models/active.models';
+import { Template, TemplateBase } from '../../models/active.models';
+
+// Extend the SearchEntity type for users to include sessionId and hasMore
+interface UserSearchEntity<T> extends SearchEntity<T> {
+  sessionId?: string;
+  hasMore?: boolean;
+}
+
+// Extend the Template state to include a queryCursor (not used now, but kept for structure)
+interface TemplateSearchEntity extends SearchEntity<TemplateBase> {
+  queryCursor?: string;
+}
 
 type SearchType = 'student' | 'teacher' | 'template';
 
@@ -20,7 +30,7 @@ type SearchType = 'student' | 'teacher' | 'template';
 export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
 
-  public student: SearchEntity<User> = {
+  public student: UserSearchEntity<User> = {
     selected: null,
     searchInput: '',
     searchResults: [],
@@ -28,10 +38,12 @@ export class ActiveBuilderComponent implements OnInit {
     totalPages: 1,
     isLoading: false,
     errorMessage: null,
-    searchSubject: new Subject<string>()
+    searchSubject: new Subject<string>(),
+    sessionId: undefined,
+    hasMore: false
   };
 
-  public teacher: SearchEntity<User> = {
+  public teacher: UserSearchEntity<User> = {
     selected: null,
     searchInput: '',
     searchResults: [],
@@ -39,10 +51,12 @@ export class ActiveBuilderComponent implements OnInit {
     totalPages: 1,
     isLoading: false,
     errorMessage: null,
-    searchSubject: new Subject<string>()
+    searchSubject: new Subject<string>(),
+    sessionId: undefined,
+    hasMore: false
   };
 
-  public template: SearchEntity<Template> = {
+  public template: TemplateSearchEntity = {
     selected: null,
     searchInput: '',
     searchResults: [],
@@ -50,13 +64,17 @@ export class ActiveBuilderComponent implements OnInit {
     totalPages: 1,
     isLoading: false,
     errorMessage: null,
-    searchSubject: new Subject<string>()
+    searchSubject: new Subject<string>(),
+    queryCursor: undefined
   };
+
+  // Set the page size (10 results per search)
+  searchAmount = 10;
 
   @Output() backToListEvent = new EventEmitter<void>();
 
   ngOnInit(): void {
-    // Subscribe to the debounced search subjects for each entity.
+    // Subscribe to debounced search subjects.
     this.student.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((term) => {
@@ -76,7 +94,7 @@ export class ActiveBuilderComponent implements OnInit {
       });
   }
 
-  // Helper Method that gets object based on string
+  // Returns the proper state based on the entity.
   private getState(entity: SearchType): SearchEntity<any> {
     if (entity === 'student') {
       return this.student;
@@ -88,25 +106,30 @@ export class ActiveBuilderComponent implements OnInit {
     throw new Error(`Unknown entity: ${entity}`);
   }
 
-  private fetch(entity: SearchType, term: string, isLoadMore: boolean = false): void {
-    // Gets a specic search state
+  // Updated fetch method that always resets the search results and uses a constant page size.
+  private fetch(entity: SearchType, term: string): void {
     const state = this.getState(entity);
     if (!term.trim()) return;
-    if (!isLoadMore) {
-      state.page = 1;
-      state.searchResults = [];
+
+    // Always treat this as a new search.
+    state.page = 1;
+    state.searchResults = [];
+    if (entity !== 'template') {
+      (state as UserSearchEntity<User>).sessionId = undefined;
+    } else {
+      (state as TemplateSearchEntity).queryCursor = undefined;
     }
     state.isLoading = true;
     state.errorMessage = null;
 
     if (entity === 'template') {
-      this.activeService.searchTemplates(term, state.page).subscribe({
-        next: (response: PaginationResponse<Template>) => {
-          //
-          state.searchResults = isLoadMore
-            ? [...state.searchResults, ...response.items]
-            : response.items;
-          state.totalPages = response.totalPages;
+      // For templates, pass the fixed searchAmount. (Assumes activeService.searchTemplates is updated accordingly.)
+      const templateState = state as TemplateSearchEntity;
+      this.activeService.searchTemplates(term, templateState.queryCursor).subscribe({
+        next: (response) => {
+          templateState.searchResults = response.templateBases;
+          // Disable load-more functionality by setting totalPages to 1.
+          templateState.totalPages = 1;
           state.isLoading = false;
         },
         error: () => {
@@ -115,12 +138,15 @@ export class ActiveBuilderComponent implements OnInit {
         }
       });
     } else {
-      this.activeService.searchUsers(term, entity, state.page).subscribe({
-        next: (response: PaginationResponse<User>) => {
-          state.searchResults = isLoadMore
-            ? [...state.searchResults, ...response.items]
-            : response.items;
-          state.totalPages = response.totalPages;
+      const userState = state as UserSearchEntity<User>;
+      // Use searchAmount (10) as the number of results.
+      this.activeService.searchUsers(term, entity, this.searchAmount, userState.sessionId).subscribe({
+        next: (response) => {
+          const userBases = response.userBases || [];
+          userState.searchResults = userBases;
+          userState.sessionId = response.sessionId;
+          // Remove ability to load more.
+          userState.hasMore = false;
           state.isLoading = false;
         },
         error: () => {
@@ -128,14 +154,6 @@ export class ActiveBuilderComponent implements OnInit {
           state.isLoading = false;
         }
       });
-    }
-  }
-
-  loadMore(entity: SearchType): void {
-    const state = this.getState(entity);
-    if (state.page < state.totalPages) {
-      state.page++;
-      this.fetch(entity, state.searchInput, true);
     }
   }
 
@@ -148,33 +166,37 @@ export class ActiveBuilderComponent implements OnInit {
   select(entity: SearchType, item: any): void {
     const state = this.getState(entity);
     state.selected = item;
-    state.searchInput = ''; // Clear the input field
-    state.searchResults = []; // Reset the search results
+    state.searchInput = ''; // Clear input.
+    state.searchResults = []; // Clear search results.
   }
 
   clearSelected(entity: SearchType): void {
     const state = this.getState(entity);
     state.selected = null;
   }
+
   createActiveQuestionnaire(): void {
-    // Ensure everything that needs to be selected is present.
-    if (!this.student.selected || !this.teacher.selected || !this.template.selected || !this.template.selected.id) {
+    if (
+      !this.student.selected ||
+      !this.teacher.selected ||
+      !this.template.selected ||
+      !this.template.selected.id
+    ) {
       console.error('Missing required selections for Active Questionnaire.');
       return;
     }
-  
+
     const newQuestionnaire = {
       studentId: this.student.selected.id,
       teacherId: this.teacher.selected.id,
       templateId: this.template.selected.id,
     };
-  
+
     this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
       alert('Active Questionnaire Created Successfully!');
       this.backToListEvent.emit();
     });
   }
-  
 
   onBackToList(): void {
     this.backToListEvent.emit();

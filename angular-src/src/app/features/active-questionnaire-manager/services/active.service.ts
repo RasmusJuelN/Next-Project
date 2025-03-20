@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
-import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, Template } from '../models/active.models';
+import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, Template, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
@@ -72,18 +72,15 @@ export class ActiveService {
     }
   
     if (studentSearch.trim() !== '') {
-      params = params.set('StudentSearch', studentSearch);
-      params = params.set('StudentSearchType', studentSearchType);
+      params = params.set('Student', studentSearch);
     }
   
     if (teacherSearch.trim() !== '') {
-      params = params.set('TeacherSearch', teacherSearch);
-      params = params.set('TeacherSearchType', teacherSearchType);
+      params = params.set('Teacher', teacherSearch);
     }
   
     return this.apiService.get<ResponseActiveQuestionnaireBase>(this.apiUrl, params);
   }
-  
   
 
 
@@ -99,18 +96,38 @@ export class ActiveService {
     return this.apiService.get<ActiveQuestionnaire>(`${this.apiUrl}/${id}`);
   }
 
-  searchUsers(term: string, role: 'student' | 'teacher', page: number): Observable<PaginationResponse<User>> {
+  searchUsers(
+    term: string,
+    role: 'student' | 'teacher',
+    pageSize: number,
+    sessionId?: string
+  ): Observable<UserPaginationResult> {
+    // Convert the role string to match the C# enum (e.g., 'student' -> 'Student')
+    const formattedRole = role.charAt(0).toUpperCase() + role.slice(1);
+  
     let params = new HttpParams()
-      .set('term', term)
-      .set('role', role)
-      .set('page', page.toString());
-    return this.apiService.get<PaginationResponse<User>>(`${environment.apiUrl}/users/search`, params);
+      .set('User', term)       // Matches the C# record property name
+      .set('Role', formattedRole)
+      .set('PageSize', pageSize.toString());
+  
+    if (sessionId) {
+      params = params.set('SessionId', sessionId);
+    }
+  
+    // Updated endpoint matching the API controller route
+    return this.apiService.get<UserPaginationResult>(
+      `${environment.apiUrl}/User`,
+      params
+    );
   }
 
-  searchTemplates(term: string, page: number): Observable<PaginationResponse<Template>> {
-    let params = new HttpParams()
-      .set('term', term)
-      .set('page', page.toString());
-    return this.apiService.get<PaginationResponse<Template>>(`${environment.apiUrl}/templates/search`, params);
+  searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
+    let params = new HttpParams().set('title', term);
+    if (queryCursor) {
+      params = params.set('queryCursor', queryCursor);
+    }
+    params = params.set('pageSize', 5);
+
+    return this.apiService.get<TemplateBaseResponse>(`${environment.apiUrl}/questionnaire-template/`, params);
   }
 }

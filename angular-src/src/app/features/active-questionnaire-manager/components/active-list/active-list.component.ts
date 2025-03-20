@@ -22,12 +22,10 @@ export class ActiveListComponent implements OnInit {
   currentPage: number = 1;
   totalItems: number = 0;
   totalPages: number = 0;
-  queryCursor: string = '';
 
-  // Instead of computing total pages from totalItems, we use the API value (or compute it)
-  get computedTotalPages(): number {
-    return this.totalPages;
-  }
+  // Instead of a single queryCursor, we now cache cursors by page number.
+  // Here we allow either a string or null.
+  cachedCursors: { [pageNumber: number]: string | null } = {};
 
   // Search filters
   searchStudent: string = '';
@@ -55,6 +53,9 @@ export class ActiveListComponent implements OnInit {
   }>();
 
   ngOnInit(): void {
+    // Initialize the cursor for page 1 as null (meaning no cursor)
+    this.cachedCursors[1] = null;
+
     // Debounce search inputs to avoid flooding the API
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
@@ -65,7 +66,7 @@ export class ActiveListComponent implements OnInit {
         this.searchTeacherType = teacherType as 'fullName' | 'userName' | 'both';
         // Reset pagination cursor and page on new search
         this.currentPage = 1;
-        this.queryCursor = '';
+        this.cachedCursors = { 1: null };
         this.fetchActiveQuestionnaires();
       });
 
@@ -113,19 +114,22 @@ export class ActiveListComponent implements OnInit {
   // --- Pagination Handler ---
   handlePageChange(event: PageChangeEvent): void {
     const newPage = event.page;
-    if (newPage > 0 && newPage <= this.totalPages) {
+    // When moving forward and we don't have a cached cursor for the new page, fetch data to update it.
+    if (event.direction === 'forward' && newPage > this.currentPage && !this.cachedCursors[newPage]) {
+      console.warn('Page not available yet. Fetching...');
       this.currentPage = newPage;
-      // For cursor-based pagination, you might need to store a mapping of page numbers to cursors.
-      // Here we assume that moving to a different page resets the cursor.
       this.fetchActiveQuestionnaires();
+      return;
     }
+    this.currentPage = newPage;
+    this.fetchActiveQuestionnaires();
   }
   
   // --- Page Size Change ---
   onPageSizeChange(value: number): void {
     this.pageSize = value;
     this.currentPage = 1; // Reset to the first page when page size changes
-    this.queryCursor = '';
+    this.cachedCursors = { 1: null };
     this.fetchActiveQuestionnaires();
   }
 
@@ -134,10 +138,13 @@ export class ActiveListComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null; // Reset previous errors
 
+    // Convert a null cursor to undefined before passing to the service.
+    const nextCursor = this.cachedCursors[this.currentPage] ?? undefined;
+
     this.activeService
       .getActiveQuestionnaires(
         this.pageSize,
-        this.queryCursor,
+        nextCursor,
         this.searchStudent,
         this.searchStudentType,
         this.searchTeacher,
@@ -145,13 +152,20 @@ export class ActiveListComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          // Note: updated interface returns 'templateBases' instead of the previous property name
-          this.activeQuestionnaires = response.activeQuestionnaireBase;
-          // Update the query cursor from the API response (if provided)
-          this.queryCursor = response.queryCursor || '';
-          this.totalItems = response.totalCount;
-          // Compute total pages from total count and page size
-          this.totalPages = Math.ceil(response.totalCount / this.pageSize);
+          this.activeQuestionnaires = response.activeQuestionnaireBases;
+          // If no items are returned, assume this is the last page.
+          if (response.activeQuestionnaireBases.length === 0) {
+            this.totalPages = this.currentPage;
+            this.cachedCursors[this.currentPage + 1] = null;
+          } else if (response.queryCursor) {
+            // Cache the cursor for the next page.
+            this.cachedCursors[this.currentPage + 1] = response.queryCursor;
+            this.totalItems = response.totalCount;
+            this.totalPages = Math.ceil(response.totalCount / this.pageSize);
+          } else {
+            // When no cursor is provided, assume current page is the last.
+            this.totalPages = this.currentPage;
+          }
           this.isLoading = false;
         },
         error: (err) => {

@@ -12,6 +12,7 @@ import { TeacherDashboardComponent } from './features/teacher-dashboard/teacher-
 import { roleGuard } from './core/guards and interceptors/role-guard.guard';
 import { ResultHistoryComponent } from './features/misc/result-history/result-history.component';
 import { Role } from './shared/models/user.model';
+import { ShowActiveQuestionnaireComponent } from './features/show-active-questionnaire/show-active-questionnaire.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,7 +20,13 @@ export const routes: Routes = [
   {
     path: 'results/:id',
     component: ResultComponent,
-    canActivate: [roleGuard],
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.Teacher, Role.Student] },
+  },
+  {
+    path: 'show-active-questionnaires',
+    component: ShowActiveQuestionnaireComponent,
+    canActivate: [authGuard],
     data: { roles: [Role.Teacher, Role.Student, Role.Admin] },
   },
   { // WIP FOR LATER

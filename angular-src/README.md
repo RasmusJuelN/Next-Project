@@ -1,53 +1,43 @@
-# Project Structure Overview
-This document provides an overview of the structure and purpose of the files and directories in this Angular project.
+# Frontend Project Overview
 
-## src
-The source directory for the application. It contains all the code and assets needed to build the project.
+The **src** directory is the source folder for the application, containing all the code and assets required to build the project.
 
-### src/app
-The main application directory. This is where the core components, services, models, and configurations of the application are located.
+## src/app
+The **src/app** directory is the heart of the application. It includes core components, services, models, and configuration files.
 
-- **app.component.ts**: The root component of the application. It acts as the main container for other components and sets up the base structure of the app.
+- **app.config.ts**: Contains application-wide settings and constants, and is imported in `main.ts` during initialization. This file also includes logic for toggling between mock data and real services.
 
-- **app.component.html**: The HTML template associated with `app.component.ts`. It defines the layout and structure of the user interface.
+  > **Note:** When using mock services, ensure that the names and return types match those of the real services to avoid runtime errors. The switch between mock and real services is controlled via a `useClass` setting in this file, based on the flags set in either `environment.development.ts` or `environment.ts`.
 
-- **app.component.css**: The CSS file for styling `app.component.html`. It contains styles specific to the root component.
+- **app.routes.ts**: Defines the routing configuration for the application by mapping URLs to their corresponding components for navigation.
 
-- **app.config.ts**: Configuration file for application-wide settings and constants. It is utilized in `main.ts` for initializing configurations.
+### src/app/Core
+The **src/app/Core** directory holds the core functionality of the application, including authentication and header configuration.
 
-- **app.routes.ts**: Defines the routing configuration for the application, mapping URLs to respective components for navigation.
-#### src/app/components
-This directory contains all the reusable components of the application. Components are the building blocks of the UI, each encapsulating a specific piece of functionality and layout.
+#### Guards and Interceptors
+- **Interceptors:** Attach the JWT token from local storage to outgoing HTTP requests so that the backend can authenticate them.
+- **Guards:** Protect routes from unauthorized access. For example, if a student attempts to access the dashboard, a guard verifies the connection and user role. If validation fails, the user is redirected to an error component.
 
-**Remember to switch between mock services and real services as needed for testing and production.**
+## src/app/Features
+The **src/app/Features** directory contains logic specific to individual pages. This includes:
+- Login page components
+- Home page components
+- Template pages
+- Other feature-specific pages
 
-#### src/app/models
-This directory contains the data models used in the application. Models define the structure of the data being handled. Currently, it contains a single file consolidating all data models.
+## src/app/Shared
+The **src/app/Shared** directory includes reusable components that can be utilized across multiple parts of the application. This includes:
+- User model
+- Loading component
+- Pagination component
 
-#### src/app/services
-Services provide extended logic for components and manage data operations.
+# Other stuff
 
-They also contain mock services and a mock Database with premade data. In app.config has a useClass for Data and Auth services whihc replaces it if environment in either environment.devolopment.ts or environment.ts is true for useMock.
-
-**Mock needs to align that of the real version. So Names need to match. This is important as errors for return types or naming will give errors only in runtime for mock**
-
-#### guards and interceptors
-interceptors will give the htttp requests the token from local storage and put it in requests so backend can handle it.
-
-Guards is used to protect routes from being accessed. Role is used if someone like for example student tries to access dashboard component while Auth is used to check for connection before being put over there. If there is no connection it will signal as error and be put over to error component
-
-### src/assets
-Contains static assets such as images and other resources. It also includes an **OLD** default mock data JSON file used when there is no data available in local storage.
-
-# Other Stuff
 ## JWT Token
-The JWT token can be found in **local storage** and is typiclly gotten using the service
+The JWT token is stored in **local storage** and is typically retrieved using a dedicated service.
 
-## Api for backend.
-for current devolpemnt, the api url is getting it from environment.ts/environment.developments.ts, however when using the proxy it will replaces the url from api call with the one from proxy.
+## API and Proxy Configuration
+During development, the API URL is sourced from `environment.ts` or `environment.development.ts`. When using a proxy, the URL in API calls is replaced by the proxy's URL. For example:
 
-http://localhost:4200/api/v1
-
-becomes
-
-http://127.0.0.1:8000
+- Original URL: `http://localhost:4200/api`
+- Proxy URL: `http://127.0.0.1:8000/api/`

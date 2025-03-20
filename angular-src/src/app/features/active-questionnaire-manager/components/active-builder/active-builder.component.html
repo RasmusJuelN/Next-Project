@@ -41,7 +41,6 @@
         <!-- Load More Button -->
         <button
           *ngIf="student.page < student.totalPages"
-          (click)="loadMore('student')"
           class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition"
         >
           Load More Students
@@ -94,7 +93,6 @@
         <!-- Load More Button -->
         <button
           *ngIf="teacher.page < teacher.totalPages"
-          (click)="loadMore('teacher')"
           class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition"
         >
           Load More Teachers
@@ -141,14 +139,13 @@
           (click)="select('template', temp)"
           class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded"
         >
-          {{ temp.templateTitle }}
+          {{ temp.title }}
         </li>
       </ul>
 
       <!-- Load More Button -->
       <button
         *ngIf="template.page < template.totalPages"
-        (click)="loadMore('template')"
         class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition"
       >
         Load More Templates
@@ -157,7 +154,7 @@
 
     <!-- Selected Template with Clear Option -->
     <div *ngIf="template.selected" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
-      <strong>Selected Template:</strong> {{ template.selected.templateTitle }}
+      <strong>Selected Template:</strong> {{ template.selected.title }}
       <button (click)="clearSelected('template')" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
         Clear
       </button>

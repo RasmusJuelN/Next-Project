@@ -1,4 +1,4 @@
-import { ApplicationConfig } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -52,5 +52,11 @@ export const appConfig: ApplicationConfig = {
   {
     provide: TeacherService,
     useClass: environment.useMock ? MockTeacherService : TeacherService
-  }]
+  },
+  {
+    provide: APP_INITIALIZER,// if not initialized here, it will cause issues when using browser bar
+    useFactory: (authService: AuthService) => () => authService.initializeAuthState(),
+    deps: [AuthService],
+    multi: true,
+  },]
 };
