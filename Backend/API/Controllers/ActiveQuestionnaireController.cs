@@ -34,6 +34,8 @@ namespace API.Controllers
 
         [Authorize(AuthenticationSchemes = "AccessToken")]
         [HttpGet("check")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         public async Task<ActionResult<Guid?>> CheckIfUserHasActiveQuestionnaire()
         {
             Guid userId;
