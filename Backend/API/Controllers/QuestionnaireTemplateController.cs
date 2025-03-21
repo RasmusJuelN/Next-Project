@@ -14,7 +14,7 @@ namespace API.Controllers
     {
         private readonly QuestionnaireTemplateService _questionnaireTemplateService;
 
-        public QuestionnaireTemplateController(IQuestionnaireTemplateRepository questionnaireTemplateRepository, QuestionnaireTemplateService questionnaireTemplateService)
+        public QuestionnaireTemplateController(QuestionnaireTemplateService questionnaireTemplateService)
         {
             _questionnaireTemplateService = questionnaireTemplateService;
         }
