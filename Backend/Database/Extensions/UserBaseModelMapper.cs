@@ -14,7 +14,7 @@ public static class UserBaseModelMapper
         };
     }
 
-    public static User ToDto(this UserBaseModel user)
+    public static FullUser ToDto(this UserBaseModel user)
     {
         return new()
         {

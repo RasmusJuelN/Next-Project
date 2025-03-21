@@ -2,7 +2,7 @@ using Database.Enums;
 
 namespace Database.DTO.User;
 
-public record class User : UserBase
+public record class FullUser : UserBase
 {
     public required Guid Guid { get; set; }
     public required UserRoles PrimaryRole { get; set; }

@@ -14,7 +14,7 @@ public static class UserModelMapper
         };
     }
 
-    public static User ToDto(this StudentModel student)
+    public static FullUser ToDto(this StudentModel student)
     {
         return new()
         {
@@ -35,7 +35,7 @@ public static class UserModelMapper
         };
     }
 
-    public static User ToDto(this TeacherModel teacher)
+    public static FullUser ToDto(this TeacherModel teacher)
     {
         return new()
         {

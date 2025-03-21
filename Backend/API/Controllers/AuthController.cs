@@ -84,7 +84,7 @@ namespace API.Controllers
                     return Unauthorized();
                 }
 
-                User? user = await _unitOfWork.User.GetUserAsync(userGuid);
+                FullUser? user = await _unitOfWork.User.GetUserAsync(userGuid);
 
                 UserPermissions permissions;
                 if (user is not null)

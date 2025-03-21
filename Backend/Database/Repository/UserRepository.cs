@@ -14,19 +14,19 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
     private readonly Context _context = context;
     private readonly GenericRepository<UserBaseModel> _genericRepository = new(context, loggerFactory);
 
-    public async Task<User?> GetStudentAsync(Guid id)
+    public async Task<FullUser?> GetStudentAsync(Guid id)
     {
         StudentModel? student = await _context.Users.OfType<StudentModel>().FirstOrDefaultAsync(t => t.Guid == id);
         return student?.ToDto();
     }
 
-    public async Task<User?> GetTeacherAsync(Guid id)
+    public async Task<FullUser?> GetTeacherAsync(Guid id)
     {
         TeacherModel? teacher = await _context.Users.OfType<TeacherModel>().FirstOrDefaultAsync(u => u.Guid == id);
         return teacher?.ToDto();
     }
 
-    public async Task<User?> GetUserAsync(Guid id)
+    public async Task<FullUser?> GetUserAsync(Guid id)
     {
         UserBaseModel? user = await _context.Users.FirstOrDefaultAsync(u => u.Guid == id);
         return user?.ToDto();
