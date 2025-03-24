@@ -38,8 +38,7 @@ export class HeaderComponent {
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },
       { name: 'Questionnaire Templates', route: '/templates' },
-      { name: 'Assign Questionnaire', route: '/active-questionnaire' },
-      { name: 'Settings', route: '/settings' },
+      { name: 'Assign Questionnaire', route: '/active-questionnaire' }
     ],
   };
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Questionnaire } from '../models/answer.model';
+import { AnswerSubmission, Questionnaire } from '../models/answer.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -12,8 +12,12 @@ export class AnswerService {
 
   constructor(private http: HttpClient) {}
 
+  submitAnswers(id: string, answers: AnswerSubmission): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/active-questionnaire/${id}/submitanswer`, answers);
+  }
+
   // Get active questionnaire by instance ID
   getActiveQuestionnaireById(instanceId: string): Observable<Questionnaire> {
-    return this.http.get<Questionnaire>(`${this.apiUrl}/active-questionnaires/${instanceId}`);
+    return this.http.get<Questionnaire>(`${this.apiUrl}/active-questionnaire/${instanceId}`);
   }
 }

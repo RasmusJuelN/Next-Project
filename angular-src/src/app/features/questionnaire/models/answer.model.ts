@@ -1,13 +1,13 @@
 export interface Option {
   id: number;
-  text: string;
+  displayText: string;
 }
-  
+
 export interface Question {
   id: number;
-  text: string;
+  prompt: string;         // Updated from "text" to "prompt"
   options: Option[];
-  allowsCustomAnswer: boolean;
+  allowCustom: boolean;   // Updated from "allowsCustomAnswer" to "allowCustom"
 }
 
 export interface Questionnaire {
@@ -15,13 +15,13 @@ export interface Questionnaire {
   title: string;
   description: string;
   questions: Question[];
-  createdAt?: Date;
+  activatedAt?: Date; // Updated from "createdAt" to "activatedAt" to match the API response
 }
 
 export interface Answer {
   questionId: number;
-  selectedOptionId?: number; // The ID of the selected option (if any)
-  customAnswer?: string; // The custom answer provided by the user (if any)
+  optionId?: number; // A selected ID
+  customAnswer?: string;
 }
 
 export interface AnswerSubmission{

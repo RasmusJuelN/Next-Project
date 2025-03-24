@@ -20,3 +20,19 @@ export interface Result {
     isTeacherCustomAnswer: boolean;
   }[];
 }
+export interface ResultTEST {
+  id: string;
+  title: string;
+  description?: string | null;
+  student:User[]
+  teacher:User[]
+  answers:answer[]
+}
+
+interface answer{
+  question: string;
+  studentAnswer: string;
+  isStudentCustomAnswer: boolean;
+  teacherAnswer: string;
+  isTeacherCustomAnswer: boolean;
+}

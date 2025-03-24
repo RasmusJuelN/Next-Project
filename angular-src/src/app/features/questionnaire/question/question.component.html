@@ -1,6 +1,6 @@
 <div class="question-content flex flex-col gap-6">
   <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 text-center">
-    {{ question.text }}
+    {{ question.prompt }}
   </h3>
   <div class="options grid grid-cols-1 gap-4">
     <!-- Standard Options -->
@@ -12,15 +12,15 @@
         type="radio"
         name="option"
         class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
-        [checked]="answer?.selectedOptionId === option.id"
+        [checked]="answer?.optionId === option.id"
         (change)="onOptionSelect(option.id)"
       >
-      <span class="text-gray-700">{{ option.text }}</span>
+      <span class="text-gray-700">{{ option.displayText }}</span>
     </label>
 
     <!-- Custom Answer -->
     <label
-      *ngIf="question.allowsCustomAnswer"
+      *ngIf="question.allowCustom"
       class="option bg-white border rounded-lg p-4 flex items-center space-x-4 cursor-pointer hover:shadow-md"
     >
       <input

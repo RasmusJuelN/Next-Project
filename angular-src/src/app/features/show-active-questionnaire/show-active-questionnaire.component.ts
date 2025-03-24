@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ShowActiveService } from './services/show-active.service';
-import { ActiveQuestionnaireBase } from './models/show-active.model';
+import { UserSpecificActiveQuestionnaireBase } from './models/show-active.model';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
 export class ShowActiveQuestionnaireComponent {
 
   showActiveService = inject(ShowActiveService)
-  activeQuestionnaires:ActiveQuestionnaireBase[] = []
+  activeQuestionnaires:UserSpecificActiveQuestionnaireBase[] = []
 
   ngOnInit(): void {
     this.fetch();

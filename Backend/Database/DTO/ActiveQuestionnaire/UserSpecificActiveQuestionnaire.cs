@@ -8,7 +8,7 @@ public record class UserSpecificActiveQuestionnaireBase
     public required string Title { get; set; }
     public string? Description { get; set; }
     public required DateTime ActivatedAt { get; set; }
-    public required DateTime? CompletedAt { get; set; }   
+    public required DateTime? CompletedAt { get; set; }
 }
 
 public record class UserSpecificActiveQuestionnaire : UserSpecificActiveQuestionnaireBase

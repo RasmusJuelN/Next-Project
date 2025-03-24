@@ -51,7 +51,7 @@ export class QuestionComponent implements OnChanges {
   onOptionSelect(optionId: number): void {
     this.isCustomAnswerSelected = false;
     this.customAnswer = '';
-    this.emitAnswer({ questionId: this.question.id, selectedOptionId: optionId });
+    this.emitAnswer({ questionId: this.question.id, optionId: optionId });
   }
 
   // Handle custom answer selection

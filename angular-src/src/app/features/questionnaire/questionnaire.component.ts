@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { QuestionComponent } from './question/question.component';
 import { AnswerService } from './services/answer.service';
-import { Answer, QuestionnaireState } from './models/answer.model';
+import { Answer, AnswerSubmission, QuestionnaireState } from './models/answer.model';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
@@ -22,7 +22,7 @@ export class QuestionnaireComponent {
       title: '',
       description: '',
       questions: [],
-      createdAt: new Date(),
+      activatedAt: new Date(),
     },
     currentQuestionIndex: 0,
     answers: [],
@@ -78,14 +78,14 @@ export class QuestionnaireComponent {
       this.state.answers.some(
         (answer) =>
           answer.questionId === question.id &&
-          (!!answer.selectedOptionId || !!answer.customAnswer?.trim())
+          (!!answer.optionId || !!answer.customAnswer?.trim())
       )
     );
   }
 
   get isAnswered(): boolean {
     const answer = this.currentAnswer;
-    return !!answer && (!!answer.selectedOptionId || !!answer.customAnswer?.trim());
+    return !!answer && (!!answer.optionId || !!answer.customAnswer?.trim());
   }
 
   onAnswerChange(answer: Answer): void {
@@ -119,14 +119,21 @@ export class QuestionnaireComponent {
 
   submitQuestionnaire(): void {
     if (this.allQuestionsAnswered) {
-      this.state.isCompleted = true;
-      console.log('Submitting questionnaire:', this.state.answers);
-      alert('Questionnaire submitted successfully!');
+      const submission: AnswerSubmission = { answers: this.state.answers };
+      this.answerService.submitAnswers(this.state.template.id, submission).subscribe({
+        next: () => {
+          this.state.isCompleted = true;
+          alert('Questionnaire submitted successfully!');
+        },
+        error: (error) => {
+          console.error('Error submitting questionnaire:', error);
+          alert('There was an error submitting your questionnaire. Please try again later.');
+        }
+      });
     } else {
       alert('Please answer all questions before submitting.');
     }
   }
-
   private updateProgress(): void {
     const currentQuestionAnswered = this.isAnswered ? 1 : 0;
     const totalQuestions = this.state.template.questions.length;
