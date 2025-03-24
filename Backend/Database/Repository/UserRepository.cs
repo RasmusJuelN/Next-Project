@@ -35,7 +35,7 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
     public async Task<Guid?> GetIdOfOldestActiveQuestionnaire(Guid id)
     {
         return await _context.ActiveQuestionnaires
-            .Where(a => a.Student.Guid == id || a.Teacher.Guid == id)
+            .Where(a => a.Student.Guid == id && !a.StudentCompletedAt.HasValue || a.Teacher.Guid == id && !a.TeacherCompletedAt.HasValue)
             .OrderBy(a => a.ActivatedAt)
             .Select(a => (Guid?)a.Id)
             .FirstOrDefaultAsync();
