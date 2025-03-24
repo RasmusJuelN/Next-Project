@@ -143,5 +143,24 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
                 activeQuestionnaire.TeacherAnswers.Add(response);
             }
             activeQuestionnaire.TeacherCompletedAt = DateTime.UtcNow;
+        }
+    }
+
+    public async Task<FullResponse> GetFullResponseAsync(Guid id)
+    {
+        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.TeacherAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.TeacherAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.Student)
+            .Include(a => a.Teacher)
+            .SingleAsync(a => a.Id == id);
+        
+        return activeQuestionnaire.ToFullResponse();
     }
 }

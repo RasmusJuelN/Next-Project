@@ -21,4 +21,5 @@ public interface IActiveQuestionnaireRepository
         string? teacher,
         Guid? idQuery);
     Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission);
+    Task<FullResponse> GetFullResponseAsync(Guid id);
 }
