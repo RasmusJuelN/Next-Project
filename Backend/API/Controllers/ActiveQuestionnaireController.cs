@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
+using API.Exceptions;
 using API.Services;
 using Database.DTO.ActiveQuestionnaire;
 using Microsoft.AspNetCore.Authorization;
@@ -65,7 +66,14 @@ namespace API.Controllers
                 return Unauthorized();   
             }
 
-            await _questionnaireService.SubmitAnswers(id, userId, submission);
+            try
+            {
+                await _questionnaireService.SubmitAnswers(id, userId, submission);
+            }
+            catch(HttpResponseException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.Message);
+            }
 
             return Ok();
         }

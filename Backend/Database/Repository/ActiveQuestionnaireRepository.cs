@@ -146,6 +146,25 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         }
     }
 
+    public async Task<bool> HasUserSubmittedAnswer(Guid userId, Guid activeQuestionnaireId)
+    {
+        UserBaseModel user = await _context.Users.SingleAsync(u => u.Guid == userId);
+        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires.SingleAsync(a => a.Id == activeQuestionnaireId);
+
+        if (user.GetType().Equals(typeof(StudentModel)))
+        {
+            return activeQuestionnaire.StudentCompletedAt is not null;
+        }
+        else if (user.GetType().Equals(typeof(TeacherModel)))
+        {
+            return activeQuestionnaire.TeacherCompletedAt is not null;
+        }
+        else
+        {
+            throw new Exception("User is not a student or teacher.");
+        }
+    }
+
     public async Task<FullResponse> GetFullResponseAsync(Guid id)
     {
         ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires

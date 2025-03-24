@@ -6,6 +6,8 @@ using Database.DTO.ActiveQuestionnaire;
 using Database.Enums;
 using Settings.Models;
 using Database.DTO.User;
+using API.Exceptions;
+using System.Net;
 
 namespace API.Services;
 
@@ -92,6 +94,11 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
 
     public async Task SubmitAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission)
     {
+        if (await _unitOfWork.ActiveQuestionnaire.HasUserSubmittedAnswer(userId, activeQuestionnaireId))
+        {
+            throw new HttpResponseException(HttpStatusCode.Conflict, "User has already submitted answers for this questionnaire.");
+        }
+        
         await _unitOfWork.ActiveQuestionnaire.AddAnswers(activeQuestionnaireId, userId, submission);
         await _unitOfWork.SaveChangesAsync();
     }
