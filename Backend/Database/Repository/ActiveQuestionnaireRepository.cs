@@ -128,6 +128,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
                 };
                 activeQuestionnaire.StudentAnswers.Add(response);
             }
+            activeQuestionnaire.StudentCompletedAt = DateTime.UtcNow;
         }
         else if (user.GetType().Equals(typeof(TeacherModel)))
         {
@@ -141,6 +142,6 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
                 };
                 activeQuestionnaire.TeacherAnswers.Add(response);
             }
-        }
+            activeQuestionnaire.TeacherCompletedAt = DateTime.UtcNow;
     }
 }
