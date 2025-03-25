@@ -25,7 +25,7 @@ public static class UserSpecificActiveQuestionnaireMapper
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
-            CompletedAt = activeQuestionnaire.StudentCompletedAt
+            CompletedAt = activeQuestionnaire.TeacherCompletedAt
         };
     }
 }
