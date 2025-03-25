@@ -3,7 +3,7 @@
 
 <div *ngIf="result" class="answer-session bg-gray-100 p-6 max-w-4xl mx-auto print:bg-white print:shadow-none print:p-0">
   <h2 class="text-2xl font-semibold text-gray-800 mb-6 print:text-black">
-    Template: {{ result.templateName }}
+    Template: {{ result.title }}
   </h2>
   <h3>Id: {{ result.id }}</h3>
 
@@ -13,17 +13,17 @@
     <div class="info-item mb-4">
       <span class="block font-bold text-gray-700 print:text-black">Student:</span>
       <span class="block text-gray-900 print:text-black">{{ result.student.user.fullName }}</span>
-      <span class="block text-sm text-gray-500 print:text-gray-800">
-        Answered: {{ (result.student.answeredWhen | date: 'fullDate') || 'Not answered' }}
+      <span class="block text-gray-500 print:text-black">
+        Completed At: {{ result.student.completedAt | date:'medium' }}
       </span>
     </div>
-
+  
     <!-- Teacher Info -->
     <div class="info-item">
       <span class="block font-bold text-gray-700 print:text-black">Teacher:</span>
       <span class="block text-gray-900 print:text-black">{{ result.teacher.user.fullName }}</span>
-      <span class="block text-sm text-gray-500 print:text-gray-800">
-        Answered: {{ (result.teacher.answeredWhen | date: 'fullDate') || 'Not answered' }}
+      <span class="block text-gray-500 print:text-black">
+        Completed At: {{ result.teacher.completedAt | date:'medium' }}
       </span>
     </div>
   </div>
@@ -39,15 +39,15 @@
         <!-- Student's Answer -->
         <div class="answer-container bg-gray-50 p-4 rounded-lg print:bg-transparent print:p-0">
           <span class="block font-bold text-gray-700 print:text-black">Student:</span>
-          <p class="text-gray-900 print:text-black">{{ answer.studentAnswer }}</p>
-          <span *ngIf="answer.isStudentCustomAnswer" class="text-sm text-blue-500">Custom Response</span>
+          <p class="text-gray-900 print:text-black">{{ answer.studentResponse }}</p>
+          <span *ngIf="answer.isStudentResponseCustom" class="text-sm text-blue-500">Custom Response</span>
         </div>
 
         <!-- Teacher's Answer -->
         <div class="answer-container bg-gray-50 p-4 rounded-lg print:bg-transparent print:p-0">
           <span class="block font-bold text-gray-700 print:text-black">Teacher:</span>
-          <p class="text-gray-900 print:text-black">{{ answer.teacherAnswer }}</p>
-          <span *ngIf="answer.isTeacherCustomAnswer" class="text-sm text-blue-500">Custom Response</span>
+          <p class="text-gray-900 print:text-black">{{ answer.teacherResponse }}</p>
+          <span *ngIf="answer.isTeacherResponseCustom" class="text-sm text-blue-500">Custom Response</span>
         </div>
       </div>
     </div>

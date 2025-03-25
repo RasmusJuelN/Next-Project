@@ -2,14 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ResultService } from './services/result.service';
 import { Result } from './models/result.model';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-result',
   standalone: true,
-  imports: [CommonModule,DatePipe],
+  imports: [CommonModule],
   templateUrl: './result.component.html',
-  styleUrl: './result.component.css'
+  styleUrls: ['./result.component.css']
 })
 export class ResultComponent implements OnInit {
   result: Result | null = null;
@@ -30,7 +30,7 @@ export class ResultComponent implements OnInit {
 
   fetchResult(id: string): void {
     this.resultService.getResultById(id).subscribe({
-      next: (data) => {
+      next: (data: Result) => {
         if (data) {
           this.result = data;
         } else {

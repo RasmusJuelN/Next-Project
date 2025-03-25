@@ -10,57 +10,59 @@ export class MockResultService {
   private mockResults: Result[] = [
     {
       id: 'ActiveQuest23',
-      templateName: 'Math Quiz',
+      title: 'Math Quiz',
+      description: null,
       student: {
-        user: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role:"test" },
-        answeredWhen: new Date('2025-01-15'),
+        user: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: "test" },
+        completedAt: new Date('2025-03-24T10:00:00')
       },
       teacher: {
-        user: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role:"test" },
-        answeredWhen: new Date('2025-01-16'),
+        user: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: "test" },
+        completedAt: new Date('2025-03-24T10:05:00')
       },
       answers: [
         {
           question: 'What is Angular?',
-          studentAnswer: 'A JavaScript framework for building applications.',
-          isStudentCustomAnswer: true, // Student typed a custom response
-          teacherAnswer: 'A framework developed by Google for creating SPAs.',
-          isTeacherCustomAnswer: false, // Teacher selected from predefined options
+          studentResponse: 'A JavaScript framework for building applications.',
+          isStudentResponseCustom: true,
+          teacherResponse: 'A framework developed by Google for creating SPAs.',
+          isTeacherResponseCustom: false,
         },
         {
           question: 'What is 2 + 2?',
-          studentAnswer: 'Four',
-          isStudentCustomAnswer: true, // Student manually typed "Four"
-          teacherAnswer: '4',
-          isTeacherCustomAnswer: false, // Teacher picked from predefined options
+          studentResponse: 'Four',
+          isStudentResponseCustom: true,
+          teacherResponse: '4',
+          isTeacherResponseCustom: false,
         },
       ],
     },
     {
       id: 'ActiveQuest24',
-      templateName: 'Science Quiz',
+      title: 'Science Quiz',
+      description: null,
       student: {
-        user: { id: 's2', userName: 'janes456', fullName: 'Jane Smith', role:"test" },
-        answeredWhen: new Date('2025-02-01'),
+        user: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: "test" },
+        completedAt: new Date('2025-03-23T09:00:00')
       },
       teacher: {
-        user: { id: 't2', userName: 'johnsonT', fullName: 'Mr. Johnson', role:"test" },
-        answeredWhen: new Date('2025-02-02'),
+        user: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: "test" },
+        completedAt: new Date('2025-03-23T09:05:00')
       },
       answers: [
         {
           question: 'What is the chemical symbol for water?',
-          studentAnswer: 'H2O',
-          isStudentCustomAnswer: false, // Student selected from predefined options
-          teacherAnswer: 'H2O',
-          isTeacherCustomAnswer: false, // Teacher picked from predefined options
+          studentResponse: 'H2O',
+          isStudentResponseCustom: false,
+          teacherResponse: 'H2O',
+          isTeacherResponseCustom: false,
         },
         {
           question: 'What planet is known as the Red Planet?',
-          studentAnswer: 'Mars',
-          isStudentCustomAnswer: false, // Student selected from predefined options
-          teacherAnswer: 'Mars',
-          isTeacherCustomAnswer: false, // Teacher picked from predefined options
+          studentResponse: 'Mars',
+          isStudentResponseCustom: false,
+          teacherResponse: 'Mars',
+          isTeacherResponseCustom: false,
         },
       ],
     }

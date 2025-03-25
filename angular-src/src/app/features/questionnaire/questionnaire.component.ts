@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { QuestionComponent } from './question/question.component';
 import { AnswerService } from './services/answer.service';
 import { Answer, AnswerSubmission, QuestionnaireState } from './models/answer.model';
@@ -31,6 +31,7 @@ export class QuestionnaireComponent {
   };
   isLoading = true;
   errorMessage: string | null = null;
+  private router = inject(Router);
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
@@ -124,6 +125,8 @@ export class QuestionnaireComponent {
         next: () => {
           this.state.isCompleted = true;
           alert('Questionnaire submitted successfully!');
+          // Navigate to root after submission
+          this.router.navigate(['/']);
         },
         error: (error) => {
           console.error('Error submitting questionnaire:', error);

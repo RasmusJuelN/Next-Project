@@ -1,7 +1,7 @@
 import { User } from "../../../shared/models/user.model";
 
 
-export interface Result {
+export interface ResultOLD {
   id: string;
   templateName: string;
   student: {
@@ -20,19 +20,25 @@ export interface Result {
     isTeacherCustomAnswer: boolean;
   }[];
 }
-export interface ResultTEST {
+export interface Result {
   id: string;
   title: string;
   description?: string | null;
-  student:User[]
-  teacher:User[]
-  answers:answer[]
+  student: {
+    user: User; // Ensure User type reflects properties like guid, primaryRole, etc.
+    completedAt: Date;
+  };
+  teacher: {
+    user: User; // Ensure User type reflects properties like guid, primaryRole, etc.
+    completedAt: Date;
+  };
+  answers: Answer[];
 }
 
-interface answer{
+export interface Answer {
   question: string;
-  studentAnswer: string;
-  isStudentCustomAnswer: boolean;
-  teacherAnswer: string;
-  isTeacherCustomAnswer: boolean;
+  studentResponse: string;
+  isStudentResponseCustom: boolean;
+  teacherResponse: string;
+  isTeacherResponseCustom: boolean;
 }

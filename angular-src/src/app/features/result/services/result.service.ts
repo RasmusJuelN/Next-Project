@@ -8,11 +8,11 @@ import { Result } from '../models/result.model';
   providedIn: 'root'
 })
 export class ResultService {
-  private apiUrl = `${environment.apiUrl}/active-questionnaires`;
+  private apiUrl = `${environment.apiUrl}/active-questionnaire`;
   private apiService = inject(ApiService);
 
   
   getResultById(id: string): Observable<Result> {
-    return this.apiService.get<Result>(`${this.apiUrl}/${id}`);
+    return this.apiService.get<Result>(`${this.apiUrl}/${id}/getresponse`);
   }
 }
