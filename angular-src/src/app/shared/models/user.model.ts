@@ -6,6 +6,7 @@ export interface User {
   }
 
 
+  // Key values of role in config in backend
   export enum Role {
     Student = "student",
     Teacher = "teacher",

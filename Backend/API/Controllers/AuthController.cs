@@ -75,8 +75,8 @@ namespace API.Controllers
 
                 Guid userGuid = new(ldapUser.ObjectGUID.ByteValue);
 
-
-                string userRole = _JWTSettings.Roles.FirstOrDefault(x => ldapUser.MemberOf.StringValue.Contains(x.Value)).Key;
+                // Converts ldap role to an internal role
+                string userRole = _JWTSettings.Roles.FirstOrDefault(x => ldapUser.MemberOf.StringValue.Contains(x.Value, StringComparison.CurrentCultureIgnoreCase)).Key;
                 
                 if (userRole.IsNullOrEmpty())
                 {

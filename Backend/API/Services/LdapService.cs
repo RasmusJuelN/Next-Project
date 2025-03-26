@@ -7,18 +7,21 @@ using API.Attributes;
 using Novell.Directory.Ldap.Controls;
 using API.DTO.LDAP;
 using System.Net;
+using System.Collections;
 
 namespace API.Services;
 
 public class LdapService
 {
     private readonly LDAPSettings _LDAPSettings;
+    private readonly JWTSettings _JWTSettings;
     private readonly LdapSessionCacheService _ldapSessionCache;
     public LdapConnection connection = new();
 
     public LdapService(IConfiguration configuration, LdapSessionCacheService ldapSessionCache)
     {
         _LDAPSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
+        _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
         LdapSearchConstraints constraints = connection.SearchConstraints;
         constraints.ReferralFollowing = true;
         connection.Constraints = constraints;
@@ -267,8 +270,12 @@ public class LdapService
         string escapedUsername = EscapeLDAPSearchFilter(username);
 
         string searchFilter = $"(|(userPrincipalName=*{escapedUsername}*)(sAMAccountName=*{escapedUsername}*)(name=*{escapedUsername}*))";
+
+        
         if (userRole is not null)
         {
+            // Converts internal role to ldap role
+            userRole = _JWTSettings.Roles.FirstOrDefault(x => userRole.Contains(x.Key, StringComparison.CurrentCultureIgnoreCase)).Value;
             GroupDistinguishedName group = SearchGroup<GroupDistinguishedName>(userRole);
             searchFilter = $"(&{searchFilter}(memberOf={group.DistinguishedName.StringValue}))";
         }
