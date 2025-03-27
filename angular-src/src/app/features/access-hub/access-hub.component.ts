@@ -25,9 +25,7 @@ export class AccessHubComponent {
     ],
     [Role.Admin]: [
       { name: 'Template Manager', route: '/templates' },
-      { name: 'Active Questionnaire Manager', route: '/active-questionnaire' },
-      { name: 'Settings', route: '/settings' },
-      { name: 'Logs', route: '/logs' }
+      { name: 'Active Questionnaire Manager', route: '/active-questionnaire' }
     ]
   };
 

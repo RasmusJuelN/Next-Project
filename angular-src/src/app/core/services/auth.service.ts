@@ -39,23 +39,23 @@ export class AuthService {
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
 
     return this.apiService
-      .post<{ authToken: string }>(url, body.toString(), undefined, headers)
-      .pipe(
-        tap((response) => {
-          if (response.authToken) {
-            this.tokenService.setToken(response.authToken);
-            this.isAuthenticatedSubject.next(true);
-            this.userRoleSubject.next(this.getUserRole());
-            this.isOnlineSubject.next(true);
-          }
-        }),
-        catchError((err) => {
-          console.error('Authentication failed:', err);
-          this.logout();
-          return of(false);
-        }),
-        map(() => true)
-      );
+    .post<{ authToken: string }>(url, body.toString(), undefined, headers)
+    .pipe(
+      tap((response) => {
+        if (response.authToken) {
+          this.tokenService.setToken(response.authToken);
+          this.isAuthenticatedSubject.next(true);
+          this.userRoleSubject.next(this.getUserRole());
+          this.isOnlineSubject.next(true);
+        }
+      }),
+      catchError((err) => {
+        console.error('Authentication failed:', err);
+        this.logout();
+        return of(false);
+      })
+    );
+  
   }
 
   public logout(): void {
