@@ -1,9 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
+using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Requests.User;
+using API.DTO.Responses.ActiveQuestionnaire;
 using API.DTO.Responses.User;
 using API.Exceptions;
 using API.Services;
-using Database.DTO.ActiveQuestionnaire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,11 +30,11 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("ActiveQuestionnaires")]
+        [HttpGet("Student/ActiveQuestionnaires")]
         [Authorize(AuthenticationSchemes = "AccessToken")]
-        [ProducesResponseType(typeof(List<UserSpecificActiveQuestionnaireBase>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<ActiveQuestionnaireKeysetPaginationResultStudent>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<List<UserSpecificActiveQuestionnaireBase>>> GetActiveQuestionnairesForUser()
+        public async Task<ActionResult<List<ActiveQuestionnaireKeysetPaginationResultStudent>>> GetActiveQuestionnairesForStudent(ActiveQuestionnaireKeysetPaginationRequestStudent request)
         {
             Guid userId;
             try
@@ -45,7 +46,26 @@ namespace API.Controllers
                 return Unauthorized();   
             }
             
-            return Ok(await _userService.GetActiveQuestionnaires(userId));
+            return Ok(await _userService.GetActiveQuestionnairesForStudent(request, userId));
+        }
+
+        [HttpGet("Teacher/ActiveQuestionnaires")]
+        [Authorize(AuthenticationSchemes = "AccessToken")]
+        [ProducesResponseType(typeof(List<ActiveQuestionnaireKeysetPaginationResultTeacher>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<List<ActiveQuestionnaireKeysetPaginationResultTeacher>>> GetActiveQuestionnairesForTeacher(ActiveQuestionnaireKeysetPaginationRequestTeacher request)
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();   
+            }
+            
+            return Ok(await _userService.GetActiveQuestionnairesForTeacher(request, userId));
         }
     }
 }

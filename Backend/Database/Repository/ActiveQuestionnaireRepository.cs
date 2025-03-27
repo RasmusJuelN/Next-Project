@@ -58,13 +58,14 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
 
     public async Task<(List<ActiveQuestionnaireBase>, int)> PaginationQueryWithKeyset(
         int amount,
-        Guid? cursorIdPosition,
-        DateTime? cursorActivatedAtPosition,
         ActiveQuestionnaireOrderingOptions sortOrder,
-        string? titleQuery,
-        string? student,
-        string? teacher,
-        Guid? idQuery)
+        Guid? cursorIdPosition = null,
+        DateTime? cursorActivatedAtPosition = null,
+        string? titleQuery = null,
+        string? student = null,
+        string? teacher = null,
+        Guid? idQuery = null,
+        Guid? userId = null)
     {
         IQueryable<ActiveQuestionnaireModel> query = _genericRepository.GetAsQueryable();
 
@@ -87,6 +88,11 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         if (!string.IsNullOrEmpty(teacher))
         {
             query = query.Where(q => q.Teacher.FullName.Contains(teacher) || q.Teacher.UserName.Contains(teacher));
+        }
+
+        if (userId.HasValue)
+        {
+            query = query.Where(q => q.Student.Guid == userId || q.Teacher.Guid == userId);
         }
 
         int totalCount = await query.CountAsync();

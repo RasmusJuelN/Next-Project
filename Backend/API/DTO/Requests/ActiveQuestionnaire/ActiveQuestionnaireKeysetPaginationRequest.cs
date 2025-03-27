@@ -3,7 +3,7 @@ using Database.Enums;
 
 namespace API.DTO.Requests.ActiveQuestionnaire;
 
-public record class ActiveQuestionnaireKeysetPaginationRequest
+public record class ActiveQuestionnaireKeysetPaginationRequestBase
 {
     /// <summary>
     /// How many items the pagination query should return.
@@ -22,17 +22,29 @@ public record class ActiveQuestionnaireKeysetPaginationRequest
     /// </summary>
     public string? Title { get; set; }
 
-    public string? Teacher { get; set; }
-    
-    public string? Student { get; set; }
-
     /// <summary>
-    /// The ID of the exact template. Partial search is not supported.
+    /// The partial or exact ID of a template.
     /// </summary>
-    public Guid? Id { get; set; }
-    
+    public Guid? ActiveQuestionnaireId { get; set; }
+
     /// <summary>
     /// The cursor for where the query should start/resume from
     /// </summary>
     public string? QueryCursor { get; set; }
+}
+
+public record class ActiveQuestionnaireKeysetPaginationRequestStudent : ActiveQuestionnaireKeysetPaginationRequestBase
+{
+    public string? Teacher { get; set; }    
+}
+
+public record class ActiveQuestionnaireKeysetPaginationRequestTeacher : ActiveQuestionnaireKeysetPaginationRequestBase
+{
+    public string? Student { get; set; }
+}
+
+public record class ActiveQuestionnaireKeysetPaginationRequestFull : ActiveQuestionnaireKeysetPaginationRequestBase
+{
+    public string? Teacher { get; set; }
+    public string? Student { get; set; }
 }
