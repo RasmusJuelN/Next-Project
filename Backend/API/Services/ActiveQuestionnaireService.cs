@@ -112,7 +112,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
     private UserAdd GenerateStudent(Guid id)
     {
         BasicUserInfo ldapStudent = _ldap.SearchByObjectGUID<BasicUserInfo>(id);
-        string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.StringValue.Contains(x.Key)).Value;
+        string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.StringValue.Contains(x.Value)).Key;
         
         return new()
         {
@@ -127,7 +127,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
     private UserAdd GenerateTeacher(Guid id)
     {
         BasicUserInfo ldapTeacher = _ldap.SearchByObjectGUID<BasicUserInfo>(id);
-        string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.StringValue.Contains(x.Key)).Value;
+        string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.StringValue.Contains(x.Value)).Key;
         
         return new()
         {
