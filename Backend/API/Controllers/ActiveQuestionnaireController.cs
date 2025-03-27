@@ -16,7 +16,7 @@ namespace API.Controllers
         private readonly ActiveQuestionnaireService _questionnaireService = questionnaireService;
 
         [HttpGet]
-        public async Task<ActionResult<ActiveQuestionnaireKeysetPaginationResult>> GetActiveQuestionnaires([FromQuery] ActiveQuestionnaireKeysetPaginationRequest request)
+        public async Task<ActionResult<ActiveQuestionnaireKeysetPaginationResultAdmin>> GetActiveQuestionnaires([FromQuery] ActiveQuestionnaireKeysetPaginationRequestFull request)
         {
             return Ok(await _questionnaireService.FetchActiveQuestionnaireBases(request));
         }

@@ -1,10 +1,8 @@
-using Database.DTO.ActiveQuestionnaire;
 using Database.DTO.User;
 using Database.Extensions;
 using Database.Interfaces;
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
@@ -39,43 +37,6 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
             .OrderBy(a => a.ActivatedAt)
             .Select(a => (Guid?)a.Id)
             .FirstOrDefaultAsync();
-    }
-
-    public async Task<List<UserSpecificActiveQuestionnaireBase>> GetAllAssociatedActiveQuestionnaires(Guid userId)
-    {
-        UserBaseModel user = await _context.Users.SingleOrDefaultAsync(u => u.Guid == userId) ?? throw new ArgumentException("User not found");
-
-        IIncludableQueryable<UserBaseModel, ICollection<ActiveQuestionnaireModel>> include;
-        bool IsStudent;
-        if (user.GetType().Equals(typeof(StudentModel)))
-        {
-            include = _context.Users.Include(u => ((StudentModel)u).ActiveQuestionnaires);
-            IsStudent = true;
-        }
-        else if (user.GetType().Equals(typeof(TeacherModel)))
-        {
-            include = _context.Users.Include(u => ((TeacherModel)u).ActiveQuestionnaires);
-            IsStudent = false;
-        }
-        else
-        {
-            throw new ArgumentException("User is neither student nor teacher");
-        }
-
-        List<ActiveQuestionnaireModel> activeQuestionnaires = [.. (await include
-            .Where(u => u.Guid == userId)
-            .Select(u => u.ActiveQuestionnaires)
-            .ToListAsync())
-            .SelectMany(a => a)];
-        
-        if (IsStudent)
-        {
-            return [.. activeQuestionnaires.Select(a => a.ToBaseDTOAsStudent())];
-        }
-        else
-        {
-            return [.. activeQuestionnaires.Select(a => a.ToBaseDTOAsTeacher())];
-        }
     }
 
     public bool UserExists(Guid id)

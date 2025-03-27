@@ -5,7 +5,7 @@ namespace Database.Extensions;
 
 public static class UserSpecificActiveQuestionnaireMapper
 {
-    public static UserSpecificActiveQuestionnaireBase ToBaseDTOAsStudent(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static StudentSpecificActiveQuestionnaire ToBaseDTOAsStudent(this ActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {
@@ -13,11 +13,11 @@ public static class UserSpecificActiveQuestionnaireMapper
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
-            CompletedAt = activeQuestionnaire.StudentCompletedAt
+            StudentCompletedAt = activeQuestionnaire.StudentCompletedAt
         };
     }
 
-    public static UserSpecificActiveQuestionnaireBase ToBaseDTOAsTeacher(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static StudentSpecificActiveQuestionnaire ToBaseDTOAsTeacher(this ActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {
@@ -25,7 +25,7 @@ public static class UserSpecificActiveQuestionnaireMapper
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
-            CompletedAt = activeQuestionnaire.TeacherCompletedAt
+            StudentCompletedAt = activeQuestionnaire.TeacherCompletedAt
         };
     }
 }

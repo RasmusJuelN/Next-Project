@@ -18,7 +18,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
     private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
     private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
 
-    public async Task<ActiveQuestionnaireKeysetPaginationResult> FetchActiveQuestionnaireBases(ActiveQuestionnaireKeysetPaginationRequest request)
+    public async Task<ActiveQuestionnaireKeysetPaginationResultAdmin> FetchActiveQuestionnaireBases(ActiveQuestionnaireKeysetPaginationRequestFull request)
     {
         DateTime? cursorActivatedAt = null;
         Guid? cursorId = null;
@@ -32,13 +32,13 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         (List<ActiveQuestionnaireBase> activeQuestionnaireBases, int totalCount) = await _unitOfWork.ActiveQuestionnaire
         .PaginationQueryWithKeyset(
             request.PageSize,
+            request.Order,
             cursorId,
             cursorActivatedAt,
-            request.Order,
             request.Title,
             request.Student,
             request.Teacher,
-            request.Id
+            request.ActiveQuestionnaireId
         );
 
         ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;

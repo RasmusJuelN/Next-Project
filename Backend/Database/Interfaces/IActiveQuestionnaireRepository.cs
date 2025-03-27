@@ -13,13 +13,14 @@ public interface IActiveQuestionnaireRepository
         Guid teacherId);
     Task<(List<ActiveQuestionnaireBase>, int)> PaginationQueryWithKeyset(
         int amount,
-        Guid? cursorIdPosition,
-        DateTime? cursorActivatedAtPosition,
         ActiveQuestionnaireOrderingOptions sortOrder,
-        string? titleQuery,
-        string? student,
-        string? teacher,
-        Guid? idQuery);
+        Guid? cursorIdPosition = null,
+        DateTime? cursorActivatedAtPosition = null,
+        string? titleQuery = null,
+        string? student = null,
+        string? teacher = null,
+        Guid? idQuery = null,
+        Guid? userId = null);
     Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission);
     Task<bool> HasUserSubmittedAnswer(Guid userId, Guid activeQuestionnaireId);
     Task<FullResponse> GetFullResponseAsync(Guid id);
