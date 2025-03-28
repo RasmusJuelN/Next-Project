@@ -15,6 +15,7 @@ using System.Reflection;
 using Database.Interfaces;
 using API.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net;
 
 const string settingsFile = "config.json";
 
@@ -39,6 +40,7 @@ builder.Logging.AddDBLogger(configure => builder.Configuration.GetSection("Loggi
 
 DatabaseSettings databaseSettings = ConfigurationBinderService.Bind<DatabaseSettings>(builder.Configuration);
 JWTSettings jWTSettings = ConfigurationBinderService.Bind<JWTSettings>(builder.Configuration);
+SystemSettings systemSettings = ConfigurationBinderService.Bind<SystemSettings>(builder.Configuration);
 
 // Add services to the container.
 
@@ -129,6 +131,56 @@ builder.Services.AddDbContext<Context>(o =>
             options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
             }));
 
+// We have to configure Kestrel before building the app instance
+string environment = builder.Configuration["ASPNETCORE_ENVIRONMENT"] ?? "Production";
+if (environment != "Development")
+{
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        IPAddress? address = null;
+        if (!string.IsNullOrEmpty(systemSettings.ListenIP))
+        {
+            IPHostEntry hostEntry = Dns.GetHostEntry(systemSettings.ListenIP);
+            address = hostEntry.AddressList.SingleOrDefault(host => host.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) ?? IPAddress.Loopback;
+        }
+
+        if (address is not null)
+        {
+            options.Listen(address, systemSettings.HttpPort);
+        }
+        else
+        {
+            options.ListenAnyIP(systemSettings.HttpPort);
+        }
+        
+        if (systemSettings.UseSSL)
+        {
+            if (address is not null)
+            {
+                options.Listen(address, systemSettings.HttpsPort, listenOptions =>
+                {
+                    listenOptions.UseHttps(systemSettings.PfxCertificatePath);
+                });
+            }
+            else
+            {
+                options.ListenAnyIP(systemSettings.HttpsPort, listenOptions =>
+                {
+                    listenOptions.UseHttps(systemSettings.PfxCertificatePath);
+                });
+            }
+        }
+    });
+}
+
+// CORS
+builder.Services.AddCors(options => {
+    options.AddPolicy(name: "AllowedOrigins",
+        policy => {
+            policy.WithOrigins("http://localhost");
+        });
+});
+
 var app = builder.Build();
 
 // Ensure the database is created and migrated
@@ -152,7 +204,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+if (systemSettings.UseSSL)
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("AllowedOrigins");
 
 app.UseAuthentication();
 
