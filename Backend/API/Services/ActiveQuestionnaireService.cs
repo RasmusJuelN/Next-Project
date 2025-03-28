@@ -38,7 +38,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
             request.Title,
             request.Student,
             request.Teacher,
-            request.ActiveQuestionnaireId
+            request.ActiveQuestionnaireId,
+            onlyStudentCompleted: request.FilterStudentCompleted,
+            onlyTeacherCompleted: request.FilterTeacherCompleted
         );
 
         ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;

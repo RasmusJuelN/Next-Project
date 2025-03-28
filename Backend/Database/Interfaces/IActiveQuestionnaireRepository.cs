@@ -20,7 +20,9 @@ public interface IActiveQuestionnaireRepository
         string? student = null,
         string? teacher = null,
         Guid? idQuery = null,
-        Guid? userId = null);
+        Guid? userId = null,
+        bool onlyStudentCompleted = false,
+        bool onlyTeacherCompleted = false);
     Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission);
     Task<bool> HasUserSubmittedAnswer(Guid userId, Guid activeQuestionnaireId);
     Task<FullResponse> GetFullResponseAsync(Guid id);

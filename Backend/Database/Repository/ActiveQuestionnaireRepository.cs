@@ -65,7 +65,9 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         string? student = null,
         string? teacher = null,
         Guid? idQuery = null,
-        Guid? userId = null)
+        Guid? userId = null,
+        bool onlyStudentCompleted = false,
+        bool onlyTeacherCompleted = false)
     {
         IQueryable<ActiveQuestionnaireModel> query = _genericRepository.GetAsQueryable();
 
@@ -93,6 +95,16 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         if (userId.HasValue)
         {
             query = query.Where(q => q.Student.Guid == userId || q.Teacher.Guid == userId);
+        }
+
+        if (onlyStudentCompleted)
+        {
+            query = query.Where(q => q.StudentCompletedAt.HasValue);
+        }
+
+        if (onlyTeacherCompleted)
+        {
+            query = query.Where(q => q.TeacherCompletedAt.HasValue);
         }
 
         int totalCount = await query.CountAsync();

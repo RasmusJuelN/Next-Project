@@ -41,10 +41,14 @@ public record class ActiveQuestionnaireKeysetPaginationRequestStudent : ActiveQu
 public record class ActiveQuestionnaireKeysetPaginationRequestTeacher : ActiveQuestionnaireKeysetPaginationRequestBase
 {
     public string? Student { get; set; }
+    public bool FilterStudentCompleted { get; set; }
+    public bool FilterTeacherCompleted { get; set; }
 }
 
 public record class ActiveQuestionnaireKeysetPaginationRequestFull : ActiveQuestionnaireKeysetPaginationRequestBase
 {
     public string? Teacher { get; set; }
     public string? Student { get; set; }
+    public bool FilterStudentCompleted { get; set; }
+    public bool FilterTeacherCompleted { get; set; }
 }
