@@ -1,4 +1,5 @@
 using Settings.Default;
+using Settings.Models;
 
 namespace Settings.Interfaces;
 
@@ -8,4 +9,5 @@ public interface IDefaultSettings
     public DefaultJWT JWT { get; }
     public DefaultLDAP LDAP { get; }
     public DefaultLogger Logging { get; }
+    public DefaultSystem System { get; set; }
 }

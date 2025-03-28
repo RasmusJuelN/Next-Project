@@ -10,4 +10,5 @@ public class RootSettings : Base, IRootSettings
     public JWTSettings JWT { get; set; } = new();
     public LDAPSettings LDAP { get; set; } = new();
     public LoggerSettings Logging { get; set; } = new();
+    public SystemSettings System { get; set; } = new();
 }

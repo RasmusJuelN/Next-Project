@@ -8,4 +8,5 @@ public interface IRootSettings
     public JWTSettings JWT { get; set; }
     public LDAPSettings LDAP { get; set; }
     public LoggerSettings Logging { get; set; }
+    public SystemSettings System { get; set; }
 }
