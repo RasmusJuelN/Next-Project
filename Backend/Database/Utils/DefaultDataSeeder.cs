@@ -9,7 +9,7 @@ static public class DefaultDataSeeder
     {
         QuestionnaireTemplateModel? questionnaireTemplate;
 
-        string json = File.ReadAllText("../Database/Default/default_questionnaire.json");
+        string json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Default/default_questionnaire.json"));
         questionnaireTemplate = JsonConvert.DeserializeObject<QuestionnaireTemplateModel>(json);
 
         return questionnaireTemplate;
