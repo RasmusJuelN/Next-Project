@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 
 import { ApiService } from '../../../core/services/api.service';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { Template, TemplateBaseResponse } from '../models/template.model';

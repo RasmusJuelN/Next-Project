@@ -6,21 +6,46 @@
       <h3 class="text-xl font-semibold text-gray-800">{{ questionnaire.title }}</h3>
       <p class="text-gray-600 mt-1">{{ questionnaire.description }}</p>
       <p class="text-sm text-gray-500 mt-2">
-        Activated At: <span class="font-medium text-gray-700">{{ questionnaire.activatedAt | date:'short' }}</span>
+        Setup at: 
+        <span class="font-medium text-gray-700">{{ questionnaire.activatedAt | date:'short' }}</span>
       </p>
-      <p class="text-sm text-gray-500 mt-1">
-        Completed At: <span class="font-medium text-gray-700">
-          {{ questionnaire.completedAt ? (questionnaire.completedAt | date:'short') : 'Not completed yet' }}
-        </span>
-      </p>
-      <div class="mt-4" *ngIf="!questionnaire.completedAt">
-        <button
-          [routerLink]="['/answer', questionnaire.id]"
-          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Answer Questionnaire
-        </button>
-      </div>
+      <!-- For Student view -->
+      <ng-container *ngIf="currentUserRole === Role.Student">
+        <div class="mt-4" *ngIf="!questionnaire.studentCompletedAt">
+          <button
+            [routerLink]="['/answer', questionnaire.id]"
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Answer Questionnaire
+          </button>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="currentUserRole === Role.Teacher">
+        <div class="mt-4" *ngIf="!questionnaire.teacherCompletedAt">
+          <button
+            [routerLink]="['/answer', questionnaire.id]"
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Answer Questionnaire
+          </button>
+        </div>
+      </ng-container>
+      
     </li>
   </ul>
+  <!-- Load more and Back buttons -->
+  <div class="mt-4 flex justify-between">
+    <button 
+      *ngIf="previousCursors.length" 
+      (click)="loadPrevious()"
+      class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+      Back
+    </button>
+    <button 
+      *ngIf="queryCursor" 
+      (click)="loadMore()"
+      class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+      Load More
+    </button>
+  </div>
 </div>

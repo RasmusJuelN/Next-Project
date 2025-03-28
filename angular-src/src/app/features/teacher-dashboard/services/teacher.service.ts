@@ -13,6 +13,7 @@ export class TeacherService {
   private apiUrl = `${environment.apiUrl}/teacher`;
   private apiService = inject(ApiService);
 
+  // OLD
   getQuestionnaires(
     searchTerm: string,
     searchType: string,
@@ -33,6 +34,29 @@ export class TeacherService {
     return this.apiService.get<PaginationResponse<Dashboard>>(
       `${this.apiUrl}/questionnaires`,
       params
+    );
+  }
+
+  NEWgetQuestionnaires(
+    searchTerm: string,
+    queryCursor: string | null,
+    pageSize: number,
+    filterStudentCompleted: boolean,
+    filterTeacherCompleted: boolean
+  ): Observable<PaginationResponse<Dashboard>> {
+    let params = new HttpParams()
+      .set('pageSize', pageSize.toString())
+      .set('title', searchTerm)
+      .set('filterStudentCompleted', filterStudentCompleted.toString())
+      .set('filterTeacherCompleted', filterTeacherCompleted.toString());
+      
+    if (queryCursor) {
+      params = params.set('queryCursor', queryCursor);
+    }
+  
+    return this.apiService.get<PaginationResponse<Dashboard>>(
+      `${this.apiUrl}/questionnaires`,
+      params 
     );
   }
 }

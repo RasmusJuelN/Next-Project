@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, catchError, interval, map, of, switchMap, takeUntil, tap, timer,firstValueFrom } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 

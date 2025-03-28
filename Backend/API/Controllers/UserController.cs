@@ -34,7 +34,7 @@ namespace API.Controllers
         [Authorize(AuthenticationSchemes = "AccessToken")]
         [ProducesResponseType(typeof(List<ActiveQuestionnaireKeysetPaginationResultStudent>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<List<ActiveQuestionnaireKeysetPaginationResultStudent>>> GetActiveQuestionnairesForStudent(ActiveQuestionnaireKeysetPaginationRequestStudent request)
+        public async Task<ActionResult<List<ActiveQuestionnaireKeysetPaginationResultStudent>>> GetActiveQuestionnairesForStudent([FromQuery]ActiveQuestionnaireKeysetPaginationRequestStudent request)
         {
             Guid userId;
             try
@@ -53,7 +53,7 @@ namespace API.Controllers
         [Authorize(AuthenticationSchemes = "AccessToken")]
         [ProducesResponseType(typeof(List<ActiveQuestionnaireKeysetPaginationResultTeacher>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<List<ActiveQuestionnaireKeysetPaginationResultTeacher>>> GetActiveQuestionnairesForTeacher(ActiveQuestionnaireKeysetPaginationRequestTeacher request)
+        public async Task<ActionResult<List<ActiveQuestionnaireKeysetPaginationResultTeacher>>> GetActiveQuestionnairesForTeacher([FromQuery]ActiveQuestionnaireKeysetPaginationRequestTeacher request)
         {
             Guid userId;
             try
