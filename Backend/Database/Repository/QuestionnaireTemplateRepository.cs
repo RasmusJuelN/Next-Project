@@ -138,7 +138,12 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
     public async Task DeleteAsync(Guid id)
     {
-        QuestionnaireTemplateModel existingTemplate = await _genericRepository.GetSingleAsync(t => t.Id == id) ?? throw new Exception("Template not found.");
+        QuestionnaireTemplateModel existingTemplate = await _context.QuestionnaireTemplates.Include(q => q.ActiveQuestionnaires).SingleAsync(q => q.Id == id);
+
+        if (existingTemplate.ActiveQuestionnaires.Count != 0)
+        {
+            _context.ActiveQuestionnaires.RemoveRange(existingTemplate.ActiveQuestionnaires);
+        }
 
         _genericRepository.Delete(existingTemplate);
     }
