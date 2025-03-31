@@ -198,6 +198,11 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .Include(a => a.Teacher)
             .SingleAsync(a => a.Id == id);
         
+        if (!activeQuestionnaire.StudentCompletedAt.HasValue || !activeQuestionnaire.TeacherCompletedAt.HasValue)
+        {
+            throw new Exception("The requested Active Questionnaire is not yet completed.");
+        }
+        
         return activeQuestionnaire.ToFullResponse();
     }
 }
