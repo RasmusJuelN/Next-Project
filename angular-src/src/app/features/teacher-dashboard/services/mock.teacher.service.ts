@@ -1,74 +1,82 @@
-// mock-teacher.service.ts
 import { Injectable } from '@angular/core';
-import { Dashboard } from '../models/dashboard.model';
 import { delay, Observable, of } from 'rxjs';
-import { PaginationResponse } from '../../../shared/models/Pagination.model';
+import { ActiveQuestionnaireBase, ActiveQuestionnaireResponse } from '../models/dashboard.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MockTeacherService {
-
-  private readonly MOCK_DATA: Dashboard[] = Array.from({ length: 40 }, (_, i) => {
-    // For the first item, set activeQuestionaireUrlLink to 'active1'
+  // Generate mock data as ActiveQuestionnaireBase objects.
+  private readonly MOCK_DATA: ActiveQuestionnaireBase[] = Array.from({ length: 40 }, (_, i) => {
+    const now = new Date();
     if (i === 0) {
       return {
-        activeQuestionaireUrlLink: 'active1',
-        studentName: 'Student 1',
-        studentCompleted: true,
-        teacherCompleted: false,
+        id: 'active1',
+        title: 'Questionnaire 1',
+        description: 'Description for Questionnaire 1',
+        activatedAt: now,
+        studentCompletedAt: new Date(now.getTime() - 3600 * 1000), // Completed 1 hour ago
+        teacherCompletedAt: null,
       };
     } else {
-      // For the remaining items, keep the original logic
       return {
-        activeQuestionaireUrlLink: `${i + 1}`,
-        studentName: `Student ${i + 1}`,
-        studentCompleted: Math.random() > 0.5,
-        teacherCompleted: Math.random() > 0.5,
+        id: `${i + 1}`,
+        title: `Questionnaire ${i + 1}`,
+        description: `Description for Questionnaire ${i + 1}`,
+        activatedAt: new Date(now.getTime() - i * 3600 * 1000),
+        studentCompletedAt: Math.random() > 0.5 ? new Date(now.getTime() - i * 3600 * 1000) : null,
+        teacherCompletedAt: Math.random() > 0.5 ? new Date(now.getTime() - i * 3600 * 1000) : null,
       };
     }
   });
 
+  /**
+   * Mimics the real service's NEWgetQuestionnaires method with keyset pagination.
+   * Uses queryCursor as a stringified start index.
+   */
   getQuestionnaires(
     searchTerm: string,
-    searchType: string,
-    currentPage: number,
+    searchType: 'name' | 'id',
+    queryCursor: string | null,
     pageSize: number,
     filterStudentCompleted: boolean,
     filterTeacherCompleted: boolean
-  ): Observable<PaginationResponse<Dashboard>> {
+  ): Observable<ActiveQuestionnaireResponse> {
+    // Clone the data.
     let filtered = [...this.MOCK_DATA];
 
+    // Apply search filter based on search type.
     if (searchTerm) {
       const lowerTerm = searchTerm.toLowerCase();
       if (searchType === 'name') {
-        filtered = filtered.filter(q => q.studentName.toLowerCase().includes(lowerTerm));
+        filtered = filtered.filter(q => q.title.toLowerCase().includes(lowerTerm));
       } else {
-        filtered = filtered.filter(q => q.activeQuestionaireUrlLink.toLowerCase().includes(lowerTerm));
+        filtered = filtered.filter(q => q.id.toLowerCase().includes(lowerTerm));
       }
     }
 
+    // Apply completion filters.
     if (filterStudentCompleted) {
-      filtered = filtered.filter(q => q.studentCompleted === true);
+      filtered = filtered.filter(q => q.studentCompletedAt !== null);
     }
     if (filterTeacherCompleted) {
-      filtered = filtered.filter(q => q.teacherCompleted === true);
+      filtered = filtered.filter(q => q.teacherCompletedAt !== null);
     }
 
-    const totalItems = filtered.length;
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const items = filtered.slice(startIndex, endIndex);
+    const totalCount = filtered.length;
+    // For keyset pagination, treat queryCursor as a stringified start index.
+    const startIndex = queryCursor ? parseInt(queryCursor, 10) : 0;
+    const items = filtered.slice(startIndex, startIndex + pageSize);
+    // Set nextCursor if there are more items.
+    const nextCursor = (startIndex + pageSize < totalCount) ? (startIndex + pageSize).toString() : null;
 
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    const response: PaginationResponse<Dashboard> = {
-      items,
-      totalItems,
-      currentPage,
-      pageSize,
-      totalPages
+    const response: ActiveQuestionnaireResponse = {
+      activeQuestionnaireBases: items,
+      queryCursor: nextCursor,
+      totalCount: totalCount,
     };
-    return of(response).pipe(delay(2000));;
+
+    // Return the response with a delay to simulate an HTTP call.
+    return of(response).pipe(delay(2000));
   }
 }
