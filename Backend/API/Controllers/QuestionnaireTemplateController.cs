@@ -5,6 +5,7 @@ using Database.DTO.QuestionnaireTemplate;
 using Database.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using API.DTO.Responses.QuestionnaireTemplate;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -38,6 +39,7 @@ namespace API.Controllers
         /// <response code="200">Returns the list of questionnaire templates.</response>
         /// <response code="500">If an internal server error occurs.</response>
         [HttpGet]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(TemplateKeysetPaginationResult), StatusCodes.Status200OK)]
         public async Task<ActionResult<TemplateKeysetPaginationResult>> GetQuestionnaireTemplates([FromQuery] TemplateKeysetPaginationRequest request)
@@ -46,6 +48,7 @@ namespace API.Controllers
         }
 
         [HttpPost("add")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status201Created)]
         public async Task<ActionResult<QuestionnaireTemplate>> AddQuestionnaireTemplate([FromBody] QuestionnaireTemplateAdd questionnaireTemplate)
@@ -65,6 +68,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
@@ -85,6 +89,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}/update")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
@@ -105,6 +110,7 @@ namespace API.Controllers
         }
 
         [HttpPatch("{id}/patch")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
@@ -124,6 +130,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}/delete")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -122,7 +122,8 @@ public class JwtService(IConfiguration configuration)
             ValidAudience = audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = "role" // We're telling ASP.NET to use this claim for role-based authorization checking
         };
     }
 
@@ -136,7 +137,7 @@ public class JwtService(IConfiguration configuration)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_JWTSettings.RefreshTokenSecret)),
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
         };
     }
 

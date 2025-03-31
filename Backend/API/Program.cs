@@ -183,6 +183,14 @@ builder.Services.AddCors(options => {
         });
 });
 
+// Access Policies
+builder.Services.AddAuthorizationBuilder()
+                      .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
+                      .AddPolicy("TeacherOnly", policy => policy.RequireRole("teacher"))
+                      .AddPolicy("StudentOnly", policy => policy.RequireRole("student"))
+                      .AddPolicy("StudentAndTeacherOnly", policy => policy.RequireRole("student", "teacher"));
+
+
 var app = builder.Build();
 
 app.UseCors("AllowedOrigins");

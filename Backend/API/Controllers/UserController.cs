@@ -16,6 +16,7 @@ namespace API.Controllers
     {
         private readonly UserService _userService = userService;
 
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [HttpGet]
         [ProducesResponseType(typeof(UserQueryPaginationResult), StatusCodes.Status200OK)]
         public ActionResult<UserQueryPaginationResult> UserPaginationQuery([FromQuery] UserQueryPagination request)
@@ -31,7 +32,7 @@ namespace API.Controllers
         }
 
         [HttpGet("Student/ActiveQuestionnaires")]
-        [Authorize(AuthenticationSchemes = "AccessToken")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "StudentOnly")]
         [ProducesResponseType(typeof(List<ActiveQuestionnaireKeysetPaginationResultStudent>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<List<ActiveQuestionnaireKeysetPaginationResultStudent>>> GetActiveQuestionnairesForStudent([FromQuery]ActiveQuestionnaireKeysetPaginationRequestStudent request)
@@ -50,7 +51,7 @@ namespace API.Controllers
         }
 
         [HttpGet("Teacher/ActiveQuestionnaires")]
-        [Authorize(AuthenticationSchemes = "AccessToken")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
         [ProducesResponseType(typeof(List<ActiveQuestionnaireKeysetPaginationResultTeacher>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<List<ActiveQuestionnaireKeysetPaginationResultTeacher>>> GetActiveQuestionnairesForTeacher([FromQuery]ActiveQuestionnaireKeysetPaginationRequestTeacher request)

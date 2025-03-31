@@ -16,19 +16,21 @@ namespace API.Controllers
         private readonly ActiveQuestionnaireService _questionnaireService = questionnaireService;
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = "AccessToken")]
         public async Task<ActionResult<ActiveQuestionnaireKeysetPaginationResultAdmin>> GetActiveQuestionnaires([FromQuery] ActiveQuestionnaireKeysetPaginationRequestFull request)
         {
             return Ok(await _questionnaireService.FetchActiveQuestionnaireBases(request));
         }
 
         [HttpPost("activate")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<ActiveQuestionnaire>> ActivateQuestionnaire([FromForm] ActivateQuestionnaire request)
         {
             return Ok(await _questionnaireService.ActivateTemplate(request));
         }
 
-        [Authorize(AuthenticationSchemes = "AccessToken")]
         [HttpGet("check")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "StudentAndTeacherOnly")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         public async Task<ActionResult<Guid?>> CheckIfUserHasActiveQuestionnaire()
@@ -47,13 +49,14 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = "AccessToken")]
         public async Task<ActionResult<ActiveQuestionnaire>> GetActiveQuestionnaire(Guid id)
         {
             return Ok(await _questionnaireService.FetchActiveQuestionnaire(id));
         }
         
-        [Authorize(AuthenticationSchemes = "AccessToken")]
         [HttpPut("{id}/submitAnswer")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "StudentAndTeacherOnly")]
         public async Task<ActionResult> SubmitQuestionnaireAnswer(Guid id, [FromBody] AnswerSubmission submission)
         {
             Guid userId;
@@ -78,8 +81,8 @@ namespace API.Controllers
             return Ok();
         }
 
-        [Authorize(AuthenticationSchemes = "AccessToken")]
         [HttpGet("{id}/getResponse")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
         public async Task<ActionResult<List<FullResponse>>> GetActiveQuestionnaireResponses(Guid id)
         {
             Guid userId;
