@@ -177,11 +177,15 @@ if (environment != "Development")
 builder.Services.AddCors(options => {
     options.AddPolicy(name: "AllowedOrigins",
         policy => {
-            policy.WithOrigins("http://localhost");
+            policy.WithOrigins("http://10.0.1.5")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
         });
 });
 
 var app = builder.Build();
+
+app.UseCors("AllowedOrigins");
 
 // Ensure the database is created and migrated
 using (IServiceScope scope = app.Services.CreateScope())
@@ -209,7 +213,6 @@ if (systemSettings.UseSSL)
     app.UseHttpsRedirection();
 }
 
-app.UseCors("AllowedOrigins");
 
 app.UseAuthentication();
 
