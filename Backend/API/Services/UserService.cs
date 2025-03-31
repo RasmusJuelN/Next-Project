@@ -45,7 +45,8 @@ public class UserService(LdapService ldapService, IUnitOfWork unitOfWork)
             request.Title,
             student: request.Teacher,
             idQuery: request.ActiveQuestionnaireId,
-            userId: userId);
+            userId: userId,
+            onlyStudentCompleted: request.FilterStudentCompleted);
         
         ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;
 

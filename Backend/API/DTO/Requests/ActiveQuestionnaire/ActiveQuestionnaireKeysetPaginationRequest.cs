@@ -35,7 +35,9 @@ public record class ActiveQuestionnaireKeysetPaginationRequestBase
 
 public record class ActiveQuestionnaireKeysetPaginationRequestStudent : ActiveQuestionnaireKeysetPaginationRequestBase
 {
-    public string? Teacher { get; set; }    
+    public string? Teacher { get; set; }
+    public bool FilterStudentCompleted { get; set; }
+
 }
 
 public record class ActiveQuestionnaireKeysetPaginationRequestTeacher : ActiveQuestionnaireKeysetPaginationRequestBase
