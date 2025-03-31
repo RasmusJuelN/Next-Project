@@ -1,12 +1,5 @@
 import { User } from "../../../shared/models/user.model";
 
-export interface Dashboard {
-    activeQuestionaireUrlLink: string;
-    studentName: string;
-    studentCompleted: boolean;
-    teacherCompleted: boolean;
-  }
-
   export interface ActiveQuestionnaireBase {
     id: string;
     title: string;

@@ -15,7 +15,7 @@
           class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-w-0 sm:min-w-[150px]"
         >
           <option value="name" selected>Search by Student Name</option>
-          <option value="id">Search by ID Link</option>
+          <option value="id">Search by Active questionnaire Id</option>
         </select>
 
         <input
@@ -36,7 +36,7 @@
             [(ngModel)]="filterStudentCompleted"
             (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">Student Completed</span>
+          <span class="text-sm">Student is done</span>
         </label>
         <label class="flex items-center gap-1">
           <input
@@ -44,7 +44,7 @@
             [(ngModel)]="filterTeacherCompleted"
             (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">Teacher Completed</span>
+          <span class="text-sm">Teacher is done</span>
         </label>
       </div>
 
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <!-- Loading Indicator Inside Content -->
+    <!-- Loading Indicator -->
     <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
       <app-loading></app-loading>
     </div>
@@ -82,38 +82,44 @@
       >
         <div class="flex flex-col gap-3 w-full sm:w-auto">
           <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-            <span class="font-medium text-gray-800">{{ questionnaire.studentName }}</span>
-            <span class="text-sm text-gray-500"> ID Link: {{ questionnaire.activeQuestionaireUrlLink }} </span>
+            <span class="font-medium text-gray-800">{{ questionnaire.title }}</span>
+            <span class="text-sm text-gray-500">ID Link: {{ questionnaire.id }}</span>
+          </div>
+
+          <div *ngIf="questionnaire.student" class="flex flex-col sm:flex-row gap-2">
+            <span class="text-sm text-gray-700">
+               Student Name: {{ questionnaire.student.fullName }} ({{questionnaire.student.userName}})
+            </span>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-2">
             <span
               class="px-3 py-1 rounded-full text-sm font-medium text-white"
-              [ngClass]="questionnaire.studentCompleted ? 'bg-green-500' : 'bg-red-500'"
+              [ngClass]="questionnaire.studentCompletedAt ? 'bg-green-500' : 'bg-red-500'"
             >
-              Student: {{ questionnaire.studentCompleted ? 'Completed' : 'Pending' }}
+              Student: {{ questionnaire.studentCompletedAt ? 'Completed' : 'Pending' }}
             </span>
             <span
               class="px-3 py-1 rounded-full text-sm font-medium text-white"
-              [ngClass]="questionnaire.teacherCompleted ? 'bg-green-500' : 'bg-red-500'"
+              [ngClass]="questionnaire.teacherCompletedAt ? 'bg-green-500' : 'bg-red-500'"
             >
-              Teacher: {{ questionnaire.teacherCompleted ? 'Completed' : 'Pending' }}
+              Teacher: {{ questionnaire.teacherCompletedAt ? 'Completed' : 'Pending' }}
             </span>
           </div>
         </div>
 
         <div class="mt-4 sm:mt-0 flex gap-2">
           <button
-            *ngIf="!questionnaire.teacherCompleted"
-            [routerLink]="['/answer', questionnaire.activeQuestionaireUrlLink]"
+            *ngIf="!questionnaire.teacherCompletedAt"
+            [routerLink]="['/answer', questionnaire.id]"
             class="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
           >
             Answer
           </button>
 
           <button
-            *ngIf="questionnaire.teacherCompleted && questionnaire.studentCompleted"
-            [routerLink]="['/results', questionnaire.activeQuestionaireUrlLink]"
+            *ngIf="questionnaire.teacherCompletedAt && questionnaire.studentCompletedAt"
+            [routerLink]="['/results', questionnaire.id]"
             class="px-4 py-2 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none"
           >
             View Results
@@ -122,7 +128,6 @@
       </li>
     </ul>
 
-    <!-- Pagination -->
     <app-pagination
       *ngIf="!isLoading && !errorMessage"
       [currentPage]="currentPage"

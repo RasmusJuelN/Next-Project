@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Dashboard } from '../models/dashboard.model';
+import { ActiveQuestionnaireResponse } from '../models/dashboard.model';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
@@ -10,53 +10,37 @@ import { HttpParams } from '@angular/common/http';
   providedIn: 'root'
 })
 export class TeacherService {
-  private apiUrl = `${environment.apiUrl}/teacher`;
+  private apiUrl = `${environment.apiUrl}/user/teacher`;
   private apiService = inject(ApiService);
 
-  // OLD
   getQuestionnaires(
     searchTerm: string,
-    searchType: string,
-    currentPage: number,
-    pageSize: number,
-    filterStudentCompleted: boolean,
-    filterTeacherCompleted: boolean
-  ): Observable<PaginationResponse<Dashboard>> {
-    // Build the query params
-    let params = new HttpParams()
-      .set('searchTerm', searchTerm)
-      .set('searchType', searchType)
-      .set('currentPage', currentPage)
-      .set('pageSize', pageSize)
-      .set('filterStudentCompleted', filterStudentCompleted)
-      .set('filterTeacherCompleted', filterTeacherCompleted);
-
-    return this.apiService.get<PaginationResponse<Dashboard>>(
-      `${this.apiUrl}/questionnaires`,
-      params
-    );
-  }
-
-  NEWgetQuestionnaires(
-    searchTerm: string,
+    searchType: 'name' | 'id',
     queryCursor: string | null,
     pageSize: number,
     filterStudentCompleted: boolean,
     filterTeacherCompleted: boolean
-  ): Observable<PaginationResponse<Dashboard>> {
+  ): Observable<ActiveQuestionnaireResponse> {
     let params = new HttpParams()
       .set('pageSize', pageSize.toString())
-      .set('title', searchTerm)
       .set('filterStudentCompleted', filterStudentCompleted.toString())
       .set('filterTeacherCompleted', filterTeacherCompleted.toString());
-      
+  
     if (queryCursor) {
       params = params.set('queryCursor', queryCursor);
     }
   
-    return this.apiService.get<PaginationResponse<Dashboard>>(
-      `${this.apiUrl}/questionnaires`,
-      params 
+    // Use appropriate query parameter based on search type.
+    if (searchType === 'id') {
+      params = params.set('activeQuestionnaireId', searchTerm);
+    } else {
+      params = params.set('student', searchTerm);
+    }
+  
+    return this.apiService.get<ActiveQuestionnaireResponse>(
+      `${this.apiUrl}/activequestionnaires`,
+      params
     );
   }
+  
 }

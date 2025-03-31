@@ -5,9 +5,8 @@ import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 import { PageChangeEvent, PaginationComponent } from '../../shared/components/pagination/pagination.component';
-import { Dashboard } from './models/dashboard.model';
+import { ActiveQuestionnaireBase, ActiveQuestionnaireResponse } from './models/dashboard.model';
 import { TeacherService } from './services/teacher.service';
-import { PaginationResponse } from '../../shared/models/Pagination.model';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
@@ -18,63 +17,82 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
   styleUrls: ['./teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent implements OnInit {
-  private teacherService = inject(TeacherService)
-  // Search
+  private teacherService = inject(TeacherService);
+
+  // Search state
   searchTerm: string = '';
-  searchType: string = 'name';
+  // "name" will search by student name; "id" will search by active questionnaire ID.
+  searchType: 'name' | 'id' = 'name';
   private searchSubject = new Subject<string>();
 
-  // Pagination
+  // Pagination state
   currentPage: number = 1;
   pageSize: number = 5;
   pageSizeOptions: number[] = [5, 10, 15, 20];
   totalItems: number = 0;
-  totalPages: number = 1; // We'll store totalPages from the service response
+  totalPages: number = 1;
 
+  // Cache cursors by page number; page 1 starts with a null cursor.
+  cachedCursors: { [pageNumber: number]: string | null } = { 1: null };
+
+  // Filters
   filterStudentCompleted = false;
   filterTeacherCompleted = false;
+
   // Data to display
-  displayedQuestionnaires: Dashboard[] = [];
+  displayedQuestionnaires: ActiveQuestionnaireBase[] = [];
 
   isLoading = false;
   errorMessage: string | null = null;
 
   ngOnInit(): void {
-    // Debounce search
+    // Debounce search input to reduce API calls.
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((term) => {
         this.searchTerm = term;
         this.currentPage = 1;
+        this.cachedCursors = { 1: null };
         this.updateDisplay();
       });
 
-    // Initial load
+    // Initial load.
     this.updateDisplay();
   }
 
   /**
-   * Calls the service with current filters/pagination,
-   * and populates this.displayedQuestionnaires, totalItems, totalPages, etc.
+   * Calls the service with current filters/pagination and updates
+   * the displayed questionnaires, cached cursors, totalItems, and totalPages.
    */
   private updateDisplay(): void {
     this.isLoading = true;
     this.errorMessage = null;
 
+    // Get the cursor for the current page (or null for first page).
+    const queryCursor = this.cachedCursors[this.currentPage] ?? null;
+
     this.teacherService
       .getQuestionnaires(
         this.searchTerm,
         this.searchType,
-        this.currentPage,
+        queryCursor,
         this.pageSize,
         this.filterStudentCompleted,
         this.filterTeacherCompleted
       )
       .subscribe({
-        next: (response: PaginationResponse<Dashboard>) => {
-          this.displayedQuestionnaires = response.items;
-          this.totalItems = response.totalItems;
-          this.totalPages = response.totalPages;
+        next: (response: ActiveQuestionnaireResponse) => {
+          // Update the displayed items and pagination state.
+          this.displayedQuestionnaires = response.activeQuestionnaireBases;
+          this.totalItems = response.totalCount;
+          this.totalPages = Math.ceil(response.totalCount / this.pageSize);
+
+          // Cache the cursor for the next page if provided.
+          if (response.queryCursor !== null) {
+            this.cachedCursors[this.currentPage + 1] = response.queryCursor;
+          } else {
+            this.cachedCursors[this.currentPage + 1] = null;
+          }
           this.isLoading = false;
         },
         error: (err) => {
@@ -84,27 +102,31 @@ export class TeacherDashboardComponent implements OnInit {
       });
   }
 
-  // Called when search input changes
+  // Called when search input changes.
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
   }
 
-  // Called when user changes the search type dropdown
+  // Called when user changes the search type (name vs. id).
   onSearchTypeChange(newType: string): void {
-    this.searchType = newType;
+    this.searchType = newType as 'name' | 'id';
     this.currentPage = 1;
+    this.cachedCursors = { 1: null };
     this.updateDisplay();
   }
   
+  // Called when a completion filter is changed.
   onCompletionFilterChange(): void {
-    this.currentPage = 1; // reset page
+    this.currentPage = 1;
+    this.cachedCursors = { 1: null };
     this.updateDisplay();
   }
 
-  // Called when user changes page size
+  // Called when page size changes.
   onPageSizeChange(newSize: string): void {
     this.pageSize = parseInt(newSize, 10);
     this.currentPage = 1;
+    this.cachedCursors = { 1: null };
     this.updateDisplay();
   }
 
@@ -112,10 +134,9 @@ export class TeacherDashboardComponent implements OnInit {
     return size === this.pageSize;
   }
 
-  // Called when pagination component changes page
+  // Called when pagination component emits a page change event.
   onPageChange(event: PageChangeEvent): void {
     this.currentPage = event.page;
     this.updateDisplay();
   }
-  
 }

@@ -31,7 +31,7 @@ export class AuthService {
   private retrySubscription: any;
 
   public login(userName: string, password: string) {
-    const url = `${this.baseUrl}/Auth`;
+    const url = `${this.baseUrl}/auth`;
     const body = new URLSearchParams();
     body.set('username', userName);
     body.set('password', password);
