@@ -183,6 +183,13 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         }
     }
 
+    public async Task<bool> IsActiveQuestionnaireComplete(Guid activeQuestionnaireId)
+    {
+        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires.SingleAsync(a => a.Id == activeQuestionnaireId);
+
+        return activeQuestionnaire.StudentCompletedAt.HasValue && activeQuestionnaire.TeacherCompletedAt.HasValue;
+    }
+
     public async Task<FullResponse> GetFullResponseAsync(Guid id)
     {
         ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires

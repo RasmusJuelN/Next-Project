@@ -106,5 +106,33 @@ namespace API.Controllers
                 return Ok(await _questionnaireService.GetFullResponseAsync(id));
             }
         }
+
+        [HttpGet("{id}/isComplete")]
+        [Authorize(AuthenticationSchemes = "AccessToken")]
+        public async Task<ActionResult<bool>> IsActiveQuestionnaireComplete(Guid id)
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();   
+            }
+
+            if (User.IsInRole("admin"))
+            {
+                return await _questionnaireService.IsActiveQuestionnaireComplete(id);
+            }
+            else if (User.IsInRole("student") || User.IsInRole("teacher"))
+            {
+                return await _questionnaireService.HasUserSubmittedAnswer(userId, id);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
     }
 }
