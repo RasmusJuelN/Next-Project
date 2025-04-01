@@ -102,4 +102,9 @@ public class UserService(LdapService ldapService, IUnitOfWork unitOfWork)
             TotalCount = totalCount
         };
     }
+
+    public async Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid userId)
+    {
+        return await _unitOfWork.ActiveQuestionnaire.GetPendingActiveQuestionnaires(userId);
+    }
 }

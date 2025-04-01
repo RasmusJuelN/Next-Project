@@ -4,7 +4,9 @@ using API.DTO.Requests.User;
 using API.DTO.Responses.ActiveQuestionnaire;
 using API.DTO.Responses.User;
 using API.Exceptions;
+using API.Extensions;
 using API.Services;
+using Database.DTO.ActiveQuestionnaire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,8 +18,8 @@ namespace API.Controllers
     {
         private readonly UserService _userService = userService;
 
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [HttpGet]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         [ProducesResponseType(typeof(UserQueryPaginationResult), StatusCodes.Status200OK)]
         public ActionResult<UserQueryPaginationResult> UserPaginationQuery([FromQuery] UserQueryPagination request)
         {
@@ -50,6 +52,27 @@ namespace API.Controllers
             return Ok(await _userService.GetActiveQuestionnairesForStudent(request, userId));
         }
 
+        [HttpGet("Student/ActiveQuestionnaires/Pending")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "StudentOnly")]
+        [ProducesResponseType(typeof(List<ActiveQuestionnaireStudentBase>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<List<ActiveQuestionnaireStudentBase>>> GetPendingActiveQuestionnairesForStudent()
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();   
+            }
+
+            List<ActiveQuestionnaireBase> activeQuestionnaireBases = await _userService.GetPendingActiveQuestionnaires(userId);
+
+            return Ok(activeQuestionnaireBases.Select(a => a.ToActiveQuestionnaireStudentDTO()).ToList());
+        }
+
         [HttpGet("Teacher/ActiveQuestionnaires")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
         [ProducesResponseType(typeof(List<ActiveQuestionnaireKeysetPaginationResultTeacher>), StatusCodes.Status200OK)]
@@ -67,6 +90,27 @@ namespace API.Controllers
             }
             
             return Ok(await _userService.GetActiveQuestionnairesForTeacher(request, userId));
+        }
+
+        [HttpGet("Teacher/ActiveQuestionnaires/Pending")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        [ProducesResponseType(typeof(List<ActiveQuestionnaireTeacherBase>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<List<ActiveQuestionnaireTeacherBase>>> GetPendingActiveQuestionnairesForTeacher()
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();   
+            }
+
+            List<ActiveQuestionnaireBase> activeQuestionnaireBases = await _userService.GetPendingActiveQuestionnaires(userId);
+
+            return Ok(activeQuestionnaireBases.Select(a => a.ToActiveQuestionnaireTeacherDTO()).ToList());
         }
     }
 }
