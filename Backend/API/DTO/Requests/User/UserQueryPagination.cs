@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace API.DTO.Requests.User;
 
 public record class UserQueryPagination
@@ -8,6 +10,7 @@ public record class UserQueryPagination
     public string? SessionId { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Roles
 {
     Student,
