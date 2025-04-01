@@ -26,4 +26,5 @@ public interface IActiveQuestionnaireRepository
     Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission);
     Task<bool> HasUserSubmittedAnswer(Guid userId, Guid activeQuestionnaireId);
     Task<FullResponse> GetFullResponseAsync(Guid id);
+    Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid id);
 }

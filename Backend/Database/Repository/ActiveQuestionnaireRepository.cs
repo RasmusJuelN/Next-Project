@@ -205,4 +205,25 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         
         return activeQuestionnaire.ToFullResponse();
     }
+
+    public async Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid userId)
+    {
+        UserBaseModel user = await _context.Users.SingleAsync(u => u.Guid == userId);
+
+        List<ActiveQuestionnaireModel> activeQuestionnaireBases;
+        if (user.GetType().Equals(typeof(StudentModel)))
+        {
+            activeQuestionnaireBases = await _context.ActiveQuestionnaires.Include(a => a.Teacher).Where(a => a.Student.Guid == userId && !a.StudentCompletedAt.HasValue).ToListAsync();
+        }
+        else if (user.GetType().Equals(typeof(TeacherModel)))
+        {
+            activeQuestionnaireBases = await _context.ActiveQuestionnaires.Include(a => a.Student).Where(a => a.Teacher.Guid == userId && !a.TeacherCompletedAt.HasValue).ToListAsync();
+        }
+        else
+        {
+            throw new Exception("User is not a student or teacher.");
+        }
+
+        return [.. activeQuestionnaireBases.Select(a => a.ToBaseDto())];
+    }
 }
