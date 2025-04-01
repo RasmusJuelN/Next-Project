@@ -75,16 +75,19 @@ namespace API.Controllers
 
                 Guid userGuid = new(ldapUser.ObjectGUID.ByteValue);
 
-                // Converts ldap role to an internal role
-                string userRole = _JWTSettings.Roles.FirstOrDefault(x => ldapUser.MemberOf.StringValue.Contains(x.Value, StringComparison.CurrentCultureIgnoreCase)).Key;
-                
-                if (userRole.IsNullOrEmpty())
+                string userRole;
+                try
+                {
+                    // Converts ldap role to an internal role
+                    userRole = _JWTSettings.Roles.First(x => ldapUser.MemberOf.StringValue.Contains(x.Value, StringComparison.CurrentCultureIgnoreCase)).Key;
+                }
+                catch (Exception e)
                 {
                     _ldapService.Dispose();
-                    _logger.LogWarning(UserLogEvents.UserLogIn, "Could not determine the role for user {username}", userLogin.Username);
+                    _logger.LogWarning(UserLogEvents.UserLogIn, e, "User {username} successfully logged in, yet the user role could not be determined. {Message}", userLogin.Username, e.Message);
                     return Unauthorized();
                 }
-
+                
                 FullUser? user = await _unitOfWork.User.GetUserAsync(userGuid);
 
                 UserPermissions permissions;

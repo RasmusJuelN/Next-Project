@@ -11,9 +11,16 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ActiveQuestionnaireController(ActiveQuestionnaireService questionnaireService) : ControllerBase
+    public class ActiveQuestionnaireController : ControllerBase
     {
-        private readonly ActiveQuestionnaireService _questionnaireService = questionnaireService;
+        private readonly ActiveQuestionnaireService _questionnaireService;
+        private readonly ILogger _logger;
+
+        public ActiveQuestionnaireController(ActiveQuestionnaireService questionnaireService, ILoggerFactory loggerFactory)
+        {
+            _questionnaireService = questionnaireService;
+            _logger = loggerFactory.CreateLogger(GetType());
+        }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = "AccessToken")]
@@ -40,8 +47,9 @@ namespace API.Controllers
             {
                 userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
                 return Unauthorized();   
             }
             
@@ -64,8 +72,9 @@ namespace API.Controllers
             {
                 userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
                 return Unauthorized();   
             }
 
@@ -75,6 +84,7 @@ namespace API.Controllers
             }
             catch(HttpResponseException ex)
             {
+                _logger.LogError(ex, "Error submitting questionnaire answer: {Message}", ex.Message);
                 return StatusCode((int)ex.StatusCode, ex.Message);
             }
 
@@ -90,8 +100,9 @@ namespace API.Controllers
             {
                 userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
                 return Unauthorized();   
             }
 
@@ -99,6 +110,7 @@ namespace API.Controllers
 
             if (userId != response.Student.User.Guid && userId != response.Teacher.User.Guid)
             {
+                _logger.LogWarning("User {UserId} is not authorized to view questionnaire response for {QuestionnaireId}", userId, id);
                 return Unauthorized();
             }
             else
@@ -116,21 +128,25 @@ namespace API.Controllers
             {
                 userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
                 return Unauthorized();   
             }
 
             if (User.IsInRole("admin"))
             {
+                _logger.LogInformation("Admin user {UserId} checking if questionnaire {QuestionnaireId} is complete", userId, id);
                 return await _questionnaireService.IsActiveQuestionnaireComplete(id);
             }
             else if (User.IsInRole("student") || User.IsInRole("teacher"))
             {
+                _logger.LogInformation("User {UserId} checking if questionnaire {QuestionnaireId} is complete", userId, id);
                 return await _questionnaireService.HasUserSubmittedAnswer(userId, id);
             }
             else
             {
+                _logger.LogWarning("User {UserId} is not authorized to check if questionnaire {QuestionnaireId} is complete", userId, id);
                 return Unauthorized();
             }
         }
