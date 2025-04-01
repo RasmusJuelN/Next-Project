@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -10,6 +11,7 @@ namespace API.Controllers
     public class SocketController : ControllerBase
     {
         [Route("ping")]
+        [AllowAnonymous]
         public async Task Ping()
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
