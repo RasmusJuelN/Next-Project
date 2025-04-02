@@ -13,9 +13,11 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.css'],
 })
-export class QuestionnaireComponent {
+export class QuestionnaireComponent implements OnInit {
   private answerService = inject(AnswerService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   state: QuestionnaireState = {
     template: {
       id: '',
@@ -29,30 +31,50 @@ export class QuestionnaireComponent {
     progress: 0,
     isCompleted: false,
   };
+
   isLoading = true;
   errorMessage: string | null = null;
-  private router = inject(Router);
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const questionnaireId = params.get('id');
       if (questionnaireId) {
-        this.loadQuestionnaire(questionnaireId);
+        this.checkAndLoadQuestionnaire(questionnaireId);
       } else {
         console.error('No questionnaire ID found in route!');
       }
     });
   }
 
-  private loadQuestionnaire(id: string) {
+  private checkAndLoadQuestionnaire(id: string) {
     this.isLoading = true;
+    // First, check if the user has already submitted the questionnaire
+    this.answerService.hasUserSubmited(id).subscribe({
+      next: (hasSubmitted: boolean) => {
+        if (hasSubmitted) {
+          // If already submitted, navigate back to the root
+          this.router.navigate(['/']);
+        } else {
+          // If not submitted, load the questionnaire details
+          this.loadQuestionnaire(id);
+        }
+      },
+      error: (error) => {
+        console.error('Error checking submission status:', error);
+        this.errorMessage = 'An error occurred while checking the questionnaire status. Please try again later.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private loadQuestionnaire(id: string) {
     this.answerService.getActiveQuestionnaireById(id).subscribe({
       next: (template) => {
         if (template) {
           this.state.template = template;
           this.updateProgress();
         } else {
-          this.errorMessage = 'Could not find any data with that link.Did you write it correctly';
+          this.errorMessage = 'Could not find any data with that link. Did you write it correctly?';
         }
         this.isLoading = false;
       },
@@ -137,6 +159,7 @@ export class QuestionnaireComponent {
       alert('Please answer all questions before submitting.');
     }
   }
+
   private updateProgress(): void {
     const currentQuestionAnswered = this.isAnswered ? 1 : 0;
     const totalQuestions = this.state.template.questions.length;

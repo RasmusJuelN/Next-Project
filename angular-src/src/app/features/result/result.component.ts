@@ -21,9 +21,24 @@ export class ResultComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.fetchResult(id);
+      // Tjek om resultatet kan tilgås inden det hentes
+      this.resultService.canGetResult(id).subscribe({
+        next: (canGet: boolean) => {
+          if (canGet) {
+            this.fetchResult(id);
+          } else {
+            this.errorMessage = 'Resultatet er ikke tilgængeligt eller ikke fuldført.';
+            this.isLoading = false;
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          this.errorMessage = 'Fejl ved kontrol af resultatadgang.';
+          this.isLoading = false;
+        }
+      });
     } else {
-      this.errorMessage = 'Invalid result ID.';
+      this.errorMessage = 'Ugyldigt resultat-ID.';
       this.isLoading = false;
     }
   }
@@ -34,13 +49,13 @@ export class ResultComponent implements OnInit {
         if (data) {
           this.result = data;
         } else {
-          this.errorMessage = 'Result not found.';
+          this.errorMessage = 'Resultat ikke fundet.';
         }
         this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = 'Result not found.';
         console.error(err);
+        this.errorMessage = 'Resultat ikke fundet.';
         this.isLoading = false;
       },
     });

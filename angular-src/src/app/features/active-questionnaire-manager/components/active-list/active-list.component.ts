@@ -116,7 +116,6 @@ export class ActiveListComponent implements OnInit {
     const newPage = event.page;
     // When moving forward and we don't have a cached cursor for the new page, fetch data to update it.
     if (event.direction === 'forward' && newPage > this.currentPage && !this.cachedCursors[newPage]) {
-      console.warn('Page not available yet. Fetching...');
       this.currentPage = newPage;
       this.fetchActiveQuestionnaires();
       return;
@@ -125,20 +124,17 @@ export class ActiveListComponent implements OnInit {
     this.fetchActiveQuestionnaires();
   }
   
-  // --- Page Size Change ---
   onPageSizeChange(value: number): void {
     this.pageSize = value;
-    this.currentPage = 1; // Reset to the first page when page size changes
+    this.currentPage = 1;
     this.cachedCursors = { 1: null };
     this.fetchActiveQuestionnaires();
   }
 
-  // --- Data Fetching ---
   private fetchActiveQuestionnaires(): void {
     this.isLoading = true;
-    this.errorMessage = null; // Reset previous errors
+    this.errorMessage = null;
 
-    // Convert a null cursor to undefined before passing to the service.
     const nextCursor = this.cachedCursors[this.currentPage] ?? undefined;
 
     this.activeService
@@ -158,24 +154,21 @@ export class ActiveListComponent implements OnInit {
             this.totalPages = this.currentPage;
             this.cachedCursors[this.currentPage + 1] = null;
           } else if (response.queryCursor) {
-            // Cache the cursor for the next page.
             this.cachedCursors[this.currentPage + 1] = response.queryCursor;
             this.totalItems = response.totalCount;
             this.totalPages = Math.ceil(response.totalCount / this.pageSize);
           } else {
-            // When no cursor is provided, assume current page is the last.
             this.totalPages = this.currentPage;
           }
           this.isLoading = false;
         },
         error: (err) => {
-          this.errorMessage = 'Failed to load active questionnaires. Please try again.';
+          this.errorMessage = 'Kunne ikke indlæse aktive spørgeskemaer. Prøv venligst igen.';
           this.isLoading = false;
         },
       });
   }
 
-  // --- Other UI Actions ---
   toggleListCollapse(): void {
     this.isListCollapsed = !this.isListCollapsed;
   }

@@ -59,4 +59,8 @@ export class TemplateEditorComponent {
   onCancelEdit(): void {
     this.selectedQuestion = null; // Close the editor
   }
+
+  deleteQuestion(question: Question): void {
+    this.template.questions = this.template.questions.filter(q => q.id !== question.id);
+  }
 }

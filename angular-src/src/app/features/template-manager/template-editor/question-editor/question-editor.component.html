@@ -1,26 +1,22 @@
 <div class="question-editor flex flex-col bg-gray-50 p-6 rounded-lg shadow-md space-y-6">
-  <!-- Header -->
-  <h3 class="text-xl font-semibold text-gray-800">Edit Question</h3>
+  <h3 class="text-xl font-semibold text-gray-800">Rediger Spørgsmål</h3>
 
-  <!-- Validation Errors -->
   <div *ngIf="validationErrors.length > 0" class="p-4 bg-red-100 border border-red-400 rounded-lg">
     <ul class="list-disc pl-5 text-sm text-red-700">
       <li *ngFor="let error of validationErrors">{{ error }}</li>
     </ul>
   </div>
 
-  <!-- Question Title -->
   <div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Title:</label>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Titel:</label>
     <input
       type="text"
       [(ngModel)]="question.prompt"
       class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-      placeholder="Enter question title"
+      placeholder="Indtast spørgsmålets titel"
     />
   </div>
 
-  <!-- Custom Answer Checkbox -->
   <div class="flex items-center mb-4">
     <input
       type="checkbox"
@@ -29,46 +25,43 @@
       class="h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
     />
     <label for="custom-answer" class="ml-2 text-sm font-medium text-gray-700">
-      Allow Custom Answer
+      Tillad at skrive dit eget svar
     </label>
   </div>
 
   <!-- Options -->
   <div>
-    <h4 class="text-lg font-medium text-gray-800 mb-4">Options</h4>
+    <h4 class="text-lg font-medium text-gray-800 mb-4">Valgmuligheder</h4>
     <ul class="space-y-4">
       <li
         *ngFor="let option of question.options"
         class="flex flex-col space-y-2 p-4 bg-white border border-gray-300 rounded-lg shadow-sm"
       >
-        <!-- Option Label -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Label:</label>
           <textarea
             [(ngModel)]="option.displayText"
             class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Enter option label"
+            placeholder="Indtast valgmulighedens label"
           ></textarea>
         </div>
 
-        <!-- Delete Option -->
         <div>
           <button
             (click)="deleteOption(option.id)"
             class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-400"
           >
-            Delete Option
+            Slet Valgmulighed
           </button>
         </div>
       </li>
     </ul>
-    <!-- Add Option Button -->
     <div class="text-center mt-6">
       <button
         (click)="addOption()"
         class="px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
       >
-        Add New Option
+        Tilføj Ny Valgmulighed
       </button>
     </div>
   </div>
@@ -79,13 +72,13 @@
       (click)="onSave()"
       class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
     >
-      Save Question
+      Gem Spørgsmål
     </button>
     <button
       (click)="onCancel()"
       class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:ring-2 focus:ring-gray-400"
     >
-      Cancel
+      Annuller
     </button>
   </div>
 </div>

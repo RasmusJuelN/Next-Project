@@ -28,17 +28,17 @@ export class HeaderComponent {
   // Role-specific navigation links
   navLinks: Record<Role, { name: string; route: string }[]> = {
     [Role.Student]: [
-      { name: 'current active questionnaires', route: '/show-active-questionnaires' }
+      { name: 'Nuværende aktive spørgeskemaer', route: '/show-active-questionnaires' }
     ],
     [Role.Teacher]: [
       //{ name: 'Overview', route: '/hub' },
-      { name: 'Teacher dashboard', route: '/teacher-dashboard' },
-      { name: 'current active questionnaires', route: '/show-active-questionnaires' }
+      { name: 'Oversigt', route: '/teacher-dashboard' },
+      { name: 'Nuværende aktive spørgeskemaer', route: '/show-active-questionnaires' }
     ],
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },
-      { name: 'Questionnaire Templates', route: '/templates' },
-      { name: 'Assign Questionnaire', route: '/active-questionnaire' }
+      { name: 'spørgeskemae skabaloner', route: '/templates' },
+      { name: 'udelt spørgeskema', route: '/active-questionnaire' }
     ],
   };
 

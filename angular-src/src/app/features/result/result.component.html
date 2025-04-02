@@ -1,34 +1,32 @@
-<div *ngIf="isLoading" class="text-center text-gray-700">Loading...</div>
+<div *ngIf="isLoading" class="text-center text-gray-700">Indlæser...</div>
 <div *ngIf="errorMessage" class="text-center text-red-500">{{ errorMessage }}</div>
 
 <div *ngIf="result" class="answer-session bg-gray-100 p-6 max-w-4xl mx-auto print:bg-white print:shadow-none print:p-0 print:overflow-visible">
   <h2 class="text-2xl font-semibold text-gray-800 mb-6 print:text-black">
-    Template: {{ result.title }}
+    Skabelon: {{ result.title }}
   </h2>
   <h3>Id: {{ result.id }}</h3>
 
-  <!-- User Info Section -->
+  <!-- Brugerinfo sektion -->
   <div class="user-info-section mb-8 border-b print:border-gray-400 pb-4">
-    <!-- Student Info -->
+    <!-- Elev info -->
     <div class="info-item mb-4">
-      <span class="block font-bold text-gray-700 print:text-black">Student:</span>
+      <span class="block font-bold text-gray-700 print:text-black">Elev:</span>
       <span class="block text-gray-900 print:text-black">{{ result.student.user.fullName }}</span>
       <span class="block text-gray-500 print:text-black">
-        Completed At: {{ result.student.completedAt | date:'medium' }}
+        Fuldført den: {{ result.student.completedAt | date:'medium' }}
       </span>
     </div>
   
-    <!-- Teacher Info -->
     <div class="info-item">
-      <span class="block font-bold text-gray-700 print:text-black">Teacher:</span>
+      <span class="block font-bold text-gray-700 print:text-black">Lærer:</span>
       <span class="block text-gray-900 print:text-black">{{ result.teacher.user.fullName }}</span>
       <span class="block text-gray-500 print:text-black">
-        Completed At: {{ result.teacher.completedAt | date:'medium' }}
+        Fuldført den: {{ result.teacher.completedAt | date:'medium' }}
       </span>
     </div>
   </div>
 
-  <!-- Questions and Answers Section -->
   <div class="questions-section space-y-6">
     <div *ngFor="let answer of result.answers" class="question-answer-pair print:break-inside-avoid">
       <h3 class="text-lg font-semibold text-gray-800 mb-3 print:text-black">
@@ -36,18 +34,18 @@
       </h3>
 
       <div class="answers-comparison grid grid-cols-2 gap-4 print:grid-cols-1 print:border-b print:pb-4 print:mb-4">
-        <!-- Student's Answer -->
+        <!-- Elevens svar -->
         <div class="answer-container bg-gray-50 p-4 rounded-lg print:bg-transparent print:p-0">
-          <span class="block font-bold text-gray-700 print:text-black">Student:</span>
+          <span class="block font-bold text-gray-700 print:text-black">Elev:</span>
           <p class="text-gray-900 print:text-black">{{ answer.studentResponse }}</p>
-          <span *ngIf="answer.isStudentResponseCustom" class="text-sm text-blue-500">Custom Response</span>
+          <span *ngIf="answer.isStudentResponseCustom" class="text-sm text-blue-500">Brugerdefineret svar</span>
         </div>
 
-        <!-- Teacher's Answer -->
+        <!-- Lærerens svar -->
         <div class="answer-container bg-gray-50 p-4 rounded-lg print:bg-transparent print:p-0">
-          <span class="block font-bold text-gray-700 print:text-black">Teacher:</span>
+          <span class="block font-bold text-gray-700 print:text-black">instruktør:</span>
           <p class="text-gray-900 print:text-black">{{ answer.teacherResponse }}</p>
-          <span *ngIf="answer.isTeacherResponseCustom" class="text-sm text-blue-500">Custom Response</span>
+          <span *ngIf="answer.isTeacherResponseCustom" class="text-sm text-blue-500">Brugerdefineret svar</span>
         </div>
       </div>
     </div>

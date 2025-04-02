@@ -1,55 +1,49 @@
 <div class="flex flex-col bg-white shadow-md rounded-lg p-6 sm:p-8 sm: sm:max-w-[900px] mx-auto">
-  <!-- Always Visible Search & Actions -->
   <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
-    Manage Active Questionnaires
+    Administrer Aktive Spørgeskemaer
   </h2>
 
   <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 w-full">
-    <!-- Assign Button -->
     <button 
       (click)="onCreateNewQuestionnaire()"
       class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded w-full sm:w-auto">
-      Assign New Questionnaire
+      Tildel et Spørgeskema
     </button>
 
-    <!-- Search Inputs -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-      <!-- Search by Student -->
       <div class="flex flex-col w-full">
-        <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search by Student:</label>
+        <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter elever:</label>
         <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
           <select [(ngModel)]="searchStudentType" (change)="onSearchStudentTypeChange(searchStudentType)"
             class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[110px]">
-            <option value="fullName">Full Name</option>
-            <option value="userName">Username</option>
-            <option value="both" selected>Both</option>
+            <option value="fullName">Fulde Navn</option>
+            <option value="userName">Brugernavn</option>
+            <option value="both" selected>Begge</option>
           </select>
-          <input type="text" placeholder="Type here..." [(ngModel)]="searchStudent"
+          <input type="text" placeholder="Skriv her..." [(ngModel)]="searchStudent"
             (ngModelChange)="onSearchStudentChange($event)"
             class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" />
         </div>
       </div>
 
-      <!-- Search by Teacher -->
       <div class="flex flex-col w-full">
-        <label class="text-gray-700 text-sm mb-1 sm:mb-2">Search by Teacher:</label>
+        <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter instruktør:</label>
         <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
           <select [(ngModel)]="searchTeacherType" (change)="onSearchTeacherTypeChange(searchTeacherType)"
             class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[110px]">
-            <option value="fullName">Full Name</option>
-            <option value="userName">Username</option>
-            <option value="both" selected>Both</option>
+            <option value="fullName">Fulde Navn</option>
+            <option value="userName">Brugernavn</option>
+            <option value="both" selected>Begge</option>
           </select>
-          <input type="text" placeholder="Type here..." [(ngModel)]="searchTeacher"
+          <input type="text" placeholder="Skriv her..." [(ngModel)]="searchTeacher"
             (ngModelChange)="onSearchTeacherChange($event)"
             class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" />
         </div>
       </div>
     </div>
 
-    <!-- Page Size Selection -->
     <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-      <label class="text-gray-700 font-medium">Items per page:</label>
+      <label class="text-gray-700 font-medium">Elementer pr. side:</label>
       <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)"
         class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[80px]">
         <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
@@ -57,95 +51,85 @@
     </div>
   </div>
 
-  <!-- Clickable Section to Collapse Just the List -->
   <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 cursor-pointer flex items-center justify-between"
       (click)="toggleListCollapse()">
-    Active Questionnaires
+    Aktive Spørgeskemaer
     <span [class.rotate-180]="isListCollapsed" class="transition-transform duration-300">
       ▼
     </span>
   </h2>
 
-  <!-- Active Questionnaires List -->
   <div *ngIf="!isListCollapsed">
-    <!-- Loading Indicator Inside Content -->
     <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
       <app-loading></app-loading>
     </div>
 
-    <!-- Error Message -->
     <div *ngIf="errorMessage" class="text-center p-4">
       <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
     </div>
 
-    <!-- Active Questionnaires List -->
+
     <ul class="space-y-6 mt-6" *ngIf="!isLoading && !errorMessage">
       <li *ngFor="let questionnaire of activeQuestionnaires"
         class="p-5 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 border border-gray-200">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- ID, Title & Activated At - Now in one row -->
           <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_3fr_2fr] gap-4">
-            <!-- Questionnaire ID -->
+
             <div class="bg-white p-4 rounded-lg shadow-sm border">
-              <strong class="text-gray-800">Link ID:</strong>
+              <strong class="text-gray-800">ID:</strong>
               <p class="text-sm text-gray-600">{{ questionnaire.id }}</p>
             </div>
 
-            <!-- Title -->
             <div class="bg-white p-4 rounded-lg shadow-sm border">
-              <strong class="text-gray-800">Title:</strong>
+              <strong class="text-gray-800">Titel på spørgeskema:</strong>
               <p class="text-sm text-gray-600">{{ questionnaire.title }}</p>
             </div>
 
-            <!-- Activated At -->
             <div class="bg-white p-4 rounded-lg shadow-sm border">
-              <strong class="text-gray-800">Activated At:</strong>
-              <p class="text-sm text-gray-600">{{ questionnaire.activatedAt | date:'short' }}</p>
+              <strong class="text-gray-800">Aktiveret:</strong>
+              <p class="text-sm text-gray-600">{{ questionnaire.activatedAt | date:'HH:mm' }}</p>
             </div>
           </div>
 
-          <!-- Student & Teacher Info -->
           <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">Student:</strong>
+            <strong class="text-gray-800">elev:</strong>
             <p class="text-sm text-gray-600">
               {{ questionnaire.student.fullName }} ({{ questionnaire.student.userName }})
             </p>
           </div>
 
           <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">Teacher:</strong>
+            <strong class="text-gray-800">instruktør:</strong>
             <p class="text-sm text-gray-600">
               {{ questionnaire.teacher.fullName }} ({{ questionnaire.teacher.userName }})
             </p>
           </div>
 
-          <!-- Completion Status & Completion Dates -->
           <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">Student Completed:</strong>
+            <strong class="text-gray-800">elev færdig:</strong>
             <p class="text-sm font-semibold"
               [ngClass]="{'text-red-500': !questionnaire.studentCompletedAt, 'text-green-500': questionnaire.studentCompletedAt}">
-              {{ questionnaire.studentCompletedAt ? "Completed" : "Not completed" }}
+              {{ questionnaire.studentCompletedAt ? "Fuldført" : "Ikke fuldført" }}
             </p>
             <p *ngIf="questionnaire.studentCompletedAt" class="text-xs text-gray-500">
-              {{ questionnaire.studentCompletedAt | date:'short' }}
+              {{ questionnaire.studentCompletedAt | date:'HH:mm' }}
             </p>
           </div>
 
           <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">Teacher Completed:</strong>
+            <strong class="text-gray-800">instruktør færdig:</strong>
             <p class="text-sm font-semibold"
               [ngClass]="{'text-red-500': !questionnaire.teacherCompletedAt, 'text-green-500': questionnaire.teacherCompletedAt}">
-              {{ questionnaire.teacherCompletedAt ? "Completed" : "Not completed" }}
+              {{ questionnaire.teacherCompletedAt ? "Fuldført" : "Ikke fuldført" }}
             </p>
             <p *ngIf="questionnaire.teacherCompletedAt" class="text-xs text-gray-500">
-              {{ questionnaire.teacherCompletedAt | date:'short' }}
+              {{ questionnaire.teacherCompletedAt | date:'HH:mm' }}
             </p>
           </div>
         </div>
       </li>
     </ul>
 
-    <!-- Pagination -->
     <app-pagination 
       *ngIf="!isLoading && !errorMessage"
       [currentPage]="currentPage"

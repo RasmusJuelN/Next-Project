@@ -19,16 +19,10 @@ export class ShowActiveQuestionnaireComponent {
   authService = inject(AuthService);
 
   activeQuestionnaires: ActiveQuestionnaireBase[] = [];
-  // Hold the current cursor returned from the API
-  queryCursor: string | null = null;
-  // Optional: store a history of cursors to enable "back" navigation
-  previousCursors: string[] = [];
-  // Store the current user role (e.g. Role.Student or Role.Teacher)
   currentUserRole!: Role;
   public Role = Role;
 
   ngOnInit(): void {
-    // Get the current user role and then fetch the questionnaires.
     this.authService.userRole$.pipe(take(1)).subscribe((role) => {
       if (role) {
         this.currentUserRole = role as Role;
@@ -36,36 +30,15 @@ export class ShowActiveQuestionnaireComponent {
       }
     });
   }
-  
-  fetch(cursor?: string): void {
-    this.showActiveService.fetchActiveQuestionnaires(cursor).subscribe({
-      next: (response: ActiveQuestionnaireResponse) => {
-        if (cursor) {
-          if (this.queryCursor) {
-            this.previousCursors.push(this.queryCursor);
-          }
-          this.activeQuestionnaires = [...this.activeQuestionnaires, ...response.activeQuestionnaireBases];
-        } else {
-          this.activeQuestionnaires = response.activeQuestionnaireBases;
-        }
-        this.queryCursor = response.queryCursor;
+
+  fetch(): void {
+    this.showActiveService.fetchActiveQuestionnaires().subscribe({
+      next: (response: ActiveQuestionnaireBase[]) => {
+        this.activeQuestionnaires = response;
       },
       error: (error) => {
         console.error('Error fetching active questionnaires:', error);
       }
     });
-  }
-
-  loadMore(): void {
-    if (this.queryCursor) {
-      this.fetch(this.queryCursor);
-    }
-  }
-
-  loadPrevious(): void {
-    if (this.previousCursors.length) {
-      const prevCursor = this.previousCursors.pop()!;
-      this.fetch(prevCursor);
-    }
   }
 }

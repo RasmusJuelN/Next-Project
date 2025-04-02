@@ -16,6 +16,10 @@ export class AnswerService {
     return this.http.put<void>(`${this.apiUrl}/active-questionnaire/${id}/submitanswer`, answers);
   }
 
+  hasUserSubmited(id:string){
+    return this.http.get<boolean>(`${this.apiUrl}/active-questionnaire/${id}/isAnswered`);
+  }
+
   // Get active questionnaire by instance ID
   getActiveQuestionnaireById(instanceId: string): Observable<Questionnaire> {
     return this.http.get<Questionnaire>(`${this.apiUrl}/active-questionnaire/${instanceId}`);

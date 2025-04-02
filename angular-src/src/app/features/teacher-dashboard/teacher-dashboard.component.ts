@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard'; 
 import { PageChangeEvent, PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { ActiveQuestionnaireBase, ActiveQuestionnaireResponse } from './models/dashboard.model';
 import { TeacherService } from './services/teacher.service';
@@ -12,13 +12,13 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
-  imports: [FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent],
+  imports: [ClipboardModule,FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent],
   templateUrl: './teacher-dashboard.component.html',
   styleUrls: ['./teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent implements OnInit {
   private teacherService = inject(TeacherService);
-
+  private clipboard = inject(Clipboard); // For copying active questionaire id
   // Search state
   searchTerm: string = '';
   // "name" will search by student name; "id" will search by active questionnaire ID.
@@ -102,12 +102,10 @@ export class TeacherDashboardComponent implements OnInit {
       });
   }
 
-  // Called when search input changes.
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
   }
 
-  // Called when user changes the search type (name vs. id).
   onSearchTypeChange(newType: string): void {
     this.searchType = newType as 'name' | 'id';
     this.currentPage = 1;
@@ -115,14 +113,12 @@ export class TeacherDashboardComponent implements OnInit {
     this.updateDisplay();
   }
   
-  // Called when a completion filter is changed.
   onCompletionFilterChange(): void {
     this.currentPage = 1;
     this.cachedCursors = { 1: null };
     this.updateDisplay();
   }
-
-  // Called when page size changes.
+  
   onPageSizeChange(newSize: string): void {
     this.pageSize = parseInt(newSize, 10);
     this.currentPage = 1;
@@ -134,9 +130,14 @@ export class TeacherDashboardComponent implements OnInit {
     return size === this.pageSize;
   }
 
-  // Called when pagination component emits a page change event.
   onPageChange(event: PageChangeEvent): void {
     this.currentPage = event.page;
     this.updateDisplay();
+  }
+
+  copyAnswersUrl(id: string): void {
+    const url = `${window.location.origin}/answer/${id}`;
+    this.clipboard.copy(url);
+    console.log(`URL ${url} copied to clipboard!`);
   }
 }
