@@ -119,9 +119,9 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("{id}/isComplete")]
-        [Authorize(AuthenticationSchemes = "AccessToken")]
-        public async Task<ActionResult<bool>> IsActiveQuestionnaireComplete(Guid id)
+        [HttpGet("{id}/isAnswered")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "StudentAndTeacherOnly")]
+        public async Task<ActionResult<bool>> CheckIfQuestionnaireAnswered(Guid id)
         {
             Guid userId;
             try
@@ -134,21 +134,25 @@ namespace API.Controllers
                 return Unauthorized();   
             }
 
-            if (User.IsInRole("admin"))
+            return await _questionnaireService.HasUserSubmittedAnswer(userId, id);
+        }
+
+        [HttpGet("{id}/IsCompleted")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<bool>> CheckifQuestionnaireCompleted(Guid id)
+        {
+            Guid userId;
+            try
             {
-                _logger.LogInformation("Admin user {UserId} checking if questionnaire {QuestionnaireId} is complete", userId, id);
-                return await _questionnaireService.IsActiveQuestionnaireComplete(id);
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
             }
-            else if (User.IsInRole("student") || User.IsInRole("teacher"))
+            catch (Exception e)
             {
-                _logger.LogInformation("User {UserId} checking if questionnaire {QuestionnaireId} is complete", userId, id);
-                return await _questionnaireService.HasUserSubmittedAnswer(userId, id);
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
+                return Unauthorized();   
             }
-            else
-            {
-                _logger.LogWarning("User {UserId} is not authorized to check if questionnaire {QuestionnaireId} is complete", userId, id);
-                return Unauthorized();
-            }
+
+            return await _questionnaireService.IsActiveQuestionnaireComplete(id, userId);
         }
     }
 }

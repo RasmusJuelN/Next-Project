@@ -115,9 +115,16 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         return await _unitOfWork.ActiveQuestionnaire.HasUserSubmittedAnswer(userId, activeQuestionnaireId);
     }
 
-    public async Task<bool> IsActiveQuestionnaireComplete(Guid activeQuestionnaireId)
+    public async Task<bool> IsActiveQuestionnaireComplete(Guid activeQuestionnaireId, Guid? userId = null)
     {
-        return await _unitOfWork.ActiveQuestionnaire.IsActiveQuestionnaireComplete(activeQuestionnaireId);
+        if (userId.HasValue)
+        {
+            return await _unitOfWork.ActiveQuestionnaire.IsActiveQuestionnaireComplete(activeQuestionnaireId, (Guid)userId);
+        }
+        else
+        {
+            return await _unitOfWork.ActiveQuestionnaire.IsActiveQuestionnaireComplete(activeQuestionnaireId);
+        }
     }
 
     // The new() constraint on generics don't allow classes with required properties, so we can't make this generic :v
