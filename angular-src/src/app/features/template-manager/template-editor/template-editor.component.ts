@@ -44,6 +44,7 @@ export class TemplateEditorComponent {
 
   // Save the edited question
   onSaveQuestion(updatedQuestion: Question): void {
+    console.log(updatedQuestion)
     // Find the index of the question in the template
     const questionIndex = this.template.questions.findIndex(q => q.id === updatedQuestion.id);
 

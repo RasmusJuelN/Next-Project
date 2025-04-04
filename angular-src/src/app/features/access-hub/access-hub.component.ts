@@ -19,18 +19,21 @@ export class AccessHubComponent {
 
   // Define navLinks with a specific type
   navLinks: Partial<Record<Role, { name: string; route: string }[]>> = {
-    [Role.Student]: [],
+    [Role.Student]: [
+      { name: 'Nuværende aktive spørgeskemaer', route: '/show-active-questionnaires' }
+    ],
     [Role.Teacher]: [
-      { name: 'Teacher dashboard', route: '/teacher-dashboard' }
+      { name: 'Oversigt', route: '/teacher-dashboard' },
+      { name: 'Nuværende aktive spørgeskemaer', route: '/show-active-questionnaires' }
+
     ],
     [Role.Admin]: [
-      { name: 'Template Manager', route: '/templates' },
-      { name: 'Active Questionnaire Manager', route: '/active-questionnaire' }
+      { name: 'spørgeskemaer skabelon Manager', route: '/templates' },
+      { name: 'Aktive spørgeskemaer manager', route: '/active-questionnaire' }
     ]
   };
 
   ngOnInit(): void {
-    // Subscribe to authentication state changes
     this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       this.isAuthenticated = isAuthenticated;
     });

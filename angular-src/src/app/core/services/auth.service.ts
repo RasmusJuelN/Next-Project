@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, catchError, interval, map, of, switchMap, takeUntil, tap, timer,firstValueFrom } from 'rxjs';
+import { BehaviorSubject, catchError, interval, map, of, switchMap, tap, timer, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
+import { User } from '../../shared/models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -39,27 +40,62 @@ export class AuthService {
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
 
     return this.apiService
-    .post<{ authToken: string }>(url, body.toString(), undefined, headers)
-    .pipe(
-      tap((response) => {
-        if (response.authToken) {
-          this.tokenService.setToken(response.authToken);
-          this.isAuthenticatedSubject.next(true);
-          this.userRoleSubject.next(this.getUserRole());
-          this.isOnlineSubject.next(true);
-        }
-      }),
-      catchError((err) => {
-        console.error('Authentication failed:', err);
-        this.logout();
-        return of(false);
-      })
-    );
-  
+      .post<{ authToken: string, refreshToken: string }>(url, body.toString(), undefined, headers)
+      .pipe(
+        tap((response) => {
+          if (response.authToken && response.refreshToken) {
+            this.tokenService.setToken(response.authToken);
+            this.tokenService.setRefreshToken(response.refreshToken);
+            this.isAuthenticatedSubject.next(true);
+            this.userRoleSubject.next(this.getUserRole());
+            this.isOnlineSubject.next(true);
+          }
+        }),
+        catchError((err) => {
+          console.error('Authentication failed:', err);
+          this.logout();
+          return of(false);
+        })
+      );
+  }
+
+  public refreshToken() {
+    const refreshToken = this.tokenService.getRefreshToken();
+    const expiredToken = this.tokenService.getToken();
+    if (!refreshToken || !expiredToken) {
+      this.logout();
+      return of(null);
+    }
+
+    const url = `${this.baseUrl}/auth/refresh`;
+
+    // Build headers using the refresh token
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${refreshToken}`,
+      'Content-Type': 'application/json'
+    });
+
+    // The refresh endpoint expects the expired access token in the body.
+    return this.apiService
+      .post<{ authToken: string, refreshToken: string }>(url, expiredToken, undefined, headers)
+      .pipe(
+        tap((response) => {
+          if (response.authToken && response.refreshToken) {
+            this.tokenService.setToken(response.authToken);
+            this.tokenService.setRefreshToken(response.refreshToken);
+          }
+        }),
+        catchError((err) => {
+          console.error('Refresh token failed:', err);
+          this.logout();
+          return of(null);
+        })
+      );
   }
 
   public logout(): void {
     this.tokenService.clearToken();
+    this.tokenService.clearRefreshToken();
     this.clearAuthState();
     // Optionally stop any retry attempts if the user logs out
     this.stopRetrying();
@@ -74,12 +110,12 @@ export class AuthService {
   public initializeAuthState(): Promise<boolean> {
     const tokenExists = this.tokenService.tokenExists();
     const tokenValid = !this.tokenService.isTokenExpired();
-  
+
     if (!tokenExists || !tokenValid) {
       this.logout();
       return Promise.resolve(false);
     }
-  
+
     return firstValueFrom(
       this.checkServerConnection().pipe(
         tap((serverIsOnline) => {
@@ -96,7 +132,6 @@ export class AuthService {
       )
     );
   }
-
 
   /**
    * Performs a simple server "ping" to confirm connectivity.
@@ -155,6 +190,20 @@ export class AuthService {
       this.retrySubscription = null;
     }
   }
+
+  getUser(): User | null {
+    const id = this.getTokenInfo<string>('sub');
+    const userName = this.getTokenInfo<string>('unique_name');
+    const fullName = this.getTokenInfo<string>('name');
+    const role = this.getTokenInfo<string>('role');
+    
+    if (id && userName && fullName && role) {
+      return { id, userName, fullName, role };
+    }
+    
+    return null;
+  }
+
   getUserId(): string | null {
     return this.getTokenInfo<string>('sub');
   }
