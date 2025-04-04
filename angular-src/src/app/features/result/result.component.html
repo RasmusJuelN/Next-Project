@@ -1,15 +1,19 @@
 <div *ngIf="isLoading" class="text-center text-gray-700">Indlæser...</div>
 <div *ngIf="errorMessage" class="text-center text-red-500">{{ errorMessage }}</div>
 
-<div *ngIf="result" class="answer-session bg-gray-100 p-6 max-w-4xl mx-auto print:bg-white print:shadow-none print:p-0 print:overflow-visible">
+<div *ngIf="result" class="answer-session bg-gray-100 p-6 max-w-4xl mx-auto print:bg-white print:shadow-none print:p-0 print:overflow-visible relative">
+  <button
+  (click)="printPage()"
+  class="absolute top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded print:hidden"
+>
+  Print
+</button>
   <h2 class="text-2xl font-semibold text-gray-800 mb-6 print:text-black">
     Skabelon: {{ result.title }}
   </h2>
   <h3>Id: {{ result.id }}</h3>
 
-  <!-- Brugerinfo sektion -->
   <div class="user-info-section mb-8 border-b print:border-gray-400 pb-4">
-    <!-- Elev info -->
     <div class="info-item mb-4">
       <span class="block font-bold text-gray-700 print:text-black">Elev:</span>
       <span class="block text-gray-900 print:text-black">{{ result.student.user.fullName }}</span>
@@ -34,14 +38,13 @@
       </h3>
 
       <div class="answers-comparison grid grid-cols-2 gap-4 print:grid-cols-1 print:border-b print:pb-4 print:mb-4">
-        <!-- Elevens svar -->
+        
         <div class="answer-container bg-gray-50 p-4 rounded-lg print:bg-transparent print:p-0">
           <span class="block font-bold text-gray-700 print:text-black">Elev:</span>
           <p class="text-gray-900 print:text-black">{{ answer.studentResponse }}</p>
           <span *ngIf="answer.isStudentResponseCustom" class="text-sm text-blue-500">Brugerdefineret svar</span>
         </div>
 
-        <!-- Lærerens svar -->
         <div class="answer-container bg-gray-50 p-4 rounded-lg print:bg-transparent print:p-0">
           <span class="block font-bold text-gray-700 print:text-black">instruktør:</span>
           <p class="text-gray-900 print:text-black">{{ answer.teacherResponse }}</p>

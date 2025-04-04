@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
-import { jwtDecode } from "jwt-decode";
+import { Injectable } from '@angular/core';
+import {jwtDecode} from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 export class TokenService {
   private decodedToken: { [key: string]: any } | null = null;
   private readonly tokenKey = 'token';
+  private readonly refreshTokenKey = 'refresh_token';
 
   setToken(token: string): void {
     if (token) {
@@ -15,8 +16,16 @@ export class TokenService {
     }
   }
 
+  setRefreshToken(refreshToken: string): void {
+    localStorage.setItem(this.refreshTokenKey, refreshToken);
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.refreshTokenKey);
   }
 
   private decodeToken(token: string): { [key: string]: any } | null {
@@ -49,7 +58,15 @@ export class TokenService {
     this.decodedToken = null;
   }
 
+  clearRefreshToken(): void {
+    localStorage.removeItem(this.refreshTokenKey);
+  }
+
   tokenExists(): boolean {
     return !!this.getToken();
+  }
+
+  refreshTokenExists(): boolean {
+    return !!this.getRefreshToken();
   }
 }

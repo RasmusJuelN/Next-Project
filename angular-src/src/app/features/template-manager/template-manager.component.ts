@@ -29,6 +29,9 @@ export class TemplateManagerComponent {
   templateBases: TemplateBase[] = [];
   cachedCursors: { [pageNumber: number]: string | null } = {};
   selectedTemplate: Template | null = null;
+  
+  // New property to control locked modal visibility
+  showLockedModal: boolean = false;
 
   // Search & Pagination parameters.
   searchTerm = '';
@@ -125,6 +128,7 @@ export class TemplateManagerComponent {
     this.fetchTemplateBases();
   }
 
+  // Update selectTemplate to check if the template is locked
   selectTemplate(templateBaseId: string): void {
     this.selectedTemplate = null;
     this.isLoading = true;
@@ -132,7 +136,14 @@ export class TemplateManagerComponent {
       .getTemplateDetails(templateBaseId)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (fullTemplate) => (this.selectedTemplate = fullTemplate),
+        next: (fullTemplate) => {
+          if (fullTemplate.isLocked) {
+            // Show modal if the template is locked
+            this.showLockedModal = true;
+          } else {
+            this.selectedTemplate = fullTemplate;
+          }
+        },
         error: (err) => {
           console.error('Error fetching full template:', err);
           this.errorMessage = 'Failed to load the full template details.';
@@ -218,5 +229,10 @@ export class TemplateManagerComponent {
 
   onCancelEdit(): void {
     this.selectedTemplate = null;
+  }
+
+  // New method to close the locked modal.
+  closeLockedModal(): void {
+    this.showLockedModal = false;
   }
 }

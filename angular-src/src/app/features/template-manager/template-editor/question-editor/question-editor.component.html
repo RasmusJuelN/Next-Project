@@ -1,11 +1,15 @@
 <div class="question-editor flex flex-col bg-gray-50 p-6 rounded-lg shadow-md space-y-6">
   <h3 class="text-xl font-semibold text-gray-800">Rediger Spørgsmål</h3>
 
-  <div *ngIf="validationErrors.length > 0" class="p-4 bg-red-100 border border-red-400 rounded-lg">
-    <ul class="list-disc pl-5 text-sm text-red-700">
-      <li *ngFor="let error of validationErrors">{{ error }}</li>
-    </ul>
-  </div>
+  <div
+  *ngIf="validationErrors.length > 0"
+  #errorContainer
+  class="p-4 bg-red-100 border border-red-400 rounded-lg"
+>
+  <ul class="list-disc pl-5 text-sm text-red-700">
+    <li *ngFor="let error of validationErrors">{{ error }}</li>
+  </ul>
+</div>
 
   <div>
     <label class="block text-sm font-medium text-gray-700 mb-2">Titel:</label>
