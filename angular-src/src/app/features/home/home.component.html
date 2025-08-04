@@ -12,31 +12,83 @@
 
     <!-- Action Buttons -->
     <div class="space-y-4">
+      <!-- Active Questionnaire Button -->
       <button
         *ngIf="activeQuestionnaireString"
-        class="dashboard-button w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        class="group relative w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-200 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
         (click)="toActiveQuestionnaire()"
       >
-        Et spørgeskema kan blive svaret
-
+        <!-- <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <div class="text-left">
+              <div class="font-semibold">Aktiv spørgeskema</div>
+              <div class="text-sm text-blue-100">Klar til at blive besvaret</div>
+            </div>
+          </div>
+          <div class="w-5 h-5 text-white/70 group-hover:text-white group-hover:translate-x-1 transition-all duration-200">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </div> -->
+        
+        <!-- Notification badge -->
+        <div class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
+          !
+        </div>
       </button>
 
-      <!-- <button
+      <!-- Teacher/Admin Navigation Button -->
+      <button
         *ngIf="userRole === 'teacher' || userRole === 'admin'"
-        class="dashboard-button w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+        class="group relative w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 px-6 rounded-xl hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-4 focus:ring-green-200 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
         (click)="toHub()"
       >
-        Navigation muligheder.
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+            </div>
+            <div class="text-left">
+              <div class="font-semibold">Navigation muligheder</div>
+              <!-- <div class="text-sm text-green-100">Administrer og organiser</div> -->
+            </div>
+          </div>
+          <div class="w-5 h-5 text-white/70 group-hover:text-white group-hover:translate-x-1 transition-all duration-200">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </div>
       </button>
 
+      <!-- Logout Button -->
       <button
-        class="logout-button w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        class="group relative w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 px-6 rounded-xl hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-red-200 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
         (click)="logout()"
       >
         Log ud
-      </button> -->
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+      <p class="text-xs text-gray-500">
+        Vælg en handling ovenfor for at fortsætte
+      </p>
     </div>
   </div>
+
+  <!-- Background decorative elements -->
+  <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
+  <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-200 rounded-full opacity-20 blur-3xl"></div>
 </div>
 
 <ng-template #loginForm>
