@@ -21,10 +21,15 @@ export class LoginComponent {
   userName = '';
   password = '';
   errorMessage = '';
+  // 
+   isLoading = false;
 
   login() {
+        this.isLoading = true; //  Set loading to true
+
     this.authService.login(this.userName, this.password).subscribe({
       next: (isAuthenticated) => {
+        this.isLoading = false; // Set loading to false after login attempt
         if (isAuthenticated) {
           this.loggedIn.emit(true); // Notify parent component of successful login
         } else {
@@ -34,6 +39,7 @@ export class LoginComponent {
         }
       },
       error: (error) => {
+        this.isLoading = false; // Set loading to false on error
         const errorMsg = 'An error occurred during login. Please try again.';
         this.errorMessage = errorMsg;
         this.errorOccurred.emit(errorMsg);
