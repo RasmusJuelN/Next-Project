@@ -22,12 +22,14 @@ export class HomeComponent implements OnInit {
   activeQuestionnaireString = '';
   userRole: string | null = null;
   errorMessage: string | null = null;
+  username: string = '';
 
   ngOnInit(): void {
     // Check if an active questionnaire exists when logged in
     this.loggedInAlready$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.userRole = this.authService.getUserRole();
+        this.username = this.authService.getUser()?.userName || '';
         if (this.userRole !== 'admin') {
           this.homeService
             .checkForExistingActiveQuestionnaires()
@@ -39,6 +41,7 @@ export class HomeComponent implements OnInit {
       } else {
         this.userRole = null;
         this.activeQuestionnaireString = '';
+        this.username = '';
       }
     });
   }

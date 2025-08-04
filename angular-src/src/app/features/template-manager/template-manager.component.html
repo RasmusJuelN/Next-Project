@@ -1,22 +1,22 @@
 <!-- Template List Section -->
-<div class="flex flex-col items-center w-full min-h-full bg-gray-100 p-4 sm:p-8">
-  <div class="flex flex-col max-w-4xl w-full bg-white shadow-md rounded-lg p-4 sm:p-8">
+<div class="flex flex-col items-center w-full min-h-full  p-4 sm:p-8">
+  <div class="flex flex-col max-w-5xl w-full bg-white shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10">
     <ng-container *ngIf="!selectedTemplate; else editor">
-      <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center sm:text-left">Administrer Skabeloner</h2>
+      <h2 class="text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">Administrer Skabeloner</h2>
 
       <!-- Search & Actions -->
-      <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-4 items-center w-full">
+      <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
         <button 
           (click)="addTemplate()" 
-          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full sm:w-auto">
+          class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-2 px-6 rounded-xl shadow transition-colors w-full sm:w-auto border-2 border-primary_orange_1 hover:border-primary_dark_blue">
           Opret Ny Skabelon
         </button>
 
-        <div class="flex w-full items-center gap-2">
+        <div class="flex w-full items-center gap-4">
           <select
             #searchType
             (change)="onSearchTypeChange(searchType.value)"
-            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-w-[150px]"
+            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm min-w-[150px] bg-gray-50"
           >
             <option value="name" selected>Søg efter Navn</option>
             <option value="id">Søg efter ID</option>
@@ -27,17 +27,17 @@
             type="text"
             (input)="onSearchChange(search.value)"
             placeholder="Søg i skabeloner..."
-            class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm flex-grow min-w-[200px]"
+            class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm flex-grow min-w-[200px] bg-gray-50"
           />
         </div>
 
         <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
-          <label for="pageSize" class="text-gray-700 font-medium">Elementer pr. side:</label>
+          <label for="pageSize" class="text-primary_dark_blue font-medium">Elementer pr. side:</label>
           <select
             #pageSize
             id="pageSize"
             (change)="onPageSizeChange(pageSize.value)"
-            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-auto"
+            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-auto bg-gray-50"
           >
             <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
               {{ size }}
@@ -60,19 +60,19 @@
       <ul class="space-y-4 mt-4" *ngIf="!isLoading && !errorMessage">
         <li
           *ngFor="let template of templateBases"
-          class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100"
+          class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors"
         >
-          <span class="text-gray-800 font-medium text-center sm:text-left">{{ template.title }}</span>
+          <span class="text-primary_dark_blue font-semibold text-center sm:text-left">{{ template.title }}</span>
           <div class="flex space-x-2 mt-2 sm:mt-0">
             <button
-              class="px-3 py-1 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              class="px-4 py-1 text-sm bg-primary_orange_1 text-white rounded-xl border-2 border-primary_orange_1 hover:bg-primary_orange_light hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:ring-offset-2 transition-colors"
               (click)="selectTemplate(template.id)"
             >
               Rediger
             </button>
             <button
               (click)="openDeleteModal(template.id)"
-              class="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
             >
               Slet
             </button>

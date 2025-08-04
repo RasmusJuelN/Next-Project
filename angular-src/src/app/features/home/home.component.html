@@ -1,11 +1,14 @@
 <div
   *ngIf="loggedInAlready$ | async; else loginForm"
-  class="flex flex-col h-full flex-grow items-center justify-center bg-gray-100 p-4 sm:p-8"
+  class="flex flex-col h-full flex-grow items-center justify-center p-4 sm:p-8"
 >
   <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-lg">
     <h2 class="text-xl sm:text-2xl font-bold mb-6 text-gray-700 text-center">
-      Velkommen tilbage!
+      Hej {{username}}!
     </h2>
+    <p *ngIf="!activeQuestionnaireString" class="text-center text-gray-500 mb-4">
+      Der er ingen aktive spørgeskemaer
+    </p>
 
     <!-- Action Buttons -->
     <div class="space-y-4">
@@ -18,7 +21,7 @@
 
       </button>
 
-      <button
+      <!-- <button
         *ngIf="userRole === 'teacher' || userRole === 'admin'"
         class="dashboard-button w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
         (click)="toHub()"
@@ -31,7 +34,7 @@
         (click)="logout()"
       >
         Log ud
-      </button>
+      </button> -->
     </div>
   </div>
 </div>
