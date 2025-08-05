@@ -3,11 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 import { ResultService } from './services/result.service';
 import { Result } from './models/result.model';
 import { CommonModule } from '@angular/common';
+import { AgChartsModule } from 'ag-charts-angular';
+import { AgChartOptions } from 'ag-charts-community';
 
 @Component({
   selector: 'app-result',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AgChartsModule],
   templateUrl: './result.component.html',
   styleUrls: ['./result.component.css']
 })
@@ -43,11 +45,19 @@ export class ResultComponent implements OnInit {
     }
   }
 
+ 
+  printPage(): void {
+    window.print();
+  }
+  
+    chartOptions: AgChartOptions | null = null;
+
   fetchResult(id: string): void {
     this.resultService.getResultById(id).subscribe({
       next: (data: Result) => {
         if (data) {
           this.result = data;
+          this.generateChartOptions(data); // <- generate chart
         } else {
           this.errorMessage = 'Resultat ikke fundet.';
         }
@@ -60,8 +70,44 @@ export class ResultComponent implements OnInit {
       },
     });
   }
-  printPage(): void {
-    window.print();
+
+  generateChartOptions(data: Result): void {
+    const chartData = data.answers.map((answer, index) => ({
+      question: `Q${index + 1}`,
+      studentScore: answer.studentResponse ?? 0,
+      teacherScore: answer.teacherResponse ?? 0,
+    }));
+
+    this.chartOptions = {
+      data: chartData,
+      title: { text: 'Sammenligning af besvarelser', fontSize: 18 },
+      series: [
+      {
+        type: 'bar',
+        xKey: 'question',
+        yKey: 'studentScore',
+        yName: 'Elev',
+      },
+      {
+        type: 'bar',
+        xKey: 'question',
+        yKey: 'teacherScore',
+        yName: 'Lærer',
+      }
+      ],
+      axes: [
+      {
+        type: 'category',
+        position: 'bottom',
+        title: { text: 'Spørgsmål' }
+      },
+      {
+        type: 'number',
+        position: 'left',
+        title: { text: 'Score' }
+      }
+      ]
+    };
   }
-  
+
 }

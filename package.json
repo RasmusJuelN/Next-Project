@@ -16,5 +16,9 @@
     "@angular/cli": "18.0.1",
     "concurrently": "^8.2.2",
     "jwt-decode": "^4.0.0"
+  },
+  "dependencies": {
+    "ag-charts-angular": "^9.3.2",
+    "ag-charts-community": "^9.3.2"
   }
 }
