@@ -11,17 +11,16 @@ import { PaginationComponent, PageChangeEvent } from '../../shared/components/pa
 import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
-  selector: 'app-template-manager',
-  standalone: true,
-  imports: [
-    TemplateEditorComponent,
-    FormsModule,
-    CommonModule,
-    PaginationComponent,
-    LoadingComponent,
-  ],
-  templateUrl: './template-manager.component.html',
-  styleUrls: ['./template-manager.component.css'],
+    selector: 'app-template-manager',
+    imports: [
+        TemplateEditorComponent,
+        FormsModule,
+        CommonModule,
+        PaginationComponent,
+        LoadingComponent,
+    ],
+    templateUrl: './template-manager.component.html',
+    styleUrls: ['./template-manager.component.css']
 })
 export class TemplateManagerComponent {
   private templateService = inject(TemplateService);

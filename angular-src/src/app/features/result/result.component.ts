@@ -4,14 +4,16 @@ import { ResultService } from './services/result.service';
 import { Result } from './models/result.model';
 import { CommonModule } from '@angular/common';
 import { AgChartsModule } from 'ag-charts-angular';
+import { RouterModule } from '@angular/router';
 import { AgChartOptions } from 'ag-charts-community';
 
 @Component({
-  selector: 'app-result',
-  standalone: true,
-  imports: [CommonModule, AgChartsModule],
-  templateUrl: './result.component.html',
-  styleUrls: ['./result.component.css']
+    selector: 'app-result',
+    standalone: true,
+    providers: [ResultService],
+    imports: [CommonModule, AgChartsModule, RouterModule],
+    templateUrl: './result.component.html',
+    styleUrls: ['./result.component.css']
 })
 export class ResultComponent implements OnInit {
   result: Result | null = null;

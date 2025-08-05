@@ -5,11 +5,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-template-editor',
-  standalone: true,
-  imports: [QuestionEditorComponent, CommonModule, FormsModule],
-  templateUrl: './template-editor.component.html',
-  styleUrl: './template-editor.component.css'
+    selector: 'app-template-editor',
+    imports: [QuestionEditorComponent, CommonModule, FormsModule],
+    templateUrl: './template-editor.component.html',
+    styleUrl: './template-editor.component.css'
 })
 export class TemplateEditorComponent {
   @Input() template!: Template; // Input property to receive a template

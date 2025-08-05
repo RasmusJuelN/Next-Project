@@ -33,11 +33,10 @@ export interface Result {
 }
 
 @Component({
-  selector: 'app-result-history',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './result-history.component.html',
-  styleUrls: ['./result-history.component.css']
+    selector: 'app-result-history',
+    imports: [CommonModule],
+    templateUrl: './result-history.component.html',
+    styleUrls: ['./result-history.component.css']
 })
 export class ResultHistoryComponent {
 

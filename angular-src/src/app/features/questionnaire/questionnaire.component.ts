@@ -7,11 +7,10 @@ import { Answer, AnswerSubmission, QuestionnaireState } from './models/answer.mo
 import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
-  selector: 'app-answer-questionnaire',
-  standalone: true,
-  imports: [CommonModule, QuestionComponent, LoadingComponent],
-  templateUrl: './questionnaire.component.html',
-  styleUrls: ['./questionnaire.component.css'],
+    selector: 'app-answer-questionnaire',
+    imports: [CommonModule, QuestionComponent, LoadingComponent],
+    templateUrl: './questionnaire.component.html',
+    styleUrls: ['./questionnaire.component.css']
 })
 export class QuestionnaireComponent implements OnInit {
   private answerService = inject(AnswerService);

@@ -4,11 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-question-editor',
-  standalone: true,
-  imports: [FormsModule, CommonModule],
-  templateUrl: './question-editor.component.html',
-  styleUrls: ['./question-editor.component.css']
+    selector: 'app-question-editor',
+    imports: [FormsModule, CommonModule],
+    templateUrl: './question-editor.component.html',
+    styleUrls: ['./question-editor.component.css']
 })
 export class QuestionEditorComponent {
   @Input() question!: Question;

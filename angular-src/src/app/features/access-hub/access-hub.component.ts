@@ -5,11 +5,10 @@ import { RouterModule } from '@angular/router';
 import { Role } from '../../shared/models/user.model';
 
 @Component({
-  selector: 'app-access-hub',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './access-hub.component.html',
-  styleUrls: ['./access-hub.component.css']
+    selector: 'app-access-hub',
+    imports: [CommonModule, RouterModule],
+    templateUrl: './access-hub.component.html',
+    styleUrls: ['./access-hub.component.css']
 })
 export class AccessHubComponent {
   private authService = inject(AuthService);

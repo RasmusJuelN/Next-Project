@@ -5,11 +5,10 @@ import { CommonModule } from '@angular/common';
 import { MenuSvgComponent } from '../../../shared/components/menu-svg/menu-svg.component';
 import { Role } from '../../../shared/models/user.model';
 @Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [RouterLink, CommonModule, MenuSvgComponent],
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css'],
+    selector: 'app-header',
+    imports: [RouterLink, CommonModule, MenuSvgComponent],
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
   private authService = inject(AuthService);

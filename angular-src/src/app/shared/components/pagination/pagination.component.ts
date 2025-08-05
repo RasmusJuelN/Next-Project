@@ -7,11 +7,10 @@ export interface PageChangeEvent {
 }
 
 @Component({
-  selector: 'app-pagination',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './pagination.component.html',
-  styleUrls: ['./pagination.component.css']
+    selector: 'app-pagination',
+    imports: [CommonModule],
+    templateUrl: './pagination.component.html',
+    styleUrls: ['./pagination.component.css']
 })
 export class PaginationComponent {
   @Input() currentPage: number = 1;

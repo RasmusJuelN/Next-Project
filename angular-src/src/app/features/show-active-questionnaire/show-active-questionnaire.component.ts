@@ -8,11 +8,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../shared/models/user.model';
 
 @Component({
-  selector: 'app-show-active-questionnaire',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './show-active-questionnaire.component.html',
-  styleUrls: ['./show-active-questionnaire.component.css']
+    selector: 'app-show-active-questionnaire',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './show-active-questionnaire.component.html',
+    styleUrls: ['./show-active-questionnaire.component.css']
 })
 export class ShowActiveQuestionnaireComponent {
   showActiveService = inject(ShowActiveService);

@@ -6,11 +6,10 @@ import { ActiveListComponent } from './components/active-list/active-list.compon
 import { ActiveBuilderComponent } from './components/active-builder/active-builder.component';
 
 @Component({
-  selector: 'app-active-questionnaire-manager',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ActiveListComponent, ActiveBuilderComponent],
-  templateUrl: './active-questionnaire-manager.component.html',
-  styleUrl: './active-questionnaire-manager.component.css'
+    selector: 'app-active-questionnaire-manager',
+    imports: [CommonModule, FormsModule, ActiveListComponent, ActiveBuilderComponent],
+    templateUrl: './active-questionnaire-manager.component.html',
+    styleUrl: './active-questionnaire-manager.component.css'
 })
 export class ActiveQuestionnaireManagerComponent {
   searchStudent: string = '';

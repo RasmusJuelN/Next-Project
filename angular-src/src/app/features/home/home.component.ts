@@ -7,11 +7,10 @@ import { HomeService } from './services/home.service';
 import { catchError, of } from 'rxjs';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [LoginComponent, CommonModule],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
+    selector: 'app-home',
+    imports: [LoginComponent, CommonModule],
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
   private authService = inject(AuthService);
