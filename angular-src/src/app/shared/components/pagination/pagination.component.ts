@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 export interface PageChangeEvent {
@@ -8,7 +8,7 @@ export interface PageChangeEvent {
 
 @Component({
     selector: 'app-pagination',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './pagination.component.html',
     styleUrls: ['./pagination.component.css']
 })

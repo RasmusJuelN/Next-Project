@@ -4,54 +4,60 @@
   </h3>
   <div class="options grid grid-cols-1 gap-4">
     <!-- Standard Options -->
-    <label
-      *ngFor="let option of question.options"
-      class="option bg-white border rounded-lg p-4 flex items-center space-x-4 cursor-pointer hover:shadow-md"
-    >
-      <input
-        type="radio"
-        name="option"
-        class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
-        [checked]="answer?.optionId === option.id"
-        (change)="onOptionSelect(option.id)"
-      >
-      <span class="text-gray-700">{{ option.displayText }}</span>
-    </label>
+    @for (option of question.options; track option) {
+      <label
+        class="option bg-white border rounded-lg p-4 flex items-center space-x-4 cursor-pointer hover:shadow-md"
+        >
+        <input
+          type="radio"
+          name="option"
+          class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+          [checked]="answer?.optionId === option.id"
+          (change)="onOptionSelect(option.id)"
+          >
+          <span class="text-gray-700">{{ option.displayText }}</span>
+        </label>
+      }
 
-    <!-- Custom Answer -->
-    <label
-      *ngIf="question.allowCustom"
-      class="option bg-white border rounded-lg p-4 flex items-center space-x-4 cursor-pointer hover:shadow-md"
-    >
-      <input
-        type="radio"
-        name="option"
-        class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
-        [checked]="isCustomAnswerSelected"
-        (change)="onCustomAnswerSelect()"
-      >
-      <span class="text-gray-700">Other (Please specify)</span>
-    </label>
-  </div>
+      <!-- Custom Answer -->
+      @if (question.allowCustom) {
+        <label
+          class="option bg-white border rounded-lg p-4 flex items-center space-x-4 cursor-pointer hover:shadow-md"
+          >
+          <input
+            type="radio"
+            name="option"
+            class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+            [checked]="isCustomAnswerSelected"
+            (change)="onCustomAnswerSelect()"
+            >
+            <span class="text-gray-700">Other (Please specify)</span>
+          </label>
+        }
+      </div>
 
-  <!-- Custom Answer Textarea -->
-  <div *ngIf="isCustomAnswerSelected" class="custom-answer mt-6">
-    <label for="custom-answer" class="block text-gray-700 font-bold mb-2">
-      Your Custom Answer:
-    </label>
-    <textarea
-      id="custom-answer"
-      class="w-full h-24 sm:h-32 border border-gray-400 bg-gray-100 text-gray-800 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3"
-      placeholder="Type your answer here..."
-      [(ngModel)]="customAnswer"
-      [maxlength]="500"
-      (input)="onCustomAnswerChange()"
-    ></textarea>
-    <div class="text-sm text-gray-600 mt-1">
-      {{ customAnswer.length }} / 500 characters
+      <!-- Custom Answer Textarea -->
+      @if (isCustomAnswerSelected) {
+        <div class="custom-answer mt-6">
+          <label for="custom-answer" class="block text-gray-700 font-bold mb-2">
+            Your Custom Answer:
+          </label>
+          <textarea
+            id="custom-answer"
+            class="w-full h-24 sm:h-32 border border-gray-400 bg-gray-100 text-gray-800 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3"
+            placeholder="Type your answer here..."
+            [(ngModel)]="customAnswer"
+            [maxlength]="500"
+            (input)="onCustomAnswerChange()"
+          ></textarea>
+          <div class="text-sm text-gray-600 mt-1">
+            {{ customAnswer.length }} / 500 characters
+          </div>
+          @if (ToFewCharacters) {
+            <div class="text-red-500 text-sm mt-1">
+              Too few characters to proceed.
+            </div>
+          }
+        </div>
+      }
     </div>
-    <div *ngIf="ToFewCharacters" class="text-red-500 text-sm mt-1">
-      Too few characters to proceed.
-    </div>
-  </div>
-</div>

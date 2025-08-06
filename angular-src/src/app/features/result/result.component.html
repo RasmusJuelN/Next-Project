@@ -51,8 +51,11 @@
           <span *ngIf="answer.isTeacherResponseCustom" class="text-sm text-blue-500">Brugerdefineret svar</span>
         </div>
       </div>
+ 
+
     </div>
   </div>
-
-
+<div class="flex justify-center mt-8 w-full" *ngIf="chartOptions">
+  <div class=" flex justify-center">
+<ag-charts class="w-[800px]" [options]="chartOptions"></ag-charts>
 

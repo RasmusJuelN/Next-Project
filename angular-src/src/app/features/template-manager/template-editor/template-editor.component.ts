@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { Question, Template } from '../models/template.model';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-template-editor',
-    imports: [QuestionEditorComponent, CommonModule, FormsModule],
+    imports: [QuestionEditorComponent, FormsModule],
     templateUrl: './template-editor.component.html',
     styleUrl: './template-editor.component.css'
 })

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -13,12 +13,11 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
 @Component({
     selector: 'app-template-manager',
     imports: [
-        TemplateEditorComponent,
-        FormsModule,
-        CommonModule,
-        PaginationComponent,
-        LoadingComponent,
-    ],
+    TemplateEditorComponent,
+    FormsModule,
+    PaginationComponent,
+    LoadingComponent
+],
     templateUrl: './template-manager.component.html',
     styleUrls: ['./template-manager.component.css']
 })

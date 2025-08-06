@@ -1,44 +1,42 @@
-<div
-  *ngIf="loggedInAlready$ | async; else loginForm"
-  class="flex flex-col h-full flex-grow items-center justify-center bg-gray-100 p-4 sm:p-8"
->
-  <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-lg">
-    <h2 class="text-xl sm:text-2xl font-bold mb-6 text-gray-700 text-center">
-      Velkommen tilbage!
-    </h2>
-
-    <!-- Action Buttons -->
-    <div class="space-y-4">
-      <button
-        *ngIf="activeQuestionnaireString"
-        class="dashboard-button w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        (click)="toActiveQuestionnaire()"
-      >
-        Et spørgeskema kan blive svaret
-
-      </button>
-
-      <button
-        *ngIf="userRole === 'teacher' || userRole === 'admin'"
-        class="dashboard-button w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-        (click)="toHub()"
-      >
-        Navigation muligheder.
-      </button>
-
-      <button
-        class="logout-button w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-        (click)="logout()"
-      >
-        Log ud
-      </button>
+@if (loggedInAlready$ | async) {
+  <div
+    class="flex flex-col h-full flex-grow items-center justify-center bg-gray-100 p-4 sm:p-8"
+    >
+    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-lg">
+      <h2 class="text-xl sm:text-2xl font-bold mb-6 text-gray-700 text-center">
+        Velkommen tilbage!
+      </h2>
+      <!-- Action Buttons -->
+      <div class="space-y-4">
+        @if (activeQuestionnaireString) {
+          <button
+            class="dashboard-button w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            (click)="toActiveQuestionnaire()"
+            >
+            Et spørgeskema kan blive svaret
+          </button>
+        }
+        @if (userRole === 'teacher' || userRole === 'admin') {
+          <button
+            class="dashboard-button w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            (click)="toHub()"
+            >
+            Navigation muligheder.
+          </button>
+        }
+        <button
+          class="logout-button w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          (click)="logout()"
+          >
+          Log ud
+        </button>
+      </div>
     </div>
   </div>
-</div>
-
-<ng-template #loginForm>
+} @else {
   <app-login
     (loggedIn)="onLoginSuccess()"
     (errorOccurred)="onLoginError($event)"
   ></app-login>
-</ng-template>
+}
+

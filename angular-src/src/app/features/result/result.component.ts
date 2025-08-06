@@ -3,16 +3,17 @@ import { ActivatedRoute } from '@angular/router';
 import { ResultService } from './services/result.service';
 import { Result } from './models/result.model';
 import { CommonModule } from '@angular/common';
-import { AgChartsModule } from 'ag-charts-angular';
+import { AgCharts } from "ag-charts-angular";
+import { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { RouterModule } from '@angular/router';
-import { AgChartOptions } from 'ag-charts-community';
 
 @Component({
     selector: 'app-result',
     standalone: true,
     providers: [ResultService],
-    imports: [CommonModule, AgChartsModule, RouterModule],
+    imports: [CommonModule, AgCharts, RouterModule],
     templateUrl: './result.component.html',
+    template: `<ag-charts [options]="chartOptions" ></ag-charts>`,
     styleUrls: ['./result.component.css']
 })
 export class ResultComponent implements OnInit {
@@ -73,42 +74,62 @@ export class ResultComponent implements OnInit {
     });
   }
 
-  generateChartOptions(data: Result): void {
-    const chartData = data.answers.map((answer, index) => ({
-      question: `Q${index + 1}`,
-      studentScore: answer.studentResponse ?? 0,
-      teacherScore: answer.teacherResponse ?? 0,
-    }));
+generateChartOptions(data: Result): void {
+  const questionMap = new Map<string, Record<string, number>>();
 
-    this.chartOptions = {
-      data: chartData,
-      title: { text: 'Sammenligning af besvarelser', fontSize: 18 },
-      series: [
-      {
-        type: 'bar',
-        xKey: 'question',
-        yKey: 'studentScore',
-        yName: 'Elev',
-      },
-      {
-        type: 'bar',
-        xKey: 'question',
-        yKey: 'teacherScore',
-        yName: 'Lærer',
+  [data].forEach((result) => {
+    result.answers.forEach((answer, index) => {
+      const questionKey = `Q${index + 1}`;
+      if (!questionMap.has(questionKey)) {
+        questionMap.set(questionKey, {});
       }
-      ],
-      axes: [
-      {
-        type: 'category',
-        position: 'bottom',
-        title: { text: 'Spørgsmål' }
-      },
-      {
-        type: 'number',
-        position: 'left',
-        title: { text: 'Score' }
-      }
-      ]
+
+      const questionData = questionMap.get(questionKey)!;
+
+      // Collect both student and teacher responses
+      const responses = [answer.studentResponse, answer.teacherResponse];
+
+      responses.forEach(resp => {
+        const trimmed = (resp || '').trim();
+        if (!trimmed) return;
+        questionData[trimmed] = (questionData[trimmed] || 0) + 1;
+      });
+    });
+  });
+
+  // Build chartData array
+  const chartData: any[] = [];
+  const uniqueAnswers = new Set<string>();
+
+  questionMap.forEach((answerCounts, question) => {
+    const entry: Record<string, any> = { question };
+    Object.entries(answerCounts).forEach(([answer, count]) => {
+      entry[answer] = count;
+      uniqueAnswers.add(answer);
+    });
+    chartData.push(entry);
+  });
+
+  // Build series from unique answer keys
+  const series: AgBarSeriesOptions[] = Array.from(uniqueAnswers).map(answer => ({
+    type: 'bar',
+    xKey: 'question',
+    yKey: answer,
+    yName: `Svar: ${answer}`,
+    stacked: true
+  }));
+
+  this.chartOptions = {
+    data: chartData,
+    title: {
+      text: 'Sammenligning af besvarelser',
+      fontSize: 18
+    },
+    series,
+    axes: [
+      { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
+      { type: 'number', position: 'left', title: { text: 'Valgt svar' } }
+    ]
     };
   }
 

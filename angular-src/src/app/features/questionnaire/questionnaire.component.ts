@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuestionComponent } from './question/question.component';
 import { AnswerService } from './services/answer.service';
@@ -8,7 +8,7 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
     selector: 'app-answer-questionnaire',
-    imports: [CommonModule, QuestionComponent, LoadingComponent],
+    imports: [QuestionComponent, LoadingComponent],
     templateUrl: './questionnaire.component.html',
     styleUrls: ['./questionnaire.component.css']
 })

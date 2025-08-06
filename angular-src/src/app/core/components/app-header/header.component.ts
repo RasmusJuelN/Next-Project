@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { MenuSvgComponent } from '../../../shared/components/menu-svg/menu-svg.component';
 import { Role } from '../../../shared/models/user.model';
 @Component({
     selector: 'app-header',
-    imports: [RouterLink, CommonModule, MenuSvgComponent],
+    imports: [RouterLink, MenuSvgComponent],
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.css']
 })

@@ -12,7 +12,7 @@
           #searchSelect
           (change)="onSearchTypeChange(searchSelect.value)"
           class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-w-0 sm:min-w-[150px]"
-        >
+          >
           <option value="name" selected>Search by Student Name</option>
           <option value="id">Search by Active questionnaire Id</option>
         </select>
@@ -24,123 +24,134 @@
           placeholder="Search..."
           class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 
                 focus:border-blue-500 text-sm w-full sm:flex-grow min-w-0"
-        />
-      </div>
-
-      <!-- Completion Filters -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-        <label class="flex items-center gap-1">
-          <input
-            type="checkbox"
-            [(ngModel)]="filterStudentCompleted"
-            (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">Student is done</span>
-        </label>
-        <label class="flex items-center gap-1">
-          <input
-            type="checkbox"
-            [(ngModel)]="filterTeacherCompleted"
-            (change)="onCompletionFilterChange()"
-          />
-          <span class="text-sm">Teacher is done</span>
-        </label>
-      </div>
-
-      <!-- Page Size Selector -->
-      <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
-        <label for="pageSize" class="text-gray-700 font-medium"> Items per page: </label>
-        <select
-          #pageSize
-          id="pageSize"
-          (change)="onPageSizeChange(pageSize.value)"
-          class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-auto"
-        >
-          <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
-            {{ size }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
-      <app-loading></app-loading>
-    </div>
-
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="text-center p-4">
-      <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
-    </div>
-
-    <ul class="space-y-4 mt-6" *ngIf="!isLoading && !errorMessage">
-      <li
-        *ngFor="let questionnaire of displayedQuestionnaires"
-        class="flex flex-col sm:flex-row justify-between items-start sm:items-center border rounded-lg shadow-sm bg-white p-4"
-      >
-        <div class="flex flex-col gap-3 w-full sm:w-auto">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-            <span class="font-medium text-gray-800">{{ questionnaire.title }}</span>
-            <span class="text-sm text-gray-500">
-              ID: {{ questionnaire.id }}
-              <button
-              *ngIf="!questionnaire.teacherCompletedAt || !questionnaire.studentCompletedAt"
-              (click)="copyAnswersUrl(questionnaire.id)"
-              class="ml-2 px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
-            >
-              Copy link for answer
-            </button>
-            </span>
-          </div>
-
-          <div *ngIf="questionnaire.student" class="flex flex-col sm:flex-row gap-2">
-            <span class="text-sm text-gray-700">
-               Student Name: {{ questionnaire.student.fullName }} ({{questionnaire.student.userName}})
-            </span>
-          </div>
-
-          <div class="flex flex-col sm:flex-row gap-2">
-            <span
-              class="px-3 py-1 rounded-full text-sm font-medium text-white"
-              [ngClass]="questionnaire.studentCompletedAt ? 'bg-green-500' : 'bg-red-500'"
-            >
-              Student: {{ questionnaire.studentCompletedAt ? 'Completed' : 'Pending' }}
-            </span>
-            <span
-              class="px-3 py-1 rounded-full text-sm font-medium text-white"
-              [ngClass]="questionnaire.teacherCompletedAt ? 'bg-green-500' : 'bg-red-500'"
-            >
-              Teacher: {{ questionnaire.teacherCompletedAt ? 'Completed' : 'Pending' }}
-            </span>
-          </div>
         </div>
 
-        <div class="mt-4 sm:mt-0 flex gap-2">
-          <button
-            *ngIf="!questionnaire.teacherCompletedAt"
-            [routerLink]="['/answer', questionnaire.id]"
-            class="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
-          >
-            Answer
-          </button>
+        <!-- Completion Filters -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              [(ngModel)]="filterStudentCompleted"
+              (change)="onCompletionFilterChange()"
+              />
+              <span class="text-sm">Student is done</span>
+            </label>
+            <label class="flex items-center gap-1">
+              <input
+                type="checkbox"
+                [(ngModel)]="filterTeacherCompleted"
+                (change)="onCompletionFilterChange()"
+                />
+                <span class="text-sm">Teacher is done</span>
+              </label>
+            </div>
 
-          <button
-            *ngIf="questionnaire.teacherCompletedAt && questionnaire.studentCompletedAt"
-            [routerLink]="['/results', questionnaire.id]"
-            class="px-4 py-2 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none"
-          >
-            View Results
-          </button>
+            <!-- Page Size Selector -->
+            <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
+              <label for="pageSize" class="text-gray-700 font-medium"> Items per page: </label>
+              <select
+                #pageSize
+                id="pageSize"
+                (change)="onPageSizeChange(pageSize.value)"
+                class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-auto"
+                >
+                @for (size of pageSizeOptions; track size) {
+                  <option [value]="size" [selected]="isSelectedPageSize(size)">
+                    {{ size }}
+                  </option>
+                }
+              </select>
+            </div>
+          </div>
+
+          @if (isLoading) {
+            <div class="flex justify-center items-center min-h-[150px]">
+              <app-loading></app-loading>
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (errorMessage) {
+            <div class="text-center p-4">
+              <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
+            </div>
+          }
+
+          @if (!isLoading && !errorMessage) {
+            <ul class="space-y-4 mt-6">
+              @for (questionnaire of displayedQuestionnaires; track questionnaire) {
+                <li
+                  class="flex flex-col sm:flex-row justify-between items-start sm:items-center border rounded-lg shadow-sm bg-white p-4"
+                  >
+                  <div class="flex flex-col gap-3 w-full sm:w-auto">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                      <span class="font-medium text-gray-800">{{ questionnaire.title }}</span>
+                      <span class="text-sm text-gray-500">
+                        ID: {{ questionnaire.id }}
+                        @if (!questionnaire.teacherCompletedAt || !questionnaire.studentCompletedAt) {
+                          <button
+                            (click)="copyAnswersUrl(questionnaire.id)"
+                            class="ml-2 px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+                            >
+                            Copy link for answer
+                          </button>
+                        }
+                      </span>
+                    </div>
+                    @if (questionnaire.student) {
+                      <div class="flex flex-col sm:flex-row gap-2">
+                        <span class="text-sm text-gray-700">
+                          Student Name: {{ questionnaire.student.fullName }} ({{questionnaire.student.userName}})
+                        </span>
+                      </div>
+                    }
+                    <div class="flex flex-col sm:flex-row gap-2">
+                      <span
+                        class="px-3 py-1 rounded-full text-sm font-medium text-white"
+                        [ngClass]="questionnaire.studentCompletedAt ? 'bg-green-500' : 'bg-red-500'"
+                        >
+                        Student: {{ questionnaire.studentCompletedAt ? 'Completed' : 'Pending' }}
+                      </span>
+                      <span
+                        class="px-3 py-1 rounded-full text-sm font-medium text-white"
+                        [ngClass]="questionnaire.teacherCompletedAt ? 'bg-green-500' : 'bg-red-500'"
+                        >
+                        Teacher: {{ questionnaire.teacherCompletedAt ? 'Completed' : 'Pending' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="mt-4 sm:mt-0 flex gap-2">
+                    @if (!questionnaire.teacherCompletedAt) {
+                      <button
+                        [routerLink]="['/answer', questionnaire.id]"
+                        class="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
+                        >
+                        Answer
+                      </button>
+                    }
+                    @if (questionnaire.teacherCompletedAt && questionnaire.studentCompletedAt) {
+                      <button
+                        [routerLink]="['/results', questionnaire.id]"
+                        class="px-4 py-2 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none"
+                        >
+                        View Results
+                      </button>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+
+          @if (!isLoading && !errorMessage) {
+            <app-pagination
+              [currentPage]="currentPage"
+              [totalPages]="totalPages"
+              (pageChange)="onPageChange($event)"
+              class="mt-6"
+              >
+            </app-pagination>
+          }
         </div>
-      </li>
-    </ul>
-
-    <app-pagination
-      *ngIf="!isLoading && !errorMessage"
-      [currentPage]="currentPage"
-      [totalPages]="totalPages"
-      (pageChange)="onPageChange($event)"
-      class="mt-6"
-    >
-    </app-pagination>
-  </div>
-</div>
+      </div>

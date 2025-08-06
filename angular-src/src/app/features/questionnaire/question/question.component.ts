@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Answer, Question } from '../models/answer.model';
 
 @Component({
     selector: 'app-question',
-    imports: [CommonModule, FormsModule],
+    imports: [FormsModule],
     templateUrl: './question.component.html',
     styleUrls: ['./question.component.css']
 })

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
@@ -22,7 +22,7 @@ type SearchType = 'student' | 'teacher' | 'template';
 
 @Component({
     selector: 'app-active-questionnaire-builder',
-    imports: [CommonModule, FormsModule],
+    imports: [FormsModule],
     templateUrl: './active-builder.component.html',
     styleUrls: ['./active-builder.component.css']
 })
