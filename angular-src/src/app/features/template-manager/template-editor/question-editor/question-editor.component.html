@@ -1,22 +1,22 @@
-<div class="question-editor flex flex-col bg-gray-50 p-6 rounded-lg shadow-md space-y-6">
-  <h3 class="text-xl font-semibold text-gray-800">Rediger Spørgsmål</h3>
+<div class="question-editor flex flex-col bg-white p-6 rounded-xl shadow-lg border-2 border-primary_orange_1 space-y-6">
+  <h3 class="text-2xl font-bold text-primary_dark_blue mb-4 text-center sm:text-left tracking-tight">Rediger Spørgsmål</h3>
 
   <div
-  *ngIf="validationErrors.length > 0"
-  #errorContainer
-  class="p-4 bg-red-100 border border-red-400 rounded-lg"
->
-  <ul class="list-disc pl-5 text-sm text-red-700">
-    <li *ngFor="let error of validationErrors">{{ error }}</li>
-  </ul>
-</div>
+    *ngIf="validationErrors.length > 0"
+    #errorContainer
+    class="p-4 bg-red-100 border-2 border-red-400 rounded-xl"
+  >
+    <ul class="list-disc pl-5 text-sm text-red-700">
+      <li *ngFor="let error of validationErrors">{{ error }}</li>
+    </ul>
+  </div>
 
   <div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Titel:</label>
+    <label class="block text-sm font-medium text-primary_dark_blue mb-2">Titel:</label>
     <input
       type="text"
       [(ngModel)]="question.prompt"
-      class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+      class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-gray-50"
       placeholder="Indtast spørgsmålets titel"
     />
   </div>
@@ -26,26 +26,26 @@
       type="checkbox"
       id="custom-answer"
       [(ngModel)]="question.allowCustom"
-      class="h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
+      class="h-4 w-4 text-primary_orange_1 focus:ring-primary_orange_1 border-primary_orange_1 rounded-xl"
     />
-    <label for="custom-answer" class="ml-2 text-sm font-medium text-gray-700">
+    <label for="custom-answer" class="ml-2 text-sm font-medium text-primary_dark_blue">
       Tillad at skrive dit eget svar
     </label>
   </div>
 
   <!-- Options -->
   <div>
-    <h4 class="text-lg font-medium text-gray-800 mb-4">Valgmuligheder</h4>
+    <h4 class="text-lg font-bold text-primary_dark_blue mb-4">Valgmuligheder</h4>
     <ul class="space-y-4">
       <li
         *ngFor="let option of question.options"
-        class="flex flex-col space-y-2 p-4 bg-white border border-gray-300 rounded-lg shadow-sm"
+        class="flex flex-col space-y-2 p-4 bg-gray-50 border-2 border-primary_orange_1 rounded-xl shadow-sm"
       >
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Label:</label>
+          <label class="block text-sm font-medium text-primary_dark_blue mb-2">Label:</label>
           <textarea
             [(ngModel)]="option.displayText"
-            class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-white"
             placeholder="Indtast valgmulighedens label"
           ></textarea>
         </div>
@@ -53,7 +53,7 @@
         <div>
           <button
             (click)="deleteOption(option.id)"
-            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-400"
+            class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 focus:ring-2 focus:ring-red-400"
           >
             Slet Valgmulighed
           </button>
@@ -63,7 +63,7 @@
     <div class="text-center mt-6">
       <button
         (click)="addOption()"
-        class="px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
+        class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors"
       >
         Tilføj Ny Valgmulighed
       </button>
@@ -74,13 +74,13 @@
   <div class="flex justify-between flex-wrap gap-4">
     <button
       (click)="onSave()"
-      class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
+      class="px-4 py-2 bg-primary_orange_1 text-white rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors"
     >
       Gem Spørgsmål
     </button>
     <button
       (click)="onCancel()"
-      class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:ring-2 focus:ring-gray-400"
+      class="px-4 py-2 bg-gray-300 text-primary_dark_blue rounded-xl hover:bg-gray-400 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none"
     >
       Annuller
     </button>

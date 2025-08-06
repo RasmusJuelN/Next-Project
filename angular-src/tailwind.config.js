@@ -8,7 +8,8 @@ module.exports = {
       colors: {
         primary_orange_1: '#e94f2d',
         primary_orange_light: '#ff7a50', // lighter orange
-        primary_orange_dark: '#b32d13', // darker orange
+        primary_orange_dark: '#b32d13', // darker orange'
+        primary_orange_darker: "#260700",
 
         primary_dark_blue: '#000c2e', //dark blue
         primary_dark_light: '#1a2240', // lighter dark
