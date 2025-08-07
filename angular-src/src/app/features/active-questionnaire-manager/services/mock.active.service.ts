@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
-import { ActiveQuestionnaire, ActiveQuestionnaireBase, ResponseActiveQuestionnaireBase, Template } from '../models/active.models';
+import { ActiveQuestionnaire, ActiveQuestionnaireBase, ResponseActiveQuestionnaireBase, Template, TemplateBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { User } from '../../../shared/models/user.model';
 
 
@@ -9,6 +9,7 @@ import { User } from '../../../shared/models/user.model';
   providedIn: 'root',
 })
 export class MockActiveService {
+private sessionOffsets = new Map<string, number>();
 private mockUsers: User[] = [
   { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: 'student' },
   { id: 's2', userName: 'janes456', fullName: 'Jane Smith', role: 'student' },
@@ -35,8 +36,9 @@ private mockUsers: User[] = [
 
 
   private mockTemplates: Template[] = [
-    { id: 't101', templateTitle: 'Math Quiz', description: 'A basic math quiz', questions: [] },
-    { id: 't102', templateTitle: 'History Quiz', description: 'A history knowledge test', questions: [] }
+    { id: 't101', templateTitle: 'Math Quiz', description: 'A basic math quiz', questions: [], draftStatus:"finalized" },
+    { id: 't102', templateTitle: 'History Quiz', description: 'A history knowledge test', questions: [], draftStatus:"finalized"},
+    { id: 't103', templateTitle: 'Nature Quiz', description: 'A Nature knowledge test', questions: [], draftStatus: "draft"}
   ];
 
   private activeQuestionnaires: ActiveQuestionnaireBase[] = [
@@ -233,48 +235,86 @@ private mockUsers: User[] = [
     }
     return of(false);
   }
-  searchUsers(term: string, role: 'student' | 'teacher', page: number): Observable<PaginationResponse<User>> {
-    // Normalize search term
-    const normalizedTerm = term.trim().toLowerCase();
-  
-    // Filter users by role and search term (checking both fullName & userName)
-    let filteredUsers = this.mockUsers.filter(user =>
-      user.role === role &&
-      (user.fullName.toLowerCase().includes(normalizedTerm) || user.userName?.toLowerCase().includes(normalizedTerm))
-    );
-  
-    const totalItems = filteredUsers.length;
-    const startIndex = Math.max(0, (page - 1) * 10);
-    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + 10);
-  
-    return of({
-      items: paginatedUsers,
-      totalItems,
-      currentPage: page,
-      pageSize: 10,
-      totalPages: Math.ceil(totalItems / 10),
-    }).pipe(delay(2000));
+searchUsers(
+  term: string,
+  role: 'student' | 'teacher',
+  pageSize: number,
+  sessionId?: string
+): Observable<UserPaginationResult> {
+
+  const query = term.trim().toLowerCase();
+  const filtered = this.mockUsers.filter(u =>
+    (u.userName.toLowerCase().includes(query) ||
+     u.fullName.toLowerCase().includes(query)) &&
+    u.role.toLowerCase() === role                     // 'student' | 'teacher'
+  );
+
+  // Track pagination by sessionId
+  let id = sessionId;
+  let offset = 0;
+
+  if (id && this.sessionOffsets.has(id)) {
+    offset = this.sessionOffsets.get(id)!;
+  } else {
+    id = crypto.randomUUID();
   }
+
+  const slice = filtered.slice(offset, offset + pageSize);
+  const hasMore = offset + slice.length < filtered.length;
+
+  this.sessionOffsets.set(id, offset + slice.length); // advance pointer
+
+  return of({
+    userBases: slice,
+    sessionId: id,
+    hasMore
+  }).pipe(delay(300));
+}
   
-  searchTemplates(term: string, page: number): Observable<PaginationResponse<Template>> {
-    // Normalize search term
-    const normalizedTerm = term.trim().toLowerCase();
-  
-    // Filter templates based on title or description
-    let filteredTemplates = this.mockTemplates.filter(template =>
-      template.templateTitle.toLowerCase().includes(normalizedTerm) || template.description?.toLowerCase().includes(normalizedTerm)
-    );
-  
-    const totalItems = filteredTemplates.length;
-    const startIndex = Math.max(0, (page - 1) * 10);
-    const paginatedTemplates = filteredTemplates.slice(startIndex, startIndex + 10);
-  
-    return of({
-      items: paginatedTemplates,
-      totalItems,
-      currentPage: page,
-      pageSize: 10,
-      totalPages: Math.ceil(totalItems / 10),
-    }).pipe(delay(500)); // Optional delay for a smoother UI effect
+searchTemplates(term: string, queryCursor: string = ''): Observable<TemplateBaseResponse> {
+  const pageSize = 5;
+  const q = term.trim().toLowerCase();
+
+  // 1️⃣ filter
+  let filtered = this.mockTemplates.filter(t =>
+    t.draftStatus === 'finalized' && (
+      t.templateTitle.toLowerCase().includes(q) ||
+      (t.description ?? '').toLowerCase().includes(q)
+    )
+  );
+
+  // 2️⃣ deterministic order
+  filtered = filtered.sort((a, b) => a.templateTitle.localeCompare(b.templateTitle));
+
+  // 3️⃣ cursor → offset
+  let start = 0;
+  if (queryCursor) {
+    const [cursorTitle, cursorId] = queryCursor.split('_');
+    const idx = filtered.findIndex(t => t.templateTitle === cursorTitle && t.id === cursorId);
+    if (idx !== -1) start = idx + 1;
   }
+
+  const slice = filtered.slice(start, start + pageSize);
+
+  const templateBases: TemplateBase[] = slice.map(t => ({
+    id: t.id!,
+    title: t.templateTitle,
+    createdAt: (t as any).createdAt ?? new Date().toISOString(),
+    lastUpdated: (t as any).lastUpdated ?? new Date().toISOString(),
+    isLocked: (t as any).isLocked ?? false,
+    draftStatus: t.draftStatus
+  }));
+
+  const hasMore = start + slice.length < filtered.length;
+  const nextCursor =
+    hasMore && slice.length
+      ? `${slice[slice.length - 1].templateTitle}_${slice[slice.length - 1].id}`
+      : '';
+
+  return of({
+    templateBases,
+    queryCursor: nextCursor,
+    totalCount: filtered.length
+  }).pipe(delay(300));
+}
 }

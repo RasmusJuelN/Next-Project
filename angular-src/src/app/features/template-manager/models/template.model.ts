@@ -1,7 +1,10 @@
+  export type TemplateStatus = 'draft' | 'finalized';
+
 export interface Template {
   id?: string; // Optional because some templates may not have an ID yet
   title: string; // Matches API field
   description?: string; // Optional since API does not specify this field
+  draftStatus: TemplateStatus;
   createdAt?: string; // ✅ Added (ISO Date format)
   lastUpdated?: string; // ✅ Added (ISO Date format)
   isLocked?: boolean; // ✅ Added (default is false)
@@ -30,6 +33,7 @@ export interface Option {
     createdAt: string;
     lastUpdated: string;
     isLocked: boolean;
+    draftStatus: TemplateStatus;
   }
   
   export interface TemplateBaseResponse {
@@ -37,4 +41,3 @@ export interface Option {
     queryCursor?: string; // Cursor for next items.
     totalCount: number;
   }
-  

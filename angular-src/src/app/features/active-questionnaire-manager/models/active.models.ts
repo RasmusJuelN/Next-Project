@@ -1,4 +1,5 @@
 import { User } from "../../../shared/models/user.model";
+export type TemplateStatus = 'draft' | 'finalized';
 
 export interface ActiveQuestionnaire {
     id: string;
@@ -19,6 +20,7 @@ export interface ActiveQuestionnaire {
     createdAt?: string; // ✅ Added (ISO Date format)
     lastUpdated?: string; // ✅ Added (ISO Date format)
     isLocked?: boolean; // ✅ Added (default is false)
+    draftStatus: TemplateStatus;
     questions: Question[];
   }
   
@@ -65,6 +67,8 @@ export interface ActiveQuestionnaire {
       createdAt: string;
       lastUpdated: string;
       isLocked: boolean;
+      draftStatus: TemplateStatus;
+      
     }
     
     export interface TemplateBaseResponse {

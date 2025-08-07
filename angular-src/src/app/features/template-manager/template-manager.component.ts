@@ -129,33 +129,42 @@ export class TemplateManagerComponent {
   }
 
   // Update selectTemplate to check if the template is locked
-  selectTemplate(templateBaseId: string): void {
-    this.selectedTemplate = null;
-    this.isLoading = true;
-    this.templateService
-      .getTemplateDetails(templateBaseId)
-      .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe({
-        next: (fullTemplate) => {
-          if (fullTemplate.isLocked) {
-            // Show modal if the template is locked
-            this.showLockedModal = true;
-          } else {
-            this.selectedTemplate = fullTemplate;
-          }
-        },
-        error: (err) => {
-          console.error('Error fetching full template:', err);
-          this.errorMessage = 'Failed to load the full template details.';
-        },
-      });
+selectTemplate(id: string): void {
+  this.selectedTemplate = null;
+  this.isLoading = true;
+  this.templateService.getTemplateDetails(id)
+    .pipe(finalize(() => (this.isLoading = false)))
+    .subscribe({
+      next: tmpl => {
+        /* always show the template – even if finalized */
+        this.selectedTemplate = tmpl;
+        /* pop a notice only when finalized */
+        //this.showLockedModal = tmpl.draftStatus === 'finalized';
+      },
+      error: err => {
+        console.error('Error fetching template:', err);
+        this.errorMessage = 'Failed to load template details.';
+      }
+    });
+}
+onFinalizeTemplate(tmpl: Template): void {
+  if (tmpl.id){
+  this.templateService.upgradeTemplate(tmpl.id).subscribe({
+    next: () => {
+      this.selectedTemplate = null;   // close editor
+      this.fetchTemplateBases();      // refresh list
+    },
+    error: err => console.error('Upgrade failed', err)
+  });
   }
+}
 
   addTemplate(): void {
     this.selectedTemplate = {
       id: '',
       title: 'New Template',
       description: 'Description for the new template',
+      draftStatus: "draft",
       questions: [
         {
           id: -1,
@@ -235,4 +244,14 @@ export class TemplateManagerComponent {
   closeLockedModal(): void {
     this.showLockedModal = false;
   }
+
+  copyTemplate(tmpl: TemplateBase): void {
+  this.templateService.copyTemplate(tmpl.id).subscribe({
+    next: draftCopy => {
+      this.selectedTemplate = draftCopy;   // open the new draft immediately
+      this.fetchTemplateBases();           // refresh list
+    },
+    error: err => console.error('Error copying template', err)
+  });
+}
 }

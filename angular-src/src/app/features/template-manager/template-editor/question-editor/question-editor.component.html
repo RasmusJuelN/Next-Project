@@ -16,6 +16,7 @@
     <input
       type="text"
       [(ngModel)]="question.prompt"
+      [disabled]="readonly"
       class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
       placeholder="Indtast spørgsmålets titel"
     />
@@ -25,6 +26,7 @@
     <input
       type="checkbox"
       id="custom-answer"
+      [disabled]="readonly"
       [(ngModel)]="question.allowCustom"
       class="h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
     />
@@ -45,6 +47,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">Label:</label>
           <textarea
             [(ngModel)]="option.displayText"
+            [readOnly]="readonly"
             class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="Indtast valgmulighedens label"
           ></textarea>
@@ -52,7 +55,9 @@
 
         <div>
           <button
+          *ngIf="!readonly"
             (click)="deleteOption(option.id)"
+            [disabled]="readonly"
             class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-400"
           >
             Slet Valgmulighed
@@ -60,11 +65,8 @@
         </div>
       </li>
     </ul>
-    <div class="text-center mt-6">
-      <button
-        (click)="addOption()"
-        class="px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
-      >
+    <div class="text-center mt-6" *ngIf="!readonly">                 <!-- NEW -->
+      <button (click)="addOption()" class="px-6 py-2 bg-blue-500 …">
         Tilføj Ny Valgmulighed
       </button>
     </div>
@@ -73,6 +75,7 @@
   <!-- Actions -->
   <div class="flex justify-between flex-wrap gap-4">
     <button
+    *ngIf="!readonly"
       (click)="onSave()"
       class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
     >

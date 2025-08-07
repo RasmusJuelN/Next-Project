@@ -14,8 +14,15 @@ import { FormsModule } from '@angular/forms';
 export class TemplateEditorComponent {
   @Input() template!: Template; // Input property to receive a template
   @Output() saveTemplate = new EventEmitter<Template>(); // Output event for saving changes
+  @Output() finalizeDraft  = new EventEmitter<Template>();
+
   @Output() cancelEdit = new EventEmitter<void>(); // Output event for canceling the edit
   selectedQuestion: Question | null = null;
+  readonly = false;
+
+  ngOnChanges() {
+    this.readonly = this.template.draftStatus === 'finalized';
+  }
 
   // Method to emit the saveTemplate event with the updated template
   onSave() {
@@ -64,4 +71,7 @@ export class TemplateEditorComponent {
   deleteQuestion(question: Question): void {
     this.template.questions = this.template.questions.filter(q => q.id !== question.id);
   }
+  
+  onFinalize() { this.finalizeDraft.emit(this.template); }
+  
 }

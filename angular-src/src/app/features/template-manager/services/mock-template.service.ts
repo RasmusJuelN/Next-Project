@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Question, Template, TemplateBase, TemplateBaseResponse } from '../models/template.model';
+import { Question, Template, TemplateBase, TemplateBaseResponse, TemplateStatus } from '../models/template.model';
 import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 
@@ -12,6 +12,7 @@ export class MockTemplateService {
       id: '1',
       title: 'Employee Onboarding Template',
       description: 'A template for onboarding new employees.',
+      draftStatus: 'finalized',
       questions: [
         {
           id: 101,
@@ -35,6 +36,7 @@ export class MockTemplateService {
       id: '2',
       title: 'Customer Feedback Template',
       description: 'A template for collecting customer feedback.',
+      draftStatus: 'finalized',
       questions: [
         {
           id: 103,
@@ -60,6 +62,7 @@ export class MockTemplateService {
       id: '3',
       title: 'Project Evaluation Template',
       description: 'A template for evaluating project outcomes.',
+      draftStatus: 'finalized',
       questions: [
         {
           id: 105,
@@ -85,6 +88,7 @@ export class MockTemplateService {
       id: '4',
       title: 'Training Feedback Template',
       description: 'A template for collecting feedback on training sessions.',
+      draftStatus: 'finalized',
       questions: [
         {
           id: 107,
@@ -102,6 +106,7 @@ export class MockTemplateService {
       id: '5',
       title: 'Event Registration Template',
       description: 'A template for registering attendees for an event.',
+      draftStatus: 'draft',
       questions: [
         {
           id: 108,
@@ -121,6 +126,7 @@ export class MockTemplateService {
       id: '6',
       title: 'Survey Template',
       description: 'A simple survey template for various uses.',
+      draftStatus: 'draft',
       questions: [
         {
           id: 110,
@@ -140,6 +146,7 @@ export class MockTemplateService {
       id: '7',
       title: 'Bug Report Template',
       description: 'A template for reporting bugs in a software system.',
+      draftStatus: 'draft',
       questions: [
         {
           id: 111,
@@ -163,6 +170,7 @@ export class MockTemplateService {
     {
       id: '8',
       title: 'Team Meeting Notes Template',
+      draftStatus: 'draft',
       description: 'A template for recording notes during team meetings.',
       questions: [
         {
@@ -183,6 +191,7 @@ export class MockTemplateService {
       id: '9',
       title: 'WHAT',
       description: 'A template for recording notes during team meetings.',
+      draftStatus: 'finalized',
       questions: [
         {
           id: 115,
@@ -205,6 +214,7 @@ export class MockTemplateService {
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
       isLocked: false,
+      draftStatus: 'finalized',
       questions: [
         {
           id: 1,
@@ -313,7 +323,11 @@ export class MockTemplateService {
   ];
   
   
-  
+  private ensureDraft(t: Template & { draftStatus: TemplateStatus }) {
+  if (t.draftStatus !== 'draft') {
+    throw new Error('Can’t modify a finalized template – copy it first.');
+  }
+}
 
   getTemplateBases(
     pageSize: number = 5,
@@ -360,7 +374,8 @@ export class MockTemplateService {
       title: t.title,
       createdAt: t.createdAt ?? new Date().toISOString(), // ✅ Preserve original `createdAt` if available
       lastUpdated: t.lastUpdated ?? new Date().toISOString(),
-      isLocked: false,
+      isLocked: t.draftStatus === 'finalized',
+      draftStatus: t.draftStatus
     }));
   
     // ✅ Determine next cursor
@@ -396,11 +411,44 @@ export class MockTemplateService {
   }
 
 
-  addTemplate(template: Template): Observable<Template> {
-    const newTemplate = { ...template, id: Date.now().toString() };
-    this.templates.push(newTemplate);
-    return of(newTemplate).pipe(delay(500));
-  }
+addTemplate(template: Template): Observable<Template> {
+  const draft: Template = {
+    ...template,
+    id: Date.now().toString(),
+    draftStatus: 'draft',                       // always start in draft
+    createdAt: Date.now().toString(),
+    lastUpdated: Date.now().toString(),
+  };
+  this.templates.push(draft);
+  return of(draft).pipe(delay(300));
+}
+
+
+// ugrade to finlize state
+upgradeTemplate(templateId: string): Observable<Template> {
+  const tmpl = this.templates.find(t => t.id === templateId);
+  if (!tmpl) throw new Error('Template not found');
+  this.ensureDraft(tmpl);
+  tmpl.draftStatus = 'finalized';
+  tmpl.lastUpdated = new Date().toISOString();
+  return of(tmpl).pipe(delay(300));
+}
+
+copyTemplate(templateId: string): Observable<Template> {
+  const orig = this.templates.find(t => t.id === templateId);
+  if (!orig) throw new Error('Template not found');
+  if (orig.draftStatus !== 'finalized') throw new Error('Copy is only for finalized templates');
+  const clone: Template = {
+    ...JSON.parse(JSON.stringify(orig)),   // deep-clone questions + options
+    id: "",
+    draftStatus: 'draft',
+    title: `${orig.title} (kopi)`,
+    createdAt: new Date().toISOString(),
+    lastUpdated: new Date().toISOString(),
+  };
+  //this.templates.push(clone);
+  return of(clone).pipe(delay(300));
+}
 
   updateTemplate(templateId: string, updatedTemplate: Template): Observable<void> {
     const index = this.templates.findIndex((t) => t.id === templateId);

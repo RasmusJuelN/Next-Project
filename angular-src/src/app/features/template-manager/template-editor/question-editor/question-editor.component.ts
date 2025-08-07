@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 })
 export class QuestionEditorComponent {
   @Input() question!: Question;
+  @Input() readonly = false;
   @Output() save = new EventEmitter<Question>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -19,6 +20,7 @@ export class QuestionEditorComponent {
   @ViewChild('errorContainer') errorContainer!: ElementRef;
 
   addOption(): void {
+    if (this.readonly) { return; }
     const newOption: Option = {
       id: -1 * (this.question.options.length + 1),
       displayText: 'New Option',
@@ -28,6 +30,7 @@ export class QuestionEditorComponent {
   }
 
   deleteOption(optionId: number): void {
+    if (this.readonly) { return; }
     this.question.options = this.question.options.filter(option => option.id !== optionId);
   }
 
@@ -56,6 +59,7 @@ export class QuestionEditorComponent {
   
 
   onSave(): void {
+    if (this.readonly) { return; }
     if (this.validateQuestion()) {
       this.save.emit(this.question);
     } else {
