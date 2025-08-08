@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Apply global layout and background to body or root container */
+/* body {
+  @apply flex flex-col min-h-screen h-full bg-gradient-to-br from-primary_dark_blue to-primary_dark_light pt-24;
+} */
