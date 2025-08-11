@@ -47,12 +47,16 @@
         </button>
       </div>
 
-      <!-- Selected Student with Clear Option -->
-      <div *ngIf="student.selected" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
-        <strong>Valgt Elev:</strong> {{ student.selected.fullName }}
-        <button (click)="clearSelected('student')" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
-          Ryd
-        </button>
+      <!-- Selected Students List -->
+      <div *ngIf="student.selected.length > 0" class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
+        <strong>Valgte Elever:</strong>
+        <ul class="mt-1 space-y-1">
+          <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
+            <span>{{ stud.fullName }} ({{ stud.userName }})</span>
+            <button (click)="select('student', stud)" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
+          </li>
+        </ul>
+        <button (click)="clearSelected('student')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
       </div>
     </div>
 
@@ -99,12 +103,16 @@
         </button>
       </div>
 
-      <!-- Selected Teacher with Clear Option -->
-      <div *ngIf="teacher.selected" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
-        <strong>Valgt Instruktør:</strong> {{ teacher.selected.fullName }}
-        <button (click)="clearSelected('teacher')" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
-          Ryd
-        </button>
+      <!-- Selected Teachers List -->
+      <div *ngIf="teacher.selected.length > 0" class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
+        <strong>Valgte Instruktører:</strong>
+        <ul class="mt-1 space-y-1">
+          <li *ngFor="let teach of teacher.selected" class="flex justify-between items-center">
+            <span>{{ teach.fullName }} ({{ teach.userName }})</span>
+            <button (click)="select('teacher', teach)" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
+          </li>
+        </ul>
+        <button (click)="clearSelected('teacher')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
       </div>
     </div>
   </div>
@@ -152,12 +160,16 @@
       </button>
     </div>
 
-    <!-- Selected Template with Clear Option -->
-    <div *ngIf="template.selected" class="mt-2 text-sm font-medium text-gray-700 flex justify-between items-center bg-gray-100 p-2 rounded-lg">
-      <strong>Valgt Skabelon:</strong> {{ template.selected.title }}
-      <button (click)="clearSelected('template')" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">
-        Ryd
-      </button>
+    <!-- Selected Templates List -->
+    <div *ngIf="template.selected.length > 0" class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
+      <strong>Valgte Skabeloner:</strong>
+      <ul class="mt-1 space-y-1">
+        <li *ngFor="let temp of template.selected" class="flex justify-between items-center">
+          <span>{{ temp.title }}</span>
+          <button (click)="select('template', temp)" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
+        </li>
+      </ul>
+      <button (click)="clearSelected('template')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
     </div>
   </div>
 

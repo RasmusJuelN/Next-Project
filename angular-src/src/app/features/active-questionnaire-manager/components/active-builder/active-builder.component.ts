@@ -31,7 +31,7 @@ export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
 
   public student: UserSearchEntity<User> = {
-    selected: null,
+    selected: [],
     searchInput: '',
     searchResults: [],
     page: 1,
@@ -44,7 +44,7 @@ export class ActiveBuilderComponent implements OnInit {
   };
 
   public teacher: UserSearchEntity<User> = {
-    selected: null,
+    selected: [],
     searchInput: '',
     searchResults: [],
     page: 1,
@@ -57,7 +57,7 @@ export class ActiveBuilderComponent implements OnInit {
   };
 
   public template: TemplateSearchEntity = {
-    selected: null,
+    selected: [],
     searchInput: '',
     searchResults: [],
     page: 1,
@@ -163,33 +163,43 @@ export class ActiveBuilderComponent implements OnInit {
     state.searchSubject.next(value);
   }
 
+  // Add or remove user from selected array
   select(entity: SearchType, item: any): void {
     const state = this.getState(entity);
-    state.selected = item;
-    state.searchInput = ''; // Clear input.
-    state.searchResults = []; // Clear search results.
+    if (!Array.isArray(state.selected)) {
+      state.selected = [];
+    }
+    const idx = state.selected.findIndex((u: any) => u.id === item.id);
+    if (idx === -1) {
+      state.selected.push(item);
+    } else {
+      state.selected.splice(idx, 1);
+    }
+    // Do NOT clear search results so user can select multiple
+    state.searchInput = '';
+    // state.searchResults = [];
   }
 
   clearSelected(entity: SearchType): void {
     const state = this.getState(entity);
-    state.selected = null;
+    state.selected = [];
   }
 
   createActiveQuestionnaire(): void {
     if (
-      !this.student.selected ||
-      !this.teacher.selected ||
-      !this.template.selected ||
-      !this.template.selected.id
+      !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
+      !Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0 ||
+      !Array.isArray(this.template.selected) || this.template.selected.length === 0 ||
+      !this.template.selected[0].id
     ) {
       console.error('Missing required selections for Active Questionnaire.');
       return;
     }
 
     const newQuestionnaire = {
-      studentId: this.student.selected.id,
-      teacherId: this.teacher.selected.id,
-      templateId: this.template.selected.id,
+      studentId: this.student.selected[0].id,
+      teacherId: this.teacher.selected[0].id,
+      templateId: this.template.selected[0].id,
     };
 
     this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {

@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 
 export interface SearchEntity<T> {
-    selected: T | null;
+    selected: T[];
     searchInput: string;
     searchResults: T[];
     page: number;
