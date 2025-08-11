@@ -64,29 +64,40 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         return await _unitOfWork.ActiveQuestionnaire.GetFullActiveQuestionnaireAsync(id);
     }
 
-    public async Task<ActiveQuestionnaire> ActivateTemplate(ActivateQuestionnaire request)
+    public async Task<List<ActiveQuestionnaire>> ActivateTemplate(ActivateQuestionnaire request)
     {
         _ldap.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
 
         if (!_ldap.connection.Bound) throw new Exception("Failed to bind to the LDAP server.");
 
-        // If the student or teacher is not found in the database, create and add them to the database
-        if (!_unitOfWork.User.UserExists(request.StudentId))
+        var createdQuestionnaires = new List<ActiveQuestionnaire>();
+
+        foreach (var studentId in request.StudentIds)
         {
-            UserAdd student = GenerateStudent(request.StudentId);
-            await _unitOfWork.User.AddStudentAsync(student);
+            if (!_unitOfWork.User.UserExists(studentId))
+            {
+                UserAdd student = GenerateStudent(studentId);
+                await _unitOfWork.User.AddStudentAsync(student);
+            }
+
+            foreach (var teacherId in request.TeacherIds)
+            {
+                if (!_unitOfWork.User.UserExists(teacherId))
+                {
+                    UserAdd teacher = GenerateTeacher(teacherId);
+                    await _unitOfWork.User.AddTeacherAsync(teacher);
+                }
+
+                var activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.ActivateQuestionnaireAsync(
+                    request.TemplateId, studentId, teacherId);
+
+                createdQuestionnaires.Add(activeQuestionnaire);
+            }
         }
 
-        if (!_unitOfWork.User.UserExists(request.TeacherId))
-        {
-            UserAdd teacher = GenerateTeacher(request.TeacherId);
-            await _unitOfWork.User.AddTeacherAsync(teacher);
-        }
-
-        ActiveQuestionnaire activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.ActivateQuestionnaireAsync(request.TemplateId, request.StudentId, request.TeacherId);
         await _unitOfWork.SaveChangesAsync();
 
-        return activeQuestionnaire;
+        return createdQuestionnaires;
     }
 
     public async Task<Guid?> GetOldestActiveQuestionnaireForUser(Guid id)

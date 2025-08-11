@@ -84,13 +84,14 @@ export class ActiveService {
   
 
 
-  createActiveQuestionnaire(aq: { studentId: string; teacherId: string; templateId: string }): Observable<ActiveQuestionnaire> {
-    const formData = new FormData();
-    formData.append('StudentId', aq.studentId);
-    formData.append('TeacherId', aq.teacherId);
-    formData.append('TemplateId', aq.templateId);
-    return this.apiService.post<ActiveQuestionnaire>(`${this.apiUrl}/activate`, formData);
-  }
+  createActiveQuestionnaire(aq: { studentIds: string[]; teacherIds: string[]; templateId: string }): Observable<ActiveQuestionnaire[]> {
+  const body = {
+    StudentIds: aq.studentIds,
+    TeacherIds: aq.teacherIds,
+    TemplateId: aq.templateId
+  };
+  return this.apiService.post<ActiveQuestionnaire[]>(`${this.apiUrl}/activate`, body);
+}
 
   getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire> {
     return this.apiService.get<ActiveQuestionnaire>(`${this.apiUrl}/${id}`);

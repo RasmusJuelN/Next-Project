@@ -197,15 +197,15 @@ export class ActiveBuilderComponent implements OnInit {
     }
 
     const newQuestionnaire = {
-      studentId: this.student.selected[0].id,
-      teacherId: this.teacher.selected[0].id,
-      templateId: this.template.selected[0].id,
-    };
+  studentIds: this.student.selected.map(s => s.id),
+  teacherIds: this.teacher.selected.map(t => t.id),
+  templateId: this.template.selected[0].id,
+};
 
-    this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
-      alert('Active Questionnaire Created Successfully!');
-      this.backToListEvent.emit();
-    });
+this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
+  alert('Aktive spørgeskemaer oprettet!');
+  this.backToListEvent.emit();
+});
   }
 
   onBackToList(): void {

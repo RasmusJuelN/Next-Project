@@ -31,9 +31,11 @@ namespace API.Controllers
 
         [HttpPost("activate")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<ActiveQuestionnaire>> ActivateQuestionnaire([FromForm] ActivateQuestionnaire request)
+        public async Task<ActionResult<List<ActiveQuestionnaire>>> ActivateQuestionnaire([FromBody] ActivateQuestionnaire request)
         {
-            return Ok(await _questionnaireService.ActivateTemplate(request));
+            // This should return a list of created questionnaires, one for each student/teacher combination
+            var result = await _questionnaireService.ActivateTemplate(request);
+            return Ok(result);
         }
 
         [HttpGet("check")]
