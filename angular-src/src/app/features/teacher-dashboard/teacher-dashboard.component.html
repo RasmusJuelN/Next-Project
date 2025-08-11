@@ -84,10 +84,11 @@
               <button
               *ngIf="!questionnaire.teacherCompletedAt || !questionnaire.studentCompletedAt"
               (click)="copyAnswersUrl(questionnaire.id)"
-              class="ml-2 px-2 py-1 text-xs bg-primary_orange text-white rounded hover:bg-primary_orange_light"
+              class="ml-2 cursor-pointer text-orange-600 font-medium hover:text-orange-700 underline underline-offset-2 transition"
             >
               Copy link for answer
             </button>
+
             </span>
           </div>
 
