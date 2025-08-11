@@ -1,5 +1,5 @@
 <!-- Header -->
-<h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6 text-center sm:text-left">
+<h2 class="text-2xl sm:text-3xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">
   {{ readonly ? 'Skabelonvisning' : 'Skabelonredigering' }}
 </h2>
 
@@ -7,27 +7,27 @@
 <form class="space-y-4 sm:space-y-6">
   <!-- Template Title -->
   <div>
-    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Skabelon Titel</label>
+    <label for="title" class="block text-sm font-medium text-primary_dark_blue mb-2">Skabelon Titel</label>
     <input
       type="text"
       id="title"
       name="title"
       [(ngModel)]="template.title"
       [disabled]="readonly"
-      class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+      class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
       placeholder="Indtast skabelon titel"
     />
   </div>
 
   <!-- Template Description -->
   <div>
-    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Beskrivelse</label>
+    <label for="description" class="block text-sm font-medium text-primary_dark_blue mb-2">Beskrivelse</label>
     <textarea
       id="description"
       name="description"
       [(ngModel)]="template.description"
       rows="4"
-      class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+      class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
       placeholder="Indtast skabelon beskrivelse"
       [disabled]="readonly"
     ></textarea>
@@ -38,14 +38,14 @@
     <button
       type="button"
       (click)="onCancel()"
-      class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-sm hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 focus:outline-none"
+      class="px-4 py-2 bg-gray-200 text-primary_dark_blue rounded-xl shadow-sm hover:bg-gray-300 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none"
     >
       Annuller
     </button>
     <button *ngIf="!readonly"
             type="button"
             (click)="onSave()"
-            class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-sm hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+            class="px-4 py-2 bg-primary_orange_1 text-white rounded-xl shadow-sm hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors">
       Gem Skabelon
     </button>
       <button *ngIf="!readonly"
@@ -59,22 +59,22 @@
 
 <!-- Question List -->
 <div class="mt-6 sm:mt-8 mb-3">
-  <h3 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6">Spørgsmål</h3>
+  <h3 class="text-xl sm:text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">Spørgsmål</h3>
   <ul class="space-y-4">
     <li
       *ngFor="let question of template.questions"
-      class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100"
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors"
     >
-      <span class="text-gray-800 font-medium">{{ question.prompt }}</span>
+      <span class="text-primary_dark_blue font-semibold">{{ question.prompt }}</span>
       <div class="flex space-x-2 mt-2 sm:mt-0">
         <button
-          class="px-3 py-1 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          class="px-4 py-1 text-sm bg-primary_orange_1 text-white rounded-xl border-2 border-primary_orange_1 hover:bg-primary_orange_light hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:ring-offset-2 transition-colors"
           (click)="editQuestion(question)"
         >
           {{ readonly ? 'Vis' : 'Rediger' }}
         </button>
         <button
-          class="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
           (click)="deleteQuestion(question)"
           [disabled]="readonly"
         >
@@ -87,7 +87,7 @@
   <!-- Add Question Button -->
   <div class="mt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
     <button *ngIf="!readonly"
-        class="px-6 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+        class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors"
         (click)="addQuestion()">
       Tilføj Nyt Spørgsmål
     </button>

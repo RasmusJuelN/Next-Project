@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { MenuSvgComponent } from '../../../shared/components/menu-svg/menu-svg.component';
@@ -7,7 +7,7 @@ import { Role } from '../../../shared/models/user.model';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, CommonModule, MenuSvgComponent],
+  imports: [RouterLink, RouterLinkActive, CommonModule, MenuSvgComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
@@ -22,23 +22,23 @@ export class HeaderComponent {
 
   // Global navigation links
   globalNavLinks: { name: string; route: string }[] = [
-    { name: 'Home', route: '/' },
+    { name: '', route: '/' },
   ];
 
   // Role-specific navigation links
   navLinks: Record<Role, { name: string; route: string }[]> = {
     [Role.Student]: [
-      { name: 'Nuværende aktive spørgeskemaer', route: '/show-active-questionnaires' }
+      { name: 'Aktive spørgeskemaer', route: '/show-active-questionnaires' }
     ],
     [Role.Teacher]: [
       //{ name: 'Overview', route: '/hub' },
       { name: 'Oversigt', route: '/teacher-dashboard' },
-      { name: 'Nuværende aktive spørgeskemaer', route: '/show-active-questionnaires' }
+      { name: 'Aktive spørgeskemaer', route: '/show-active-questionnaires' }
     ],
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },
-      { name: 'spørgeskemae skabaloner', route: '/templates' },
-      { name: 'udelt spørgeskema', route: '/active-questionnaire' }
+      { name: 'Skabeloner', route: '/templates' },
+      { name: 'Aktive spørgeskemaer', route: '/active-questionnaire' }
     ],
   };
 
