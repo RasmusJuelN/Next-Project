@@ -211,9 +211,15 @@ using (IServiceScope scope = app.Services.CreateScope())
             {
                 context.Database.Migrate();
             }
+            else if (!databaseCreator.Exists())
+            {
+                logger.LogInformation("Database does not exist, creating it...");
+                databaseCreator.Create();
+                context.Database.Migrate();
+            }
             else
             {
-                logger.LogInformation("Waiting for database to be created/migrated... ({attempt}/{max_attempts})", attempt + 1, max_attempts);
+                logger.LogWarning("Waiting for database to be created/migrated... ({attempt}/{max_attempts})", attempt + 1, max_attempts);
                 Thread.Sleep(TimeSpan.FromSeconds(30));
                 if (attempt == max_attempts - 1)
                 {
