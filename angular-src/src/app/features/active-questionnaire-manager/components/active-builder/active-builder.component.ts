@@ -195,17 +195,23 @@ export class ActiveBuilderComponent implements OnInit {
       console.error('Missing required selections for Active Questionnaire.');
       return;
     }
+    
+    // Ensure only one template is selected
+    if (this.template.selected.length > 1) {
+      alert('Der kan kun tildeles én skabelon ad gangen.');
+      return;
+    }
 
     const newQuestionnaire = {
-  studentIds: this.student.selected.map(s => s.id),
-  teacherIds: this.teacher.selected.map(t => t.id),
-  templateId: this.template.selected[0].id,
-};
+      studentIds: this.student.selected.map(s => s.id),
+      teacherIds: this.teacher.selected.map(t => t.id),
+      templateId: this.template.selected[0].id,
+    };
 
-this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
-  alert('Aktive spørgeskemaer oprettet!');
-  this.backToListEvent.emit();
-});
+    this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
+      alert('Aktive spørgeskemaer oprettet!');
+      this.backToListEvent.emit();
+    });
   }
 
   onBackToList(): void {
