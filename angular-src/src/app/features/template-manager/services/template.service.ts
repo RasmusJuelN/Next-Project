@@ -61,13 +61,8 @@ export class TemplateService {
 
 
   // WIP
-  copyTemplate(templateId: string): Observable<Template>{
-    const url = `${this.apiUrl}/${templateId}/WIP`;
-    return this.apiService.delete<Template>(url);
-  }
-  // WIP
   upgradeTemplate(templateId: string): Observable<Template>{
-    const url = `${this.apiUrl}/${templateId}/WIP`;
-    return this.apiService.delete<Template>(url);
+    const url = `${this.apiUrl}/${templateId}/finalize`;
+    return this.apiService.post<Template>(url, {});
   }
 }

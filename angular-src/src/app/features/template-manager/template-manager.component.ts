@@ -292,25 +292,56 @@ onModalConfirm(): void {
       complete: () => { this.hideModal(); this.resetData(); this.fetchTemplateBases(); },
       error: () => console.error('Error deleting template')
     });
+    return;
   }
 
   if (this.activeModalType === TemplateModalType.Copy) {
-    this.templateService.copyTemplate(id).subscribe({
-      next: draftCopy => {
-        this.selectedTemplate = draftCopy;
-        this.fetchTemplateBases();
+    // fetch the source template, then deep-copy it into a brand new local draft
+    this.templateService.getTemplateDetails(id).subscribe({
+      next: tmplSrc => {
+        const draftCopy = this.deepCopyAsNewTemplate(tmplSrc);
+        this.selectedTemplate = draftCopy;   // open the new local draft immediately
+        // no server refresh needed yet; user will Save to persist
         this.hideModal();
       },
-      error: err => console.error('Error copying template', err)
+      error: err => console.error('Error loading template to copy', err)
     });
   }
 }
-
 onModalCancel(): void {
   if (this.activeModalType === TemplateModalType.Delete && this.deleteConfirmStep === 1) {
     this.deleteConfirmStep = 0;
     return; // keep the modal open, just step back
   }
   this.hideModal();
+}
+
+private deepCopyAsNewTemplate(template: Template): Template {
+  // Deep clone to avoid mutating the original
+  const clone: Template = JSON.parse(JSON.stringify(template));
+
+  // If it has an ID, replace with a unique negative ID
+  // If it has no ID, leave it undefined
+  clone.id = clone.id ? `temp-${Date.now()}` : undefined;
+
+  // Reset meta fields
+  clone.createdAt = undefined;
+  clone.lastUpdated = undefined;
+  clone.draftStatus = 'draft';
+  clone.isLocked = false;
+  clone.title = `${clone.title} (kopi)`
+  clone.id = "";
+
+  // Assign fresh negative IDs to questions & options
+  clone.questions = clone.questions.map((q, qIndex) => ({
+    ...q,
+    id: -1 * (qIndex + 1), // new negative ID
+    options: q.options.map((o, oIndex) => ({
+      ...o,
+      id: -1 * (oIndex + 1) // new negative ID
+    }))
+  }));
+
+  return clone;
 }
 }

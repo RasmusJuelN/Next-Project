@@ -434,21 +434,6 @@ upgradeTemplate(templateId: string): Observable<Template> {
   return of(tmpl).pipe(delay(300));
 }
 
-copyTemplate(templateId: string): Observable<Template> {
-  const orig = this.templates.find(t => t.id === templateId);
-  if (!orig) throw new Error('Template not found');
-  if (orig.draftStatus !== 'finalized') throw new Error('Copy is only for finalized templates');
-  const clone: Template = {
-    ...JSON.parse(JSON.stringify(orig)),   // deep-clone questions + options
-    id: "",
-    draftStatus: 'draft',
-    title: `${orig.title} (kopi)`,
-    createdAt: new Date().toISOString(),
-    lastUpdated: new Date().toISOString(),
-  };
-  //this.templates.push(clone);
-  return of(clone).pipe(delay(300));
-}
 
   updateTemplate(templateId: string, updatedTemplate: Template): Observable<void> {
     const index = this.templates.findIndex((t) => t.id === templateId);
