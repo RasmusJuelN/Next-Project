@@ -6,12 +6,13 @@ import { CommonModule } from '@angular/common';
 import { AgCharts } from "ag-charts-angular";
 import { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-result',
     standalone: true,
     providers: [ResultService],
-    imports: [CommonModule, AgCharts, RouterModule],
+    imports: [CommonModule, AgCharts, RouterModule, FormsModule],
     templateUrl: './result.component.html',
     template: `
       <button (click)="updateChart('stacked')">Stacked</button>
@@ -25,7 +26,7 @@ export class ResultComponent implements OnInit {
   isLoading = true;
   errorMessage: string | null = null;
 
- chartType: 'stacked' | 'donut' = 'stacked';
+  chartType: 'stacked' | 'donut' = 'stacked';
   constructor(private route: ActivatedRoute, private resultService: ResultService) {}
 
   ngOnInit(): void {
@@ -91,7 +92,6 @@ export class ResultComponent implements OnInit {
   }
 
   generateStackedBarOptions(data: Result): AgChartOptions {
-    // ...your existing generateChartOptions logic...
     const questionMap = new Map<string, Record<string, number>>();
     [data].forEach((result) => {
       result.answers.forEach((answer, index) => {

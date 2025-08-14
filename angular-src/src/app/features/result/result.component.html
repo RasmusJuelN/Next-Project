@@ -57,10 +57,9 @@
   </div>
 
 <label for="charts">Ændre Graf :</label>
-
-<select name="charts" id="charts">
-  <option value="stacked" (change)="updateChart('stacked')">Stacked Chart</option>
-  <option value="donut" (change)="updateChart('donut')">Donut Chart</option>
+<select name="charts" id="charts" [(ngModel)]="chartType" (change)="updateChart(chartType)">
+  <option value="stacked">Stacked Chart</option>
+  <option value="donut">Donut Chart</option>
 </select>
 <div class="flex justify-center mt-8 w-full" *ngIf="chartOptions">
   <div class=" flex justify-center">
