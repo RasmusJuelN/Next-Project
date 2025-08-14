@@ -79,22 +79,21 @@
           <!-- action buttons -->
           <div class="flex space-x-2 mt-2 sm:mt-0">
             <button
-              class="px-4 py-1 text-sm bg-primary_orange_1 text-white rounded-xl border-2 border-primary_orange_1 hover:bg-primary_orange_light hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:ring-offset-2 transition-colors"
+              class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
               (click)="selectTemplate(template.id)"
             >
               {{ template.draftStatus == "draft" ? 'Rediger' : 'Vis' }}
             </button>
 
             <button
-              (click)="openDeleteModal(template.id)"
+                (click)="showModal(TemplateModalType.Delete, template.id)"
               class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
             >
               Slet
             </button>
 
             <button
-              *ngIf="template.draftStatus === 'finalized'"
-              (click)="copyTemplate(template)"
+               (click)="showModal(TemplateModalType.Copy, template.id)"
               class="px-3 py-1 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
             >
               Kopiér
@@ -123,44 +122,13 @@
       </app-template-editor>
     </ng-template>
 
-    <div *ngIf="showLockedModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-        <h3 class="text-lg font-semibold mb-4">Skabelonen er udgivet</h3>
-            <p class="mb-6">
-              Denne skabelon er i skrivebeskyttet tilstand.<br />
-              Vælg <strong>Kopiér</strong> i listen, hvis du vil lave ændringer på en
-              redigerbar version.
-            </p>
-        <div class="flex justify-end">
-          <button (click)="closeLockedModal()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none">
-            Luk
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="templateToDelete" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-        <h3 class="text-lg font-semibold mb-4">
-          {{ deleteConfirmationStep === 0 ? 'Bekræft Sletning' : 'Sidste Advarsel' }}
-        </h3>
-        <p class="mb-6">
-          {{ deleteConfirmationStep === 0 
-             ? 'Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data.'
-             : 'Advarsel: Denne handling kan ikke fortrydes. Sletning af denne skabelon vil permanent fjerne alle relaterede data. Er du helt sikker på, at du vil fortsætte?'
-          }}
-        </p>
-        <div class="flex justify-end space-x-3">
-          <button (click)="cancelDelete()"
-            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 focus:outline-none">
-            Annuller
-          </button>
-          <button (click)="confirmDelete()"
-            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none">
-            {{ deleteConfirmationStep === 0 ? 'Slet' : 'Slet Permanent' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+<app-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [text]="modalText"
+  [confirmText]="confirmText"
+  [cancelText]="cancelText"
+  (confirm)="onModalConfirm()"
+  (cancel)="onModalCancel()">
+</app-modal>
 </div>

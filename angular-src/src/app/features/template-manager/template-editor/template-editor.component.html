@@ -45,15 +45,15 @@
     <button *ngIf="!readonly"
             type="button"
             (click)="onSave()"
-            class="px-4 py-2 bg-primary_orange_1 text-white rounded-xl shadow-sm hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors">
+            class="px-4 py-2 bg-green-500 text-white rounded-xl shadow-sm hover:bg-green-600 focus:ring-2 focus:ring-green-400 focus:outline-none border-2 border-green-500 hover:border-green-700 transition-colors">
       Gem Skabelon
     </button>
-      <button *ngIf="!readonly"
-          type="button"
-          (click)="onFinalize()"
-          class="px-4 py-2 bg-purple-500 text-white rounded-lg shadow-sm hover:bg-purple-600 focus:ring-2 focus:ring-purple-400 focus:outline-none">
-    Udgiv
-  </button>
+    <button *ngIf="!readonly && template?.id"
+            type="button"
+            (click)="openFinalizeModal()"
+            class="px-4 py-2 bg-purple-500 text-white rounded-lg shadow-sm hover:bg-purple-600 focus:ring-2 focus:ring-purple-400 focus:outline-none">
+      Udgiv
+    </button>
   </div>
 </form>
 
@@ -68,12 +68,12 @@
       <span class="text-primary_dark_blue font-semibold">{{ question.prompt }}</span>
       <div class="flex space-x-2 mt-2 sm:mt-0">
         <button
-          class="px-4 py-1 text-sm bg-primary_orange_1 text-white rounded-xl border-2 border-primary_orange_1 hover:bg-primary_orange_light hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:ring-offset-2 transition-colors"
+          class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
           (click)="editQuestion(question)"
         >
           {{ readonly ? 'Vis' : 'Rediger' }}
         </button>
-        <button
+        <button *ngIf="!readonly"
           class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
           (click)="deleteQuestion(question)"
           [disabled]="readonly"
@@ -101,3 +101,13 @@
   (save)="onSaveQuestion($event)"
   (cancel)="onCancelEdit()">
 </app-question-editor>
+
+<app-modal
+  [isOpen]="finalizeModalOpen"
+  [title]="'Udgiv skabelon?'"
+  [text]="'Når en skabelon udgives, bliver den skrivebeskyttet. <br/>Er du sikker på, at du vil udgive?'"
+  [confirmText]="'Udgiv'"
+  [cancelText]="'Annuller'"
+  (confirm)="confirmFinalize()"
+  (cancel)="closeFinalizeModal()">
+</app-modal>

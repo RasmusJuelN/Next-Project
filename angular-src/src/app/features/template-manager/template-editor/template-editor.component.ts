@@ -3,11 +3,12 @@ import { QuestionEditorComponent } from './question-editor/question-editor.compo
 import { Question, Template } from '../models/template.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-template-editor',
   standalone: true,
-  imports: [QuestionEditorComponent, CommonModule, FormsModule],
+  imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent],
   templateUrl: './template-editor.component.html',
   styleUrl: './template-editor.component.css'
 })
@@ -19,6 +20,8 @@ export class TemplateEditorComponent {
   @Output() cancelEdit = new EventEmitter<void>(); // Output event for canceling the edit
   selectedQuestion: Question | null = null;
   readonly = false;
+
+  finalizeModalOpen = false;
 
   ngOnChanges() {
     this.readonly = this.template.draftStatus === 'finalized';
@@ -73,5 +76,12 @@ export class TemplateEditorComponent {
   }
   
   onFinalize() { this.finalizeDraft.emit(this.template); }
-  
+  openFinalizeModal() { this.finalizeModalOpen = true; }
+  closeFinalizeModal() { this.finalizeModalOpen = false; }
+
+  confirmFinalize() {
+    this.closeFinalizeModal();
+    this.onFinalize();
+  }
+
 }
