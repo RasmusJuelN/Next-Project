@@ -13,7 +13,11 @@ import { RouterModule } from '@angular/router';
     providers: [ResultService],
     imports: [CommonModule, AgCharts, RouterModule],
     templateUrl: './result.component.html',
-    template: `<ag-charts [options]="chartOptions" ></ag-charts>`,
+    template: `
+      <button (click)="updateChart('stacked')">Stacked</button>
+      <button (click)="updateChart('donut')">Donut</button>
+      <ag-charts-angular *ngIf="chartOptions" [options]="chartOptions"></ag-charts-angular>
+    `,
     styleUrls: ['./result.component.css']
 })
 export class ResultComponent implements OnInit {
@@ -21,6 +25,7 @@ export class ResultComponent implements OnInit {
   isLoading = true;
   errorMessage: string | null = null;
 
+ chartType: 'stacked' | 'donut' = 'stacked';
   constructor(private route: ActivatedRoute, private resultService: ResultService) {}
 
   ngOnInit(): void {
@@ -60,7 +65,7 @@ export class ResultComponent implements OnInit {
       next: (data: Result) => {
         if (data) {
           this.result = data;
-          this.generateChartOptions(data); // <- generate chart
+          this.updateChart(this.chartType, data); 
         } else {
           this.errorMessage = 'Resultat ikke fundet.';
         }
@@ -74,63 +79,99 @@ export class ResultComponent implements OnInit {
     });
   }
 
-generateChartOptions(data: Result): void {
-  const questionMap = new Map<string, Record<string, number>>();
+  updateChart(type: 'stacked' | 'donut', dataOverride?: Result): void {
+    this.chartType = type;
+    const data = dataOverride || this.result;
+    if (!data) return;
+    if (type === 'stacked') {
+      this.chartOptions = this.generateStackedBarOptions(data);
+    } else if (type === 'donut') {
+      this.chartOptions = this.generateDonutOptions(data);
+    }
+  }
 
-  [data].forEach((result) => {
-    result.answers.forEach((answer, index) => {
-      const questionKey = `Q${index + 1}`;
-      if (!questionMap.has(questionKey)) {
-        questionMap.set(questionKey, {});
-      }
-
-      const questionData = questionMap.get(questionKey)!;
-
-      // Collect both student and teacher responses
-      const responses = [answer.studentResponse, answer.teacherResponse];
-
-      responses.forEach(resp => {
-        const trimmed = (resp || '').trim();
-        if (!trimmed) return;
-        questionData[trimmed] = (questionData[trimmed] || 0) + 1;
+  generateStackedBarOptions(data: Result): AgChartOptions {
+    // ...your existing generateChartOptions logic...
+    const questionMap = new Map<string, Record<string, number>>();
+    [data].forEach((result) => {
+      result.answers.forEach((answer, index) => {
+        const questionKey = `Q${index + 1}`;
+        if (!questionMap.has(questionKey)) {
+          questionMap.set(questionKey, {});
+        }
+        const questionData = questionMap.get(questionKey)!;
+        const responses = [answer.studentResponse, answer.teacherResponse];
+        responses.forEach(resp => {
+          const trimmed = (resp || '').trim();
+          if (!trimmed) return;
+          questionData[trimmed] = (questionData[trimmed] || 0) + 1;
+        });
       });
     });
-  });
-
-  // Build chartData array
-  const chartData: any[] = [];
-  const uniqueAnswers = new Set<string>();
-
-  questionMap.forEach((answerCounts, question) => {
-    const entry: Record<string, any> = { question };
-    Object.entries(answerCounts).forEach(([answer, count]) => {
-      entry[answer] = count;
-      uniqueAnswers.add(answer);
+    const chartData: any[] = [];
+    const uniqueAnswers = new Set<string>();
+    questionMap.forEach((answerCounts, question) => {
+      const entry: Record<string, any> = { question };
+      Object.entries(answerCounts).forEach(([answer, count]) => {
+        entry[answer] = count;
+        uniqueAnswers.add(answer);
+      });
+      chartData.push(entry);
     });
-    chartData.push(entry);
-  });
-
-  // Build series from unique answer keys
-  const series: AgBarSeriesOptions[] = Array.from(uniqueAnswers).map(answer => ({
-    type: 'bar',
-    xKey: 'question',
-    yKey: answer,
-    yName: `Svar: ${answer}`,
-    stacked: true
-  }));
-
-  this.chartOptions = {
-    data: chartData,
-    title: {
-      text: 'Sammenligning af besvarelser',
-      fontSize: 18
-    },
-    series,
-    axes: [
-      { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
-      { type: 'number', position: 'left', title: { text: 'Valgt svar' } }
-    ]
+    const series: AgBarSeriesOptions[] = Array.from(uniqueAnswers).map(answer => ({
+      type: 'bar',
+      xKey: 'question',
+      yKey: answer,
+      yName: `Svar: ${answer}`,
+      stacked: true
+    }));
+    return {
+      data: chartData,
+      theme: {
+        baseTheme: "ag-polychroma",
+        overrides: {
+          bar: { series: { label: { enabled: true } } }
+        }
+      },
+      title: { text: 'Sammenligning af besvarelser', fontSize: 18 },
+      series,
+      axes: [
+        { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
+        { type: 'number', position: 'left', title: { text: 'Valgt svar' } }
+      ]
     };
   }
+
+generateDonutOptions(data: Result): AgChartOptions {
+  const answerCounts: Record<string, number> = {};
+  data.answers.forEach(answer => {
+    [answer.studentResponse, answer.teacherResponse].forEach(resp => {
+      const trimmed = (resp || '').trim();
+      if (!trimmed) return;
+      answerCounts[trimmed] = (answerCounts[trimmed] || 0) + 1;
+    });
+  });
+  const chartData = Object.entries(answerCounts).map(([answer, count]) => ({
+    answer, count
+  }));
+  const total = chartData.reduce((sum, d) => sum + d.count, 0);
+
+  return {
+    data: chartData,
+    title: { text: 'Svarfordeling (Donut)', fontSize: 18 },
+    footnote: { text: `Total: ${total}` },
+    series: [{
+      type: "donut", 
+      angleKey: 'count',
+      sectorLabelKey: 'count',
+      calloutLabelKey: 'answer',
+      innerRadiusRatio: 0.6, 
+      sectorSpacing: 3,
+      calloutLabel: { enabled: false },
+      title: { text: "Antal" },
+    }],
+    legend: { position: 'right' }
+  };
+}
 
 }
