@@ -23,20 +23,20 @@ namespace API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly JwtService _jwtService;
-        private readonly LdapService _ldapService;
+        private readonly IAuthenticationBridge _authenticationBridge;
         private readonly JWTSettings _JWTSettings;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
 
         public AuthController(
             JwtService jwtService,
-            LdapService ldapService,
+            IAuthenticationBridge ldapService,
             IConfiguration configuration,
             IUnitOfWork unitOfWork,
             ILoggerFactory loggerFactory)
         {
             _jwtService = jwtService;
-            _ldapService = ldapService;
+            _authenticationBridge = ldapService;
             _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
             _unitOfWork = unitOfWork;
             _logger = loggerFactory.CreateLogger(GetType());
@@ -51,7 +51,7 @@ namespace API.Controllers
         {
             try
             {
-                _ldapService.Authenticate(userLogin.Username, userLogin.Password);
+                _authenticationBridge.Authenticate(userLogin.Username, userLogin.Password);
             }
             catch (LDAPException.ConnectionError)
             {
@@ -62,13 +62,13 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            if (_ldapService.connection.Bound)
+            if (_authenticationBridge.IsConnected())
             {
-                BasicUserInfoWithObjectGuid ldapUser = _ldapService.SearchUser<BasicUserInfoWithObjectGuid>(userLogin.Username);
+                BasicUserInfoWithObjectGuid? ldapUser = _authenticationBridge.SearchUser<BasicUserInfoWithObjectGuid>(userLogin.Username);
 
                 if (ldapUser is null)
                 {
-                    _ldapService.Dispose();
+                    _authenticationBridge.Dispose();
                     _logger.LogWarning(UserLogEvents.UserLogIn, "User {username} successfully logged in, yet the user query returned nothing.", userLogin.Username);
                     return Unauthorized();
                 }
@@ -83,7 +83,7 @@ namespace API.Controllers
                 }
                 catch (Exception e)
                 {
-                    _ldapService.Dispose();
+                    _authenticationBridge.Dispose();
                     _logger.LogWarning(UserLogEvents.UserLogIn, e, "User {username} successfully logged in, yet the user role could not be determined. {Message}", userLogin.Username, e.Message);
                     return Unauthorized();
                 }
@@ -109,7 +109,7 @@ namespace API.Controllers
                     Permissions = (int)permissions
                 };
 
-                _ldapService.Dispose();
+                _authenticationBridge.Dispose();
 
                 List<Claim> accessTokenClaims = _jwtService.GetAccessTokenClaims(jWTUser);
 

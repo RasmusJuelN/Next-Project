@@ -16,6 +16,7 @@ using Database.Interfaces;
 using API.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net;
+using API.Services.Authentication;
 
 const string settingsFile = "config.json";
 
@@ -44,7 +45,7 @@ SystemSettings systemSettings = ConfigurationBinderService.Bind<SystemSettings>(
 
 // Add services to the container.
 
-builder.Services.AddScoped<LdapService>();
+builder.Services.AddScoped<IAuthenticationBridge, LdapAuthenticationBridge>();
 builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
