@@ -9,6 +9,6 @@ namespace API.DTO.LDAP;
 /// </summary>
 public record class BasicUserInfoWithObjectGuid : BasicUserInfo
 {
-    [LDAPMapping("objectGUID")]
+    [AuthenticationMapping("objectGUID")]
     public LdapAttribute ObjectGUID { get; set; } = new LdapAttribute("objectGUID");
 }

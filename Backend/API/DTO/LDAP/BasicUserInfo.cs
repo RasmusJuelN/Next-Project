@@ -11,18 +11,18 @@ public record class BasicUserInfo
     /// <summary>
     /// Gets or sets the LDAP attribute for the user's account name (sAMAccountName).
     /// </summary>
-    [LDAPMapping("sAMAccountName")]
+    [AuthenticationMapping("sAMAccountName")]
     public LdapAttribute Username { get; set; } = new LdapAttribute("sAMAccountName");
 
     /// <summary>
     /// Gets or sets the LDAP attribute for the user's display name (name).
     /// </summary>
-    [LDAPMapping("name")]
+    [AuthenticationMapping("name")]
     public LdapAttribute Name { get; set; } = new LdapAttribute("name");
 
     /// <summary>
     /// Gets or sets the LDAP attribute for the user's group memberships (memberOf).
     /// </summary>
-    [LDAPMapping("memberOf")]
+    [AuthenticationMapping("memberOf")]
     public LdapAttribute MemberOf { get; set; } = new LdapAttribute("memberOf");
 }

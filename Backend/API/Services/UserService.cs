@@ -9,14 +9,14 @@ using Database.DTO.ActiveQuestionnaire;
 
 namespace API.Services;
 
-public class UserService(LdapService ldapService, IUnitOfWork unitOfWork)
+public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork unitOfWork)
 {
-    private readonly LdapService _ldapService = ldapService;
+    private readonly IAuthenticationBridge _authenticationBridge = authenticationBridge;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public UserQueryPaginationResult QueryLDAPUsersWithPagination(UserQueryPagination request)
     {
-        (List<BasicUserInfoWithObjectGuid> ldapUsers, string sessionId, bool hasMore) = _ldapService.SearchUserPagination<BasicUserInfoWithObjectGuid>(request.User, request.Role.ToString(), request.PageSize, request.SessionId);
+        (List<BasicUserInfoWithObjectGuid> ldapUsers, string sessionId, bool hasMore) = _authenticationBridge.SearchUserPagination<BasicUserInfoWithObjectGuid>(request.User, request.Role.ToString(), request.PageSize, request.SessionId);
 
         return new()
         {

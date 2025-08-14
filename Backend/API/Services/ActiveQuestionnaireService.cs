@@ -11,10 +11,10 @@ using System.Net;
 
 namespace API.Services;
 
-public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap, IConfiguration configuration)
+public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationBridge authenticationBridge, IConfiguration configuration)
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly LdapService _ldap = ldap;
+    private readonly IAuthenticationBridge _authenticationBridge = authenticationBridge;
     private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
     private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
 
@@ -66,9 +66,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
 
     public async Task<ActiveQuestionnaire> ActivateTemplate(ActivateQuestionnaire request)
     {
-        _ldap.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
+        _authenticationBridge.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
 
-        if (!_ldap.connection.Bound) throw new Exception("Failed to bind to the LDAP server.");
+        if (!_authenticationBridge.IsConnected()) throw new Exception("Failed to bind to the LDAP server.");
 
         // If the student or teacher is not found in the database, create and add them to the database
         if (!_unitOfWork.User.UserExists(request.StudentId))
@@ -130,7 +130,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
     // The new() constraint on generics don't allow classes with required properties, so we can't make this generic :v
     private UserAdd GenerateStudent(Guid id)
     {
-        BasicUserInfo ldapStudent = _ldap.SearchByObjectGUID<BasicUserInfo>(id);
+        BasicUserInfo? ldapStudent = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Student not found in LDAP.");
         string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.StringValue.Contains(x.Value)).Key;
         
         return new()
@@ -145,7 +145,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
 
     private UserAdd GenerateTeacher(Guid id)
     {
-        BasicUserInfo ldapTeacher = _ldap.SearchByObjectGUID<BasicUserInfo>(id);
+        BasicUserInfo? ldapTeacher = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Teacher not found in LDAP.");
         string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.StringValue.Contains(x.Value)).Key;
         
         return new()

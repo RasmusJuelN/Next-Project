@@ -11,6 +11,6 @@ public record class GroupDistinguishedName
     /// <summary>
     /// Gets or sets the LDAP attribute for the group's distinguished name.
     /// </summary>
-    [LDAPMapping("distinguishedName")]
+    [AuthenticationMapping("distinguishedName")]
     public LdapAttribute DistinguishedName { get; set; } = new LdapAttribute("distinguishedName");
 }
