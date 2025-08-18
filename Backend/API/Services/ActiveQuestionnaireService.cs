@@ -8,6 +8,7 @@ using Settings.Models;
 using Database.DTO.User;
 using API.Exceptions;
 using System.Net;
+using Database.Models;
 
 namespace API.Services;
 
@@ -59,6 +60,93 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         };
     }
 
+    public async Task<QuestionnaireGroupResult> ActivateQuestionnaireGroup(ActivateQuestionnaireGroup request)
+    {
+        // 1. Create the group
+        var group = new QuestionnaireGroupModel
+        {
+            GroupId = Guid.NewGuid(),
+            TemplateId = request.TemplateId,
+            Name = request.Name,
+            CreatedAt = DateTime.UtcNow
+        };
+        await _unitOfWork.QuestionnaireGroup.AddAsync(group);
+
+        // 2. Create questionnaires for each student/teacher
+        var createdQuestionnaires = new List<ActiveQuestionnaire>();
+        foreach (var studentId in request.StudentIds)
+        {
+            foreach (var teacherId in request.TeacherIds)
+            {
+                var questionnaire = await _unitOfWork.ActiveQuestionnaire.ActivateQuestionnaireAsync(
+                    request.TemplateId, studentId, teacherId, group.GroupId);
+                createdQuestionnaires.Add(questionnaire);
+            }
+        }
+        await _unitOfWork.SaveChangesAsync();
+
+        // 3. Map to DTOs
+        var questionnaireDtos = createdQuestionnaires.Select(q => new ActiveQuestionnaireAdminBase
+        {
+            Id = q.Id,
+            Title = q.Title,
+            Description = q.Description,
+            ActivatedAt = q.ActivatedAt,
+            Student = q.Student, // Map to UserBase as needed
+            Teacher = q.Teacher,
+            StudentCompletedAt = q.StudentCompletedAt,
+            TeacherCompletedAt = q.TeacherCompletedAt
+        }).ToList();
+
+        // 4. Return group result
+        return new QuestionnaireGroupResult
+        {
+            GroupId = group.GroupId,
+            Name = group.Name,
+            TemplateId = group.TemplateId,
+            Questionnaires = questionnaireDtos
+        };
+    }
+
+    public async Task<QuestionnaireGroupResult?> GetQuestionnaireGroup(Guid groupId)
+    {
+        // Fetch group from repository
+        var group = await _unitOfWork.QuestionnaireGroup.GetByIdAsync(groupId);
+        if (group == null)
+            return null;
+
+        // Fetch questionnaires for this group
+        var questionnaires = group.Questionnaires ?? new List<ActiveQuestionnaireModel>();
+        // Fix for CS0029: Explicitly map TeacherModel to UserBase
+        var questionnaireDtos = questionnaires.Select(q => new ActiveQuestionnaireAdminBase
+        {
+            Id = q.Id,
+            Title = q.Title,
+            Description = q.Description,
+            ActivatedAt = q.ActivatedAt,
+            Student = new UserBase
+            {
+                UserName = q.Student.UserName,
+                FullName = q.Student.FullName
+            },
+            Teacher = new UserBase
+            {
+                UserName = q.Teacher.UserName,
+                FullName = q.Teacher.FullName
+            },
+            StudentCompletedAt = q.StudentCompletedAt,
+            TeacherCompletedAt = q.TeacherCompletedAt
+        }).ToList();
+
+        return new QuestionnaireGroupResult
+        {
+            GroupId = group.GroupId,
+            Name = group.Name,
+            TemplateId = group.TemplateId,
+            Questionnaires = questionnaireDtos
+        };
+    }
+
     public async Task<ActiveQuestionnaire> FetchActiveQuestionnaire(Guid id)
     {
         return await _unitOfWork.ActiveQuestionnaire.GetFullActiveQuestionnaireAsync(id);
@@ -88,8 +176,10 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
                     await _unitOfWork.User.AddTeacherAsync(teacher);
                 }
 
+                // Fix: Add a groupId parameter to the ActivateQuestionnaireAsync call
+                var groupId = Guid.NewGuid(); // Generate a new groupId or use an existing one if applicable
                 var activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.ActivateQuestionnaireAsync(
-                    request.TemplateId, studentId, teacherId);
+                    request.TemplateId, studentId, teacherId, groupId);
 
                 createdQuestionnaires.Add(activeQuestionnaire);
             }

@@ -38,6 +38,41 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("createGroup")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<QuestionnaireGroupResult>> CreateGroup([FromBody] ActivateQuestionnaireGroup request)
+        {
+            try
+            {
+                var result = await _questionnaireService.ActivateQuestionnaireGroup(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating questionnaire group: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        // Get info about a questionnaire group
+        [HttpGet("{groupId}/getGroup")]
+        [Authorize(AuthenticationSchemes = "AccessToken")]
+        public async Task<ActionResult<QuestionnaireGroupResult>> GetGroup(Guid groupId)
+        {
+            try
+            {
+                var result = await _questionnaireService.GetQuestionnaireGroup(groupId);
+                if (result == null)
+                    return NotFound();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching questionnaire group: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpGet("check")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "StudentAndTeacherOnly")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
