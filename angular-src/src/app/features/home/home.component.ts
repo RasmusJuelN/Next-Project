@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { LoginComponent } from '../login/login.component';
 import { HomeService } from './services/home.service';
 import { catchError, of } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [LoginComponent, CommonModule],
+  imports: [LoginComponent, CommonModule, TranslateModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
@@ -17,6 +18,7 @@ export class HomeComponent implements OnInit {
   private authService = inject(AuthService);
   private homeService = inject(HomeService);
   private router = inject(Router);
+  // private translate = inject(TranslateService);
 
   loggedInAlready$ = this.authService.isAuthenticated$;
   activeQuestionnaireString = '';
@@ -71,4 +73,9 @@ export class HomeComponent implements OnInit {
     this.errorMessage = 'Login failed. Please try again.';
     console.error('Login error:', error);
   }
+
+//   setLanguage(lang: string) {
+//   this.translate.use(lang);
+// }
+
 }

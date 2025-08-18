@@ -3,11 +3,12 @@ import { QuestionEditorComponent } from './question-editor/question-editor.compo
 import { Question, Template } from '../models/template.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-template-editor',
   standalone: true,
-  imports: [QuestionEditorComponent, CommonModule, FormsModule],
+  imports: [QuestionEditorComponent, CommonModule, FormsModule, TranslateModule],
   templateUrl: './template-editor.component.html',
   styleUrl: './template-editor.component.css'
 })

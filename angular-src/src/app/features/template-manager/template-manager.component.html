@@ -2,14 +2,15 @@
 <div class="flex flex-col items-center w-full min-h-full  p-4 sm:p-8">
   <div class="flex flex-col max-w-5xl w-full bg-white shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10">
     <ng-container *ngIf="!selectedTemplate; else editor">
-      <h2 class="text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">Administrer Skabeloner</h2>
+      <h2 class="text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">{{'TMP_TITLE_ADMINISTER_TEMPLATES'| translate}}</h2>
 
       <!-- Search & Actions -->
       <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
         <button 
           (click)="addTemplate()" 
           class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-2 px-6 rounded-xl shadow transition-colors w-full sm:w-auto border-2 border-primary_orange_1 hover:border-primary_dark_blue">
-          Opret Ny Skabelon
+          <!-- {{'TMP_ADD_TEMPLATE' | translate}} TMP_BUTTON_CREATE_NEW -->
+              {{'TMP_BUTTON_CREATE_NEW' | translate}}
         </button>
 
         <div class="flex w-full items-center gap-4">
@@ -18,21 +19,21 @@
             (change)="onSearchTypeChange(searchType.value)"
             class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm min-w-[150px] bg-gray-50"
           >
-            <option value="name" selected>Søg efter Navn</option>
-            <option value="id">Søg efter ID</option>
+            <option value="name" selected>{{'TMP_SEARCH_BY_NAME' | translate}}</option>
+            <option value="id">{{'TMP_SEARCH_BY_ID' | translate}}</option>
           </select>
 
           <input
             #search
             type="text"
             (input)="onSearchChange(search.value)"
-            placeholder="Søg i skabeloner..."
+            placeholder="{{'TMP_SEARCH_PLACEHOLDER' | translate}}"
             class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm flex-grow min-w-[200px] bg-gray-50"
           />
         </div>
 
         <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
-          <label for="pageSize" class="text-primary_dark_blue font-medium">Elementer pr. side:</label>
+          <label for="pageSize" class="text-primary_dark_blue font-medium">{{'TMP_ITEMS_PER_PAGE'| translate}}</label>
           <select
             #pageSize
             id="pageSize"
@@ -48,12 +49,13 @@
 
       <!-- Loading Indicator Inside Content -->
       <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
+        <!--  -->
         <app-loading></app-loading>
       </div>
 
       <!-- Error Message -->
       <div *ngIf="errorMessage" class="text-center p-4">
-        <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
+        <p class="text-red-500 font-semibold text-lg">{{ errorMessage | translate}}</p>
       </div>
 
       <!-- Template List -->
@@ -62,19 +64,19 @@
           *ngFor="let template of templateBases"
           class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors"
         >
-          <span class="text-primary_dark_blue font-semibold text-center sm:text-left">{{ template.title }}</span>
+          <span class="text-primary_dark_blue font-semibold text-center sm:text-left">{{ template.title  |translate}}</span>
           <div class="flex space-x-2 mt-2 sm:mt-0">
             <button
               class="px-4 py-1 text-sm bg-primary_orange_1 text-white rounded-xl border-2 border-primary_orange_1 hover:bg-primary_orange_light hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:ring-offset-2 transition-colors"
               (click)="selectTemplate(template.id)"
             >
-              Rediger
+              {{'TMP_BUTTON_EDIT' | translate }}
             </button>
             <button
               (click)="openDeleteModal(template.id)"
               class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
             >
-              Slet
+              {{ 'TMP_BUTTON_DELETE' | translate }}
             </button>
           </div>
         </li>
@@ -101,11 +103,12 @@
 
     <div *ngIf="showLockedModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-        <h3 class="text-lg font-semibold mb-4">Skabelonen er er i brug</h3>
-        <p class="mb-6">Denne skabelon kan ikke redigeres, da den har været brugt.</p>
+        <h3 class="text-lg font-semibold mb-4">{{'TMP_LOCKED_TITLE'| translate}}</h3>
+        <p class="mb-6">{{'TMP_LOCKED_MSG'| translate}}</p>
         <div class="flex justify-end">
           <button (click)="closeLockedModal()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none">
-            Luk
+            <!-- Luk -->
+             {{'TMP_CANCEL' | translate}}
           </button>
         </div>
       </div>
@@ -115,21 +118,25 @@
       <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
         <h3 class="text-lg font-semibold mb-4">
           {{ deleteConfirmationStep === 0 ? 'Bekræft Sletning' : 'Sidste Advarsel' }}
+                <!-- {{ deleteConfirmationStep === 0 ? ('TMP_DELETE_CONFIRM_TITLE' | translate) : ('TMP_DELETE_FINAL_WARNING' | translate) }} -->
+
         </h3>
         <p class="mb-6">
           {{ deleteConfirmationStep === 0 
-             ? 'Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data.'
-             : 'Advarsel: Denne handling kan ikke fortrydes. Sletning af denne skabelon vil permanent fjerne alle relaterede data. Er du helt sikker på, at du vil fortsætte?'
+          ? ('TMP_DELETE_CONFIRM_MSG' | translate)
+          : 'TMP_DELETE_FINAL_WARN_MSG' | translate
+            
+           
           }}
         </p>
         <div class="flex justify-end space-x-3">
           <button (click)="cancelDelete()"
             class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 focus:outline-none">
-            Annuller
+            {{'TMP_CANCEL' | translate}}
           </button>
           <button (click)="confirmDelete()"
             class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none">
-            {{ deleteConfirmationStep === 0 ? 'Slet' : 'Slet Permanent' }}
+            {{ deleteConfirmationStep === 0 ? ('TMP_DELETE' | translate) : ('TMP_DELETE_ PERMANENT') | translate }}
           </button>
         </div>
       </div>

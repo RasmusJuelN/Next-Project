@@ -5,7 +5,8 @@
     class="fixed top-4 left-4 z-50 sm:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white bg-transparent"
     (click)="toggleMenu()"
   >
-    <span class="sr-only">Toggle menu</span>
+    <!-- <span class="sr-only">Toggle menu</span> -->
+         <span class="sr-only">{{'NAV_TOGGLE_MENU' | translate}} </span>
     <app-menu-svg [logoType]="isMenuOpen ? 'close' : 'menu'"></app-menu-svg>
   </button>
 
@@ -15,6 +16,8 @@
     class="fixed top-0 left-0 z-40 h-full bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16"
   >
     <div class="flex flex-col flex-1 gap-1">
+
+
       <!-- Global Links -->
       <!-- <a
         *ngFor="let link of globalNavLinks"
@@ -31,8 +34,26 @@
         class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
         (click)="toggleMenu()"
       >
-        {{ link.name }}
+        {{ link.name | translate }}
       </a>
+
+      <!-- translate button -->
+        <div class="flex justify-end gap-2 mb-4">
+        <button
+          class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+          (click)="setLanguage('en')"
+        >
+          {{ 'BUTTON_EN' | translate }}
+        </button>
+        <button
+          class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+          (click)="setLanguage('da')"
+        >
+          {{ 'BUTTON_DA' | translate }}
+        </button>
+      </div>
+
+      <!-- Translatebutton code -->
 
       <button
         (click)="logout()"
@@ -42,7 +63,8 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
         </svg>
-        Log ud
+        <!-- Log ud -->
+         {{ 'NAV_LOG_OUT' | translate }}
       </button>
     </div>
   </nav>
@@ -71,9 +93,29 @@
         class="nav-underline px-2 py-2 flex items-center text-base font-medium text-primary_dark_blue transition-colors border-transparent my-2"
         style="height:auto;"
       >
-        {{ link.name }}
+        {{ link.name | translate }}
       </a>
     </div>
+    <!-- Translate buttons til Desktop -->
+    <div class="flex justify-end gap-2 mb-1">
+
+      <button
+        class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+        (click)="setLanguage('en')"
+      >
+        {{ 'BUTTON_EN' | translate }}
+      </button>
+      <button
+        class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+        (click)="setLanguage('da')"
+      >
+        {{ 'BUTTON_DA' | translate }}
+      </button>
+    </div>
+
+
+
+
     <button
       (click)="logout()"
       class="flex items-center gap-2 ml-auto  py-2 rounded-xl  text-base font-medium text-primary_orange_1 hover:text-primary_orange_light"
@@ -81,7 +123,8 @@
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
       </svg>
-      Log ud
+      <!-- Log ud -->
+      {{ 'NAV_LOG_OUT' | translate }}
     </button>
   </nav>
 </ng-container>

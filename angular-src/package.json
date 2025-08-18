@@ -19,6 +19,8 @@
     "@angular/platform-browser": "^18.2.13",
     "@angular/platform-browser-dynamic": "^18.2.13",
     "@angular/router": "^18.2.13",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "chart.js": "^4.4.3",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",

@@ -1,0 +1,66 @@
+{
+  "BUTTON_EN": "Engelsk",
+  "BUTTON_DA": "Dansk",
+  "GREETING": "Hej {{username}}!",
+  "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer",
+  "ANSWER_QUESTIONNAIRE": "Et spørgeskema kan besvares",
+  "NAV_LOG_OUT": "Log ud",
+   "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
+  "NAV_OVERVIEW": "Oversigt",
+  "NAV_TEMPLATES": "Skabeloner",
+   "LOGIN_WELCOME": "Velkommen",
+  "LOGIN_SUBTITLE": "Log ind for at besvare spørgeskemaer",
+  "LOGIN_USERNAME_PLACEHOLDER": "Indtast brugernavn",
+  "LOGIN_PASSWORD_PLACEHOLDER": "Indtast adgangskode",
+  "LOGIN_USERNAME_REQUIRED": "Brugernavn er påkrævet",
+  "LOGIN_PASSWORD_REQUIRED": "Adgangskode er påkrævet",
+  "LOGIN_ERROR_INVALID": "Ugyldigt brugernavn eller adgangskode.",
+  "LOGIN_ERROR_GENERAL": "Der opstod en fejl under login. Prøv igen.",
+  "LOGIN_SUBMIT": "Log ind",
+  "LOGIN_LOADING": "Logger ind...",
+  "TMP_NEW_TITLE": "Ny skabelon",
+  "TMP_NEW_DESC": "Beskrivelse af den nye skabelon",
+  "TMP_NEW_QUESTION": "Standard spørgsmål",
+
+
+  "TMP_TITLE_ADMINISTER_TEMPLATES": "Administrer Skabeloner",
+  "TMP_BUTTON_CREATE_NEW": "Opret Ny Skabelon",
+  "TMP_SEARCH_BY_NAME": "Søg efter Navn",
+  "TMP_SEARCH_BY_ID": "Søg efter ID",
+  "TMP_SEARCH_PLACEHOLDER": "Søg i skabeloner...",
+  "TMP_ITEMS_PER_PAGE": "Elementer pr. side:",
+  "TMP_LOADING": "Indlæser...",
+  "TMP_BUTTON_EDIT": "Rediger", 
+  "TMP_BUTTON_DELETE": "Slet",
+  "TMP_DELETE": "Slet",
+  "TMP_DELETE_PERMANENT": "Slet Permanent",
+  "TMP_CANCEL": "Annuller",
+  "TMP_DELETE_CONFIRM_TITLE": "Bekræft Sletning",
+  "TMP_DELETE_CONFIRM_WARN": "Sidste Advarsel",
+  "TMP_DELETE_CONFIRM_MSG": "Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data.",
+  "TMP_DELETE_FINAL_WARN_MSG": "Advarsel: Denne handling kan ikke fortrydes. Sletning af denne skabelon vil permanent fjerne alle relaterede data. Er du helt sikker på, at du vil fortsætte?",
+  "TMP_LOCKED_TITLE": "Skabelonen er i brug",
+  "TMP_LOCKED_MSG": "Denne skabelon kan ikke redigeres, da den har været brugt.",
+  "TMP_BUTTON_CLOSE": "Luk",
+  "TMP_FAIL_LOAD_LIST": "Indlæsning af skabeloner mislykkedes. Prøv igen.",
+  "TMP_FAIL_LOAD_DETAIL": "Indlæsning af skabelondetaljer mislykkedes.",
+  "TMP_DELETE_ERROR": "Fejl ved sletning af skabelon.",
+  "TMP_UPDATE_ERROR": "Fejl ved opdatering af skabelon.",
+
+   "TMP_EDITOR_TITLE": "Skabelonredigering",
+  "TMP_TEMPLATE_TITLE": "Skabelon Titel",
+  "TMP_TEMPLATE_DESCRIPTION": "Beskrivelse",
+  "TMP_QUESTIONS": "Spørgsmål",
+  "TMP_SAVE_TEMPLATE": "Gem Skabelon",
+  "TMP_NEWQUESTION": "Nyt spørgsmål",
+  "TMP_ADD_QUESTION": "Tilføj Nyt Spørgsmål",
+
+  "TMP_NEXT": "Næste",
+  "TMP_PREVIOUS": "Forrige"
+
+
+  
+
+
+
+}
