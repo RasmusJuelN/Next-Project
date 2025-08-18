@@ -1,7 +1,8 @@
 <div class="flex flex-col items-center w-full ">
   <div class="flex flex-col w-full max-w-full sm:max-w-4xl bg-white/90 shadow-xl rounded-2xl sm:p-10 border border-primary_dark_light">
     <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center sm:text-left drop-shadow">
-      Overview over active questionnaires.
+      <!-- Overview over active questionnaires. -->
+       {{ 'TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES' | translate }}
     </h2>
 
     <!-- Search & Filters Row -->
@@ -13,8 +14,8 @@
           (change)="onSearchTypeChange(searchSelect.value)"
           class="border border-primary_orange rounded-lg px-3 py-2 focus:ring-primary_orange focus:border-primary_orange text-sm min-w-0 sm:min-w-[150px] bg-white/80"
         >
-          <option value="name" selected>Search by Student Name</option>
-          <option value="id">Search by Active questionnaire Id</option>
+          <option value="name" selected>{{'TMP_SEARCH_BY_STUDENT_NAME'| translate}}</option> 
+          <option value="id">{{'TMP_SEARCH_BY_QUESTIONNAIRE_ID'| translate}}</option>
         </select>
 
         <input
@@ -42,13 +43,13 @@
             [(ngModel)]="filterTeacherCompleted"
             (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">Teacher is done</span>
+          <span class="text-sm">{{'TMP_TEACHER_DONE'| translate}}</span>
         </label>
       </div>
 
       <!-- Page Size Selector -->
       <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
-        <label for="pageSize" class="text-primary_dark_light font-medium"> Items per page: </label>
+        <label for="pageSize" class="text-primary_dark_light font-medium"> {{'TMP_ITEMS_PER_PAGE'| translate}}</label>
         <select
           #pageSize
           id="pageSize"
@@ -86,7 +87,7 @@
               (click)="copyAnswersUrl(questionnaire.id)"
               class="ml-2 cursor-pointer text-orange-600 font-medium hover:text-orange-700 underline underline-offset-2 transition"
             >
-              Copy link for answer
+              {{'TMP_COPY_LINK' | translate}}
             </button>
 
             </span>
@@ -94,7 +95,7 @@
 
           <div *ngIf="questionnaire.student" class="flex flex-col sm:flex-row gap-2">
             <span class="text-sm text-primary_dark_light">
-               Student Name: {{ questionnaire.student.fullName }} ({{questionnaire.student.userName}})
+              {{'TMP_STUDENT_NAME'| translate}} {{ questionnaire.student.fullName }} ({{questionnaire.student.userName}})
             </span>
           </div>
 
@@ -103,13 +104,13 @@
               class="px-3 py-1 rounded-full text-sm font-medium text-white"
               [ngClass]="questionnaire.studentCompletedAt ? 'bg-accent_green' : 'bg-accent_red'"
             >
-              Student: {{ questionnaire.studentCompletedAt ? 'Completed' : 'Pending' }}
+             {{'TMP_STUDENT'| translate}} {{ questionnaire.studentCompletedAt ? ('TMP_COMPLETED' | translate) : ('TMP_PENDING' | translate) }}
             </span>
             <span
               class="px-3 py-1 rounded-full text-sm font-medium text-white"
               [ngClass]="questionnaire.teacherCompletedAt ? 'bg-accent_green' : 'bg-accent_red'"
             >
-              Teacher: {{ questionnaire.teacherCompletedAt ? 'Completed' : 'Pending' }}
+              {{'TMP_TEACHER'|translate}} {{ questionnaire.teacherCompletedAt ? ('TMP_COMPLETED' | translate) : ('TMP_PENDING' | translate) }}
             </span>
           </div>
         </div>
@@ -120,7 +121,8 @@
             [routerLink]="['/answer', questionnaire.id]"
             class="px-4 py-2 text-sm bg-primary_orange text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
           >
-            Answer
+          {{ 'TMP_ANSWER' | translate }}
+            <!-- Answer  -->
           </button>
 
           <button
@@ -128,7 +130,8 @@
             [routerLink]="['/results', questionnaire.id]"
             class="px-4 py-2 text-sm bg-secondary_blue text-white rounded-md hover:bg-primary_orange focus:outline-none"
           >
-            View Results
+          {{ 'TMP_VIEW_RESULTS' | translate }}
+            <!-- View Results -->
           </button>
         </div>
       </li>

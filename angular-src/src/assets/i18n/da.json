@@ -56,9 +56,25 @@
   "TMP_ADD_QUESTION": "Tilføj Nyt Spørgsmål",
 
   "TMP_NEXT": "Næste",
-  "TMP_PREVIOUS": "Forrige"
+  "TMP_PREVIOUS": "Forrige",
 
 
+ "TMP_ACTIVE_SURVEYS": "Aktive spørgeskemaer",
+ "TMP_SETUP_AT": "Opsat den:",
+ "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Oversigt over aktive spørgeskemaer",
+  "TMP_SEARCH_BY_STUDENT_NAME": "Søg efter elevnavn",
+  "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Søg efter aktivt spørgeskema-id",
+  "TMP_SEARCHPLACEHOLDER": "Søg...",
+  "TMP_STUDENT_DONE": "Studenten er færdig",
+  "TMP_TEACHER_DONE": "Læreren er færdig",
+  "TMP_COPY_LINK": "Kopier link til besvarelse",
+  "TMP_STUDENT_NAME": "Elevnavn:",
+  "TMP_STUDENT": "Elev",
+  "TMP_TEACHER": "Lærer",
+  "TMP_COMPLETED": "Færdig",
+  "TMP_PENDING": "Ikke færdig",
+  "TMP_ANSWER": "Svar",
+  "TMP_VIEW_RESULTS": "Se resultater"
   
 
 

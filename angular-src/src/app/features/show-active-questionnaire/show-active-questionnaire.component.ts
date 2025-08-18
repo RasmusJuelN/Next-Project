@@ -6,11 +6,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../shared/models/user.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-show-active-questionnaire',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './show-active-questionnaire.component.html',
   styleUrls: ['./show-active-questionnaire.component.css']
 })

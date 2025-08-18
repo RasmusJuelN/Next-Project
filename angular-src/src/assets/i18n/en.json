@@ -58,7 +58,26 @@
   "TMP_ADD_QUESTION": "Add New Question",
 
   "TMP_NEXT": "Next",
-  "TMP_PREVIOUS": "Previous"
+  "TMP_PREVIOUS": "Previous",
+
+   "TMP_ACTIVE_SURVEYS": "Active surveys",
+   "TMP_ANSWER": "Answer",
+   "TMP_SETUP_AT": "Setup at:",
+
+
+   "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires.s",
+  "TMP_SEARCH_BY_STUDENT_NAME": "Search by Student Name",
+  "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Search by Active Questionnaire ID",
+  "TMP_SEARCHPLACEHOLDER": "Search...",
+  "TMP_STUDENT_DONE": "Student is done",
+  "TMP_TEACHER_DONE": "Teacher is done",
+  "TMP_COPY_LINK": "Copy link for answer",
+  "TMP_STUDENT_NAME": " Student Name:",
+  "TMP_STUDENT": "Student:",
+  "TMP_TEACHER": "Teacher:",
+  "TMP_COMPLETED": "Completed",
+  "TMP_PENDING": "Pending",
+  "TMP_VIEW_RESULTS": "View Results"
 
   
   
