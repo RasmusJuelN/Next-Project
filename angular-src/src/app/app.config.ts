@@ -1,7 +1,7 @@
 import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import {  provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { jwtInterceptor } from './core/guards and interceptors/jwt.interceptor';
 import { AuthService } from './core/services/auth.service';
@@ -19,7 +19,7 @@ import { ResultService } from './features/result/services/result.service';
 import { MockResultService } from './features/result/services/mock.result.service';
 import { TeacherService } from './features/teacher-dashboard/services/teacher.service';
 import { MockTeacherService } from './features/teacher-dashboard/services/mock.teacher.service';
-import { provideTranslateService, TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 

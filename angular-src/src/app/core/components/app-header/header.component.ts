@@ -71,7 +71,7 @@ export class HeaderComponent {
     this.authService.logout();
     this.router.navigate(['/']); // Redirect to login on logout
   }
-   setLanguage(lang: string) {
-  this.translate.use(lang);
-}
+//    setLanguage(lang: string) {
+//   this.translate.use(lang);
+// }
 }

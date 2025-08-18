@@ -37,22 +37,6 @@
         {{ link.name | translate }}
       </a>
 
-      <!-- translate button -->
-        <div class="flex justify-end gap-2 mb-4">
-        <button
-          class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-          (click)="setLanguage('en')"
-        >
-          {{ 'BUTTON_EN' | translate }}
-        </button>
-        <button
-          class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-          (click)="setLanguage('da')"
-        >
-          {{ 'BUTTON_DA' | translate }}
-        </button>
-      </div>
-
       <!-- Translatebutton code -->
 
       <button
@@ -96,26 +80,7 @@
         {{ link.name | translate }}
       </a>
     </div>
-    <!-- Translate buttons til Desktop -->
-    <div class="flex justify-end gap-2 mb-1">
-
-      <button
-        class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-        (click)="setLanguage('en')"
-      >
-        {{ 'BUTTON_EN' | translate }}
-      </button>
-      <button
-        class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-        (click)="setLanguage('da')"
-      >
-        {{ 'BUTTON_DA' | translate }}
-      </button>
-    </div>
-
-
-
-
+   
     <button
       (click)="logout()"
       class="flex items-center gap-2 ml-auto  py-2 rounded-xl  text-base font-medium text-primary_orange_1 hover:text-primary_orange_light"
