@@ -91,64 +91,72 @@ export class ResultComponent implements OnInit {
     }
   }
 
-  generateStackedBarOptions(data: Result): AgChartOptions {
-    const questionMap = new Map<string, Record<string, number>>();
-    [data].forEach((result) => {
-      result.answers.forEach((answer, index) => {
-        const questionKey = `Q${index + 1}`;
-        if (!questionMap.has(questionKey)) {
-          questionMap.set(questionKey, {});
-        }
-        const questionData = questionMap.get(questionKey)!;
-        const responses = [answer.studentResponse, answer.teacherResponse];
-        responses.forEach(resp => {
-          const trimmed = (resp || '').trim();
-          if (!trimmed) return;
-          questionData[trimmed] = (questionData[trimmed] || 0) + 1;
-        });
+generateStackedBarOptions(data: Result): AgChartOptions {
+  const questionMap = new Map<string, Record<string, number>>();
+  [data].forEach((result) => {
+    result.answers.forEach((answer, index) => {
+      const questionKey = `Q${index + 1}`;
+      if (!questionMap.has(questionKey)) {
+        questionMap.set(questionKey, {});
+      }
+      const questionData = questionMap.get(questionKey)!;
+
+      // Brug "Brugerdefineret svar" hvis svaret er brugerdefineret
+      const responses = [
+        answer.isStudentResponseCustom ? "Brugerdefineret svar" : (answer.studentResponse || '').trim(),
+        answer.isTeacherResponseCustom ? "Brugerdefineret svar" : (answer.teacherResponse || '').trim()
+      ];
+      responses.forEach(resp => {
+        if (!resp) return;
+        questionData[resp] = (questionData[resp] || 0) + 1;
       });
     });
-    const chartData: any[] = [];
-    const uniqueAnswers = new Set<string>();
-    questionMap.forEach((answerCounts, question) => {
-      const entry: Record<string, any> = { question };
-      Object.entries(answerCounts).forEach(([answer, count]) => {
-        entry[answer] = count;
-        uniqueAnswers.add(answer);
-      });
-      chartData.push(entry);
+  });
+  const chartData: any[] = [];
+  const uniqueAnswers = new Set<string>();
+  questionMap.forEach((answerCounts, question) => {
+    const entry: Record<string, any> = { question };
+    Object.entries(answerCounts).forEach(([answer, count]) => {
+      entry[answer] = count;
+      uniqueAnswers.add(answer);
     });
-    const series: AgBarSeriesOptions[] = Array.from(uniqueAnswers).map(answer => ({
-      type: 'bar',
-      xKey: 'question',
-      yKey: answer,
-      yName: `Svar: ${answer}`,
-      stacked: true
-    }));
-    return {
-      data: chartData,
-      theme: {
-        baseTheme: "ag-polychroma",
-        overrides: {
-          bar: { series: { label: { enabled: true } } }
-        }
-      },
-      title: { text: 'Sammenligning af besvarelser', fontSize: 18 },
-      series,
-      axes: [
-        { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
-        { type: 'number', position: 'left', title: { text: 'Valgt svar' } }
-      ]
-    };
-  }
+    chartData.push(entry);
+  });
+  const series: AgBarSeriesOptions[] = Array.from(uniqueAnswers).map(answer => ({
+    type: 'bar',
+    xKey: 'question',
+    yKey: answer,
+    yName: `Svar: ${answer}`,
+    stacked: true
+  }));
+  return {
+    data: chartData,
+    theme: {
+      baseTheme: "ag-polychroma",
+      overrides: {
+        bar: { series: { label: { enabled: true } } }
+      }
+    },
+    title: { text: 'Sammenligning af besvarelser', fontSize: 18 },
+    series,
+    axes: [
+      { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
+      { type: 'number', position: 'left', title: { text: 'Valgt svar' } }
+    ]
+  };
+}
 
 generateDonutOptions(data: Result): AgChartOptions {
   const answerCounts: Record<string, number> = {};
   data.answers.forEach(answer => {
-    [answer.studentResponse, answer.teacherResponse].forEach(resp => {
-      const trimmed = (resp || '').trim();
-      if (!trimmed) return;
-      answerCounts[trimmed] = (answerCounts[trimmed] || 0) + 1;
+    // Brug "Brugerdefineret svar" hvis svaret er brugerdefineret
+    const responses = [
+      answer.isStudentResponseCustom ? "Brugerdefineret svar" : (answer.studentResponse || '').trim(),
+      answer.isTeacherResponseCustom ? "Brugerdefineret svar" : (answer.teacherResponse || '').trim()
+    ];
+    responses.forEach(resp => {
+      if (!resp) return;
+      answerCounts[resp] = (answerCounts[resp] || 0) + 1;
     });
   });
   const chartData = Object.entries(answerCounts).map(([answer, count]) => ({
