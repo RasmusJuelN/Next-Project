@@ -131,4 +131,22 @@ export class ActiveService {
 
     return this.apiService.get<TemplateBaseResponse>(`${environment.apiUrl}/questionnaire-template/`, params);
   }
+
+  createActiveQuestionnaireGroup(aq: { name: string; templateId: string; studentIds: string[]; teacherIds: string[] }) {
+  const body = {
+    Name: aq.name,
+    TemplateId: aq.templateId,
+    StudentIds: aq.studentIds,
+    TeacherIds: aq.teacherIds
+  };
+  return this.apiService.post<any>(`${this.apiUrl}/creategroup`, body);
+}
+
+getQuestionnaireGroup(groupId: string) {
+  return this.apiService.get<any>(`${this.apiUrl}/${groupId}/getGroup`);
+}
+
+getQuestionnaireGroups() {
+  return this.apiService.get<any[]>(`${this.apiUrl}/groups`);
+}
 }

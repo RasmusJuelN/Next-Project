@@ -8,6 +8,7 @@ public interface IUnitOfWork : IDisposable
     IActiveQuestionnaireRepository ActiveQuestionnaire { get; }
     IUserRepository User { get; }
     ITrackedRefreshTokenRepository TrackedRefreshToken { get; }
+    IQuestionnaireGroupRepository QuestionnaireGroup { get; }
     Task BeginTransactionAsync();
     Task CommitAsync();
     Task RollbackAsync();

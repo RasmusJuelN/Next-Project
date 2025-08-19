@@ -29,7 +29,7 @@ type SearchType = 'student' | 'teacher' | 'template';
 })
 export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
-
+  public groupName: string = '';
   public student: UserSearchEntity<User> = {
     selected: [],
     searchInput: '',
@@ -190,7 +190,8 @@ export class ActiveBuilderComponent implements OnInit {
       !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
       !Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0 ||
       !Array.isArray(this.template.selected) || this.template.selected.length === 0 ||
-      !this.template.selected[0].id
+      !this.template.selected[0].id ||
+      !this.groupName.trim()
     ) {
       console.error('Missing required selections for Active Questionnaire.');
       return;
@@ -202,16 +203,27 @@ export class ActiveBuilderComponent implements OnInit {
       return;
     }
 
-    const newQuestionnaire = {
-      studentIds: this.student.selected.map(s => s.id),
-      teacherIds: this.teacher.selected.map(t => t.id),
+    const newGroup = {
+      name: this.groupName,
       templateId: this.template.selected[0].id,
+      studentIds: this.student.selected.map(s => s.id),
+      teacherIds: this.teacher.selected.map(t => t.id)
     };
 
-    this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
-      alert('Aktive spørgeskemaer oprettet!');
+    this.activeService.createActiveQuestionnaireGroup(newGroup).subscribe(() => {
+      alert('Spørgeskema-gruppe oprettet!');
       this.backToListEvent.emit();
     });
+    // const newQuestionnaire = {
+    //   studentIds: this.student.selected.map(s => s.id),
+    //   teacherIds: this.teacher.selected.map(t => t.id),
+    //   templateId: this.template.selected[0].id,
+    // };
+
+    // this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
+    //   alert('Aktive spørgeskemaer oprettet!');
+    //   this.backToListEvent.emit();
+    // });
   }
 
   onBackToList(): void {
