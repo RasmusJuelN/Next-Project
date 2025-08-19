@@ -24,5 +24,16 @@ namespace Database.Repository
         {
             return await _context.Set<QuestionnaireGroupModel>().FindAsync(groupId);
         }
+        public async Task<IEnumerable<QuestionnaireGroupModel>> GetAllAsync()
+        {
+            return await _context.QuestionnaireGroups
+                .Include(g => g.Questionnaires)
+                    .ThenInclude(q => q.Student)
+                .Include(g => g.Questionnaires)
+                    .ThenInclude(q => q.Teacher)
+                .Include(g => g.Questionnaires)
+                    .ThenInclude(q => q.QuestionnaireTemplate)
+                .ToListAsync();
+        }
     }
 }

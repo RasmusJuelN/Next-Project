@@ -10,6 +10,7 @@ namespace Database.Interfaces
     public interface IQuestionnaireGroupRepository
     {
         Task AddAsync(QuestionnaireGroupModel group);
+        Task<IEnumerable<QuestionnaireGroupModel>> GetAllAsync();
         Task<QuestionnaireGroupModel> GetByIdAsync(Guid groupId);
         // Add more methods as needed (e.g., List, Update, Delete)
     }

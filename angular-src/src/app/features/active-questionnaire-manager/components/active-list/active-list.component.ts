@@ -16,6 +16,8 @@ import { LoadingComponent } from '../../../../shared/loading/loading.component';
 })
 export class ActiveListComponent implements OnInit {
   private activeService = inject(ActiveService);
+  groups: any[] = [];
+
 
   // Pagination and search state
   pageSize: number = 5;
@@ -55,6 +57,15 @@ export class ActiveListComponent implements OnInit {
   ngOnInit(): void {
     // Initialize the cursor for page 1 as null (meaning no cursor)
     this.cachedCursors[1] = null;
+
+    // this.activeService.getQuestionnaireGroup(this.groups[0].id).subscribe(group => {
+    //   this.groups = [group];
+    // });
+
+    // Fetch all groups initially
+    this.activeService.getQuestionnaireGroups().subscribe(groups => {
+      this.groups = groups;
+    });
 
     // Debounce search inputs to avoid flooding the API
     this.searchSubject

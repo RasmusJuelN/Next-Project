@@ -147,6 +147,45 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         };
     }
 
+    public async Task<List<QuestionnaireGroupResult>> GetAllQuestionnaireGroups()
+    {
+        var groups = await _unitOfWork.QuestionnaireGroup.GetAllAsync();
+        var results = new List<QuestionnaireGroupResult>();
+
+        foreach (var group in groups)
+        {
+            var questionnaires = group.Questionnaires
+                .Select(q => new ActiveQuestionnaireAdminBase
+                {
+                    Id = q.Id,
+                    Title = q.Title,
+                    Description = q.Description,
+                    ActivatedAt = q.ActivatedAt,
+                    Student = new UserBase
+                    {
+                        UserName = q.Student.UserName,
+                        FullName = q.Student.FullName
+                    },
+                    Teacher = new UserBase
+                    {
+                        UserName = q.Teacher.UserName,
+                        FullName = q.Teacher.FullName
+                    },
+                    StudentCompletedAt = q.StudentCompletedAt,
+                    TeacherCompletedAt = q.TeacherCompletedAt
+                }).ToList();
+
+            results.Add(new QuestionnaireGroupResult
+            {
+                GroupId = group.GroupId,
+                Name = group.Name,
+                TemplateId = group.TemplateId,
+                Questionnaires = questionnaires
+            });
+        }
+
+        return results;
+    }
     public async Task<ActiveQuestionnaire> FetchActiveQuestionnaire(Guid id)
     {
         return await _unitOfWork.ActiveQuestionnaire.GetFullActiveQuestionnaireAsync(id);

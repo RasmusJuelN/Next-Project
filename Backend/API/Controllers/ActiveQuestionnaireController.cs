@@ -54,6 +54,22 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("groups")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<List<QuestionnaireGroupResult>>> GetAllGroups()
+        {
+            try
+            {
+                var results = await _questionnaireService.GetAllQuestionnaireGroups();
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching all questionnaire groups: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         // Get info about a questionnaire group
         [HttpGet("{groupId}/getGroup")]
         [Authorize(AuthenticationSchemes = "AccessToken")]
