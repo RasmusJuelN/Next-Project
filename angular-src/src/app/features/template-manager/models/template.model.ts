@@ -1,4 +1,7 @@
-  export type TemplateStatus = 'draft' | 'finalized';
+export enum TemplateStatus {
+  Draft = 'Draft',
+  Finalized = 'Finalized',
+}
 
 export interface Template {
   id?: string; // Optional because some templates may not have an ID yet
@@ -23,9 +26,6 @@ export interface Option {
   optionValue: number; // Matches API field
   displayText: string; // Matches API field
 }
-
-
-
 
   export interface TemplateBase {
     id: string;

@@ -17,5 +17,8 @@ public interface IQuestionnaireTemplateRepository
         DateTime? cursorCreatedAtPosition,
         TemplateOrderingOptions sortOrder,
         string? titleQuery,
-        Guid? idQuery);
+        Guid? idQuery,
+        TemplateStatus? templateStatus);
+        Task<QuestionnaireTemplate> FinalizeAsync(Guid id);
+
 }

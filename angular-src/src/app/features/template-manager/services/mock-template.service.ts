@@ -12,7 +12,7 @@ export class MockTemplateService {
       id: '1',
       title: 'Employee Onboarding Template',
       description: 'A template for onboarding new employees.',
-      draftStatus: 'finalized',
+      draftStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 101,
@@ -36,7 +36,7 @@ export class MockTemplateService {
       id: '2',
       title: 'Customer Feedback Template',
       description: 'A template for collecting customer feedback.',
-      draftStatus: 'finalized',
+      draftStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 103,
@@ -62,7 +62,7 @@ export class MockTemplateService {
       id: '3',
       title: 'Project Evaluation Template',
       description: 'A template for evaluating project outcomes.',
-      draftStatus: 'finalized',
+      draftStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 105,
@@ -88,7 +88,7 @@ export class MockTemplateService {
       id: '4',
       title: 'Training Feedback Template',
       description: 'A template for collecting feedback on training sessions.',
-      draftStatus: 'finalized',
+      draftStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 107,
@@ -106,7 +106,7 @@ export class MockTemplateService {
       id: '5',
       title: 'Event Registration Template',
       description: 'A template for registering attendees for an event.',
-      draftStatus: 'draft',
+      draftStatus: TemplateStatus.Draft,
       questions: [
         {
           id: 108,
@@ -126,7 +126,7 @@ export class MockTemplateService {
       id: '6',
       title: 'Survey Template',
       description: 'A simple survey template for various uses.',
-      draftStatus: 'draft',
+      draftStatus: TemplateStatus.Draft,
       questions: [
         {
           id: 110,
@@ -146,7 +146,7 @@ export class MockTemplateService {
       id: '7',
       title: 'Bug Report Template',
       description: 'A template for reporting bugs in a software system.',
-      draftStatus: 'draft',
+      draftStatus: TemplateStatus.Draft,
       questions: [
         {
           id: 111,
@@ -170,7 +170,7 @@ export class MockTemplateService {
     {
       id: '8',
       title: 'Team Meeting Notes Template',
-      draftStatus: 'draft',
+      draftStatus:TemplateStatus.Draft,
       description: 'A template for recording notes during team meetings.',
       questions: [
         {
@@ -191,7 +191,7 @@ export class MockTemplateService {
       id: '9',
       title: 'WHAT',
       description: 'A template for recording notes during team meetings.',
-      draftStatus: 'finalized',
+      draftStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 115,
@@ -214,7 +214,7 @@ export class MockTemplateService {
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
       isLocked: false,
-      draftStatus: 'finalized',
+      draftStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 1,
@@ -324,7 +324,7 @@ export class MockTemplateService {
   
   
   private ensureDraft(t: Template & { draftStatus: TemplateStatus }) {
-  if (t.draftStatus !== 'draft') {
+  if (t.draftStatus !== TemplateStatus.Draft) {
     throw new Error('Can’t modify a finalized template – copy it first.');
   }
 }
@@ -374,7 +374,7 @@ export class MockTemplateService {
       title: t.title,
       createdAt: t.createdAt ?? new Date().toISOString(), // ✅ Preserve original `createdAt` if available
       lastUpdated: t.lastUpdated ?? new Date().toISOString(),
-      isLocked: t.draftStatus === 'finalized',
+      isLocked: t.draftStatus === TemplateStatus.Finalized,
       draftStatus: t.draftStatus
     }));
   
@@ -415,7 +415,7 @@ addTemplate(template: Template): Observable<Template> {
   const draft: Template = {
     ...template,
     id: Date.now().toString(),
-    draftStatus: 'draft',                       // always start in draft
+    draftStatus: TemplateStatus.Draft,                       // always start in draft
     createdAt: Date.now().toString(),
     lastUpdated: Date.now().toString(),
   };
@@ -429,7 +429,7 @@ upgradeTemplate(templateId: string): Observable<Template> {
   const tmpl = this.templates.find(t => t.id === templateId);
   if (!tmpl) throw new Error('Template not found');
   this.ensureDraft(tmpl);
-  tmpl.draftStatus = 'finalized';
+  tmpl.draftStatus = TemplateStatus.Finalized;
   tmpl.lastUpdated = new Date().toISOString();
   return of(tmpl).pipe(delay(300));
 }

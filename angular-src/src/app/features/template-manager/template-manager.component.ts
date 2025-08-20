@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { TemplateBase, Template } from './models/template.model';
+import { TemplateBase, Template, TemplateStatus } from './models/template.model';
 import { TemplateService } from './services/template.service';
 import { TemplateEditorComponent } from './template-editor/template-editor.component';
 import { PaginationComponent, PageChangeEvent } from '../../shared/components/pagination/pagination.component';
@@ -37,6 +37,8 @@ export class TemplateManagerComponent {
   templateBases: TemplateBase[] = [];
   cachedCursors: { [pageNumber: number]: string | null } = {};
   selectedTemplate: Template | null = null;
+
+  templateStatus = TemplateStatus
   
 
   // Search & Pagination parameters.
@@ -176,7 +178,7 @@ onFinalizeTemplate(tmpl: Template): void {
       id: '',
       title: 'New Template',
       description: 'Description for the new template',
-      draftStatus: "draft",
+      draftStatus: TemplateStatus.Draft,
       questions: [
         {
           id: -1,
@@ -327,7 +329,7 @@ private deepCopyAsNewTemplate(template: Template): Template {
   // Reset meta fields
   clone.createdAt = undefined;
   clone.lastUpdated = undefined;
-  clone.draftStatus = 'draft';
+  clone.draftStatus = TemplateStatus.Draft;
   clone.isLocked = false;
   clone.title = `${clone.title} (kopi)`
   clone.id = "";

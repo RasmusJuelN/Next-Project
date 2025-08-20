@@ -68,8 +68,8 @@
             <span
               class="px-2 py-0.5 rounded text-xs font-semibold"
               [ngClass]="{
-                'bg-yellow-100 text-yellow-800': template.draftStatus === 'draft',
-                'bg-green-100 text-green-800':  template.draftStatus === 'finalized'
+                'bg-yellow-100 text-yellow-800': template.draftStatus === templateStatus.Draft,
+                'bg-green-100 text-green-800':  template.draftStatus === templateStatus.Finalized
               }"
             >
               {{ template.draftStatus | titlecase }}
@@ -82,7 +82,7 @@
               class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
               (click)="selectTemplate(template.id)"
             >
-              {{ template.draftStatus == "draft" ? 'Rediger' : 'Vis' }}
+              {{ template.draftStatus == templateStatus.Draft ? 'Rediger' : 'Vis' }}
             </button>
 
             <button

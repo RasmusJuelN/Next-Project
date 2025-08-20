@@ -146,5 +146,24 @@ namespace API.Controllers
 
             return NoContent();
         }
+        [HttpPost("{id}/finalize")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireTemplate>> FinalizeQuestionnaireTemplate(Guid id)
+        {
+            try
+            {
+                var updated = await _questionnaireTemplateService.FinalizeTemplate(id);
+                return Ok(updated);
+            }
+            catch (SQLException.ItemNotFound)
+            {
+                return NotFound();
+            }
+            // Optional: if your service throws when already finalized or locked, map to 409:
+            // catch (BusinessException.AlreadyFinalized) { return Conflict("Template already finalized."); }
+        }
     }
 }

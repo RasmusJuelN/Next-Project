@@ -121,13 +121,19 @@ export class ActiveService {
     );
   }
 
-  searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
-    let params = new HttpParams().set('title', term);
-    if (queryCursor) {
-      params = params.set('queryCursor', queryCursor);
-    }
-    params = params.set('pageSize', 5);
+searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
+  let params = new HttpParams()
+    .set('title', term)
+    .set('pageSize', 5)
+    .set('templateStatus', 'Finalized');
 
-    return this.apiService.get<TemplateBaseResponse>(`${environment.apiUrl}/questionnaire-template/`, params);
+  if (queryCursor) {
+    params = params.set('queryCursor', queryCursor);
   }
+
+  return this.apiService.get<TemplateBaseResponse>(
+    `${environment.apiUrl}/questionnaire-template/`,
+    params
+  );
+}
 }

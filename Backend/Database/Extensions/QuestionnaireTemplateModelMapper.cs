@@ -14,7 +14,8 @@ public static class QuestionnaireTemplateModelMapper
             Description = questionnaire.Description,
             CreatedAt = questionnaire.CreatedAt,
             LastUpdated = questionnaire.LastUpated,
-            IsLocked = questionnaire.IsLocked
+            IsLocked = questionnaire.IsLocked,
+            DraftStatus = questionnaire.templateStatus
         };
     }
 
@@ -28,6 +29,7 @@ public static class QuestionnaireTemplateModelMapper
             CreatedAt = questionnaire.CreatedAt,
             LastUpdated = questionnaire.LastUpated,
             IsLocked = questionnaire.IsLocked,
+            DraftStatus = questionnaire.templateStatus,
             Questions = [.. questionnaire.Questions.Select(q => q.ToDto())]
         };
     }

@@ -38,7 +38,8 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
             cursorCreatedAt,
             request.Order,
             request.Title,
-            request.Id
+            request.Id,
+            request.templateStatus
         );
 
         QuestionnaireTemplateBase? lastTemplate = questionnaireTemplateBases.Count != 0 ? questionnaireTemplateBases.Last() : null;
@@ -100,4 +101,11 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
 
         return;
     }
+
+public async Task<QuestionnaireTemplate> FinalizeTemplate(Guid id)
+{
+    var finalized = await _unitOfWork.QuestionnaireTemplate.FinalizeAsync(id);
+    await _unitOfWork.SaveChangesAsync();
+    return finalized;
+}
 }
