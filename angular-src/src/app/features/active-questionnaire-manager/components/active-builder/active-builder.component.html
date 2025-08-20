@@ -125,6 +125,15 @@
       <button (click)="clearSelected('template')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
     </div>
   </div>
+  <div class="flex flex-col row-start-2 col-start-2">
+    <label class="text-gray-700 text-sm mb-1 sm:mb-2">Gruppenavn:</label>
+    <input
+      type="text"
+      placeholder="Indtast navn for spørgeskema-gruppen (holdnavn e.l.)"
+      [(ngModel)]="groupName"
+      class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+    />
+  </div>
 
 
   </div>
