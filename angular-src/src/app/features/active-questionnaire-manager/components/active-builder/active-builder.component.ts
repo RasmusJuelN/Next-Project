@@ -6,6 +6,7 @@ import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { Template, TemplateBase } from '../../models/active.models';
+import { ActiveAnonymousBuilderComponent } from '../active-anonymous-builder/active-anonymous-builder.component';
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
 interface UserSearchEntity<T> extends SearchEntity<T> {
@@ -23,13 +24,15 @@ type SearchType = 'student' | 'teacher' | 'template';
 @Component({
   selector: 'app-active-questionnaire-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ActiveAnonymousBuilderComponent],
   templateUrl: './active-builder.component.html',
   styleUrls: ['./active-builder.component.css']
 })
 export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
   public groupName: string = '';
+  public isAnonymousMode = false;
+  
   public student: UserSearchEntity<User> = {
     selected: [],
     searchInput: '',
@@ -186,6 +189,28 @@ export class ActiveBuilderComponent implements OnInit {
   }
 
   createActiveQuestionnaire(): void {
+    if (this.isAnonymousMode) {
+      // Anonymous mode: only participants and template
+      if (
+        !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
+        !Array.isArray(this.template.selected) || this.template.selected.length === 0 ||
+        !this.template.selected[0].id
+      ) {
+        console.error('Missing required selections for Anonymous Questionnaire.');
+        return;
+      }
+      const payload = {
+        participantIds: this.student.selected.map(s => s.id),
+        templateId: this.template.selected[0].id
+      };
+      this.activeService.createAnonymousQuestionnaireGroup(payload).subscribe(() => {
+        alert('Anonymt spørgeskema oprettet!');
+        this.backToListEvent.emit();
+      });
+      return;
+    }
+
+    // Normal mode: students, teachers, template, group name
     if (
       !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
       !Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0 ||
@@ -196,35 +221,22 @@ export class ActiveBuilderComponent implements OnInit {
       console.error('Missing required selections for Active Questionnaire.');
       return;
     }
-    
-    // Ensure only one template is selected
     if (this.template.selected.length > 1) {
       alert('Der kan kun tildeles én skabelon ad gangen.');
       return;
     }
-
     const newGroup = {
       name: this.groupName,
       templateId: this.template.selected[0].id,
       studentIds: this.student.selected.map(s => s.id),
       teacherIds: this.teacher.selected.map(t => t.id)
     };
-
     this.activeService.createActiveQuestionnaireGroup(newGroup).subscribe(() => {
       alert('Spørgeskema-gruppe oprettet!');
       this.backToListEvent.emit();
     });
-    // const newQuestionnaire = {
-    //   studentIds: this.student.selected.map(s => s.id),
-    //   teacherIds: this.teacher.selected.map(t => t.id),
-    //   templateId: this.template.selected[0].id,
-    // };
-
-    // this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
-    //   alert('Aktive spørgeskemaer oprettet!');
-    //   this.backToListEvent.emit();
-    // });
   }
+
 
   onBackToList(): void {
     this.backToListEvent.emit();

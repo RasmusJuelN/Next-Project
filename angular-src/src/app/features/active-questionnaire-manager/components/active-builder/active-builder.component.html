@@ -1,7 +1,155 @@
 <div class="flex flex-col w-full bg-white shadow-md rounded-lg p-6 sm:p-8 sm:min-w-[1100px]">
-  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
-    Opret Aktivt Spørgeskema
-  </h2>
+ <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800 text-center sm:text-left m-0">
+      {{ isAnonymousMode ? 'Anonymt Spørgeskema' : 'Evaluerings spørgeskema' }}
+    </h2>
+    <button
+      (click)="isAnonymousMode = !isAnonymousMode"
+      class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded ml-4"
+    >
+      {{ isAnonymousMode ? 'Skift til evaluerings spørgeskema' : 'Skift til anonymt Spørgeskema' }}
+    </button>
+  </div>
+
+  <!-- Anonymous Mode -->
+  <ng-container *ngIf="isAnonymousMode">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    <!-- Search for Student -->
+    <div class="flex flex-col w-full">
+      <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter deltagere (navn, hold e.l.):</label>
+      <input
+        type="text"
+        placeholder="Indtast navn på elever..."
+        [(ngModel)]="student.searchInput"
+        (input)="onInputChange('student', studentSearch.value)"
+        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+        #studentSearch
+      />
+
+      <!-- Loading Indicator -->
+      <div *ngIf="student.isLoading" class="text-blue-500 text-sm mt-2">
+        Indlæser elever...
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="student.errorMessage" class="text-red-500 text-sm mt-2">
+        {{ student.errorMessage }}
+      </div>
+
+      <!-- Search Results & Load More -->
+      <div *ngIf="student.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+        <ul class="space-y-1">
+          <li
+            *ngFor="let stud of student.searchResults"
+            (click)="select('student', stud)"
+            class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded"
+          >
+            {{ stud.fullName }} ({{ stud.userName }})
+          </li>
+        </ul>
+
+        <!-- Load More Button -->
+        <button
+          *ngIf="student.page < student.totalPages"
+          class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition"
+        >
+          Indlæs Flere Elever
+        </button>
+      </div>
+
+      <!-- Selected Students List -->
+      <div *ngIf="student.selected.length > 0" class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
+        <strong>Valgte Elever:</strong>
+        <ul class="mt-1 space-y-1">
+          <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
+            <span>{{ stud.fullName }} ({{ stud.userName }})</span>
+            <button (click)="select('student', stud)" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
+          </li>
+        </ul>
+        <button (click)="clearSelected('student')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
+      </div>
+    </div>
+
+    <!-- Search for Template -->
+  <div class="flex flex-col w-full">
+    <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter Skabelon:</label>
+    <input
+      type="text"
+      placeholder="Indtast skabelontitel..."
+      [(ngModel)]="template.searchInput"
+      (input)="onInputChange('template', templateSearch.value)"
+      class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+      #templateSearch
+    />
+
+    <!-- Loading Indicator -->
+    <div *ngIf="template.isLoading" class="text-blue-500 text-sm mt-2">
+      Indlæser skabeloner...
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="template.errorMessage" class="text-red-500 text-sm mt-2">
+      {{ template.errorMessage }}
+    </div>
+
+    <!-- Search Results & Load More -->
+    <div *ngIf="template.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
+      <ul class="space-y-1">
+        <li
+          *ngFor="let temp of template.searchResults"
+          (click)="select('template', temp)"
+          class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded"
+        >
+          {{ temp.title }}
+        </li>
+      </ul>
+
+      <!-- Load More Button -->
+      <button
+        *ngIf="template.page < template.totalPages"
+        class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition"
+      >
+        Indlæs Flere Skabeloner
+      </button>
+    </div>
+
+    <!-- Selected Templates List -->
+    <div *ngIf="template.selected.length > 0" class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
+      <strong>Valgte Skabeloner:</strong>
+      <ul class="mt-1 space-y-1">
+        <li *ngFor="let temp of template.selected" class="flex justify-between items-center">
+          <span>{{ temp.title }}</span>
+          <button (click)="select('template', temp)" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
+        </li>
+      </ul>
+      <button (click)="clearSelected('template')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
+    </div>
+  </div>
+
+
+  </div>
+    <!-- Finish and Cancel Buttons -->
+    <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
+      <button
+        [disabled]="!student.selected || !template.selected"
+        (click)="createActiveQuestionnaire()"
+        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded"
+      >
+        Færdiggør
+      </button>
+      <button
+        (click)="onBackToList()"
+        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+      >
+        Annuller
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- Normal Mode -->
+  <ng-container *ngIf="!isAnonymousMode">
+    <!-- ...your existing builder layout... -->
+  
 
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
     <!-- Search for Student -->
@@ -9,7 +157,7 @@
       <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter Elev:</label>
       <input
         type="text"
-        placeholder="Indtast navn på elever."
+        placeholder="Indtast navn på elever..."
         [(ngModel)]="student.searchInput"
         (input)="onInputChange('student', studentSearch.value)"
         class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
@@ -115,6 +263,8 @@
         <button (click)="clearSelected('teacher')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
       </div>
     </div>
+
+    
   </div>
 
   <!-- Search for Template -->
@@ -176,7 +326,7 @@
   <label class="text-gray-700 text-sm mb-1 sm:mb-2">Gruppenavn:</label>
   <input
     type="text"
-    placeholder="Indtast navn for spørgeskema-gruppen"
+    placeholder="Indtast navn for spørgeskema-gruppen (holdnavn e.l.)"
     [(ngModel)]="groupName"
     class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
   />
@@ -197,4 +347,7 @@
       Annuller
     </button>
   </div>
+</ng-container>
 </div>
+
+

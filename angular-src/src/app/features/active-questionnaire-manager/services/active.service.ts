@@ -149,4 +149,8 @@ getQuestionnaireGroup(groupId: string) {
 getQuestionnaireGroups() {
   return this.apiService.get<any[]>(`${this.apiUrl}/groups`);
 }
+
+createAnonymousQuestionnaireGroup(payload: { participantIds: string[], templateId: string }) {
+  return this.apiService.post<any>(`${this.apiUrl}/anonymous-group`, payload);
+}
 }
