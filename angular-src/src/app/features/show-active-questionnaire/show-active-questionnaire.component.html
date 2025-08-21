@@ -1,5 +1,7 @@
 <div class="bg-white shadow-md rounded-lg p-6 sm:p-8 max-w-3xl mx-auto max-h-full overflow-y-auto">
-  <h2 class="text-2xl font-semibold text-gray-800 mb-4">aktive spørgeskemaer</h2>
+  <!-- <h2 class="text-2xl font-semibold text-gray-800 mb-4">aktive spørgeskemaer</h2> -->
+     <h2 class="text-2xl font-semibold text-gray-800 mb-4">{{'TMP_ACTIVE_SURVEYS' | translate}}</h2>
+
   
   <!-- If there are active questionnaires, list them. Otherwise, show a message -->
   <ng-container *ngIf="activeQuestionnaires && activeQuestionnaires.length > 0; else noData">
@@ -9,7 +11,8 @@
         <h3 class="text-xl font-semibold text-gray-800">{{ questionnaire.title }}</h3>
         <p class="text-gray-600 mt-1">{{ questionnaire.description }}</p>
         <p class="text-sm text-gray-500 mt-2">
-          Setup at:
+          {{ 'TMP_SETUP_AT' | translate }} 
+          <!-- Setup at: -->
           <span class="font-medium text-gray-700">{{ questionnaire.activatedAt | date:'short' }}</span>
         </p>
   
@@ -18,9 +21,10 @@
           <div class="mt-4" *ngIf="!questionnaire.studentCompletedAt">
             <button
               [routerLink]="['/answer', questionnaire.id]"
-              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              class="bg-primary_orange_1 text-white py-2 px-4 rounded-lg hover:bg-primary_orange_light"
             >
-            Svar
+            {{ 'TMP_ANSWER' | translate }}
+            <!-- Svar -->
             </button>
           </div>
         </ng-container>
@@ -30,9 +34,10 @@
           <div class="mt-4" *ngIf="!questionnaire.teacherCompletedAt">
             <button
               [routerLink]="['/answer', questionnaire.id]"
-              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              class="bg-primary_orange_1 text-white py-2 px-4 rounded-lg hover:bg-primary_orange_light"
             >
-            Svar
+            {{ 'TMP_ANSWER' | translate }}
+            <!-- Svar -->
             </button>
           </div>
         </ng-container>

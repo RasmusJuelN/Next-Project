@@ -1,20 +1,21 @@
-<div class="flex flex-col items-center w-full h-full bg-gray-100 p-4 sm:p-8">
-  <div class="flex flex-col w-full max-w-full sm:max-w-4xl bg-white shadow-md rounded-lg p-4 sm:p-8">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center sm:text-left">
-      Overview over active questionnaires.
+<div class="flex flex-col items-center w-full ">
+  <div class="flex flex-col w-full max-w-full sm:max-w-4xl bg-white/90 shadow-xl rounded-2xl sm:p-10 border border-primary_dark_light">
+    <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center sm:text-left drop-shadow">
+      <!-- Overview over active questionnaires. -->
+       {{ 'TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES' | translate }}
     </h2>
 
     <!-- Search & Filters Row -->
-    <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-4 items-center w-full">
+    <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
       <!-- Search & Filters -->
-      <div class="flex flex-col sm:flex-row w-full gap-2">
+      <div class="flex flex-col sm:flex-row w-full gap-3">
         <select
           #searchSelect
           (change)="onSearchTypeChange(searchSelect.value)"
-          class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-w-0 sm:min-w-[150px]"
+          class="border border-primary_orange rounded-lg px-3 py-2 focus:ring-primary_orange focus:border-primary_orange text-sm min-w-0 sm:min-w-[150px] bg-white/80"
         >
-          <option value="name" selected>Search by Student Name</option>
-          <option value="id">Search by Active questionnaire Id</option>
+          <option value="name" selected>{{'TMP_SEARCH_BY_STUDENT_NAME'| translate}}</option> 
+          <option value="id">{{'TMP_SEARCH_BY_QUESTIONNAIRE_ID'| translate}}</option>
         </select>
 
         <input
@@ -22,14 +23,13 @@
           type="text"
           (input)="onSearchChange(searchInput.value)"
           placeholder="Search..."
-          class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 
-                focus:border-blue-500 text-sm w-full sm:flex-grow min-w-0"
+          class="px-4 py-2 border border-primary_orange rounded-lg shadow-sm focus:ring-primary_orange focus:border-primary_orange text-sm w-full sm:flex-grow min-w-0 bg-white/80"
         />
       </div>
 
       <!-- Completion Filters -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-        <label class="flex items-center gap-1">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <label class="flex items-center gap-2 text-primary_dark_light">
           <input
             type="checkbox"
             [(ngModel)]="filterStudentCompleted"
@@ -37,24 +37,24 @@
           />
           <span class="text-sm">Student is done</span>
         </label>
-        <label class="flex items-center gap-1">
+        <label class="flex items-center gap-2 text-primary_dark_light">
           <input
             type="checkbox"
             [(ngModel)]="filterTeacherCompleted"
             (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">Teacher is done</span>
+          <span class="text-sm">{{'TMP_TEACHER_DONE'| translate}}</span>
         </label>
       </div>
 
       <!-- Page Size Selector -->
       <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
-        <label for="pageSize" class="text-gray-700 font-medium"> Items per page: </label>
+        <label for="pageSize" class="text-primary_dark_light font-medium"> {{'TMP_ITEMS_PER_PAGE'| translate}}</label>
         <select
           #pageSize
           id="pageSize"
           (change)="onPageSizeChange(pageSize.value)"
-          class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-auto"
+          class="border border-primary_orange rounded-lg px-3 py-2 focus:ring-primary_orange focus:border-primary_orange text-sm w-full sm:w-auto bg-white/80"
         >
           <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
             {{ size }}
@@ -69,47 +69,48 @@
 
     <!-- Error Message -->
     <div *ngIf="errorMessage" class="text-center p-4">
-      <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
+      <p class="text-accent_red font-semibold text-lg">{{ errorMessage }}</p>
     </div>
 
-    <ul class="space-y-4 mt-6" *ngIf="!isLoading && !errorMessage">
+    <ul class="space-y-6 mt-8" *ngIf="!isLoading && !errorMessage">
       <li
         *ngFor="let questionnaire of displayedQuestionnaires"
-        class="flex flex-col sm:flex-row justify-between items-start sm:items-center border rounded-lg shadow-sm bg-white p-4"
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center border border-primary_orange rounded-xl shadow bg-white/80 p-6 hover:shadow-lg transition-shadow duration-200"
       >
         <div class="flex flex-col gap-3 w-full sm:w-auto">
           <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-            <span class="font-medium text-gray-800">{{ questionnaire.title }}</span>
-            <span class="text-sm text-gray-500">
+            <span class="font-bold text-primary_dark text-lg">{{ questionnaire.title }}</span>
+            <span class="text-sm text-secondary_gray">
               ID: {{ questionnaire.id }}
               <button
               *ngIf="!questionnaire.teacherCompletedAt || !questionnaire.studentCompletedAt"
               (click)="copyAnswersUrl(questionnaire.id)"
-              class="ml-2 px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+              class="ml-2 cursor-pointer text-orange-600 font-medium hover:text-orange-700 underline underline-offset-2 transition"
             >
-              Copy link for answer
+              {{'TMP_COPY_LINK' | translate}}
             </button>
+
             </span>
           </div>
 
           <div *ngIf="questionnaire.student" class="flex flex-col sm:flex-row gap-2">
-            <span class="text-sm text-gray-700">
-               Student Name: {{ questionnaire.student.fullName }} ({{questionnaire.student.userName}})
+            <span class="text-sm text-primary_dark_light">
+              {{'TMP_STUDENT_NAME'| translate}} {{ questionnaire.student.fullName }} ({{questionnaire.student.userName}})
             </span>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-2">
             <span
               class="px-3 py-1 rounded-full text-sm font-medium text-white"
-              [ngClass]="questionnaire.studentCompletedAt ? 'bg-green-500' : 'bg-red-500'"
+              [ngClass]="questionnaire.studentCompletedAt ? 'bg-accent_green' : 'bg-accent_red'"
             >
-              Student: {{ questionnaire.studentCompletedAt ? 'Completed' : 'Pending' }}
+             {{'TMP_STUDENT'| translate}} {{ questionnaire.studentCompletedAt ? ('TMP_COMPLETED' | translate) : ('TMP_PENDING' | translate) }}
             </span>
             <span
               class="px-3 py-1 rounded-full text-sm font-medium text-white"
-              [ngClass]="questionnaire.teacherCompletedAt ? 'bg-green-500' : 'bg-red-500'"
+              [ngClass]="questionnaire.teacherCompletedAt ? 'bg-accent_green' : 'bg-accent_red'"
             >
-              Teacher: {{ questionnaire.teacherCompletedAt ? 'Completed' : 'Pending' }}
+              {{'TMP_TEACHER'|translate}} {{ questionnaire.teacherCompletedAt ? ('TMP_COMPLETED' | translate) : ('TMP_PENDING' | translate) }}
             </span>
           </div>
         </div>
@@ -118,17 +119,19 @@
           <button
             *ngIf="!questionnaire.teacherCompletedAt"
             [routerLink]="['/answer', questionnaire.id]"
-            class="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
+            class="px-4 py-2 text-sm bg-primary_orange text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
           >
-            Answer
+          {{ 'TMP_ANSWER' | translate }}
+            <!-- Answer  -->
           </button>
 
           <button
             *ngIf="questionnaire.teacherCompletedAt && questionnaire.studentCompletedAt"
             [routerLink]="['/results', questionnaire.id]"
-            class="px-4 py-2 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none"
+            class="px-4 py-2 text-sm bg-secondary_blue text-white rounded-md hover:bg-primary_orange focus:outline-none"
           >
-            View Results
+          {{ 'TMP_VIEW_RESULTS' | translate }}
+            <!-- View Results -->
           </button>
         </div>
       </li>
@@ -139,7 +142,7 @@
       [currentPage]="currentPage"
       [totalPages]="totalPages"
       (pageChange)="onPageChange($event)"
-      class="mt-6"
+      class="mt-8"
     >
     </app-pagination>
   </div>

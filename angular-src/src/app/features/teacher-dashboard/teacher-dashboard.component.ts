@@ -8,11 +8,12 @@ import { PageChangeEvent, PaginationComponent } from '../../shared/components/pa
 import { ActiveQuestionnaireBase, ActiveQuestionnaireResponse } from './models/dashboard.model';
 import { TeacherService } from './services/teacher.service';
 import { LoadingComponent } from '../../shared/loading/loading.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
-  imports: [ClipboardModule,FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent],
+  imports: [ClipboardModule,FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule],
   templateUrl: './teacher-dashboard.component.html',
   styleUrls: ['./teacher-dashboard.component.css']
 })

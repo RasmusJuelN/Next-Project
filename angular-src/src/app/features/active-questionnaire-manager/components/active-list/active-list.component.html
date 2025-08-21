@@ -6,7 +6,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 w-full">
     <button 
       (click)="onCreateNewQuestionnaire()"
-      class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded w-full sm:w-auto">
+      class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors w-full sm:w-auto border-2 border-primary_orange_1 hover:border-primary_dark_blue">
       Tildel et Spørgeskema
     </button>
 
@@ -15,14 +15,14 @@
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter elever:</label>
         <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
           <select [(ngModel)]="searchStudentType" (change)="onSearchStudentTypeChange(searchStudentType)"
-            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[110px]">
+            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[110px] bg-gray-50">
             <option value="fullName">Fulde Navn</option>
             <option value="userName">Brugernavn</option>
             <option value="both" selected>Begge</option>
           </select>
           <input type="text" placeholder="Skriv her..." [(ngModel)]="searchStudent"
             (ngModelChange)="onSearchStudentChange($event)"
-            class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" />
+            class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
         </div>
       </div>
 
@@ -30,22 +30,22 @@
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter instruktør:</label>
         <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
           <select [(ngModel)]="searchTeacherType" (change)="onSearchTeacherTypeChange(searchTeacherType)"
-            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[110px]">
+            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[110px] bg-gray-50">
             <option value="fullName">Fulde Navn</option>
             <option value="userName">Brugernavn</option>
             <option value="both" selected>Begge</option>
           </select>
           <input type="text" placeholder="Skriv her..." [(ngModel)]="searchTeacher"
             (ngModelChange)="onSearchTeacherChange($event)"
-            class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" />
+            class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
         </div>
       </div>
     </div>
 
     <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-      <label class="text-gray-700 font-medium">Elementer pr. side:</label>
+      <label class="text-primary_dark_blue font-medium">Elementer pr. side:</label>
       <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)"
-        class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-[80px]">
+        class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[80px] bg-gray-50">
         <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
       </select>
     </div>
@@ -141,7 +141,7 @@
 
     <!-- <ul class="space-y-6 mt-6" *ngIf="!isLoading && !errorMessage">
       <li *ngFor="let questionnaire of activeQuestionnaires"
-        class="p-5 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 border border-gray-200">
+        class="p-5 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_3fr_2fr] gap-4">
 

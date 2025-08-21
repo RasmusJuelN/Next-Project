@@ -9,6 +9,7 @@ import { TemplateService } from './services/template.service';
 import { TemplateEditorComponent } from './template-editor/template-editor.component';
 import { PaginationComponent, PageChangeEvent } from '../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../shared/loading/loading.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-template-manager',
@@ -19,12 +20,14 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
     CommonModule,
     PaginationComponent,
     LoadingComponent,
+    TranslateModule
   ],
   templateUrl: './template-manager.component.html',
   styleUrls: ['./template-manager.component.css'],
 })
 export class TemplateManagerComponent {
   private templateService = inject(TemplateService);
+  private translate = inject(TranslateService);
 
   templateBases: TemplateBase[] = [];
   cachedCursors: { [pageNumber: number]: string | null } = {};
@@ -44,6 +47,7 @@ export class TemplateManagerComponent {
   isLoading = false;
   errorMessage: string | null = null;
   private searchSubject = new Subject<string>();
+  
 
   // Deletion confirmation states.
   templateToDelete: string | null = null;
@@ -111,7 +115,7 @@ export class TemplateManagerComponent {
         },
         error: (err) => {
           console.error('Error fetching templates:', err);
-          this.errorMessage = 'Failed to load templates. Please try again.';
+          this.errorMessage = 'TMP_FAIL_LOAD_LIST';
         },
       });
   }
@@ -146,7 +150,7 @@ export class TemplateManagerComponent {
         },
         error: (err) => {
           console.error('Error fetching full template:', err);
-          this.errorMessage = 'Failed to load the full template details.';
+          this.errorMessage = 'TMP_FAIL_LOAD_LIST';
         },
       });
   }
@@ -154,18 +158,33 @@ export class TemplateManagerComponent {
   addTemplate(): void {
     this.selectedTemplate = {
       id: '',
-      title: 'New Template',
-      description: 'Description for the new template',
+       title: this.translate.instant('TMP_NEW_TITLE'), //  New Template
+      description: this.translate.instant('TMP_NEW_DESC'), //Description for the new template
       questions: [
         {
           id: -1,
-          prompt: 'Default Question',
+          prompt: this.translate.instant('TMP_NEW_QUESTION'), //Default Question
           allowCustom: true,
           options: [],
         },
       ],
     };
   }
+  // addTemplate(): void {
+  //   this.selectedTemplate = {
+  //     id: '',
+  //     title: ' New Template', //  
+  //     description: 'Description for the new template', //
+  //     questions: [
+  //       {
+  //         id: -1,
+  //         prompt: 'Default Question', //Default Question
+  //         allowCustom: true,
+  //         options: [],
+  //       },
+  //     ],
+  //   };
+  // }
 
   isSelectedPageSize(size: number): boolean {
     return size === this.pageSize;

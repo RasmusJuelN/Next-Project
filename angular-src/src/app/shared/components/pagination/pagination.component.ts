@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface PageChangeEvent {
   page: number;
@@ -9,7 +10,7 @@ export interface PageChangeEvent {
 @Component({
   selector: 'app-pagination',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.css']
 })
