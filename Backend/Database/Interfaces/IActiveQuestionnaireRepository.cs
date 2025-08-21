@@ -10,7 +10,8 @@ public interface IActiveQuestionnaireRepository
     Task<ActiveQuestionnaire> ActivateQuestionnaireAsync(
         Guid questionnaireTemplateId,
         Guid studentId,
-        Guid teacherId);
+        Guid teacherId,
+        Guid groupId);
     Task<(List<ActiveQuestionnaireBase>, int)> PaginationQueryWithKeyset(
         int amount,
         ActiveQuestionnaireOrderingOptions sortOrder,

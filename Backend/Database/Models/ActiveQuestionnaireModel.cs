@@ -24,7 +24,10 @@ public class ActiveQuestionnaireModel
     
     [Required]
     public Guid QuestionnaireTemplateFK { get; set; }
-    
+
+    [Required]
+    public Guid GroupId { get; set; }
+
     // Default value configured in Fluent API
     [Required]
     public DateTime ActivatedAt { get; set; }
@@ -44,7 +47,10 @@ public class ActiveQuestionnaireModel
     [Required]
     [ForeignKey(nameof(QuestionnaireTemplateFK))]
     public required QuestionnaireTemplateModel QuestionnaireTemplate { get; set; }
-    
+
+    [ForeignKey(nameof(GroupId))]
+    public QuestionnaireGroupModel Group { get; set; }
+
     public virtual ICollection<ActiveQuestionnaireStudentResponseModel> StudentAnswers { get; set; } = [];
     public virtual ICollection<ActiveQuestionnaireTeacherResponseModel> TeacherAnswers { get; set; } = [];
 }

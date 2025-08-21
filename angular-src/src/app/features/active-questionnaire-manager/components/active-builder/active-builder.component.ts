@@ -6,6 +6,7 @@ import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { Template, TemplateBase } from '../../models/active.models';
+import { ActiveAnonymousBuilderComponent } from '../active-anonymous-builder/active-anonymous-builder.component';
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
 interface UserSearchEntity<T> extends SearchEntity<T> {
@@ -23,15 +24,17 @@ type SearchType = 'student' | 'teacher' | 'template';
 @Component({
   selector: 'app-active-questionnaire-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ActiveAnonymousBuilderComponent],
   templateUrl: './active-builder.component.html',
   styleUrls: ['./active-builder.component.css']
 })
 export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
-
+  public groupName: string = '';
+  public isAnonymousMode = false;
+  
   public student: UserSearchEntity<User> = {
-    selected: null,
+    selected: [],
     searchInput: '',
     searchResults: [],
     page: 1,
@@ -44,7 +47,7 @@ export class ActiveBuilderComponent implements OnInit {
   };
 
   public teacher: UserSearchEntity<User> = {
-    selected: null,
+    selected: [],
     searchInput: '',
     searchResults: [],
     page: 1,
@@ -57,7 +60,7 @@ export class ActiveBuilderComponent implements OnInit {
   };
 
   public template: TemplateSearchEntity = {
-    selected: null,
+    selected: [],
     searchInput: '',
     searchResults: [],
     page: 1,
@@ -163,40 +166,77 @@ export class ActiveBuilderComponent implements OnInit {
     state.searchSubject.next(value);
   }
 
+  // Add or remove user from selected array
   select(entity: SearchType, item: any): void {
     const state = this.getState(entity);
-    state.selected = item;
-    state.searchInput = ''; // Clear input.
-    state.searchResults = []; // Clear search results.
+    if (!Array.isArray(state.selected)) {
+      state.selected = [];
+    }
+    const idx = state.selected.findIndex((u: any) => u.id === item.id);
+    if (idx === -1) {
+      state.selected.push(item);
+    } else {
+      state.selected.splice(idx, 1);
+    }
+    // Do NOT clear search results so user can select multiple
+    state.searchInput = '';
+    // state.searchResults = [];
   }
 
   clearSelected(entity: SearchType): void {
     const state = this.getState(entity);
-    state.selected = null;
+    state.selected = [];
   }
 
   createActiveQuestionnaire(): void {
+    if (this.isAnonymousMode) {
+      // Anonymous mode: only participants and template
+      if (
+        !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
+        !Array.isArray(this.template.selected) || this.template.selected.length === 0 ||
+        !this.template.selected[0].id
+      ) {
+        console.error('Missing required selections for Anonymous Questionnaire.');
+        return;
+      }
+      const payload = {
+        participantIds: this.student.selected.map(s => s.id),
+        templateId: this.template.selected[0].id
+      };
+      this.activeService.createAnonymousQuestionnaireGroup(payload).subscribe(() => {
+        alert('Anonymt spørgeskema oprettet!');
+        this.backToListEvent.emit();
+      });
+      return;
+    }
+
+    // Normal mode: students, teachers, template, group name
     if (
-      !this.student.selected ||
-      !this.teacher.selected ||
-      !this.template.selected ||
-      !this.template.selected.id
+      !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
+      !Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0 ||
+      !Array.isArray(this.template.selected) || this.template.selected.length === 0 ||
+      !this.template.selected[0].id ||
+      !this.groupName.trim()
     ) {
       console.error('Missing required selections for Active Questionnaire.');
       return;
     }
-
-    const newQuestionnaire = {
-      studentId: this.student.selected.id,
-      teacherId: this.teacher.selected.id,
-      templateId: this.template.selected.id,
+    if (this.template.selected.length > 1) {
+      alert('Der kan kun tildeles én skabelon ad gangen.');
+      return;
+    }
+    const newGroup = {
+      name: this.groupName,
+      templateId: this.template.selected[0].id,
+      studentIds: this.student.selected.map(s => s.id),
+      teacherIds: this.teacher.selected.map(t => t.id)
     };
-
-    this.activeService.createActiveQuestionnaire(newQuestionnaire).subscribe(() => {
-      alert('Active Questionnaire Created Successfully!');
+    this.activeService.createActiveQuestionnaireGroup(newGroup).subscribe(() => {
+      alert('Spørgeskema-gruppe oprettet!');
       this.backToListEvent.emit();
     });
   }
+
 
   onBackToList(): void {
     this.backToListEvent.emit();

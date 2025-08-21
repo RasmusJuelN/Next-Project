@@ -1,5 +1,5 @@
-<div class="flex flex-col bg-white shadow-md rounded-lg p-6 sm:p-8 sm: sm:max-w-[900px] mx-auto">
-  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
+<div class="flex flex-col bg-white shadow-md rounded-lg p-6 sm:p-8 sm:max-w-[1100px] mx-auto">
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left m-2">
     Administrer Aktive Spørgeskemaer
   </h2>
 
@@ -54,22 +54,92 @@
   <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 cursor-pointer flex items-center justify-between"
       (click)="toggleListCollapse()">
     Aktive Spørgeskemaer
-    <span [class.rotate-180]="isListCollapsed" class="transition-transform duration-300">
-      ▼
-    </span>
+
   </h2>
 
+  <div *ngFor="let group of groups; let i = index" class="mb-8 border border-gray-300 rounded-lg shadow p-4 bg-gray-50">
+    <div class="flex items-center justify-between cursor-pointer" (click)="toggleGroupCollapse(i)">
+      <h3 class="text-xl font-bold text-blue-700 mb-0">
+        {{ group.name }}
+        <span class="ml-2 text-sm text-gray-600">
+          Elev: 
+          <span class="text-green-600 font-bold">{{ getAnsweredCount(group.questionnaires, 'student') }}</span>
+          /
+          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+          Instruktør: 
+          <span class="text-green-600 font-bold">{{ getAnsweredCount(group.questionnaires, 'teacher') }}</span>
+          /
+          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+        </span>
+      </h3>
+      <span [class.rotate-180]="groupCollapsed[i]" class="transition-transform duration-300 text-lg">
+        ▼
+      </span>
+    </div>
+    <div *ngIf="!groupCollapsed[i]">
+      <ul class="space-y-4 mt-4">
+        <li *ngFor="let q of group.questionnaires" class="p-4 bg-white rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <span class="font-semibold text-gray-800">{{ q.title }}</span>
+            <span class="ml-2 text-xs text-gray-500">({{ q.activatedAt | date:'dd-MM-yyyy HH:mm' }})</span>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:gap-6 mt-2 sm:mt-0">
+            <span>
+              <strong>Elev:</strong>
+              <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-extrabold': !q.studentCompletedAt}">
+                {{ q.student.fullName }}
+              </span>
+            </span>
+            <span>
+              <strong>Instruktør:</strong>
+              <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
+                {{ q.teacher.fullName }}
+              </span>
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+
   <div *ngIf="!isListCollapsed">
+  <!-- Display groups of questionnaires -->
+    <!-- <div *ngFor="let group of groups" class="mb-8 border border-gray-300 rounded-lg shadow p-4 bg-gray-50">
+    <h3 class="text-xl font-bold text-blue-700 mb-4">{{ group.name }}</h3>
+    <ul class="space-y-4">
+      <li *ngFor="let q of group.questionnaires" class="p-4 bg-white rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <span class="font-semibold text-gray-800">{{ q.title }}</span>
+          <span class="ml-2 text-xs text-gray-500">({{ q.activatedAt | date:'dd-MM-yyyy HH:mm' }})</span>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:gap-6 mt-2 sm:mt-0">
+          <span>
+            <strong>Elev:</strong>
+            <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-extrabold': !q.studentCompletedAt}">
+              {{ q.student.fullName }}
+            </span>
+          </span>
+          <span>
+            <strong>Instruktør:</strong>
+            <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
+              {{ q.teacher.fullName }}
+            </span>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
     <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
       <app-loading></app-loading>
-    </div>
+    </div> -->
 
     <div *ngIf="errorMessage" class="text-center p-4">
       <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
     </div>
 
 
-    <ul class="space-y-6 mt-6" *ngIf="!isLoading && !errorMessage">
+    <!-- <ul class="space-y-6 mt-6" *ngIf="!isLoading && !errorMessage">
       <li *ngFor="let questionnaire of activeQuestionnaires"
         class="p-5 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 border border-gray-200">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -128,7 +198,8 @@
           </div>
         </div>
       </li>
-    </ul>
+    </ul> -->
+    
 
     <app-pagination 
       *ngIf="!isLoading && !errorMessage"

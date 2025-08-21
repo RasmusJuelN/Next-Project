@@ -84,13 +84,14 @@ export class ActiveService {
   
 
 
-  createActiveQuestionnaire(aq: { studentId: string; teacherId: string; templateId: string }): Observable<ActiveQuestionnaire> {
-    const formData = new FormData();
-    formData.append('StudentId', aq.studentId);
-    formData.append('TeacherId', aq.teacherId);
-    formData.append('TemplateId', aq.templateId);
-    return this.apiService.post<ActiveQuestionnaire>(`${this.apiUrl}/activate`, formData);
-  }
+  createActiveQuestionnaire(aq: { studentIds: string[]; teacherIds: string[]; templateId: string }): Observable<ActiveQuestionnaire[]> {
+  const body = {
+    StudentIds: aq.studentIds,
+    TeacherIds: aq.teacherIds,
+    TemplateId: aq.templateId
+  };
+  return this.apiService.post<ActiveQuestionnaire[]>(`${this.apiUrl}/activate`, body);
+}
 
   getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire> {
     return this.apiService.get<ActiveQuestionnaire>(`${this.apiUrl}/${id}`);
@@ -130,4 +131,26 @@ export class ActiveService {
 
     return this.apiService.get<TemplateBaseResponse>(`${environment.apiUrl}/questionnaire-template/`, params);
   }
+
+  createActiveQuestionnaireGroup(aq: { name: string; templateId: string; studentIds: string[]; teacherIds: string[] }) {
+  const body = {
+    Name: aq.name,
+    TemplateId: aq.templateId,
+    StudentIds: aq.studentIds,
+    TeacherIds: aq.teacherIds
+  };
+  return this.apiService.post<any>(`${this.apiUrl}/creategroup`, body);
+}
+
+getQuestionnaireGroup(groupId: string) {
+  return this.apiService.get<any>(`${this.apiUrl}/${groupId}/getGroup`);
+}
+
+getQuestionnaireGroups() {
+  return this.apiService.get<any[]>(`${this.apiUrl}/groups`);
+}
+
+createAnonymousQuestionnaireGroup(payload: { participantIds: string[], templateId: string }) {
+  return this.apiService.post<any>(`${this.apiUrl}/anonymous-group`, payload);
+}
 }

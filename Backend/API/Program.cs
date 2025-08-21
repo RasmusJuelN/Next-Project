@@ -81,6 +81,7 @@ builder.Services.Configure<RouteOptions>(o => {
 });
 
 // Repositories
+builder.Services.AddScoped<IQuestionnaireGroupRepository, QuestionnaireGroupRepository>();
 builder.Services.AddScoped<IQuestionnaireTemplateRepository, QuestionnaireTemplateRepository>();
 builder.Services.AddScoped<IActiveQuestionnaireRepository, ActiveQuestionnaireRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

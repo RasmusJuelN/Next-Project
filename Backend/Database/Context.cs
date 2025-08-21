@@ -11,6 +11,14 @@ public class Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<QuestionnaireGroupModel>(e => {
+            e.HasMany(g => g.Questionnaires)
+            .WithOne(q => q.Group)
+            .HasForeignKey(q => q.GroupId)
+            .OnDelete(DeleteBehavior.Cascade); // Or NoAction, as you prefer
+        });
+        
         // QuestionnaireTemplate
         modelBuilder.Entity<QuestionnaireTemplateModel>(e => {
             e.Property(q => q.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
@@ -131,4 +139,6 @@ public class Context : DbContext
     internal DbSet<TeacherModel> Teachers { get; set; }
     internal DbSet<TrackedRefreshTokenModel> RevokedRefreshTokens { get; set; }
     internal DbSet<ApplicationLogsModel> ApplicationLogs { get; set; }
+    internal DbSet<QuestionnaireGroupModel> QuestionnaireGroups { get; set; }
+
 }

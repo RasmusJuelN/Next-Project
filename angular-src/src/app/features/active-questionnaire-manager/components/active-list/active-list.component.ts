@@ -16,6 +16,18 @@ import { LoadingComponent } from '../../../../shared/loading/loading.component';
 })
 export class ActiveListComponent implements OnInit {
   private activeService = inject(ActiveService);
+  groups: any[] = [];
+  groupCollapsed: boolean[] = [];
+
+  // Call this after fetching groups
+  initializeCollapseStates() {
+    this.groupCollapsed = this.groups.map(() => true); // All collapsed by default
+  }
+
+  toggleGroupCollapse(index: number) {
+    this.groupCollapsed[index] = !this.groupCollapsed[index];
+  }
+
 
   // Pagination and search state
   pageSize: number = 5;
@@ -52,9 +64,29 @@ export class ActiveListComponent implements OnInit {
     teacherType: string;
   }>();
 
+  getAnsweredCount(questionnaires: any[], role: 'student' | 'teacher'): number {
+    if (role === 'student') {
+      return questionnaires.filter(q => q.studentCompletedAt).length;
+    }
+    if (role === 'teacher') {
+      return questionnaires.filter(q => q.teacherCompletedAt).length;
+    }
+    return 0;
+  }
+
   ngOnInit(): void {
     // Initialize the cursor for page 1 as null (meaning no cursor)
     this.cachedCursors[1] = null;
+
+    // this.activeService.getQuestionnaireGroup(this.groups[0].id).subscribe(group => {
+    //   this.groups = [group];
+    // });
+
+    // Fetch all groups initially
+    this.activeService.getQuestionnaireGroups().subscribe(groups => {
+      this.groups = groups;
+      this.initializeCollapseStates(); // Initialize collapse states after fetching groups
+    });
 
     // Debounce search inputs to avoid flooding the API
     this.searchSubject

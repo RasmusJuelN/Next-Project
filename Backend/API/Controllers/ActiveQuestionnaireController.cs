@@ -31,9 +31,62 @@ namespace API.Controllers
 
         [HttpPost("activate")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<ActiveQuestionnaire>> ActivateQuestionnaire([FromForm] ActivateQuestionnaire request)
+        public async Task<ActionResult<List<ActiveQuestionnaire>>> ActivateQuestionnaire([FromBody] ActivateQuestionnaire request)
         {
-            return Ok(await _questionnaireService.ActivateTemplate(request));
+            // This should return a list of created questionnaires, one for each student/teacher combination
+            var result = await _questionnaireService.ActivateTemplate(request);
+            return Ok(result);
+        }
+
+        [HttpPost("createGroup")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<QuestionnaireGroupResult>> CreateGroup([FromBody] ActivateQuestionnaireGroup request)
+        {
+            try
+            {
+                var result = await _questionnaireService.ActivateQuestionnaireGroup(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating questionnaire group: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("groups")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<List<QuestionnaireGroupResult>>> GetAllGroups()
+        {
+            try
+            {
+                var results = await _questionnaireService.GetAllQuestionnaireGroups();
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching all questionnaire groups: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        // Get info about a questionnaire group
+        [HttpGet("{groupId}/getGroup")]
+        [Authorize(AuthenticationSchemes = "AccessToken")]
+        public async Task<ActionResult<QuestionnaireGroupResult>> GetGroup(Guid groupId)
+        {
+            try
+            {
+                var result = await _questionnaireService.GetQuestionnaireGroup(groupId);
+                if (result == null)
+                    return NotFound();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching questionnaire group: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet("check")]
