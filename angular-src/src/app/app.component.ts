@@ -3,7 +3,7 @@ import { Component, inject, OnInit, Renderer2 } from '@angular/core';
 import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 
 import {HeaderComponent } from './core/components/app-header/header.component';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-root',
