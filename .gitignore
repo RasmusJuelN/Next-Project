@@ -3,6 +3,11 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+
+# Docfx
+/Backend/docs/_site
+/Backend/docs/api
+
 # bak files
 *.bak
 
