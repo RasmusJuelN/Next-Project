@@ -174,7 +174,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         if (templateStatus.HasValue)
         {
             var status = templateStatus.Value;
-            query = query.Where(q => q.templateStatus == status);
+            query = query.Where(q => q.TemplateStatus == status);
         }
 
         int totalCount = await query.CountAsync();
@@ -204,9 +204,9 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
             .SingleOrDefaultAsync(t => t.Id == id)
             ?? throw new Exception("Template not found.");
 
-        if (existing.templateStatus != TemplateStatus.Finalized)
+        if (existing.TemplateStatus != TemplateStatus.Finalized)
         {
-            existing.templateStatus = TemplateStatus.Finalized;
+            existing.TemplateStatus = TemplateStatus.Finalized;
             existing.LastUpated = DateTime.UtcNow;
         }
 

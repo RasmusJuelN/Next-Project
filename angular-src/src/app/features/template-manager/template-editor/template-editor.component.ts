@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
-import { Question, Template, TemplateStatus } from '../models/template.model';
+import { Question, Template, TemplateStatus } from '../../../shared/models/template.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
@@ -24,7 +24,7 @@ export class TemplateEditorComponent {
   finalizeModalOpen = false;
 
   ngOnChanges() {
-    this.readonly = this.template.draftStatus === TemplateStatus.Finalized;
+    this.readonly = this.template.templateStatus === TemplateStatus.Finalized;
   }
 
   // Method to emit the saveTemplate event with the updated template

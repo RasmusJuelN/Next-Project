@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
-import { Template, TemplateBase } from '../../models/active.models';
+import { TemplateBase } from '../../../../shared/models/template.model';
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
 interface UserSearchEntity<T> extends SearchEntity<T> {

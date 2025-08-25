@@ -4,12 +4,12 @@ import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { TemplateBase, Template, TemplateStatus } from './models/template.model';
 import { TemplateService } from './services/template.service';
 import { TemplateEditorComponent } from './template-editor/template-editor.component';
 import { PaginationComponent, PageChangeEvent } from '../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 import { ModalComponent } from '../../shared/components/modal/modal.component';
+import { Template, TemplateBase, TemplateStatus } from '../../shared/models/template.model';
 
 enum TemplateModalType {
   None = 'none',
@@ -178,7 +178,7 @@ onFinalizeTemplate(tmpl: Template): void {
       id: '',
       title: 'New Template',
       description: 'Description for the new template',
-      draftStatus: TemplateStatus.Draft,
+      templateStatus: TemplateStatus.Draft,
       questions: [
         {
           id: -1,
@@ -329,7 +329,7 @@ private deepCopyAsNewTemplate(template: Template): Template {
   // Reset meta fields
   clone.createdAt = undefined;
   clone.lastUpdated = undefined;
-  clone.draftStatus = TemplateStatus.Draft;
+  clone.templateStatus = TemplateStatus.Draft;
   clone.isLocked = false;
   clone.title = `${clone.title} (kopi)`
   clone.id = "";

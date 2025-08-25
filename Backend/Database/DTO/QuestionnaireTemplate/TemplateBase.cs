@@ -10,7 +10,5 @@ public record class QuestionnaireTemplateBase
     public required DateTime CreatedAt { get; set; }
     public required DateTime LastUpdated { get; set; }
     public required bool IsLocked { get; set; }
-    
-    [JsonPropertyName("draftStatus")]
-    public TemplateStatus DraftStatus { get; init; }
+    public TemplateStatus TemplateStatus { get; init; }
 }

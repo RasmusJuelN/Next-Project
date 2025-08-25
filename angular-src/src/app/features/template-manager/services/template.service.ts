@@ -4,8 +4,9 @@ import { ApiService } from '../../../core/services/api.service';
 import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
-import { Template, TemplateBaseResponse } from '../models/template.model';
+import { TemplateBaseResponse } from '../models/template.model';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
+import { Template } from '../../../shared/models/template.model';
 
 @Injectable({
   providedIn: 'root',

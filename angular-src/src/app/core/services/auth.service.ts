@@ -74,7 +74,7 @@ public refreshToken() {
   });
 
   return this.apiService
-    .post<{ authToken: string; refreshToken: string }>(url, expiredToken, undefined, headers)
+    .post<{ authToken: string; refreshToken: string }>(url,   { expiredToken } , undefined, headers)
     .pipe(
       tap((res) => {
         this.tokenService.setToken(res.authToken);

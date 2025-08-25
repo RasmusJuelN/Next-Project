@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
-import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, Template, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
+import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';

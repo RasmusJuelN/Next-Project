@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
-import { ActiveQuestionnaire, ActiveQuestionnaireBase, ResponseActiveQuestionnaireBase, Template, TemplateBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
+import { ActiveQuestionnaire, ActiveQuestionnaireBase, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { User } from '../../../shared/models/user.model';
+import { Template, TemplateBase, TemplateStatus } from '../../../shared/models/template.model';
 
 
 @Injectable({
@@ -36,9 +37,9 @@ private mockUsers: User[] = [
 
 
   private mockTemplates: Template[] = [
-    { id: 't101', templateTitle: 'Math Quiz', description: 'A basic math quiz', questions: [], draftStatus:"finalized" },
-    { id: 't102', templateTitle: 'History Quiz', description: 'A history knowledge test', questions: [], draftStatus:"finalized"},
-    { id: 't103', templateTitle: 'Nature Quiz', description: 'A Nature knowledge test', questions: [], draftStatus: "draft"}
+    { id: 't101', title: 'Math Quiz', description: 'A basic math quiz', questions: [], templateStatus:TemplateStatus.Finalized },
+    { id: 't102', title: 'History Quiz', description: 'A history knowledge test', questions: [], templateStatus:TemplateStatus.Finalized},
+    { id: 't103', title: 'Nature Quiz', description: 'A Nature knowledge test', questions: [],templateStatus:TemplateStatus.Draft}
   ];
 
   private activeQuestionnaires: ActiveQuestionnaireBase[] = [
@@ -204,7 +205,7 @@ private mockUsers: User[] = [
 
     const newQuestionnaire: ActiveQuestionnaire = {
       id: `q${this.activeQuestionnaires.length + 1}`,
-      title: template?.templateTitle ?? 'unknown',
+      title: template?.title ?? 'unknown',
       activatedAt: new Date(),
       student: student,
       teacher: teacher,
@@ -277,20 +278,20 @@ searchTemplates(term: string, queryCursor: string = ''): Observable<TemplateBase
 
   // 1️⃣ filter
   let filtered = this.mockTemplates.filter(t =>
-    t.draftStatus === 'finalized' && (
-      t.templateTitle.toLowerCase().includes(q) ||
+    t.templateStatus === TemplateStatus.Finalized && (
+      t.title.toLowerCase().includes(q) ||
       (t.description ?? '').toLowerCase().includes(q)
     )
   );
 
   // 2️⃣ deterministic order
-  filtered = filtered.sort((a, b) => a.templateTitle.localeCompare(b.templateTitle));
+  filtered = filtered.sort((a, b) => a.title.localeCompare(b.title));
 
   // 3️⃣ cursor → offset
   let start = 0;
   if (queryCursor) {
     const [cursorTitle, cursorId] = queryCursor.split('_');
-    const idx = filtered.findIndex(t => t.templateTitle === cursorTitle && t.id === cursorId);
+    const idx = filtered.findIndex(t => t.title === cursorTitle && t.id === cursorId);
     if (idx !== -1) start = idx + 1;
   }
 
@@ -298,17 +299,17 @@ searchTemplates(term: string, queryCursor: string = ''): Observable<TemplateBase
 
   const templateBases: TemplateBase[] = slice.map(t => ({
     id: t.id!,
-    title: t.templateTitle,
+    title: t.title,
     createdAt: (t as any).createdAt ?? new Date().toISOString(),
     lastUpdated: (t as any).lastUpdated ?? new Date().toISOString(),
     isLocked: (t as any).isLocked ?? false,
-    draftStatus: t.draftStatus
+    templateStatus: t.templateStatus
   }));
 
   const hasMore = start + slice.length < filtered.length;
   const nextCursor =
     hasMore && slice.length
-      ? `${slice[slice.length - 1].templateTitle}_${slice[slice.length - 1].id}`
+      ? `${slice[slice.length - 1].title}_${slice[slice.length - 1].id}`
       : '';
 
   return of({
