@@ -10,6 +10,22 @@ namespace API.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class SocketController : ControllerBase
     {
+        /// <summary>
+        /// Handles WebSocket ping-pong communication for connection health monitoring.
+        /// Accepts WebSocket connections and responds to "ping" messages with "pong" responses.
+        /// For any other messages, echoes the received message back to the client.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint requires a WebSocket upgrade request. If a regular HTTP request is made,
+        /// it will return a 400 Bad Request status code.
+        /// 
+        /// The method maintains the WebSocket connection until the client initiates closure,
+        /// continuously listening for incoming messages and responding appropriately.
+        /// </remarks>
+        /// <returns>
+        /// A task that represents the asynchronous WebSocket communication operation.
+        /// The task completes when the WebSocket connection is closed by the client.
+        /// </returns>
         [Route("ping")]
         [AllowAnonymous]
         public async Task Ping()
