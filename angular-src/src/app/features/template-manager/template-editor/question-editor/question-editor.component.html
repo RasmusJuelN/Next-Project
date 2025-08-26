@@ -16,6 +16,7 @@
     <input
       type="text"
       [(ngModel)]="question.prompt"
+      [disabled]="readonly"
       class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-gray-50"
       placeholder="Indtast spørgsmålets titel"
     />
@@ -25,6 +26,7 @@
     <input
       type="checkbox"
       id="custom-answer"
+      [disabled]="readonly"
       [(ngModel)]="question.allowCustom"
       class="h-4 w-4 text-primary_orange_1 focus:ring-primary_orange_1 border-primary_orange_1 rounded-xl"
     />
@@ -45,14 +47,16 @@
           <label class="block text-sm font-medium text-primary_dark_blue mb-2">Label:</label>
           <textarea
             [(ngModel)]="option.displayText"
+            [readOnly]="readonly"
             class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-white"
-            placeholder="Indtast valgmulighedens label"
           ></textarea>
         </div>
 
         <div>
           <button
+          *ngIf="!readonly"
             (click)="deleteOption(option.id)"
+            [disabled]="readonly"
             class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 focus:ring-2 focus:ring-red-400"
           >
             Slet Valgmulighed
@@ -60,10 +64,9 @@
         </div>
       </li>
     </ul>
-    <div class="text-center mt-6">
-      <button
-        (click)="addOption()"
-        class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors"
+    <div class="text-center mt-6" *ngIf="!readonly">                 <!-- NEW -->
+      <button (click)="addOption()" 
+      class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors"
       >
         Tilføj Ny Valgmulighed
       </button>
@@ -73,6 +76,7 @@
   <!-- Actions -->
   <div class="flex justify-between flex-wrap gap-4">
     <button
+    *ngIf="!readonly"
       (click)="onSave()"
       class="px-4 py-2 bg-primary_orange_1 text-white rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors"
     >

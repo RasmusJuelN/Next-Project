@@ -4,13 +4,18 @@ import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { TemplateBase, Template } from './models/template.model';
 import { TemplateService } from './services/template.service';
 import { TemplateEditorComponent } from './template-editor/template-editor.component';
 import { PaginationComponent, PageChangeEvent } from '../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../shared/loading/loading.component';
+import { Template, TemplateBase, TemplateStatus } from '../../shared/models/template.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+enum TemplateModalType {
+  None = 'none',
+  Delete = 'delete',
+  Copy = 'copy'
+}
 @Component({
   selector: 'app-template-manager',
   standalone: true,
@@ -32,9 +37,9 @@ export class TemplateManagerComponent {
   templateBases: TemplateBase[] = [];
   cachedCursors: { [pageNumber: number]: string | null } = {};
   selectedTemplate: Template | null = null;
+
+  templateStatus = TemplateStatus
   
-  // New property to control locked modal visibility
-  showLockedModal: boolean = false;
 
   // Search & Pagination parameters.
   searchTerm = '';
@@ -47,11 +52,18 @@ export class TemplateManagerComponent {
   isLoading = false;
   errorMessage: string | null = null;
   private searchSubject = new Subject<string>();
-  
+  TemplateModalType = TemplateModalType;
 
-  // Deletion confirmation states.
-  templateToDelete: string | null = null;
-  deleteConfirmationStep: number = 0; // 0 for first message, 1 for final warning
+  lockedTitle = 'Skabelonen er udgivet';
+  lockedText =
+    'Denne skabelon er i skrivebeskyttet tilstand.<br />' +
+    'Vælg <strong>Kopiér</strong> i listen, hvis du vil lave ændringer på en ' +
+    'redigerbar version.';
+
+
+  activeModalType: TemplateModalType = TemplateModalType.None;
+  activeModalTemplateId: string | null = null;
+  deleteConfirmStep = 0;
 
   ngOnInit(): void {
     this.searchSubject
@@ -133,33 +145,40 @@ export class TemplateManagerComponent {
   }
 
   // Update selectTemplate to check if the template is locked
-  selectTemplate(templateBaseId: string): void {
-    this.selectedTemplate = null;
-    this.isLoading = true;
-    this.templateService
-      .getTemplateDetails(templateBaseId)
-      .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe({
-        next: (fullTemplate) => {
-          if (fullTemplate.isLocked) {
-            // Show modal if the template is locked
-            this.showLockedModal = true;
-          } else {
-            this.selectedTemplate = fullTemplate;
-          }
-        },
-        error: (err) => {
-          console.error('Error fetching full template:', err);
-          this.errorMessage = 'TMP_FAIL_LOAD_LIST';
-        },
-      });
+selectTemplate(id: string): void {
+  this.selectedTemplate = null;
+  this.isLoading = true;
+  this.templateService.getTemplateDetails(id)
+    .pipe(finalize(() => (this.isLoading = false)))
+    .subscribe({
+      next: tmpl => {
+        this.selectedTemplate = tmpl;
+      },
+      error: err => {
+        console.error('Error fetching template:', err);
+        this.errorMessage = 'TMP_FAIL_LOAD_LIST';
+      }
+    });
+}
+
+onFinalizeTemplate(tmpl: Template): void {
+  if (tmpl.id){
+  this.templateService.upgradeTemplate(tmpl.id).subscribe({
+    next: () => {
+      this.selectedTemplate = null;   // close editor
+      this.fetchTemplateBases();      // refresh list
+    },
+    error: err => console.error('Upgrade failed', err)
+  });
   }
+}
 
   addTemplate(): void {
     this.selectedTemplate = {
       id: '',
+      templateStatus: TemplateStatus.Draft,
        title: this.translate.instant('TMP_NEW_TITLE'), //  New Template
-      description: this.translate.instant('TMP_NEW_DESC'), //Description for the new template
+       description: this.translate.instant('TMP_NEW_DESC'), //Description for the new template
       questions: [
         {
           id: -1,
@@ -190,34 +209,9 @@ export class TemplateManagerComponent {
     return size === this.pageSize;
   }
 
-  // Opens the modal and resets the confirmation step.
-  openDeleteModal(templateId: string): void {
-    this.templateToDelete = templateId;
-    this.deleteConfirmationStep = 0;
-  }
-
-  // Handles confirm click: if first step, update text; if already at final warning, delete.
-  confirmDelete(): void {
-    if (this.deleteConfirmationStep === 0) {
-      this.deleteConfirmationStep = 1;
-    } else {
-      if (this.templateToDelete) {
-        this.templateService.deleteTemplate(this.templateToDelete).subscribe({
-          complete: () => {
-            this.cancelDelete();
-            this.resetData();
-            this.fetchTemplateBases();
-          },
-          error: () => console.error('Error deleting template'),
-        });
-      }
-    }
-  }
-
-  cancelDelete(): void {
-    this.templateToDelete = null;
-    this.deleteConfirmationStep = 0;
-  }
+openDeleteModal(templateId: string): void {
+  this.showModal(TemplateModalType.Delete, templateId);
+}
 
   onSaveTemplate(updatedTemplate: Template): void {
     if (!updatedTemplate.id) {
@@ -250,8 +244,121 @@ export class TemplateManagerComponent {
     this.selectedTemplate = null;
   }
 
-  // New method to close the locked modal.
-  closeLockedModal(): void {
-    this.showLockedModal = false;
+
+/// NEEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWww
+
+showModal(type: TemplateModalType, id?: string | null) {
+  this.activeModalType = type;
+  this.activeModalTemplateId = id ?? this.selectedTemplate?.id ?? null;
+  if (type === TemplateModalType.Delete) this.deleteConfirmStep = 0;
+}
+
+hideModal() {
+  this.activeModalType = TemplateModalType.None;
+  this.activeModalTemplateId = null;
+  this.deleteConfirmStep = 0;
+}
+
+get isModalOpen(): boolean { 
+  return this.activeModalType !== TemplateModalType.None; 
+}
+
+get modalTitle(): string {
+  switch (this.activeModalType) {
+    case TemplateModalType.Delete: return this.deleteConfirmStep === 0 ? 'Slet skabelon?' : 'Er du helt sikker?';
+    case TemplateModalType.Copy:   return this.lockedTitle;
+    default:                       return '';
   }
+}
+
+get modalText(): string {
+  switch (this.activeModalType) {
+    case TemplateModalType.Delete: return this.deleteConfirmStep === 0
+      ? 'Dette vil slette skabelonen.' : 'Dette kan ikke fortrydes.';
+    case TemplateModalType.Copy:   return this.lockedText;
+    default:                       return '';
+  }
+}
+get confirmText(): string {
+  switch (this.activeModalType) {
+    case TemplateModalType.Delete: return this.deleteConfirmStep === 0 ? 'Fortsæt' : 'Slet';
+    case TemplateModalType.Copy:   return 'Kopiér';
+    default:                       return 'OK';
+  }
+}
+
+get cancelText(): string {
+  switch (this.activeModalType) {
+    case TemplateModalType.Delete: return 'Annuller';
+    case TemplateModalType.Copy:   return 'Luk';
+    default:                       return 'Luk';
+  }
+}
+
+// --- Centralized confirm/cancel handlers ---
+onModalConfirm(): void {
+  const id = this.activeModalTemplateId ?? undefined;
+  if (!id) return;
+
+  if (this.activeModalType === TemplateModalType.Delete) {
+    if (this.deleteConfirmStep === 0) {
+      this.deleteConfirmStep = 1;
+      return;
+    }
+    this.templateService.deleteTemplate(id).subscribe({
+      complete: () => { this.hideModal(); this.resetData(); this.fetchTemplateBases(); },
+      error: () => console.error('Error deleting template')
+    });
+    return;
+  }
+
+  if (this.activeModalType === TemplateModalType.Copy) {
+    // fetch the source template, then deep-copy it into a brand new local draft
+    this.templateService.getTemplateDetails(id).subscribe({
+      next: tmplSrc => {
+        const draftCopy = this.deepCopyAsNewTemplate(tmplSrc);
+        this.selectedTemplate = draftCopy;   // open the new local draft immediately
+        // no server refresh needed yet; user will Save to persist
+        this.hideModal();
+      },
+      error: err => console.error('Error loading template to copy', err)
+    });
+  }
+}
+onModalCancel(): void {
+  if (this.activeModalType === TemplateModalType.Delete && this.deleteConfirmStep === 1) {
+    this.deleteConfirmStep = 0;
+    return; // keep the modal open, just step back
+  }
+  this.hideModal();
+}
+
+private deepCopyAsNewTemplate(template: Template): Template {
+  // Deep clone to avoid mutating the original
+  const clone: Template = JSON.parse(JSON.stringify(template));
+
+  // If it has an ID, replace with a unique negative ID
+  // If it has no ID, leave it undefined
+  clone.id = clone.id ? `temp-${Date.now()}` : undefined;
+
+  // Reset meta fields
+  clone.createdAt = undefined;
+  clone.lastUpdated = undefined;
+  clone.templateStatus = TemplateStatus.Draft;
+  clone.isLocked = false;
+  clone.title = `${clone.title} (kopi)`
+  clone.id = "";
+
+  // Assign fresh negative IDs to questions & options
+  clone.questions = clone.questions.map((q, qIndex) => ({
+    ...q,
+    id: -1 * (qIndex + 1), // new negative ID
+    options: q.options.map((o, oIndex) => ({
+      ...o,
+      id: -1 * (oIndex + 1) // new negative ID
+    }))
+  }));
+
+  return clone;
+}
 }
