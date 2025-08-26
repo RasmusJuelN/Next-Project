@@ -27,6 +27,7 @@
 
 
    "TMP_TITLE_ADMINISTER_TEMPLATES": "Manage Templates",
+   "TMP_DATA_COMPARE_TITLE": "Data Compare",
   "TMP_BUTTON_CREATE_NEW": "Create New Template",
   "TMP_SEARCH_BY_NAME": "Search by Name",
   "TMP_SEARCH_BY_ID": "Search by ID",
@@ -66,7 +67,7 @@
    "TMP_SETUP_AT": "Setup at:",
 
 
-   "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires.s",
+   "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires",
   "TMP_SEARCH_BY_STUDENT_NAME": "Search by Student Name",
   "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Search by Active Questionnaire ID",
   "TMP_SEARCHPLACEHOLDER": "Search...",
