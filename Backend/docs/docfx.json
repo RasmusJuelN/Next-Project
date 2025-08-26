@@ -41,7 +41,7 @@
       "_appName": "NextQuestionnaire",
       "_appTitle": "NextQuestionnaire",
       "_enableSearch": true,
-      "pdf": true
+      "pdf": false
     }
   }
 }
