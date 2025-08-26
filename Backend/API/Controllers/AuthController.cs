@@ -1,23 +1,45 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using API.Exceptions;
 using API.DTO.LDAP;
+using API.DTO.Requests.Auth;
+using API.DTO.Responses.Auth;
+using API.Exceptions;
+using API.Interfaces;
 using API.Services;
 using API.Utils;
+using Database.DTO.User;
 using Database.Enums;
 using Logging.LogEvents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Settings.Models;
-using API.DTO.Responses.Auth;
-using API.DTO.Requests.Auth;
 using Microsoft.Net.Http.Headers;
-using API.Interfaces;
-using Database.DTO.User;
+using Settings.Models;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller responsible for handling authentication and authorization operations.
+    /// Provides endpoints for user login, token refresh, logout, and user information retrieval.
+    /// </summary>
+    /// <remarks>
+    /// This controller integrates with LDAP for user authentication and uses JWT tokens for authorization.
+    /// It supports the following authentication flows:
+    /// - Initial authentication via LDAP credentials
+    /// - Token refresh using valid refresh tokens
+    /// - User logout with token revocation
+    /// - Current user information retrieval
+    /// 
+    /// The controller uses dependency injection for:
+    /// - JWT service for token operations
+    /// - Authentication bridge for LDAP integration
+    /// - Unit of work pattern for data access
+    /// - Configuration settings for JWT parameters
+    /// - Logging for security monitoring
+    /// 
+    /// All endpoints include comprehensive error handling and security logging.
+    /// Tokens are properly validated and refresh tokens are tracked for revocation.
+    /// </remarks>
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -111,7 +133,7 @@ namespace API.Controllers
                     _logger.LogWarning(UserLogEvents.UserLogIn, e, "User {username} successfully logged in, yet the user role could not be determined. {Message}", userLogin.Username, e.Message);
                     return Unauthorized();
                 }
-                
+
                 FullUser? user = await _unitOfWork.User.GetUserAsync(userGuid);
 
                 UserPermissions permissions;
@@ -151,7 +173,7 @@ namespace API.Controllers
             }
             else return Unauthorized();
         }
-        
+
         /// <summary>
         /// Refreshes an expired access token using a valid refresh token.
         /// </summary>
@@ -183,7 +205,7 @@ namespace API.Controllers
             string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
 
             if (!_jwtService.TokenIsValid(token, _jwtService.GetRefreshTokenValidationParameters())) return Unauthorized();
-            
+
             ClaimsPrincipal principal = _jwtService.GetPrincipalFromExpiredToken(expiredToken);
 
             if (User.FindFirstValue(JwtRegisteredClaimNames.Sub) != principal.FindFirstValue(JwtRegisteredClaimNames.Sub)) return Unauthorized();
@@ -226,7 +248,7 @@ namespace API.Controllers
             string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
 
             if (!_jwtService.TokenIsValid(token, _jwtService.GetRefreshTokenValidationParameters())) return Unauthorized();
-            
+
             byte[] encryptedToken = Crypto.ToSha256(token);
 
             await _unitOfWork.TrackedRefreshToken.RevokeToken(encryptedToken);
