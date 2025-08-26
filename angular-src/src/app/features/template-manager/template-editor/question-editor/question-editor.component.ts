@@ -2,11 +2,12 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Question, Option } from '../../../../shared/models/template.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-question-editor',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, TranslateModule],
   templateUrl: './question-editor.component.html',
   styleUrls: ['./question-editor.component.css']
 })

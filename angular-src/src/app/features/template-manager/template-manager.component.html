@@ -84,7 +84,7 @@
               class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
               (click)="selectTemplate(template.id)"
             >
-              {{ template.templateStatus == templateStatus.Draft ? 'Rediger' : 'Vis' }}
+              {{ template.templateStatus == templateStatus.Draft ? 'Rediger' : 'COMMON.BUTTONS.VIEW'|translate }}
             </button>
 
             <button
@@ -98,7 +98,7 @@
                (click)="showModal(TemplateModalType.Copy, template.id)"
               class="px-3 py-1 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
             >
-              Kopiér
+              {{'COMMON.BUTTONS.COPY'| translate}}
             </button>
           </div>
         </li>

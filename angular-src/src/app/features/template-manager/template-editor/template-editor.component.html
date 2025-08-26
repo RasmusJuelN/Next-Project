@@ -1,6 +1,6 @@
 <!-- Header -->
 <h2 class="text-2xl sm:text-3xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">
-  {{ readonly ? 'Skabelonvisning' : 'Skabelonredigering' }}
+  {{ readonly ? ('TMP_VIEW_MODE' | translate) : ('TMP_EDIT_MODE' | translate) }}
 </h2>
 
 <!-- Template Details -->
@@ -20,7 +20,6 @@
       class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
       [placeholder]="'TMP_NEW_TITLE' | translate"
     />
-          <!-- placeholder="Indtast skabelon titel" -->
   </div>
 
   <!-- Template Description -->
@@ -35,7 +34,7 @@
       [(ngModel)]="template.description"
       rows="4"
       class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
-     [placeholder]="'TMP_NEW_DESC' | translate",
+     [placeholder]="'TMP_NEW_DESC' | translate"
       [disabled]="readonly"
     ></textarea>
   </div>
@@ -83,7 +82,7 @@
           class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
           (click)="editQuestion(question)"
         >
-          {{ readonly ? 'Vis' : 'Rediger' }}
+          {{ readonly ? ('COMMON.BUTTONS.SHOW' | translate) : ('COMMON.BUTTONS.EDIT' | translate) }}
         </button>
         <button *ngIf="!readonly"
           class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
@@ -118,10 +117,10 @@
 
 <app-modal
   [isOpen]="finalizeModalOpen"
-  [title]="'Udgiv skabelon?'"
-  [text]="'Når en skabelon udgives, bliver den skrivebeskyttet. <br/>Er du sikker på, at du vil udgive?'"
-  [confirmText]="'Udgiv'"
-  [cancelText]="'Annuller'"
+  [title]="'TMP_FINALIZE_TITLE' | translate"
+  [text]="'TMP_FINALIZE_TEXT' | translate"
+  [confirmText]="'TMP_FINALIZE_CONFIRM' | translate"
+  [cancelText]="'TMP_CANCEL' | translate"
   (confirm)="confirmFinalize()"
   (cancel)="closeFinalizeModal()">
 </app-modal>

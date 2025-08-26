@@ -9,7 +9,7 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 @Component({
   selector: 'app-template-editor',
   standalone: true,
-  imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent],
+  imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent, TranslateModule],
   templateUrl: './template-editor.component.html',
   styleUrl: './template-editor.component.css'
 })

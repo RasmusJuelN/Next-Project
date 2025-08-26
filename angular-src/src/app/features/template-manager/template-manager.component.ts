@@ -10,6 +10,7 @@ import { PaginationComponent, PageChangeEvent } from '../../shared/components/pa
 import { LoadingComponent } from '../../shared/loading/loading.component';
 import { Template, TemplateBase, TemplateStatus } from '../../shared/models/template.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
 
 enum TemplateModalType {
   None = 'none',
@@ -25,7 +26,8 @@ enum TemplateModalType {
     CommonModule,
     PaginationComponent,
     LoadingComponent,
-    TranslateModule
+    TranslateModule,
+    ModalComponent
   ],
   templateUrl: './template-manager.component.html',
   styleUrls: ['./template-manager.component.css'],
@@ -244,9 +246,6 @@ openDeleteModal(templateId: string): void {
     this.selectedTemplate = null;
   }
 
-
-/// NEEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWww
-
 showModal(type: TemplateModalType, id?: string | null) {
   this.activeModalType = type;
   this.activeModalTemplateId = id ?? this.selectedTemplate?.id ?? null;
@@ -265,33 +264,50 @@ get isModalOpen(): boolean {
 
 get modalTitle(): string {
   switch (this.activeModalType) {
-    case TemplateModalType.Delete: return this.deleteConfirmStep === 0 ? 'Slet skabelon?' : 'Er du helt sikker?';
-    case TemplateModalType.Copy:   return this.lockedTitle;
-    default:                       return '';
+    case TemplateModalType.Delete:
+      return this.deleteConfirmStep === 0
+        ? this.translate.instant('TMP_DELETE_CONFIRM_TITLE')
+        : this.translate.instant('TMP_DELETE_CONFIRM_WARN');
+    case TemplateModalType.Copy:
+      return this.translate.instant('TMP_LOCKED_TITLE');
+    default:
+      return '';
   }
 }
 
 get modalText(): string {
   switch (this.activeModalType) {
-    case TemplateModalType.Delete: return this.deleteConfirmStep === 0
-      ? 'Dette vil slette skabelonen.' : 'Dette kan ikke fortrydes.';
-    case TemplateModalType.Copy:   return this.lockedText;
-    default:                       return '';
+    case TemplateModalType.Delete:
+      return this.deleteConfirmStep === 0
+        ? this.translate.instant('TEMPLATES.DELETE.MSG')
+        : this.translate.instant('TMP_DELETE_FINAL_WARN_MSG');
+    case TemplateModalType.Copy:
+      return this.translate.instant('TMP_LOCKED_MSG');
+    default:
+      return '';
   }
 }
+
 get confirmText(): string {
   switch (this.activeModalType) {
-    case TemplateModalType.Delete: return this.deleteConfirmStep === 0 ? 'Fortsæt' : 'Slet';
-    case TemplateModalType.Copy:   return 'Kopiér';
-    default:                       return 'OK';
+    case TemplateModalType.Delete:
+      return this.deleteConfirmStep === 0
+        ? this.translate.instant('COMMON.BUTTONS.CONTINUE')
+        : this.translate.instant('TMP_DELETE');
+    case TemplateModalType.Copy:
+      return this.translate.instant('COMMON.BUTTONS.COPY');
+    default:
+      return this.translate.instant('COMMON.BUTTONS.CLOSE');
   }
 }
 
 get cancelText(): string {
   switch (this.activeModalType) {
-    case TemplateModalType.Delete: return 'Annuller';
-    case TemplateModalType.Copy:   return 'Luk';
-    default:                       return 'Luk';
+    case TemplateModalType.Delete:
+      return this.translate.instant('COMMON.BUTTONS.CANCEL');
+    case TemplateModalType.Copy:
+    default:
+      return this.translate.instant('COMMON.BUTTONS.CLOSE');       // already in your JSON
   }
 }
 
