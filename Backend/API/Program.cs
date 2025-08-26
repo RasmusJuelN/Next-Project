@@ -189,6 +189,7 @@ builder.Services.AddAuthorizationBuilder()
                       .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
                       .AddPolicy("TeacherOnly", policy => policy.RequireRole("teacher"))
                       .AddPolicy("StudentOnly", policy => policy.RequireRole("student"))
+                      .AddPolicy("AdminAndTeacherOnly", policy => policy.RequireRole("admin", "teacher"))
                       .AddPolicy("StudentAndTeacherOnly", policy => policy.RequireRole("student", "teacher"));
 
 
