@@ -1,4 +1,7 @@
-- name: Introduction
-  href: introduction.md
-- name: Getting Started
-  href: getting-started.md
+items:
+- name: Get Started
+  items:
+  - name: Introduction
+    href: ../index.md
+  - name: Getting Started
+    href: getting-started.md
