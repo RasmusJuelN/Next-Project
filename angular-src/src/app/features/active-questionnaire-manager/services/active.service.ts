@@ -69,7 +69,7 @@ export class ActiveService {
   
     if (queryCursor.trim() !== '') {
       params = params.set('QueryCursor', queryCursor);
-    }
+    } 
   
     if (studentSearch.trim() !== '') {
       params = params.set('Student', studentSearch);

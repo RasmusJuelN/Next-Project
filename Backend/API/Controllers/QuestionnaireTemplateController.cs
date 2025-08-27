@@ -38,7 +38,7 @@ namespace API.Controllers
         /// <response code="200">Returns the list of questionnaire templates.</response>
         /// <response code="500">If an internal server error occurs.</response>
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminAndTeacherOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(TemplateKeysetPaginationResult), StatusCodes.Status200OK)]
         public async Task<ActionResult<TemplateKeysetPaginationResult>> GetQuestionnaireTemplates([FromQuery] TemplateKeysetPaginationRequest request)

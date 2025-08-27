@@ -37,7 +37,8 @@ export class HeaderComponent {
     [Role.Teacher]: [
       //{ name: 'Overview', route: '/hub' },
       { name: 'NAV_OVERVIEW', route: '/teacher-dashboard' },
-      { name: 'NAV_ACTIVE_QUESTIONNAIRES', route: '/show-active-questionnaires' }
+      { name: 'NAV_ACTIVE_QUESTIONNAIRES', route: '/show-active-questionnaires' },
+      { name: 'NAV_DATA_COMPARE', route: '/data-compare' }
     ],
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },

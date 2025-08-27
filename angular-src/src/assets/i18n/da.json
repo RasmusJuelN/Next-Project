@@ -6,6 +6,7 @@
   "ANSWER_QUESTIONNAIRE": "Et spørgeskema kan besvares",
   "NAV_LOG_OUT": "Log ud",
    "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
+  "NAV_DATA_COMPARE": "Sammenlign Data",
   "NAV_OVERVIEW": "Oversigt",
   "NAV_TEMPLATES": "Skabeloner",
    "LOGIN_WELCOME": "Velkommen",
@@ -24,6 +25,7 @@
 
 
   "TMP_TITLE_ADMINISTER_TEMPLATES": "Administrer Skabeloner",
+  "TMP_DATA_COMPARE_TITLE": "Sammenlign Data",
   "TMP_BUTTON_CREATE_NEW": "Opret Ny Skabelon",
   "TMP_SEARCH_BY_NAME": "Søg efter Navn",
   "TMP_SEARCH_BY_ID": "Søg efter ID",
