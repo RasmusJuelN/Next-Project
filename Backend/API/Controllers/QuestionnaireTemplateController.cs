@@ -38,7 +38,7 @@ namespace API.Controllers
         /// <response code="200">Returns the list of questionnaire templates.</response>
         /// <response code="500">If an internal server error occurs.</response>
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminAndTeacherOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(TemplateKeysetPaginationResult), StatusCodes.Status200OK)]
         public async Task<ActionResult<TemplateKeysetPaginationResult>> GetQuestionnaireTemplates([FromQuery] TemplateKeysetPaginationRequest request)
@@ -145,6 +145,25 @@ namespace API.Controllers
             }
 
             return NoContent();
+        }
+        [HttpPost("{id}/finalize")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireTemplate>> FinalizeQuestionnaireTemplate(Guid id)
+        {
+            try
+            {
+                var updated = await _questionnaireTemplateService.FinalizeTemplate(id);
+                return Ok(updated);
+            }
+            catch (SQLException.ItemNotFound)
+            {
+                return NotFound();
+            }
+            // Optional: if your service throws when already finalized or locked, map to 409:
+            // catch (BusinessException.AlreadyFinalized) { return Conflict("Template already finalized."); }
         }
     }
 }

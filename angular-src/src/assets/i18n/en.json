@@ -8,6 +8,7 @@
   "NAV_TOGGLE_MENU": "Toggle menu",
   "NAV_LOG_OUT": "Log out",
   "NAV_ACTIVE_QUESTIONNAIRES": "Active Questionnaires",
+  "NAV_DATA_COMPARE": "Data Compare",
   "NAV_OVERVIEW": "Overview",
   "NAV_TEMPLATES": "Templates",
    "LOGIN_WELCOME": "Welcome",
@@ -26,6 +27,7 @@
 
 
    "TMP_TITLE_ADMINISTER_TEMPLATES": "Manage Templates",
+   "TMP_DATA_COMPARE_TITLE": "Data Compare",
   "TMP_BUTTON_CREATE_NEW": "Create New Template",
   "TMP_SEARCH_BY_NAME": "Search by Name",
   "TMP_SEARCH_BY_ID": "Search by ID",
@@ -65,7 +67,7 @@
    "TMP_SETUP_AT": "Setup at:",
 
 
-   "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires.s",
+   "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires",
   "TMP_SEARCH_BY_STUDENT_NAME": "Search by Student Name",
   "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Search by Active Questionnaire ID",
   "TMP_SEARCHPLACEHOLDER": "Search...",
@@ -77,8 +79,37 @@
   "TMP_TEACHER": "Teacher:",
   "TMP_COMPLETED": "Completed",
   "TMP_PENDING": "Pending",
-  "TMP_VIEW_RESULTS": "View Results"
+  "TMP_VIEW_RESULTS": "View Results",
 
   
+  "COMMON.BUTTONS.VIEW": "View",
+  "COMMON.BUTTONS.COPY": "Copy",
+  "COMMON.BUTTONS.DELETE_PERMANENT": "Delete Permanently",
+  "COMMON.BUTTONS.CANCEL": "Cancel",
+  "COMMON.BUTTONS.CLOSE": "Close",
+  "TEMPLATES.DELETE.TITLE": "Confirm Deletion",
+  "TEMPLATES.DELETE.MSG": "Are you sure you want to delete this template? This action will delete related data.",
+  "COMMON.GREETING": "Hello {{username}}!",
+
+  "TMP_FINALIZE_TITLE": "Publish template?",
+  "TMP_FINALIZE_TEXT": "When a template is published, it becomes read-only. <br/>Are you sure you want to publish?",
+  "TMP_FINALIZE_CONFIRM": "Publish",
+  "COMMON.BUTTONS.SHOW": "View",
+  "COMMON.BUTTONS.EDIT": "Edit",
+  "TMP_VIEW_MODE": "Template View",
+  "TMP_EDIT_MODE": "Template Editing",
+
+
   
+
+  "QUESTION_EDITOR": {
+    "TITLE": "Edit Question",
+    "LABEL_TITLE": "Title:",
+    "PLACEHOLDER_TITLE": "Enter the question title",
+    "ALLOW_CUSTOM": "Allow writing your own answer",
+    "OPTIONS": "Options",
+    "DELETE_OPTION": "Delete Option",
+    "ADD_OPTION": "Add New Option",
+    "SAVE": "Save Question"
+}
 }

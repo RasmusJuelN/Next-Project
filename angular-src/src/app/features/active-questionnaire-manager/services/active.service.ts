@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
-import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, Template, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
+import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
@@ -69,7 +69,7 @@ export class ActiveService {
   
     if (queryCursor.trim() !== '') {
       params = params.set('QueryCursor', queryCursor);
-    }
+    } 
   
     if (studentSearch.trim() !== '') {
       params = params.set('Student', studentSearch);
@@ -122,12 +122,15 @@ export class ActiveService {
     );
   }
 
-  searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
-    let params = new HttpParams().set('title', term);
-    if (queryCursor) {
-      params = params.set('queryCursor', queryCursor);
-    }
-    params = params.set('pageSize', 5);
+searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
+  let params = new HttpParams()
+    .set('title', term)
+    .set('pageSize', 5)
+    .set('templateStatus', 'Finalized');
+
+  if (queryCursor) {
+    params = params.set('queryCursor', queryCursor);
+  }
 
     return this.apiService.get<TemplateBaseResponse>(`${environment.apiUrl}/questionnaire-template/`, params);
   }

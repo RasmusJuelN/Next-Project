@@ -1,13 +1,13 @@
 
 <div
   *ngIf="loggedInAlready$ | async; else loginForm"
-  class="flex flex-col h-full flex-grow items-center justify-center p-4 sm:p-8"
+  class="flex flex-col h-full flex-grow items-center justify-center p-4 sm:p-8" 
 >
 
-  <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-lg">
+  <div class="bg-white/90 shadow-xl rounded-2xl sm:p-10 border border-primary_dark_light w-full max-w-lg">
 
  
-    <h2 class="text-xl sm:text-2xl font-bold mb-6 text-gray-700 text-center">
+    <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center">
        {{ 'GREETING' | translate:{ username: username } }}
 
       <!-- Hej {{ username  | translate}}! -->
