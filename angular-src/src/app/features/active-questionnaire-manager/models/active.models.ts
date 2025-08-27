@@ -43,3 +43,5 @@ export interface ActiveQuestionnaire {
       queryCursor?: string; // Cursor for next items.
       totalCount: number;
     }
+
+export { TemplateBase };
