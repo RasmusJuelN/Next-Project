@@ -211,20 +211,31 @@ export class ActiveBuilderComponent implements OnInit {
     }
 
     // Normal mode: students, teachers, template, group name
-    if (
-      !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
-      !Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0 ||
-      !Array.isArray(this.template.selected) || this.template.selected.length === 0 ||
-      !this.template.selected[0].id ||
-      !this.groupName.trim()
-    ) {
-      console.error('Missing required selections for Active Questionnaire.');
+    if (!Array.isArray(this.student.selected) || this.student.selected.length === 0) {
+      alert('Du skal vælge mindst én elev.');
+      return;
+    }
+    if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
+      alert('Du skal vælge mindst én lærer.');
+      return;
+    }
+    if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
+      alert('Du skal vælge en skabelon.');
+      return;
+    }
+    if (!this.template.selected[0].id) {
+      alert('Den valgte skabelon mangler et ID.');
+      return;
+    }
+    if (!this.groupName.trim()) {
+      alert('Spørgeskema gruppen skal tildeles et navn.');
       return;
     }
     if (this.template.selected.length > 1) {
       alert('Der kan kun tildeles én skabelon ad gangen.');
       return;
     }
+    
     const newGroup = {
       name: this.groupName,
       templateId: this.template.selected[0].id,

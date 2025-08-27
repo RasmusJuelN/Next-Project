@@ -62,6 +62,30 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
 
     public async Task<QuestionnaireGroupResult> ActivateQuestionnaireGroup(ActivateQuestionnaireGroup request)
     {
+        _ldap.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
+
+        if (!_ldap.connection.Bound) throw new Exception("Failed to bind to the LDAP server.");
+        // Ensure all students exist
+        foreach (var studentId in request.StudentIds)
+        {
+            if (!_unitOfWork.User.UserExists(studentId))
+            {
+                UserAdd student = GenerateStudent(studentId);
+                await _unitOfWork.User.AddStudentAsync(student);
+            }
+        }
+
+        // Ensure all teachers exist
+        foreach (var teacherId in request.TeacherIds)
+        {
+            if (!_unitOfWork.User.UserExists(teacherId))
+            {
+                UserAdd teacher = GenerateTeacher(teacherId);
+                await _unitOfWork.User.AddTeacherAsync(teacher);
+            }
+        }
+
+        await _unitOfWork.SaveChangesAsync();
         // 1. Create the group
         var group = new QuestionnaireGroupModel
         {
