@@ -18,7 +18,7 @@
       {
         "files": [
           "**/*.{md,yml}",
-          "**/*.swagger.json"
+          "swagger.json"
         ],
         "exclude": [
           "_site/**"
