@@ -32,7 +32,11 @@ export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
   public groupName: string = '';
   public isAnonymousMode = false;
-  
+  public groupNameError: string = '';
+  public studentError: string = '';
+  public teacherError: string = '';
+  public templateError: string = '';
+
   public student: UserSearchEntity<User> = {
     selected: [],
     searchInput: '',
@@ -210,30 +214,40 @@ export class ActiveBuilderComponent implements OnInit {
       return;
     }
 
-    // Normal mode: students, teachers, template, group name
-    if (!Array.isArray(this.student.selected) || this.student.selected.length === 0) {
-      alert('Du skal vælge mindst én elev.');
-      return;
-    }
-    if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
-      alert('Du skal vælge mindst én lærer.');
-      return;
-    }
-    if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
-      alert('Du skal vælge en skabelon.');
-      return;
-    }
-    if (!this.template.selected[0].id) {
-      alert('Den valgte skabelon mangler et ID.');
-      return;
-    }
-    if (!this.groupName.trim()) {
-      alert('Spørgeskema gruppen skal tildeles et navn.');
-      return;
-    }
-    if (this.template.selected.length > 1) {
-      alert('Der kan kun tildeles én skabelon ad gangen.');
-      return;
+    this.groupNameError = '';
+  this.studentError = '';
+  this.teacherError = '';
+  this.templateError = '';
+
+  let hasError = false;
+
+  // Normal mode: students, teachers, template, group name
+  if (!Array.isArray(this.student.selected) || this.student.selected.length === 0) {
+    this.studentError = 'Du skal vælge mindst én elev.';
+    hasError = true;
+  }
+  if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
+    this.teacherError = 'Du skal vælge mindst én lærer.';
+    hasError = true;
+  }
+  if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
+    this.templateError = 'Du skal vælge en skabelon.';
+    hasError = true;
+  }
+  if (!this.template.selected[0].id) {
+    this.templateError = 'Den valgte skabelon mangler et ID.';
+    hasError = true;
+  }
+  if (!this.groupName.trim()) {
+    this.groupNameError = 'Spørgeskema gruppen skal tildeles et navn.';
+    hasError = true;
+  }
+  if (hasError) {
+    return;
+  }
+  if (this.template.selected.length > 1) {
+    alert('Der kan kun tildeles én skabelon ad gangen.');
+    return;
     }
     
     const newGroup = {

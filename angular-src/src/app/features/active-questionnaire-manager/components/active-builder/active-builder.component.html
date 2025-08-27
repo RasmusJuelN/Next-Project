@@ -172,6 +172,8 @@
         class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
         #studentSearch
       />
+      <div *ngIf="studentError" style="color: red; font-size: 0.9em;">{{ studentError }}</div>
+
 
       <!-- Loading Indicator -->
       <div *ngIf="student.isLoading" class="text-blue-500 text-sm mt-2">
@@ -228,6 +230,7 @@
         class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
         #teacherSearch
       />
+      <div *ngIf="teacherError" style="color: red; font-size: 0.9em;">{{ teacherError }}</div>
 
       <!-- Loading Indicator -->
       <div *ngIf="teacher.isLoading" class="text-blue-500 text-sm mt-2">
@@ -269,6 +272,7 @@
             <button (click)="select('teacher', teach)" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
           </li>
         </ul>
+
         <button (click)="clearSelected('teacher')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
       </div>
     </div>
@@ -287,6 +291,7 @@
       class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
       #templateSearch
     />
+    <div *ngIf="templateError" style="color: red; font-size: 0.9em;">{{ templateError }}</div>
 
     <!-- Loading Indicator -->
     <div *ngIf="template.isLoading" class="text-blue-500 text-sm mt-2">
@@ -339,7 +344,10 @@
     [(ngModel)]="groupName"
     class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
   />
+  <div *ngIf="groupNameError" style="color: red; font-size: 0.9em;">{{ groupNameError }}</div>
 </div>
+
+
   <!-- Finish and Back Buttons -->
   <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
     <button
