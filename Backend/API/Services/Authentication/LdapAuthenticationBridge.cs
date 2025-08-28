@@ -10,6 +10,30 @@ using Settings.Models;
 
 namespace API.Services.Authentication;
 
+/// <summary>
+/// Provides LDAP authentication services implementing the IAuthenticationBridge interface.
+/// This class handles LDAP connections, user authentication, and directory searches for users and groups.
+/// </summary>
+/// <remarks>
+/// <list type="bullet">
+/// <item><description>User authentication using simple bind with username/password</description></item>
+/// <item><description>Searching for users by username with support for both userPrincipalName and sAMAccountName</description></item>
+/// <item><description>Searching for groups by name</description></item>
+/// <item><description>Searching for entities by GUID</description></item>
+/// <item><description>Paginated user searches with role filtering</description></item>
+/// <item><description>Session caching for pagination operations</description></item>
+/// <item><description>Proper escaping of LDAP search filters and GUIDs</description></item>
+/// </list>
+/// 
+/// The class automatically handles FQDN parsing and UPN conversion for authentication.
+/// It maintains an internal LDAP connection and provides proper resource disposal.
+/// 
+/// <list type="bullet">
+/// <item><description>LDAPException.ConnectionError for connection issues (LDAP result code 91)</description></item>
+/// <item><description>LDAPException.InvalidCredentials for authentication failures (LDAP result code 49)</description></item>
+/// <item><description>Generic LDAPException for other LDAP errors</description></item>
+/// </list>
+/// </remarks>
 public class LdapAuthenticationBridge : IAuthenticationBridge
 {
     private readonly LDAPSettings _LDAPSettings;

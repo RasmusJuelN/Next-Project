@@ -3,6 +3,9 @@ using Database.Enums;
 
 namespace API.DTO.Requests.QuestionnaireTemplate;
 
+/// <summary>
+/// Represents a request for paginating questionnaire templates using keyset pagination.
+/// </summary>
 public record class TemplateKeysetPaginationRequest
 {
     /// <summary>
@@ -10,13 +13,13 @@ public record class TemplateKeysetPaginationRequest
     /// </summary>
     [DefaultValue(5)]
     public required int PageSize { get; set; }
-    
+
     /// <summary>
     /// The order in which the items should be paginated and queried in.
     /// </summary>
     [DefaultValue(TemplateOrderingOptions.CreatedAtDesc)]
     public TemplateOrderingOptions Order { get; set; } = TemplateOrderingOptions.CreatedAtDesc;
-    
+
     /// <summary>
     /// The title to search for in the templates.
     /// </summary>
@@ -26,7 +29,7 @@ public record class TemplateKeysetPaginationRequest
     /// The ID of the exact template. Partial search is not supported.
     /// </summary>
     public Guid? Id { get; set; }
-    
+
     /// <summary>
     /// The cursor for where the query should start/resume from
     /// </summary>

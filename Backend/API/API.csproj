@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Logging\Logging.csproj" />
     <ProjectReference Include="..\Settings\Settings.csproj" />
   </ItemGroup>
+  <Target Name="SwaggerGenerate" AfterTargets="PostBuildEvent">
+    <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet swagger tofile --output ../docs/swagger.json ./$(OutputPath)$(AssemblyName).dll v1" />
+  </Target>
 </Project>
