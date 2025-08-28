@@ -1,5 +1,3 @@
 items:
-- name: Controllers and endpoints
-  items:
-  - name: Design
-    href: ./controllers/design.md
+  - name: Controller design
+    href: ./controller-design.md
