@@ -6,6 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing application logs and log-related operations.
+    /// Provides endpoints for retrieving database logs and log categories.
+    /// Requires admin authorization for all operations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class LogsController(IApplicationLogRepository ApplicationLogsRepository) : ControllerBase

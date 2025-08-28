@@ -5,6 +5,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Provides WebSocket endpoints for real-time communication functionality.
+    /// This controller handles WebSocket connections and implements various communication patterns
+    /// including ping-pong health checks and message echoing capabilities.
+    /// </summary>
+    /// <remarks>
+    /// This controller is excluded from API documentation and requires WebSocket upgrade requests.
+    /// All endpoints in this controller are designed to work with WebSocket protocols only.
+    /// Regular HTTP requests to these endpoints will result in appropriate error responses.
+    /// 
+    /// The controller supports:
+    /// - Connection health monitoring through ping-pong messages
+    /// - Message echoing for testing and development purposes
+    /// - Proper WebSocket lifecycle management including connection establishment and cleanup
+    /// </remarks>
     [Route("/ws")]
     [ApiController]
     [ApiExplorerSettings(IgnoreApi = true)]

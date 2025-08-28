@@ -1,13 +1,27 @@
 using API.DTO.Requests.QuestionnaireTemplate;
+using API.DTO.Responses.QuestionnaireTemplate;
 using API.Exceptions;
 using API.Services;
 using Database.DTO.QuestionnaireTemplate;
-using Microsoft.AspNetCore.Mvc;
-using API.DTO.Responses.QuestionnaireTemplate;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller responsible for managing questionnaire templates in the system.
+    /// Provides CRUD operations and pagination functionality for questionnaire templates.
+    /// </summary>
+    /// <remarks>
+    /// This controller handles all operations related to questionnaire templates including:
+    /// - Creating new templates
+    /// - Retrieving templates with pagination support
+    /// - Updating existing templates (full update and partial patch)
+    /// - Deleting templates
+    /// 
+    /// All endpoints require admin-level authorization using AccessToken authentication.
+    /// The controller uses keyset pagination for efficient handling of large datasets.
+    /// </remarks>
     [Route("api/[controller]")]
     [ApiController]
     public class QuestionnaireTemplateController : ControllerBase

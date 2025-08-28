@@ -3,6 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller responsible for system-level operations and health monitoring endpoints.
+    /// </summary>
+    /// <remarks>
+    /// The SystemController provides essential system functionality including health checks
+    /// and monitoring capabilities that are typically used by infrastructure components
+    /// such as load balancers, container orchestrators, and monitoring systems.
+    /// </remarks>
     [Route("api/[controller]")]
     [ApiController]
     public class SystemController : ControllerBase
