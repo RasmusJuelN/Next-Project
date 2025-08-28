@@ -5,9 +5,9 @@
 
 
 # Docfx
-/Backend/docs/_site
-/Backend/docs/api
-/Backend/docs/swagger.json
+/docs/_site
+/docs/api
+/docs/swagger.json
 
 # bak files
 *.bak
