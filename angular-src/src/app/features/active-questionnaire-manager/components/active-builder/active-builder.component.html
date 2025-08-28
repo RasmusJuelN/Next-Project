@@ -1,4 +1,4 @@
-<div class="flex flex-col w-full bg-white shadow-md rounded-lg p-6 sm:p-8 sm:min-w-[1100px]">
+<div class="flex flex-col w-full bg-white/90 shadow-xl rounded-2xl sm:p-10 border border-primary_dark_light sm:min-w-[1100px]">
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-semibold text-gray-800 text-center sm:text-left m-0">
       {{ isAnonymousMode ? 'Anonymt Spørgeskema' : 'Evaluerings spørgeskema' }}
@@ -17,7 +17,7 @@
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter deltagere (navn, hold e.l.):</label>
         <input type="text" placeholder="Indtast navn på elever..." [(ngModel)]="student.searchInput"
           (input)="onInputChange('student', studentSearch.value)"
-          class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+          class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
           #studentSearch />
 
         <!-- Loading Indicator -->
@@ -41,7 +41,7 @@
 
           <!-- Load More Button -->
           <button *ngIf="student.page < student.totalPages"
-            class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition">
+            class="mt-2 w-full px-4 py-2  bg-red-500 hover:bg-red-600 text-white text-center font-medium rounded-lg transition">
             Indlæs Flere Elever
           </button>
         </div>
@@ -67,7 +67,7 @@
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter Skabelon:</label>
         <input type="text" placeholder="Indtast skabelontitel..." [(ngModel)]="template.searchInput"
           (input)="onInputChange('template', templateSearch.value)"
-          class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+          class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
           #templateSearch />
 
         <!-- Loading Indicator -->
@@ -114,7 +114,7 @@
       <div class="flex flex-col row-start-2 col-start-2">
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Gruppenavn:</label>
         <input type="text" placeholder="Indtast navn for spørgeskema-gruppen (holdnavn e.l.)" [(ngModel)]="groupName"
-          class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full" />
+          class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
       </div>
 
 
@@ -122,10 +122,10 @@
     <!-- Finish and Cancel Buttons -->
     <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
       <button [disabled]="!student.selected || !template.selected" (click)="createActiveQuestionnaire()"
-        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded">
+        class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors border-2 border-primary_orange_1 hover:border-primary_dark_blue disabled:opacity-50 disabled:cursor-not-allowed">
         Færdiggør
       </button>
-      <button (click)="onBackToList()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+      <button (click)="onBackToList()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-xl">
         Annuller
       </button>
     </div>
@@ -145,7 +145,7 @@
         placeholder="Indtast navn på elever..."
         [(ngModel)]="student.searchInput"
         (input)="onInputChange('student', studentSearch.value)"
-        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+        class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
         #studentSearch
       />
       <div *ngIf="studentError" style="color: red; font-size: 0.9em;">{{ studentError }}</div>
@@ -172,7 +172,7 @@
 
           <!-- Load More Button -->
           <button *ngIf="student.page < student.totalPages"
-            class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition">
+            class="mt-2 w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-center font-medium rounded-lg transition">
             Indlæs Flere Elever
           </button>
         </div>
@@ -241,7 +241,6 @@
             <button (click)="select('teacher', teach)" class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
           </li>
         </ul>
-
         <button (click)="clearSelected('teacher')" class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd Alle</button>
       </div>
     </div>
@@ -306,12 +305,9 @@
     type="text"
     placeholder="Indtast navn for spørgeskema-gruppen (holdnavn e.l.)"
     [(ngModel)]="groupName"
-    class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm w-full"
+    class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
   />
-  <div *ngIf="groupNameError" style="color: red; font-size: 0.9em;">{{ groupNameError }}</div>
 </div>
-
-
   <!-- Finish and Back Buttons -->
   <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
     <button
