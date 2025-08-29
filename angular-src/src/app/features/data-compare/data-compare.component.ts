@@ -26,7 +26,7 @@ type SearchType = "student" | "template";
     TranslateModule,
     CommonModule,
     FormsModule,
-    ActiveAnonymousBuilderComponent,
+    //ActiveAnonymousBuilderComponent,
   ],
   templateUrl: "./data-compare.component.html",
   styleUrl: "./data-compare.component.css",
