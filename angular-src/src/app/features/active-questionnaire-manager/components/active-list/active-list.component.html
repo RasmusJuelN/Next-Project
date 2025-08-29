@@ -10,7 +10,7 @@
       Tildel et Spørgeskema
     </button>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    <!-- <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
       <div class="flex flex-col w-full">
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter elever:</label>
         <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
@@ -40,21 +40,21 @@
             class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-      <label class="text-primary_dark_blue font-medium">Elementer pr. side:</label>
-      <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)"
-        class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[80px] bg-gray-50">
-        <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
-      </select>
-    </div>
+    
   </div>
 
   <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 cursor-pointer flex items-center justify-between"
       (click)="toggleListCollapse()">
     Aktive Spørgeskemaer
-
+<div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+      <label class="text-primary_dark_blue font-medium">Elementer pr. side:</label>
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)"
+        class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[80px] bg-gray-50 font-bold text-center">
+        <option *ngFor="let size of [5, 10, 15, 20]" [value]="size" >{{ size }}</option>
+      </select>
+    </div>
   </h2>
 
   <div *ngFor="let group of groups; let i = index" class="mb-8 border p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors">
