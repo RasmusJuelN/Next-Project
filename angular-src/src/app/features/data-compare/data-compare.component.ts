@@ -1,5 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, ViewChild, inject, Output } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  Output,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { ActiveAnonymousBuilderComponent } from "../active-questionnaire-manager/components/active-anonymous-builder/active-anonymous-builder.component";
@@ -8,6 +18,8 @@ import { User } from "../../shared/models/user.model";
 import { SearchEntity } from "../active-questionnaire-manager/models/searchEntity.model";
 import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 import { TemplateBase } from "../active-questionnaire-manager/models/active.models";
+import { AgCharts } from "ag-charts-angular";
+import { DataCompareService, getData } from "./services/data-compare.service";
 
 interface UserSearchEntity<T> extends SearchEntity<T> {
   sessionId?: string;
@@ -26,17 +38,55 @@ type SearchType = "student" | "template";
     TranslateModule,
     CommonModule,
     FormsModule,
+    AgCharts,
     //ActiveAnonymousBuilderComponent,
   ],
+  template: `    <ag-charts-angular
+      [options]="chartOptions"
+    ></ag-charts-angular> `,
   templateUrl: "./data-compare.component.html",
   styleUrl: "./data-compare.component.css",
 })
 export class DataCompareComponent implements OnInit, OnDestroy {
-  @ViewChild('studentSearchArea', { static: false }) studentSearchArea!: ElementRef;
-  @ViewChild('templateSearchArea', { static: false }) templateSearchArea!: ElementRef;
+  @ViewChild("studentSearchArea", { static: false })
+  studentSearchArea!: ElementRef;
+  @ViewChild("templateSearchArea", { static: false })
+  templateSearchArea!: ElementRef;
 
   public showStudentResults = false;
   public showTemplateResults = false;
+
+  public chartOptions: any = {
+    data: getData(),
+    title: {
+      text: "Elev Data Sammenligning",
+    },
+    series: [
+      {
+        type: "radar-line",
+        angleKey: "data",
+        radiusKey: "year",
+        radiusName: "Årstal", // Danish for Year
+      },
+      {
+        type: "radar-line",
+        angleKey: "data",
+        radiusKey: "rate",
+        radiusName: "Rate", // or use Danish if preferred
+      },
+    ],
+    axes: [
+      {
+        type: "angle-category",
+        shape: "circle",
+      },
+      {
+        type: "radius-number",
+        shape: "circle",
+      },
+    ],
+  };
+  
 
   private handleDocumentClick = (event: MouseEvent) => {
     const studentArea = this.studentSearchArea?.nativeElement;
@@ -95,10 +145,10 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         this.fetch("template", term);
       });
 
-  document.addEventListener('click', this.handleDocumentClick, true);
+    document.addEventListener("click", this.handleDocumentClick, true);
   }
   ngOnDestroy(): void {
-    document.removeEventListener('click', this.handleDocumentClick, true);
+    document.removeEventListener("click", this.handleDocumentClick, true);
   }
 
   // Returns the proper state based on the entity.
@@ -181,7 +231,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     // state.searchResults = [];
 
     // Optionally close results after selection
-    if (entity === 'student') {
+    if (entity === "student") {
       this.showStudentResults = false;
     } else {
       this.showTemplateResults = false;
@@ -199,7 +249,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     state.searchSubject.next(value);
 
     // Show results when typing
-    if (entity === 'student') {
+    if (entity === "student") {
       this.showStudentResults = true;
     } else {
       this.showTemplateResults = true;
