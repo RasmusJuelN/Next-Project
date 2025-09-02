@@ -5,29 +5,36 @@ namespace Database.Utils;
 
 /// <summary>
 /// A utility class that automatically discovers and executes data seeders that implement the IDataSeeder interface.
-/// This class uses reflection to find all seeder classes in the current assembly and invokes their InitializeData methods.
 /// </summary>
 /// <param name="modelBuilder">The Entity Framework ModelBuilder instance used for configuring entity models and seeding data.</param>
-/// <remarks>
-/// The SeederHelper looks for classes that:
-/// <list type="bullet">
-/// <item><description>Are concrete classes (not abstract)</description></item>
-/// <item><description>Implement the IDataSeeder&lt;T&gt; interface</description></item>
-/// <item><description>Have a constructor that accepts a ModelBuilder parameter</description></item>
-/// </list>
-/// 
-/// Each discovered seeder is instantiated and its InitializeData method is called.
-/// If any seeder fails to initialize, an error message is logged to the console and execution continues with the next seeder.
-/// </remarks>
 public class SeederHelper(ModelBuilder modelBuilder)
 {
     private readonly ModelBuilder _modelBuilder = modelBuilder;
 
+    /// <summary>
+    /// Automatically discovers and executes all data seeder classes that implement IDataSeeder&lt;T&gt; interface
+    /// within the current assembly. This method uses reflection to find seeder types, instantiate them with
+    /// the ModelBuilder, and invoke their InitializeData methods to populate the database with seed data.
+    /// </summary>
+    /// <remarks>
+    /// The method performs the following operations:
+    /// <list type="number">
+    /// <item>Scans the executing assembly for classes implementing IDataSeeder&lt;T&gt;</item>
+    /// <item>Filters out abstract classes and interfaces</item>
+    /// <item>Creates instances of each seeder using the ModelBuilder constructor parameter</item>
+    /// <item>Invokes the InitializeData method on each seeder instance</item>
+    /// </list>
+    /// Any exceptions during seeder instantiation or execution are caught and logged to the console,
+    /// allowing other seeders to continue processing even if one fails.
+    /// </remarks>
+    /// <exception cref="Exception">
+    /// Individual seeder failures are caught and logged but do not stop the overall seeding process.
+    /// </exception>
     public void Seed()
     {
         // Get all types from the current assembly
         var assembly = Assembly.GetExecutingAssembly();
-        
+
         // Find all classes that implement IDataSeeder<T>
         var seederTypes = assembly.GetTypes()
             .Where(type => type.IsClass && !type.IsAbstract)
@@ -42,10 +49,10 @@ public class SeederHelper(ModelBuilder modelBuilder)
             {
                 // Create instance with ModelBuilder constructor parameter
                 var seederInstance = Activator.CreateInstance(seederType, _modelBuilder);
-                
+
                 // Get the InitializeData method
                 var initializeMethod = seederType.GetMethod("InitializeData");
-                
+
                 if (initializeMethod != null && seederInstance != null)
                 {
                     // Call InitializeData
