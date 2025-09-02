@@ -33,6 +33,11 @@ public interface IDataSeeder<T>
         return model;
     }
 
+    public static List<T> LoadSeed(List<T> model)
+    {
+        return model;
+    }
+
     /// <summary>
     /// Initializes the database with seed data.
     /// This method is typically called during application startup to populate the database
