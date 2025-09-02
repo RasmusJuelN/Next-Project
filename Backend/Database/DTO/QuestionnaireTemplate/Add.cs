@@ -6,6 +6,7 @@ namespace Database.DTO.QuestionnaireTemplate;
 /// <remarks>
 /// This record is used when creating new questionnaire options and contains
 /// the essential information needed to define an option within a questionnaire.
+/// </remarks>
 public record class QuestionnaireOptionAdd
 {
     /// <summary>
