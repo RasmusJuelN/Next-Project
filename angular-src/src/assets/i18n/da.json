@@ -4,6 +4,7 @@
   "GREETING": "Hej {{username}}!",
   "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer",
   "ANSWER_QUESTIONNAIRE": "Et spørgeskema kan besvares",
+  "NAV_TOGGLE_MENU": "Åbn/luk menu",
   "NAV_LOG_OUT": "Log ud",
    "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
   "NAV_DATA_COMPARE": "Sammenlign Data",
@@ -79,33 +80,48 @@
   "TMP_VIEW_RESULTS": "Se resultater",
 
 
-
-  "COMMON.BUTTONS.VIEW": "Vis",
-  "COMMON.BUTTONS.COPY": "Kopiér",
-  "COMMON.BUTTONS.DELETE_PERMANENT": "Slet Permanent",
-  "COMMON.BUTTONS.CANCEL": "Annuller",
-  "COMMON.BUTTONS.CLOSE": "Luk",
-  "TEMPLATES.DELETE.TITLE": "Bekræft Sletning",
-  "TEMPLATES.DELETE.MSG": "Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data.",
-  "COMMON.GREETING": "Hej {{username}}!",
-
   "TMP_FINALIZE_TITLE": "Udgiv skabelon?",
   "TMP_FINALIZE_TEXT": "Når en skabelon udgives, bliver den skrivebeskyttet. <br/>Er du sikker på, at du vil udgive?",
   "TMP_FINALIZE_CONFIRM": "Udgiv",
   "TMP_VIEW_MODE": "Template View",
   "TMP_EDIT_MODE": "Template Editing",
-  "COMMON.BUTTONS.SHOW": "View",
-  "COMMON.BUTTONS.EDIT": "Edit",
 
+
+  "COMMON": {
+    "BUTTONS": {
+      "VIEW": "Vis",
+      "COPY": "Kopiér",
+      "DELETE_PERMANENT": "Slet permanent",
+      "CANCEL": "Annuller",
+      "CLOSE": "Luk",
+      "SHOW": "Vis",
+      "EDIT": "Rediger",
+      "NEXT": "Næste",
+      "PREVIOUS": "Forrige",
+      "SUBMIT": "Indsend"
+    },
+    "GREETING": "Hej {{username}}!"
+  },
+
+  "TEMPLATES": {
+    "DELETE": {
+      "TITLE": "Bekræft sletning",
+      "MSG": "Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data."
+    }
+  },
 
   "QUESTION_EDITOR": {
-  "TITLE": "Rediger Spørgsmål",
-  "LABEL_TITLE": "Titel:",
-  "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
-  "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
-  "OPTIONS": "Valgmuligheder",
-  "DELETE_OPTION": "Slet Valgmulighed",
-  "ADD_OPTION": "Tilføj Ny Valgmulighed",
-  "SAVE": "Gem Spørgsmål"
-}
+    "TITLE": "Rediger spørgsmål",
+    "LABEL_TITLE": "Titel:",
+    "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
+    "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
+    "OPTIONS": "Valgmuligheder",
+    "DELETE_OPTION": "Slet valgmulighed",
+    "ADD_OPTION": "Tilføj ny valgmulighed",
+    "SAVE": "Gem spørgsmål"
+  },
+
+  "QUESTIONAIRE": {
+    "COLLABORATOR": "Samarbejdspartner"
+  }
 }

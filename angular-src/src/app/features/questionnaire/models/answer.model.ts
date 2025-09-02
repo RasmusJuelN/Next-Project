@@ -1,3 +1,5 @@
+import { User } from "../../../shared/models/user.model";
+
 export interface Option {
   id: number;
   displayText: string;
@@ -16,6 +18,8 @@ export interface Questionnaire {
   description: string;
   questions: Question[];
   activatedAt?: Date; // Updated from "createdAt" to "activatedAt" to match the API response
+  student?: User;
+  teacher?: User;
 }
 
 export interface Answer {

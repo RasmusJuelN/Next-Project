@@ -81,26 +81,35 @@
   "TMP_PENDING": "Pending",
   "TMP_VIEW_RESULTS": "View Results",
 
-  
-  "COMMON.BUTTONS.VIEW": "View",
-  "COMMON.BUTTONS.COPY": "Copy",
-  "COMMON.BUTTONS.DELETE_PERMANENT": "Delete Permanently",
-  "COMMON.BUTTONS.CANCEL": "Cancel",
-  "COMMON.BUTTONS.CLOSE": "Close",
-  "TEMPLATES.DELETE.TITLE": "Confirm Deletion",
-  "TEMPLATES.DELETE.MSG": "Are you sure you want to delete this template? This action will delete related data.",
-  "COMMON.GREETING": "Hello {{username}}!",
 
   "TMP_FINALIZE_TITLE": "Publish template?",
   "TMP_FINALIZE_TEXT": "When a template is published, it becomes read-only. <br/>Are you sure you want to publish?",
   "TMP_FINALIZE_CONFIRM": "Publish",
-  "COMMON.BUTTONS.SHOW": "View",
-  "COMMON.BUTTONS.EDIT": "Edit",
   "TMP_VIEW_MODE": "Template View",
   "TMP_EDIT_MODE": "Template Editing",
 
 
-  
+  "COMMON": {
+    "BUTTONS": {
+      "VIEW": "View",
+      "COPY": "Copy",
+      "DELETE_PERMANENT": "Delete Permanently",
+      "CANCEL": "Cancel",
+      "CLOSE": "Close",
+      "SHOW": "View",
+      "EDIT": "Edit",
+      "NEXT": "Next",
+      "PREVIOUS": "Previous",
+      "SUBMIT": "Submit"
+    },
+    "GREETING": "Hello {{username}}!"
+  },
+  "TEMPLATES": {
+    "DELETE": {
+      "TITLE": "Confirm Deletion",
+      "MSG": "Are you sure you want to delete this template? This action will delete related data."
+    }
+  },
 
   "QUESTION_EDITOR": {
     "TITLE": "Edit Question",
@@ -111,5 +120,8 @@
     "DELETE_OPTION": "Delete Option",
     "ADD_OPTION": "Add New Option",
     "SAVE": "Save Question"
-}
+},
+  "QUESTIONAIRE": {
+    "COLLABORATOR": "Collaborator"
+  }
 }

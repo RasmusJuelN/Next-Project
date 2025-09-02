@@ -5,16 +5,21 @@ import { QuestionComponent } from './question/question.component';
 import { AnswerService } from './services/answer.service';
 import { Answer, AnswerSubmission, QuestionnaireState } from './models/answer.model';
 import { LoadingComponent } from '../../shared/loading/loading.component';
+import { Role } from '../../shared/models/user.model';
+import { AuthService } from '../../core/services/auth.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-answer-questionnaire',
   standalone: true,
-  imports: [CommonModule, QuestionComponent, LoadingComponent],
+  imports: [CommonModule, QuestionComponent, LoadingComponent, TranslateModule],
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.css'],
 })
 export class QuestionnaireComponent implements OnInit {
   private answerService = inject(AnswerService);
+  private authService = inject(AuthService)
+  userRole?:Role
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -36,6 +41,13 @@ export class QuestionnaireComponent implements OnInit {
   errorMessage: string | null = null;
 
   ngOnInit() {
+    // gets role
+    const roleStr = this.authService.getUserRole();
+    if (roleStr && Object.values(Role).includes(roleStr as Role)) {
+      this.userRole = roleStr as Role;
+    } else {
+      this.userRole = undefined;
+    }
     this.route.paramMap.subscribe((params) => {
       const questionnaireId = params.get('id');
       if (questionnaireId) {
@@ -166,5 +178,23 @@ export class QuestionnaireComponent implements OnInit {
     const progressForCurrent = (this.state.currentQuestionIndex / totalQuestions) * 100;
     const progressForAnswer = currentQuestionAnswered * (100 / totalQuestions);
     this.state.progress = Math.min(progressForCurrent + progressForAnswer, 100);
+  }
+
+getCollaboratorInfo(): string | null {
+  const q = this.state.template;
+  const student = q?.student;
+  const teacher = q?.teacher;
+  if (!student || !teacher || !this.userRole) return null;
+
+  switch (this.userRole) {
+    case Role.Student:
+      return `${teacher.fullName} (${teacher.userName})`;
+    case Role.Teacher:
+      return `${student.fullName} (${student.userName})`;
+    case Role.Admin:
+      return `Student: ${student.fullName} (${student.userName}), Teacher: ${teacher.fullName} (${teacher.userName})`;
+    default:
+      return null;
+  }
   }
 }
