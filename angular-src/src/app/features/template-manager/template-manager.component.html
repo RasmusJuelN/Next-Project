@@ -1,6 +1,6 @@
 <!-- Template List Section -->
 <div class="flex flex-col items-center w-full min-h-full  p-4 sm:p-8">
-  <div class="flex flex-col max-w-5xl w-full bg-white shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10">
+  <div class="flex flex-col max-w-5xl w-full bg-white/90 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10">
     <ng-container *ngIf="!selectedTemplate; else editor">
       <h2 class="text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">{{'TMP_TITLE_ADMINISTER_TEMPLATES'| translate}}</h2>
 
@@ -64,19 +64,41 @@
           *ngFor="let template of templateBases"
           class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors"
         >
-          <span class="text-primary_dark_blue font-semibold text-center sm:text-left">{{ template.title  |translate}}</span>
+          <!-- title + status badge -->
+          <span class="flex items-center gap-2 text-gray-800 font-medium">
+            {{ template.title }}
+            <span
+              class="px-2 py-0.5 rounded text-xs font-semibold"
+              [ngClass]="{
+                'bg-yellow-100 text-yellow-800': template.templateStatus === templateStatus.Draft,
+                'bg-green-100 text-green-800':  template.templateStatus === templateStatus.Finalized
+              }"
+            >
+              {{ template.templateStatus | titlecase }}
+            </span>
+          </span>
+
+          <!-- action buttons -->
           <div class="flex space-x-2 mt-2 sm:mt-0">
             <button
-              class="px-4 py-1 text-sm bg-primary_orange_1 text-white rounded-xl border-2 border-primary_orange_1 hover:bg-primary_orange_light hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:ring-offset-2 transition-colors"
+              class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
               (click)="selectTemplate(template.id)"
             >
-              {{'TMP_BUTTON_EDIT' | translate }}
+              {{ template.templateStatus == templateStatus.Draft ? 'Rediger' : 'COMMON.BUTTONS.VIEW'|translate }}
             </button>
+
             <button
-              (click)="openDeleteModal(template.id)"
+                (click)="showModal(TemplateModalType.Delete, template.id)"
               class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
             >
               {{ 'TMP_BUTTON_DELETE' | translate }}
+            </button>
+
+            <button
+               (click)="showModal(TemplateModalType.Copy, template.id)"
+              class="px-3 py-1 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
+            >
+              {{'COMMON.BUTTONS.COPY'| translate}}
             </button>
           </div>
         </li>
@@ -97,50 +119,18 @@
       <app-template-editor
         [template]="selectedTemplate!"
         (saveTemplate)="onSaveTemplate($event)"
-        (cancelEdit)="onCancelEdit()"
-      ></app-template-editor>
+        (finalizeDraft)="onFinalizeTemplate($event)"
+        (cancelEdit)="onCancelEdit()">
+      </app-template-editor>
     </ng-template>
 
-    <div *ngIf="showLockedModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-        <h3 class="text-lg font-semibold mb-4">{{'TMP_LOCKED_TITLE'| translate}}</h3>
-        <p class="mb-6">{{'TMP_LOCKED_MSG'| translate}}</p>
-        <div class="flex justify-end">
-          <button (click)="closeLockedModal()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none">
-            <!-- Luk -->
-             {{'TMP_CANCEL' | translate}}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="templateToDelete" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-        <h3 class="text-lg font-semibold mb-4">
-          {{ deleteConfirmationStep === 0 ? 'Bekræft Sletning' : 'Sidste Advarsel' }}
-                <!-- {{ deleteConfirmationStep === 0 ? ('TMP_DELETE_CONFIRM_TITLE' | translate) : ('TMP_DELETE_FINAL_WARNING' | translate) }} -->
-
-        </h3>
-        <p class="mb-6">
-          {{ deleteConfirmationStep === 0 
-          ? ('TMP_DELETE_CONFIRM_MSG' | translate)
-          : 'TMP_DELETE_FINAL_WARN_MSG' | translate
-            
-           
-          }}
-        </p>
-        <div class="flex justify-end space-x-3">
-          <button (click)="cancelDelete()"
-            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 focus:outline-none">
-            {{'TMP_CANCEL' | translate}}
-          </button>
-          <button (click)="confirmDelete()"
-            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none">
-            {{ deleteConfirmationStep === 0 ? ('TMP_DELETE' | translate) : ('TMP_DELETE_ PERMANENT') | translate }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </div>
+<app-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [text]="modalText"
+  [confirmText]="confirmText"
+  [cancelText]="cancelText"
+  (confirm)="onModalConfirm()"
+  (cancel)="onModalCancel()">
+</app-modal>
 </div>

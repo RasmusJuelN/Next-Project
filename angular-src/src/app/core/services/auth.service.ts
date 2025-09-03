@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, catchError, interval, map, of, switchMap, tap, timer, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, catchError, interval, map, of, switchMap, tap, timer, firstValueFrom, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -59,39 +59,33 @@ export class AuthService {
       );
   }
 
-  public refreshToken() {
-    const refreshToken = this.tokenService.getRefreshToken();
-    const expiredToken = this.tokenService.getToken();
-    if (!refreshToken || !expiredToken) {
-      this.logout();
-      return of(null);
-    }
-
-    const url = `${this.baseUrl}/auth/refresh`;
-
-    // Build headers using the refresh token
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${refreshToken}`,
-      'Content-Type': 'application/json'
-    });
-
-    // The refresh endpoint expects the expired access token in the body.
-    return this.apiService
-      .post<{ authToken: string, refreshToken: string }>(url, expiredToken, undefined, headers)
-      .pipe(
-        tap((response) => {
-          if (response.authToken && response.refreshToken) {
-            this.tokenService.setToken(response.authToken);
-            this.tokenService.setRefreshToken(response.refreshToken);
-          }
-        }),
-        catchError((err) => {
-          console.error('Refresh token failed:', err);
-          this.logout();
-          return of(null);
-        })
-      );
+public refreshToken() {
+  const refreshToken = this.tokenService.getRefreshToken();
+  const expiredToken = this.tokenService.getToken();
+  if (!refreshToken || !expiredToken) {
+    this.logout();
+    return throwError(() => new Error('No tokens to refresh'));
   }
+
+  const url = `${this.baseUrl}/auth/refresh`;
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${refreshToken}`,
+    'Content-Type': 'application/json'
+  });
+
+  return this.apiService
+    .post<{ authToken: string; refreshToken: string }>(url,   { expiredToken } , undefined, headers)
+    .pipe(
+      tap((res) => {
+        this.tokenService.setToken(res.authToken);
+        this.tokenService.setRefreshToken(res.refreshToken);
+      }),
+      catchError((err) => {
+        this.logout();
+        return throwError(() => err);
+      })
+    );
+}
 
   public logout(): void {
     this.tokenService.clearToken();

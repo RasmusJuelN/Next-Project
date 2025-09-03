@@ -1,56 +1,51 @@
-<div class="bg-white shadow-md rounded-lg p-6 sm:p-8 max-w-3xl mx-auto max-h-full overflow-y-auto">
-  <!-- <h2 class="text-2xl font-semibold text-gray-800 mb-4">aktive spørgeskemaer</h2> -->
-     <h2 class="text-2xl font-semibold text-gray-800 mb-4">{{'TMP_ACTIVE_SURVEYS' | translate}}</h2>
+<div class="flex flex-col items-center w-full ">
+  <div class="flex flex-col w-full max-w-full sm:max-w-4xl bg-white/90 shadow-xl rounded-2xl sm:p-10 border-2 border-primary_orange_1">
+    <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center">{{'TMP_ACTIVE_SURVEYS' | translate}}</h2>
 
-  
-  <!-- If there are active questionnaires, list them. Otherwise, show a message -->
-  <ng-container *ngIf="activeQuestionnaires && activeQuestionnaires.length > 0; else noData">
-    <ul class="space-y-4">
-      <li *ngFor="let questionnaire of activeQuestionnaires"
-          class="p-4 bg-gray-50 rounded-lg shadow border border-gray-200 hover:bg-gray-100">
-        <h3 class="text-xl font-semibold text-gray-800">{{ questionnaire.title }}</h3>
-        <p class="text-gray-600 mt-1">{{ questionnaire.description }}</p>
-        <p class="text-sm text-gray-500 mt-2">
-          {{ 'TMP_SETUP_AT' | translate }} 
-          <!-- Setup at: -->
-          <span class="font-medium text-gray-700">{{ questionnaire.activatedAt | date:'short' }}</span>
-        </p>
-  
-        <!-- Student view -->
-        <ng-container *ngIf="currentUserRole === Role.Student">
-          <div class="mt-4" *ngIf="!questionnaire.studentCompletedAt">
-            <button
-              [routerLink]="['/answer', questionnaire.id]"
-              class="bg-primary_orange_1 text-white py-2 px-4 rounded-lg hover:bg-primary_orange_light"
-            >
-            {{ 'TMP_ANSWER' | translate }}
-            <!-- Svar -->
-            </button>
+    <!-- If there are active questionnaires, list them. Otherwise, show a message -->
+    <ng-container *ngIf="activeQuestionnaires && activeQuestionnaires.length > 0; else noData">
+      <ul class="space-y-4">
+        <li *ngFor="let questionnaire of activeQuestionnaires"
+            class="p-4 bg-gray-50 rounded-xl shadow-sm border border-primary_orange_1 hover:bg-primary_orange_light/10 transition-colors flex items-center justify-between">
+          <!-- Left side: questionnaire info -->
+          <div class="flex flex-col gap-2">
+            <h3 class="text-xl font-semibold text-gray-800">{{ questionnaire.title }}</h3>
+            <p class="text-gray-600">{{ questionnaire.description }}</p>
+            <p class="text-sm text-gray-500">
+              {{ 'TMP_SETUP_AT' | translate }}
+              <span class="font-medium text-gray-700">{{ questionnaire.activatedAt | date:'short' }}</span>
+            </p>
           </div>
-        </ng-container>
-  
-        <!-- Teacher view -->
-        <ng-container *ngIf="currentUserRole === Role.Teacher">
-          <div class="mt-4" *ngIf="!questionnaire.teacherCompletedAt">
-            <button
-              [routerLink]="['/answer', questionnaire.id]"
-              class="bg-primary_orange_1 text-white py-2 px-4 rounded-lg hover:bg-primary_orange_light"
-            >
-            {{ 'TMP_ANSWER' | translate }}
-            <!-- Svar -->
-            </button>
+          <!-- Right side: answer button -->
+          <div class="flex items-center">
+            <!-- Student view -->
+            <ng-container *ngIf="currentUserRole === Role.Student && !questionnaire.studentCompletedAt">
+              <button
+                [routerLink]="['/answer', questionnaire.id]"
+                class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
+              >
+                {{ 'TMP_ANSWER' | translate }}
+              </button>
+            </ng-container>
+            <!-- Teacher view -->
+            <ng-container *ngIf="currentUserRole === Role.Teacher && !questionnaire.teacherCompletedAt">
+              <button
+                [routerLink]="['/answer', questionnaire.id]"
+                class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
+              >
+                {{ 'TMP_ANSWER' | translate }}
+              </button>
+            </ng-container>
           </div>
-        </ng-container>
-  
-      </li>
-    </ul>
-  </ng-container>
-  
-  <!-- Template to show when there is no active questionnaire data -->
-  <ng-template #noData>
-    <div class="p-4 text-center">
-      <p class="text-gray-600">Der er ingen aktive spørgeskemaer tilgængelige lige nu.</p>
-    </div>
-  </ng-template>
+        </li>
+      </ul>
+    </ng-container>
+
+    <!-- Template to show when there is no active questionnaire data -->
+    <ng-template #noData>
+      <div class="p-4 text-center">
+        <p class="text-gray-600">Der er ingen aktive spørgeskemaer tilgængelige lige nu.</p>
+      </div>
+    </ng-template>
+  </div>
 </div>
-

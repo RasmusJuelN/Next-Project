@@ -19,7 +19,7 @@ namespace API.Controllers
         private readonly UserService _userService = userService;
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminAndTeacherOnly")]
         [ProducesResponseType(typeof(UserQueryPaginationResult), StatusCodes.Status200OK)]
         public ActionResult<UserQueryPaginationResult> UserPaginationQuery([FromQuery] UserQueryPagination request)
         {

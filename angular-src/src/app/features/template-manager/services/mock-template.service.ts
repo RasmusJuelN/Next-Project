@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Question, Template, TemplateBase, TemplateBaseResponse } from '../models/template.model';
+import { TemplateBaseResponse } from '../models/template.model';
 import { delay, Observable, of } from 'rxjs';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
+import { Template, TemplateBase, TemplateStatus } from '../../../shared/models/template.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ export class MockTemplateService {
       id: '1',
       title: 'Employee Onboarding Template',
       description: 'A template for onboarding new employees.',
+      templateStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 101,
@@ -35,6 +37,7 @@ export class MockTemplateService {
       id: '2',
       title: 'Customer Feedback Template',
       description: 'A template for collecting customer feedback.',
+      templateStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 103,
@@ -60,6 +63,7 @@ export class MockTemplateService {
       id: '3',
       title: 'Project Evaluation Template',
       description: 'A template for evaluating project outcomes.',
+      templateStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 105,
@@ -85,6 +89,7 @@ export class MockTemplateService {
       id: '4',
       title: 'Training Feedback Template',
       description: 'A template for collecting feedback on training sessions.',
+      templateStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 107,
@@ -102,6 +107,7 @@ export class MockTemplateService {
       id: '5',
       title: 'Event Registration Template',
       description: 'A template for registering attendees for an event.',
+      templateStatus: TemplateStatus.Draft,
       questions: [
         {
           id: 108,
@@ -121,6 +127,7 @@ export class MockTemplateService {
       id: '6',
       title: 'Survey Template',
       description: 'A simple survey template for various uses.',
+      templateStatus: TemplateStatus.Draft,
       questions: [
         {
           id: 110,
@@ -140,6 +147,7 @@ export class MockTemplateService {
       id: '7',
       title: 'Bug Report Template',
       description: 'A template for reporting bugs in a software system.',
+      templateStatus: TemplateStatus.Draft,
       questions: [
         {
           id: 111,
@@ -163,6 +171,7 @@ export class MockTemplateService {
     {
       id: '8',
       title: 'Team Meeting Notes Template',
+      templateStatus:TemplateStatus.Draft,
       description: 'A template for recording notes during team meetings.',
       questions: [
         {
@@ -183,6 +192,7 @@ export class MockTemplateService {
       id: '9',
       title: 'WHAT',
       description: 'A template for recording notes during team meetings.',
+      templateStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 115,
@@ -205,6 +215,7 @@ export class MockTemplateService {
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
       isLocked: false,
+      templateStatus: TemplateStatus.Finalized,
       questions: [
         {
           id: 1,
@@ -313,7 +324,11 @@ export class MockTemplateService {
   ];
   
   
-  
+  private ensureDraft(t: Template & { templateStatus: TemplateStatus }) {
+  if (t.templateStatus !== TemplateStatus.Draft) {
+    throw new Error('Can’t modify a finalized template – copy it first.');
+  }
+}
 
   getTemplateBases(
     pageSize: number = 5,
@@ -360,7 +375,8 @@ export class MockTemplateService {
       title: t.title,
       createdAt: t.createdAt ?? new Date().toISOString(), // ✅ Preserve original `createdAt` if available
       lastUpdated: t.lastUpdated ?? new Date().toISOString(),
-      isLocked: false,
+      isLocked: t.templateStatus === TemplateStatus.Finalized,
+      templateStatus: t.templateStatus
     }));
   
     // ✅ Determine next cursor
@@ -396,11 +412,29 @@ export class MockTemplateService {
   }
 
 
-  addTemplate(template: Template): Observable<Template> {
-    const newTemplate = { ...template, id: Date.now().toString() };
-    this.templates.push(newTemplate);
-    return of(newTemplate).pipe(delay(500));
-  }
+addTemplate(template: Template): Observable<Template> {
+  const draft: Template = {
+    ...template,
+    id: Date.now().toString(),
+    templateStatus: TemplateStatus.Draft,                       // always start in draft
+    createdAt: Date.now().toString(),
+    lastUpdated: Date.now().toString(),
+  };
+  this.templates.push(draft);
+  return of(draft).pipe(delay(300));
+}
+
+
+// ugrade to finlize state
+upgradeTemplate(templateId: string): Observable<Template> {
+  const tmpl = this.templates.find(t => t.id === templateId);
+  if (!tmpl) throw new Error('Template not found');
+  this.ensureDraft(tmpl);
+  tmpl.templateStatus = TemplateStatus.Finalized;
+  tmpl.lastUpdated = new Date().toISOString();
+  return of(tmpl).pipe(delay(300));
+}
+
 
   updateTemplate(templateId: string, updatedTemplate: Template): Observable<void> {
     const index = this.templates.findIndex((t) => t.id === templateId);

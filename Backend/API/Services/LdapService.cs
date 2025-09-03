@@ -92,12 +92,13 @@ public class LdapService
         try
         {
             connection.Connect(_LDAPSettings.Host, _LDAPSettings.Port);
-
+            
             if (connection.IsSaslMechanismSupported(SaslConstants.Mechanism.DigestMd5))
             {
                 WithSASL(username, password);
             }
             else WithSimple(username, password);
+            
         }
         catch (LdapException e)
         {
@@ -123,7 +124,7 @@ public class LdapService
                     else throw;
                 }
             }
-            
+
         }
     }
 
