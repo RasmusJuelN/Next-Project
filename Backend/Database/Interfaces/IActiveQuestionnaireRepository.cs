@@ -30,4 +30,6 @@ public interface IActiveQuestionnaireRepository
     Task<bool> IsActiveQuestionnaireComplete(Guid activeQuestionnaireId, Guid userId);
     Task<FullResponse> GetFullResponseAsync(Guid id);
     Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid id);
+
+    Task<List<FullResponse>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid);
 }

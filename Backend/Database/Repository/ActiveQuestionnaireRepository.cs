@@ -5,6 +5,7 @@ using Database.Interfaces;
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Database.Repository;
 
@@ -225,6 +226,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         return activeQuestionnaire.ToFullResponse();
     }
 
+
     public async Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid userId)
     {
         UserBaseModel user = await _context.Users.SingleAsync(u => u.Guid == userId);
@@ -243,6 +245,43 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             throw new Exception("User is not a student or teacher.");
         }
 
+
+
         return [.. activeQuestionnaireBases.Select(a => a.ToBaseDto())];
+
     }
+
+
+    public async Task<List<FullResponse>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid) 
+    {
+        //get template based on templateid
+        QuestionnaireTemplateModel template = await _context.QuestionnaireTemplates.SingleAsync(t => t.Id == templateid);
+        if (template.Title.IsNullOrEmpty())
+        {
+            throw new Exception("The requested Template Questionnaire does not exsist.");
+        }
+
+
+        //get all activae questionares where it's title is the same as the template and the chosen studentid is tied to it
+        List<ActiveQuestionnaireModel> activeQuestionnaires = await _context.ActiveQuestionnaires
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.TeacherAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.TeacherAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.Student)
+            .Include(a => a.Teacher)
+            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue && a.TeacherCompletedAt.HasValue)
+            .ToListAsync();
+
+
+
+        return [.. activeQuestionnaires.Select(a => a.ToFullResponse()) ];
+    }
+
+
+
 }

@@ -267,6 +267,13 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
         }
     }
 
+    internal async Task<List<FullResponse>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
+    {
+
+        return await _unitOfWork.ActiveQuestionnaire.GetResponsesFromStudentAndTemplateAsync(studentid, templateid);
+
+    }
+
     // The new() constraint on generics don't allow classes with required properties, so we can't make this generic :v
     private UserAdd GenerateStudent(Guid id)
     {
@@ -297,4 +304,6 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
             Permissions = (UserPermissions)Enum.Parse(typeof(UserPermissions), teacherRole, true)
         };
     }
+
+
 }

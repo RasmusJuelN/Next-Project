@@ -207,5 +207,38 @@ namespace API.Controllers
 
             return await _questionnaireService.IsActiveQuestionnaireComplete(id, userId);
         }
+
+
+        [HttpGet("{studentid},{templateid}/getResponsesFromUserAndTemplate")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<List<List<FullResponse>>>> GetResponsesFromTemplatesAndStudent(Guid studentid,Guid templateid) 
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
+                return Unauthorized();
+            }
+
+            List<FullResponse> response = await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid);
+
+            if (response.Count > 0)
+            {
+                if (userId != response[0].Student.User.Guid && userId != response[0].Teacher.User.Guid)
+                {
+                    _logger.LogWarning("User {UserId} is not authorized to view questionnaire response for {QuestionnaireId}", userId, studentid);
+                    return Unauthorized();
+                }
+                else
+                {
+                    return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid));
+                }
+            }
+            else { return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid)); }
+        }
     }
 }
