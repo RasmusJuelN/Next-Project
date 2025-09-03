@@ -6,7 +6,6 @@ import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
-import { ActiveAnonymousBuilderComponent } from '../active-anonymous-builder/active-anonymous-builder.component';
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
 interface UserSearchEntity<T> extends SearchEntity<T> {
@@ -24,7 +23,7 @@ type SearchType = 'student' | 'teacher' | 'template';
 @Component({
   selector: 'app-active-questionnaire-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, ActiveAnonymousBuilderComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './active-builder.component.html',
   styleUrls: ['./active-builder.component.css']
 })

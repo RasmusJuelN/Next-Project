@@ -43,3 +43,9 @@ export interface ActiveQuestionnaire {
       queryCursor?: string; // Cursor for next items.
       totalCount: number;
     }
+  //   export interface LdapUserDTO {
+  //     name: string;
+  // }
+  export interface Student {
+  name: string;
+}

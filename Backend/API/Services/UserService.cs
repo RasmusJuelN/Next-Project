@@ -107,4 +107,10 @@ public class UserService(LdapService ldapService, IUnitOfWork unitOfWork)
     {
         return await _unitOfWork.ActiveQuestionnaire.GetPendingActiveQuestionnaires(userId);
     }
+
+    // for search student list from individual class
+    public List<LdapUserDTO> GetStudentsInGroup(string groupName)
+    {
+        return _ldapService.GetStudentsInGroup(groupName);
+    }
 }

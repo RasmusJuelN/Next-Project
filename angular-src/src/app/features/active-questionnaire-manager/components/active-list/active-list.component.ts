@@ -10,7 +10,7 @@ import { LoadingComponent } from '../../../../shared/loading/loading.component';
 @Component({
   selector: 'app-active-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './active-list.component.html',
   styleUrls: ['./active-list.component.css']
 })

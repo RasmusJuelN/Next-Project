@@ -22,7 +22,8 @@ export const routes: Routes = [
     component: ResultComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: [Role.Teacher, Role.Student] },
-  },
+  }
+  ,
   {
     path: 'show-active-questionnaires',
     component: ShowActiveQuestionnaireComponent,

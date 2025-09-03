@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+using API.DTO.LDAP;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Requests.User;
 using API.DTO.Responses.ActiveQuestionnaire;
@@ -9,6 +9,7 @@ using API.Services;
 using Database.DTO.ActiveQuestionnaire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace API.Controllers
 {
@@ -111,6 +112,22 @@ namespace API.Controllers
             List<ActiveQuestionnaireBase> activeQuestionnaireBases = await _userService.GetPendingActiveQuestionnaires(userId);
 
             return Ok(activeQuestionnaireBases.Select(a => a.ToActiveQuestionnaireTeacherDTO()).ToList());
+        }
+        // test to see the list of all studentname from individual class 
+        // Endpoint: GET /api/User/Groups/h1/Students
+        [HttpGet("Groups/{groupName}/Students")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public ActionResult<List<LdapUserDTO>> GetStudentsInGroup(string groupName)
+        {
+            try
+            {
+                var students = _userService.GetStudentsInGroup(groupName);
+                return Ok(students);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching students: {ex.Message}");
+            }
         }
     }
 }

@@ -362,6 +362,7 @@ public class LdapService
     /// <typeparam name="LdapMappedEntity">The type to which the LDAP entry will be mapped. Must have a parameterless constructor.</typeparam>
     /// <param name="entry">The LDAP entry to be mapped.</param>
     /// <returns>An instance of <typeparamref name="LdapMappedEntity"/> with properties set based on the LDAP entry attributes.</returns>
+
     private static LdapMappedEntity MapLdapEntry<LdapMappedEntity>(LdapEntry entry) where LdapMappedEntity : new()
     {
         LdapMappedEntity mappedLdapResult = new();
@@ -370,12 +371,42 @@ public class LdapService
         {
             foreach (LDAPMapping attr in prop.GetCustomAttributes<LDAPMapping>())
             {
-                prop.SetValue(mappedLdapResult, entry.GetAttribute(attr.Name));
+                LdapAttribute ldapAttr = entry.GetAttribute(attr.Name);
+                if (ldapAttr == null) continue;
+
+                if (prop.PropertyType == typeof(string))
+                {
+                    prop.SetValue(mappedLdapResult, ldapAttr.StringValue);
+                }
+                else if (prop.PropertyType == typeof(LdapAttribute))
+                {
+                    prop.SetValue(mappedLdapResult, ldapAttr);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Unsupported property type {prop.PropertyType.Name}");
+                }
             }
         }
 
         return mappedLdapResult;
     }
+
+
+    //private static LdapMappedEntity MapLdapEntry<LdapMappedEntity>(LdapEntry entry) where LdapMappedEntity : new()
+    //{
+    //    LdapMappedEntity mappedLdapResult = new();
+
+    //    foreach (PropertyInfo prop in mappedLdapResult.GetType().GetProperties())
+    //    {
+    //        foreach (LDAPMapping attr in prop.GetCustomAttributes<LDAPMapping>())
+    //        {
+    //            prop.SetValue(mappedLdapResult, entry.GetAttribute(attr.Name));
+    //        }
+    //    }
+
+    //    return mappedLdapResult;
+    //}
 
     private void WithSASL(string username, string password)
     {
@@ -397,4 +428,29 @@ public class LdapService
         // and sAMAccountName (domain\username) also works.
         connection.Bind(username, password);
     }
+
+
+    //    //just for test search all group and student belongs to that group
+
+    /// <summary>
+    /// Get all users (students) in a specific group by its name
+    /// </summary>
+    public List<LdapUserDTO> GetStudentsInGroup(string groupName)
+    {
+        // Make sure the connection is authenticated
+        if (!connection.Bound)
+        {
+            Authenticate();  // binds using the service account from config
+        }
+
+        // Step 1: Get the group's distinguished name
+        var group = SearchGroup<GroupDistinguishedName>(groupName);
+
+        // Step 2: Search for users whose memberOf equals the group's DN
+        string searchFilter = $"(memberOf={group.DistinguishedName.StringValue})";
+
+        return SearchLDAP<LdapUserDTO>(searchFilter, _LDAPSettings.BaseDN);
+    }
+
+
 }
