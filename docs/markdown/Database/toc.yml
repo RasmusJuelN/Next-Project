@@ -1,5 +1,7 @@
 items:
 - name: EF/Database Models
   href: models.md
+- name: Database Repositories
+  href: repositories.md
 - name: Database Seeding
   href: seeding.md
