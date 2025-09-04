@@ -6,8 +6,12 @@ name: Backend build test
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'Backend/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'Backend/**'
 
 jobs:
   build:
@@ -23,7 +27,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-        cache: true
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
