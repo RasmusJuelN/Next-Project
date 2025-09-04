@@ -258,7 +258,7 @@ public class YourEntityRepository(Context context, ILoggerFactory loggerFactory)
 
     public async Task<bool> ExistsAsync(Expression<Func<YourEntityModel, bool>> predicate)
     {
-        return _genericRepository.Exists(predicate);
+        return await _genericRepository.ExistsAsync(predicate);
     }
 }
 ```
@@ -550,6 +550,7 @@ var users = await _context.Users
     .Include(u => u.ActiveQuestionnaires)
     .Where(u => u.IsActive)
     .ToListAsync();
+// This approach is for demonstration only and is not recommended for production use due to performance issues with loading full entities.
 var summaries = users.Select(u => new { u.Id, u.Name, QuestionnaireCount = u.ActiveQuestionnaires.Count });
 ```
 
@@ -608,5 +609,464 @@ public class UnitOfWork : IUnitOfWork
     }
 }
 ```
+
+## Common Pitfalls and Anti-Patterns
+
+### Repository Anti-Patterns
+
+#### 1. Leaky Abstractions
+
+**Bad Example:**
+```csharp
+public interface IUserRepository
+{
+    // Exposes Entity Framework specific types
+    Task<IQueryable<UserModel>> GetUsersQueryable();
+    Task<DbSet<UserModel>> GetDbSet();
+}
+```
+
+**Good Example:**
+```csharp
+public interface IUserRepository
+{
+    // Clean abstraction with domain-specific methods
+    Task<List<UserDto>> GetActiveUsersAsync();
+    Task<UserDto?> GetUserByIdAsync(Guid id);
+}
+```
+
+#### 2. Generic Repository Over-Abstraction
+
+**Bad Example:**
+```csharp
+// Too generic - loses domain meaning
+public interface IGenericRepository<T>
+{
+    Task<T> AddAsync(T entity);
+    Task<T> UpdateAsync(T entity);
+    Task DeleteAsync(Guid id);
+    Task<IQueryable<T>> GetAllAsync();
+}
+
+// Forces consumers to know about implementation details
+var users = await _genericRepo.GetAllAsync()
+    .Where(u => u.IsActive && u.Role == "Student")
+    .Include(u => u.Profile)
+    .ToListAsync();
+```
+
+**Good Example:**
+```csharp
+// Domain-specific interface
+public interface IUserRepository
+{
+    Task<UserDto> CreateUserAsync(CreateUserDto createDto);
+    Task<UserDto> UpdateUserAsync(Guid id, UpdateUserDto updateDto);
+    Task DeleteUserAsync(Guid id);
+    Task<List<StudentDto>> GetActiveStudentsAsync();
+}
+```
+
+#### 3. N+1 Query Problems
+
+**Bad Example:**
+```csharp
+public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
+{
+    var users = await _context.Users.ToListAsync();
+    var summaries = new List<UserSummaryDto>();
+    
+    foreach (var user in users)
+    {
+        // This causes N+1 queries!
+        var questionnaireCount = await _context.ActiveQuestionnaires
+            .CountAsync(q => q.StudentFK == user.Id);
+            
+        summaries.Add(new UserSummaryDto
+        {
+            Id = user.Id,
+            Name = user.FullName,
+            QuestionnaireCount = questionnaireCount
+        });
+    }
+    
+    return summaries;
+}
+```
+
+**Good Example:**
+```csharp
+public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
+{
+    return await _context.Users
+        .Select(u => new UserSummaryDto
+        {
+            Id = u.Id,
+            Name = u.FullName,
+            QuestionnaireCount = u.ActiveQuestionnaires.Count()
+        })
+        .ToListAsync();
+}
+```
+>[!NOTE]
+><details>
+><summary> Click to expand for explanation </summary>
+>
+>* The bad example retrieves all users and then iterates over them to count related questionnaires, resulting in N+1 queries (one for users and one for each user to count questionnaires).
+>* The good example uses a single query with projection to retrieve users along with their questionnaire counts, avoiding the N+1 problem and improving performance.
+></details>
+
+#### 4. Inappropriate Use of Include
+
+**Bad Example:**
+```csharp
+// Loads unnecessary data for simple count operation
+public async Task<int> GetUserQuestionnaireCountAsync(Guid userId)
+{
+    var user = await _context.Users
+        .Include(u => u.ActiveQuestionnaires)
+            .ThenInclude(q => q.Template)
+                .ThenInclude(t => t.Questions)
+        .FirstOrDefaultAsync(u => u.Id == userId);
+        
+    return user?.ActiveQuestionnaires.Count() ?? 0;
+}
+```
+
+**Good Example:**
+```csharp
+// Efficient count without loading entities
+public async Task<int> GetUserQuestionnaireCountAsync(Guid userId)
+{
+    return await _context.ActiveQuestionnaires
+        .CountAsync(q => q.StudentFK == userId);
+}
+```
+
+### Query Performance Anti-Patterns
+
+#### 1. Client-Side Evaluation
+
+**Bad Example:**
+```csharp
+// Complex business logic evaluated client-side
+var eligibleUsers = await _context.Users
+    .ToListAsync() // Brings all users to memory
+    .Where(u => IsUserEligibleForPremium(u)) // Client-side evaluation
+    .ToList();
+
+private bool IsUserEligibleForPremium(UserModel user)
+{
+    // Complex business logic
+    return user.RegistrationDate <= DateTime.Now.AddMonths(-6) &&
+           user.ActiveQuestionnaires.Count() >= 5;
+}
+```
+
+**Good Example:**
+```csharp
+// Server-side evaluation with translatable expressions
+var sixMonthsAgo = DateTime.Now.AddMonths(-6);
+var eligibleUsers = await _context.Users
+    .Where(u => u.RegistrationDate <= sixMonthsAgo &&
+                u.ActiveQuestionnaires.Count() >= 5)
+    .ToListAsync();
+```
+
+#### 2. Unnecessary Entity Tracking
+
+**Bad Example:**
+```csharp
+// Tracking entities for read-only operations
+public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
+{
+    var users = await _context.Users
+        .Include(u => u.ActiveQuestionnaires)
+        .ToListAsync(); // Entities are tracked
+        
+    return users.Select(u => u.ToSummaryDto()).ToList();
+}
+```
+
+**Good Example:**
+```csharp
+// Disable tracking for read-only operations
+public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
+{
+    return await _context.Users
+        .AsNoTracking() // Improves performance for read-only scenarios
+        .Select(u => new UserSummaryDto
+        {
+            Id = u.Id,
+            Name = u.FullName,
+            QuestionnaireCount = u.ActiveQuestionnaires.Count()
+        })
+        .ToListAsync();
+}
+```
+
+#### 3. Inefficient Pagination
+
+**Bad Example:**
+```csharp
+// Skip becomes inefficient with large offsets
+public async Task<List<UserDto>> GetUsersPageAsync(int page, int pageSize)
+{
+    var skip = (page - 1) * pageSize;
+    
+    return await _context.Users
+        .OrderBy(u => u.Id) // Non-selective ordering
+        .Skip(skip) // Inefficient for large offsets
+        .Take(pageSize)
+        .Select(u => u.ToDto())
+        .ToListAsync();
+}
+```
+
+**Good Example:**
+```csharp
+// Keyset pagination with selective ordering
+public async Task<List<UserDto>> GetUsersPageAsync(DateTime? lastCreatedAt = null, int pageSize = 20)
+{
+    var query = _context.Users.AsQueryable();
+    
+    if (lastCreatedAt.HasValue)
+    {
+        query = query.Where(u => u.CreatedAt > lastCreatedAt.Value);
+    }
+    
+    return await query
+        .OrderBy(u => u.CreatedAt) // Indexed column
+        .Take(pageSize)
+        .Select(u => u.ToDto())
+        .ToListAsync();
+}
+```
+
+### Error Handling Anti-Patterns
+
+#### 1. Swallowing Exceptions
+
+**Bad Example:**
+```csharp
+public async Task<UserDto?> GetUserAsync(Guid id)
+{
+    try
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return user?.ToDto();
+    }
+    catch
+    {
+        // Swallowing exceptions without logging or handling
+        return null;
+    }
+}
+```
+
+**Good Example:**
+```csharp
+public async Task<UserDto?> GetUserAsync(Guid id)
+{
+    try
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return user?.ToDto();
+    }
+    catch (SqlException ex)
+    {
+        _logger.LogError(ex, "Database error occurred while retrieving user {UserId}", id);
+        throw new DataAccessException("Failed to retrieve user", ex);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Unexpected error occurred while retrieving user {UserId}", id);
+        throw;
+    }
+}
+```
+
+#### 2. Repository as Catch-All
+
+**Bad Example:**
+```csharp
+public class UserRepository : IUserRepository
+{
+    // Too many responsibilities
+    public async Task<UserDto> CreateUserAsync(CreateUserDto dto)
+    {
+        // Business validation
+        ValidateUserData(dto);
+        
+        // Email sending
+        await _emailService.SendWelcomeEmailAsync(dto.Email);
+        
+        // Audit logging
+        await _auditService.LogUserCreationAsync(dto);
+        
+        // File system operations
+        await _fileService.CreateUserDirectoryAsync(dto.Username);
+        
+        // Database operation
+        var user = new UserModel { /* ... */ };
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+        
+        return user.ToDto();
+    }
+}
+```
+
+**Good Example:**
+```csharp
+public class UserRepository : IUserRepository
+{
+    // Focused on data access only
+    public async Task<UserDto> CreateUserAsync(UserModel user)
+    {
+        await _context.Users.AddAsync(user);
+        return user.ToDto();
+    }
+}
+
+// Business logic handled in service layer
+public class UserService : IUserService
+{
+    public async Task<UserDto> CreateUserAsync(CreateUserDto dto)
+    {
+        // Validation
+        await _validationService.ValidateUserDataAsync(dto);
+        
+        // Create user entity
+        var user = _mapper.Map<UserModel>(dto);
+        var createdUser = await _userRepository.CreateUserAsync(user);
+        await _unitOfWork.SaveChangesAsync();
+        
+        // Side effects
+        await _emailService.SendWelcomeEmailAsync(dto.Email);
+        await _auditService.LogUserCreationAsync(createdUser.Id);
+        
+        return createdUser;
+    }
+}
+```
+
+### Testing Anti-Patterns
+
+#### 1. Testing Repository Implementation Instead of Interface
+
+**Bad Example:**
+```csharp
+[Test]
+public async Task UserRepository_Should_Use_Correct_Include_Statements()
+{
+    // Testing implementation details
+    var repository = new UserRepository(_context, _loggerFactory);
+    var users = await repository.GetUsersWithQuestionnairesAsync();
+    
+    // This test is brittle and couples to implementation
+    _context.Entry(users.First())
+        .Collection(u => u.ActiveQuestionnaires)
+        .IsLoaded.Should().BeTrue();
+}
+```
+
+**Good Example:**
+```csharp
+[Test]
+public async Task GetUsersWithQuestionnaires_Should_Return_Users_With_Questionnaire_Data()
+{
+    // Testing behavior through interface
+    var users = await _userRepository.GetUsersWithQuestionnairesAsync();
+    
+    users.Should().NotBeEmpty();
+    users.First().Questionnaires.Should().NotBeNull();
+    users.First().Questionnaires.Should().NotBeEmpty();
+}
+```
+
+#### 2. Over-Mocking in Repository Tests
+
+**Bad Example:**
+```csharp
+[Test]
+public async Task GetUser_Should_Return_User()
+{
+    // Over-mocking EF Core components
+    var mockSet = new Mock<DbSet<UserModel>>();
+    var mockContext = new Mock<Context>();
+    mockSet.Setup(m => m.FindAsync(It.IsAny<Guid>()))
+           .ReturnsAsync(new UserModel { Id = Guid.NewGuid() });
+    mockContext.Setup(c => c.Users).Returns(mockSet.Object);
+    
+    var repository = new UserRepository(mockContext.Object, _loggerFactory);
+    var result = await repository.GetUserAsync(Guid.NewGuid());
+    
+    result.Should().NotBeNull();
+}
+```
+
+**Good Example:**
+```csharp
+[Test]
+public async Task GetUser_Should_Return_User()
+{
+    // Use in-memory database for integration testing
+    var options = new DbContextOptionsBuilder<Context>()
+        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+        .Options;
+        
+    await using var context = new Context(options);
+    var user = new UserModel { Id = Guid.NewGuid(), Name = "Test User" };
+    context.Users.Add(user);
+    await context.SaveChangesAsync();
+    
+    var repository = new UserRepository(context, _loggerFactory);
+    var result = await repository.GetUserAsync(user.Id);
+    
+    result.Should().NotBeNull();
+    result.Name.Should().Be("Test User");
+}
+```
+
+### Common Performance Pitfalls
+
+1. **Loading Full Entities for Count Operations**: Use `CountAsync()` instead of `ToListAsync().Count()`
+2. **Unnecessary Includes**: Only include related data that will be used
+3. **Blocking Async Calls**: Avoid `.Result` or `.Wait()` on async operations
+4. **Large Dataset Operations**: Implement proper pagination and filtering
+5. **Missing Database Indexes**: Ensure queries are supported by appropriate indexes
+6. **Client-Side Grouping**: Use SQL grouping with `GroupBy()` instead of in-memory grouping
+
+### Memory Management Issues
+
+```csharp
+// Bad: Memory leak with large datasets
+public async Task<List<UserDto>> GetAllUsersAsync()
+{
+    var users = await _context.Users
+        .Include(u => u.ActiveQuestionnaires)
+            .ThenInclude(q => q.Template)
+                .ThenInclude(t => t.Questions)
+        .ToListAsync(); // Loads everything into memory
+        
+    return users.Select(u => u.ToDto()).ToList();
+}
+
+// Good: Streaming with projection
+public async IAsyncEnumerable<UserDto> GetAllUsersStreamAsync()
+{
+    await foreach (var user in _context.Users
+        .AsNoTracking()
+        .Select(u => new UserDto { Id = u.Id, Name = u.FullName })
+        .AsAsyncEnumerable())
+    {
+        yield return user;
+    }
+}
+```
+
+By avoiding these common pitfalls and anti-patterns, you can create more maintainable, performant, and testable repository implementations that properly abstract data access concerns while leveraging Entity Framework Core's capabilities effectively.
 
 This guide provides a comprehensive foundation for implementing and using the Repository pattern in the Backend project. The pattern promotes clean architecture, testability, and maintainable data access code while leveraging Entity Framework Core's powerful querying capabilities.
