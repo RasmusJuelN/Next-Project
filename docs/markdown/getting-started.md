@@ -24,7 +24,7 @@ Before you begin, ensure you have the following installed on your system:
 #### Development Tools (Recommended)
 - **Visual Studio 2022** (Windows) or **Visual Studio Code** (Cross-platform)
 - **SQL Server Management Studio (SSMS)** or **Azure Data Studio**
-- **Postman** or similar API testing tool
+- **Postman** or similar API testing tool. Swagger is also provided in development mode.
 
 ### System Requirements
 
@@ -151,7 +151,7 @@ Backend/
 ├── Logging/               # Custom logging infrastructure
 ├── Settings/              # Configuration management
 ├── UnitTests/             # Test projects
-└── docs/                  # Documentation (DocFX)
+docs/                      # Documentation (DocFX)
 ```
 
 #### 2. Building the Solution
@@ -206,14 +206,6 @@ The application uses `config.json` for all runtime configuration. This file is a
 ```
 
 ##### Authentication Configuration
-> [!NOTE]
-> `TokenTTLMinutes` controls how long the access token is valid for. This is typically a short duration, such as 30 minutes. This does not reflect how long the user stays logged on for.
->
-> `RenewTokenTTLDays` controls how long the refresh token is valid for. This is typically a longer duration, such as 30 days. The refresh token ultimately acts as the maximum amount of time a user can be logged in for while being inactive.
-> <details>
-> <summary>Why?</Summary>
-> Access tokens are short-lived to minimize the risk if they are compromised. If an access token is stolen, the attacker can only use it for a limited time (e.g., 30 minutes). After that, the token expires, and the attacker would need to obtain a new one.<br /><br />
->Refresh tokens, on the other hand, are long-lived and can be used to obtain new access tokens without requiring the user to log in again. This allows users to stay logged in for longer periods (e.g., 30 days) without frequent interruptions, while still maintaining security by limiting the lifespan of access tokens. A new refresh token is also provided on each refresh, giving the user a longer grace period (e.g., 30 days) of inactivity, without getting logged out.
 > </details>
 ```json
 {
@@ -227,16 +219,17 @@ The application uses `config.json` for all runtime configuration. This file is a
   }
 }
 ```
-
-##### LDAP Configuration (Optional)
 > [!NOTE]
-> `Host` can be a domain name or IP.
+> `TokenTTLMinutes` controls how long the access token is valid for. This is typically a short duration, such as 30 minutes. This does not reflect how long the user stays logged on for.
 >
-> `FQDN` is the fully qualified domain name of the machine. If the server is an Active Directory server, this is most likely the name of the machine that hosts the AD + forest domain (e.g., `adserver.domain.com`).
->
-> `BaseDN` is the base distinguished name for LDAP searches. This is typically the organizational unit (OU) where user accounts are located, along with the domain components (DC). For example, if your users are in an OU called "Users" within the domain "domain.com", the BaseDN would be `OU=Users,DC=domain,DC=com`.
->
-> `SA`/`SAPassword` are the service account username and password used to bind to the LDAP server for searches. This account should have read access to the user objects in the specified BaseDN.
+> `RenewTokenTTLDays` controls how long the refresh token is valid for. This is typically a longer duration, such as 30 days. The refresh token ultimately acts as the maximum amount of time a user can be logged in for while being inactive.
+> <details>
+> <summary>Why?</Summary>
+> Access tokens are short-lived to minimize the risk if they are compromised. If an access token is stolen, the attacker can only use it for a limited time (e.g., 30 minutes). After that, the token expires, and the attacker would need to obtain a new one.<br /><br />
+>Refresh tokens, on the other hand, are long-lived and can be used to obtain new access tokens without requiring the user to log in again. This allows users to stay logged in for longer periods (e.g., 30 days) without frequent interruptions, while still maintaining security by limiting the lifespan of access tokens. A new refresh token is also provided on each refresh, giving the user a longer grace period (e.g., 30 days) of inactivity, without getting logged out.
+
+
+##### LDAP Configuration
 ```json
 {
   "LDAP": {
@@ -249,12 +242,16 @@ The application uses `config.json` for all runtime configuration. This file is a
   }
 }
 ```
+> [!NOTE]
+> `Host` can be a domain name or IP.
+>
+> `FQDN` is the fully qualified domain name of the machine. If the server is an Active Directory server, this is most likely the name of the machine that hosts the AD + forest domain (e.g., `adserver.domain.com`).
+>
+> `BaseDN` is the base distinguished name for LDAP searches. This is typically the organizational unit (OU) where user accounts are located, along with the domain components (DC). For example, if your users are in an OU called "Users" within the domain "domain.com", the BaseDN would be `OU=Users,DC=domain,DC=com`.
+>
+> `SA`/`SAPassword` are the service account username and password used to bind to the LDAP server for searches. This account should have read access to the user objects in the specified BaseDN.
 
 ##### Logging Configuration
-> [!NOTE]
-> The logging configuration allows you to enable or disable different logging targets (Console, File, Database) and set log levels for various components. Adjust these settings based on your environment (Development or Production) to control the verbosity and destination of log messages.
->
-> `LogLevel` can be used to set the loglevel of a specific component (namespace). For example, setting `API` to `Information` will log all information level logs and above (Warning, Error, Critical) from the API project. Setting `Default` to `Error` means that only error and critical logs from all other components will be logged.
 ```json
 {
   "Logging": {
@@ -291,6 +288,10 @@ The application uses `config.json` for all runtime configuration. This file is a
   }
 }
 ```
+> [!NOTE]
+> The logging configuration allows you to enable or disable different logging targets (Console, File, Database) and set log levels for various components. Adjust these settings based on your environment (Development or Production) to control the verbosity and destination of log messages.
+>
+> `LogLevel` can be used to set the loglevel of a specific component (namespace). For example, setting `API` to `Information` will log all information level logs and above (Warning, Error, Critical) from the API project. Setting `Default` to `Error` means that only error and critical logs from all other components will be logged.
 
 ### Production Deployment
 
@@ -379,7 +380,7 @@ docker run -p 8080:80 nextquestionnaire-api
 ### Testing
 
 #### Running Unit Tests
-> [!IMPORTANT]
+> [!INFO]
 > 🚧 WIP 🚧
 
 #### API Testing

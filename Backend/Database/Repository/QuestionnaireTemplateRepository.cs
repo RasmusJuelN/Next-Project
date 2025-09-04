@@ -8,11 +8,34 @@ using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
+/// <summary>
+/// Implements repository operations for questionnaire template management.
+/// Provides comprehensive functionality for template lifecycle management including creation, modification, retrieval, and deletion with complex hierarchical data handling.
+/// </summary>
+/// <remarks>
+/// This repository manages the complete lifecycle of questionnaire templates, handling complex nested structures
+/// of questions and options. It supports both full updates and partial patches while maintaining data integrity
+/// and performance through optimized database operations and careful change tracking.
+/// </remarks>
+/// <param name="context">The database context for data access operations.</param>
+/// <param name="loggerFactory">Factory for creating loggers for diagnostic and monitoring purposes.</param>
 public class QuestionnaireTemplateRepository(Context context, ILoggerFactory loggerFactory) : IQuestionnaireTemplateRepository
 {
     private readonly Context _context = context;
     private readonly GenericRepository<QuestionnaireTemplateModel> _genericRepository = new(context, loggerFactory);
 
+    /// <summary>
+    /// Updates an existing questionnaire template with new data, replacing all content.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to update.</param>
+    /// <param name="updatedTemplate">The QuestionnaireTemplateUpdate DTO containing the new template data.</param>
+    /// <returns>The updated QuestionnaireTemplate with modifications applied.</returns>
+    /// <exception cref="Exception">Thrown when the template with the specified ID is not found.</exception>
+    /// <remarks>
+    /// This operation completely replaces the existing template content including all questions and options.
+    /// It efficiently manages the addition, modification, and removal of nested entities by comparing IDs
+    /// and removing orphaned records. The operation maintains referential integrity throughout the update process.
+    /// </remarks>
     public async Task<QuestionnaireTemplate> Update(Guid id, QuestionnaireTemplateUpdate updatedTemplate)
     {
         QuestionnaireTemplateModel existingTemplate = await _genericRepository.GetSingleAsync(t => t.Id == id,
@@ -74,9 +97,21 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         return existingTemplate.ToDto();
     }
 
+    /// <summary>
+    /// Applies partial updates to an existing questionnaire template.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to patch.</param>
+    /// <param name="patchedTemplate">The QuestionnaireTemplatePatch DTO containing the partial updates.</param>
+    /// <returns>The updated QuestionnaireTemplate with patches applied.</returns>
+    /// <exception cref="Exception">Thrown when the template with the specified ID is not found.</exception>
+    /// <remarks>
+    /// This method allows selective updates to template properties without replacing the entire structure.
+    /// Only provided fields in the patch DTO will be updated, preserving existing content for null fields.
+    /// Updates the LastUpdated timestamp automatically to track modification history.
+    /// </remarks>
     public async Task<QuestionnaireTemplate> Patch(Guid id, QuestionnaireTemplatePatch patchedTemplate)
     {
-        // TODO: Add/Port over existing custom SQL exceptions and use here
+        // TODO: Add/Port over existing custom SQL exceptions and use here for better error handling.
         QuestionnaireTemplateModel existingTemplate = await _genericRepository.GetSingleAsync(t => t.Id == id,
             query => query.Include(t => t.Questions).ThenInclude(q => q.Options)) ?? throw new Exception("Template not found.");
 
@@ -116,12 +151,31 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         return existingTemplate.ToDto();
     }
 
+    /// <summary>
+    /// Retrieves basic information about a questionnaire template without detailed question structure.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to retrieve.</param>
+    /// <returns>A QuestionnaireTemplateBase DTO with essential template information, or null if not found.</returns>
+    /// <remarks>
+    /// This method provides a lightweight view of the template, suitable for list displays and summary views
+    /// where the full question structure is not required. More efficient than the full template retrieval.
+    /// </remarks>
     public async Task<QuestionnaireTemplateBase?> GetQuestionnaireTemplateBaseAsync(Guid id)
     {
         QuestionnaireTemplateModel? questionnaire = await _genericRepository.GetSingleAsync(t => t.Id == id);
         return questionnaire?.ToBaseDto();
     }
 
+    /// <summary>
+    /// Retrieves complete information about a questionnaire template including all questions and options.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to retrieve.</param>
+    /// <returns>A complete QuestionnaireTemplate DTO with all questions and options, or null if not found.</returns>
+    /// <remarks>
+    /// This method provides the full template structure, suitable for detailed views, editing interfaces,
+    /// and questionnaire activation where the complete question set is required. Includes all nested
+    /// questions and their associated options through optimized include operations.
+    /// </remarks>
     public async Task<QuestionnaireTemplate?> GetFullQuestionnaireTemplateAsync(Guid id)
     {
         QuestionnaireTemplateModel? questionnaire = await _genericRepository.GetSingleAsync(t => t.Id == id,
@@ -129,6 +183,16 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         return questionnaire?.ToDto();
     }
 
+    /// <summary>
+    /// Creates a new questionnaire template from the provided template data.
+    /// </summary>
+    /// <param name="questionnaire">The QuestionnaireTemplateAdd DTO containing template creation data.</param>
+    /// <returns>The newly created QuestionnaireTemplate with generated ID and metadata.</returns>
+    /// <remarks>
+    /// This method validates the template structure and creates all associated questions and options.
+    /// The created template will initially be unlocked and available for activation. All nested
+    /// entities are created in a single transaction to ensure data consistency.
+    /// </remarks>
     public async Task<QuestionnaireTemplate> AddAsync(QuestionnaireTemplateAdd questionnaire)
     {
         QuestionnaireTemplateModel questionnaireTemplate = questionnaire.ToModel();
@@ -136,6 +200,16 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         return questionnaireTemplate.ToDto();
     }
 
+    /// <summary>
+    /// Permanently deletes a questionnaire template and all associated active questionnaires from the database.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to delete.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the template with the specified ID is not found.</exception>
+    /// <remarks>
+    /// This operation is irreversible and will cascade delete all associated questions, options, and active questionnaires.
+    /// Active questionnaires are explicitly removed first to maintain referential integrity.
+    /// Use with caution as this will affect all users who have active instances of this template.
+    /// </remarks>
     public async Task DeleteAsync(Guid id)
     {
         QuestionnaireTemplateModel existingTemplate = await _context.QuestionnaireTemplates.Include(q => q.ActiveQuestionnaires).SingleAsync(q => q.Id == id);
@@ -148,6 +222,21 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         _genericRepository.Delete(existingTemplate);
     }
 
+    /// <summary>
+    /// Performs paginated retrieval of questionnaire templates with filtering and sorting options using keyset pagination.
+    /// </summary>
+    /// <param name="amount">The number of templates to retrieve per page.</param>
+    /// <param name="cursorIdPosition">Optional cursor ID for pagination continuation.</param>
+    /// <param name="cursorCreatedAtPosition">Optional cursor creation timestamp for pagination continuation.</param>
+    /// <param name="sortOrder">The ordering criteria for the results.</param>
+    /// <param name="titleQuery">Optional filter by template title (partial match).</param>
+    /// <param name="idQuery">Optional filter by specific template ID (partial match).</param>
+    /// <returns>A tuple containing the list of template base DTOs and the total count matching the criteria.</returns>
+    /// <remarks>
+    /// Uses keyset pagination for consistent performance with large datasets. The cursor parameters work together
+    /// to maintain stable pagination even when new records are added. Multiple filter options can be combined
+    /// to create targeted queries. Returns lightweight base DTOs for efficient list display and navigation.
+    /// </remarks>
     public async Task<(List<QuestionnaireTemplateBase>, int)> PaginationQueryWithKeyset(
         int amount,
         Guid? cursorIdPosition,

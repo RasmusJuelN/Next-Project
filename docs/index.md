@@ -64,9 +64,8 @@ Centralized configuration management system:
 #### Testing (`UnitTests/`)
 Comprehensive test suite covering:
 
-- **Unit Tests**: Individual component testing
-- **Integration Tests**: End-to-end API testing
-- **Mock Services**: Test doubles for external dependencies
+> [!INFO]
+> 🚧 WIP 🚧
 
 ## Key Features
 
@@ -80,11 +79,6 @@ Comprehensive test suite covering:
 - **Template System**: Flexible questionnaire template creation and management
 - **Response Tracking**: Comprehensive response collection and analysis
 - **Status Management**: Complete questionnaire lifecycle management
-
-### Real-time Features
-- **WebSocket Support**: Live communication for real-time updates
-- **Session Management**: Active connection tracking and management
-- **Event Broadcasting**: Real-time notifications and updates
 
 ### Data Management
 - **Entity Framework Core**: Modern ORM with LINQ support
