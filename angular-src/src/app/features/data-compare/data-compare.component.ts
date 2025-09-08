@@ -222,6 +222,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     const idx = state.selected.findIndex((u: any) => u.id === item.id);
     if (idx === -1) {
       state.selected.push(item);
+      state.selected = state.selected.slice(-1); // Keep only the last selecteds
     } else {
       state.selected.splice(idx, 1);
     }
