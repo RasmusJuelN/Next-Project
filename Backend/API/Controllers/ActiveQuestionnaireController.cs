@@ -211,7 +211,7 @@ namespace API.Controllers
 
         [HttpGet("{studentid},{templateid}/getResponsesFromUserAndTemplate")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
-        public async Task<ActionResult<List<List<FullResponse>>>> GetResponsesFromTemplatesAndStudent(Guid studentid,Guid templateid) 
+        public async Task<ActionResult<List<FullResponse>>> GetResponsesFromTemplatesAndStudent(Guid studentid,Guid templateid) 
         {
             Guid userId;
             try

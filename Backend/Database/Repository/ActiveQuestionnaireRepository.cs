@@ -262,7 +262,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         }
 
 
-        //get all activae questionares where it's title is the same as the template and the chosen studentid is tied to it
+        //get all activae questionares where it's id is equal to templateId AND studentid
         List<ActiveQuestionnaireModel> activeQuestionnaires = await _context.ActiveQuestionnaires
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Question)
