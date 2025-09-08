@@ -19,7 +19,7 @@ import { SearchEntity } from "../active-questionnaire-manager/models/searchEntit
 import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 import { TemplateBase } from "../active-questionnaire-manager/models/active.models";
 import { AgCharts } from "ag-charts-angular";
-import { DataCompareService, getData } from "./services/data-compare.service";
+import { DataCompareService } from "./services/data-compare.service";
 
 interface UserSearchEntity<T> extends SearchEntity<T> {
   sessionId?: string;
@@ -52,37 +52,36 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   studentSearchArea!: ElementRef;
   @ViewChild("templateSearchArea", { static: false })
   templateSearchArea!: ElementRef;
+  constructor(
+    public DataCompareService: DataCompareService
+  ) {}
 
   public showStudentResults = false;
   public showTemplateResults = false;
 
   public chartOptions: any = {
-    data: getData(),
+    data: [],
     title: {
       text: "Elev Data Sammenligning",
     },
-    series: [
+      series: [
       {
-        type: "radar-line",
-        angleKey: "data",
-        radiusKey: "year",
-        radiusName: "Årstal", // Danish for Year
+        type: "area",
+        xKey: "month",
+        yKey: "subscriptions",
+        yName: "Subscriptions",
       },
       {
-        type: "radar-line",
-        angleKey: "data",
-        radiusKey: "rate",
-        radiusName: "Rate", // or use Danish if preferred
-      },
-    ],
-    axes: [
-      {
-        type: "angle-category",
-        shape: "circle",
+        type: "area",
+        xKey: "month",
+        yKey: "services",
+        yName: "Services",
       },
       {
-        type: "radius-number",
-        shape: "circle",
+        type: "area",
+        xKey: "month",
+        yKey: "products",
+        yName: "Products",
       },
     ],
   };
@@ -258,5 +257,101 @@ export class DataCompareComponent implements OnInit, OnDestroy {
 
   onBackToList(): void {
     this.backToListEvent.emit();
+  }
+
+  // Fetch and transform API data for the chart
+  fetchChartData(studentId: string, templateId: string) {
+    this.DataCompareService.canGetData(studentId, templateId).subscribe({
+      next: (apiData) => {
+        // Flatten all answers from all DataCompare objects
+        const allAnswers = apiData.flatMap(dc => dc.answers.map(ans => ({
+          question: ans.question,
+          studentResponse: ans.studentResponse,
+          year: new Date(dc.student.completedAt).getFullYear(),
+          month: new Date(dc.student.completedAt).toLocaleString('default', { month: 'short' }),
+        })));
+        console.log("allAnswers", allAnswers)
+        // Get unique questions for x-axis
+        const questions = Array.from(new Set(allAnswers.map(a => a.question)));
+        // Get unique years for series (or use another grouping if needed)
+        const years = Array.from(new Set(allAnswers.map(a => a.year))).sort();
+
+        // Build chart data: one entry per question, each year as a value
+        const chartData: any[] = [];
+        questions.forEach(question => {
+          const entry: any = { question };
+          years.forEach(year => {
+            const found = allAnswers.find(a => a.year === year && a.question === question);
+            entry[year] = found ? Number(found.studentResponse) : null;
+          });
+          chartData.push(entry);
+        });
+
+        // Build series for each year
+        const series = years.map(year => ({
+          type: 'bar',
+          xKey: 'question',
+          yKey: year,
+          yName: String(year),
+          tooltip: {
+            renderer: (params: any) => {
+              return { content: `Svar: ${params.datum[year]}` };
+            }
+          }
+        }));
+
+        this.chartOptions = {
+          data: chartData,
+          title: {
+            text: "Elev Data Sammenligning",
+          },
+          series,
+          axes: [
+            { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
+            { type: 'number', position: 'left', title: { text: 'Svar' } },
+          ],
+        };
+      },
+      error: (err) => {
+        this.chartOptions = null;
+        // Optionally handle error (show message, etc)
+      }
+    });
+  }
+
+
+
+  
+  onCompareClick() {
+    const studentId = this.student.selected[0]?.id;
+    const templateId = this.template.selected[0]?.id;
+    if (studentId && templateId) {
+      this.DataCompareService.canGetData(studentId, templateId).subscribe({
+        next: (chartData) => {
+          // Extract years for series
+          const years = Object.keys(chartData[0] || {}).filter(k => k !== 'question');
+          const series = years.map(year => ({
+            type: 'bar',
+            xKey: 'question',
+            yKey: year,
+            yName: String(year),
+            tooltip: {
+              renderer: (params: any) => {
+                return { content: `Svar: ${params.datum[year]}` };
+              }
+            }
+          }));
+          this.chartOptions = {
+            data: chartData,
+            title: { text: 'Elev Data Sammenligning' },
+            series,
+            axes: [
+              { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
+              { type: 'number', position: 'left', title: { text: 'Svar' } },
+            ],
+          };
+        }
+      });
+    }
   }
 }

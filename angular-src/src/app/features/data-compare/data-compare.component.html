@@ -109,5 +109,12 @@
         <div class=" flex justify-center mt-8 w-full">
             <ag-charts class="w-[800px]" [options]="chartOptions"></ag-charts>
         </div>
-        
+        <div class="flex justify-center mt-6">
+            <button 
+                (click)="onCompareClick()"
+                [disabled]="!student.selected.length || !template.selected.length"
+                class="px-6 py-3 bg-primary_orange_1 hover:bg-primary_orange_light text-white font-medium rounded-xl border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Opdater Graf
+            </button>
+        </div>
     </div>

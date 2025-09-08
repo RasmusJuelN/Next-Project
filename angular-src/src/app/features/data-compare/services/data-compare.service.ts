@@ -1,38 +1,21 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { ApiService } from '../../../core/services/api.service';
+import { environment } from '../../../../environments/environment';
+import { Observable } from 'rxjs';
+import { Data } from '@angular/router';
+import { DataCompare } from '../models/data-compare.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataCompareService {
+  private apiUrl = `${environment.apiUrl}/active-questionnaire`;
+  private apiService = inject(ApiService);
+
+  canGetData(studentId:string, templateId:string){
+    return this.apiService.get<Array<DataCompare>>(`${this.apiUrl}/${studentId},${templateId}/getresponsesfromuserandtemplate`);
+  }
+
 
 }
 
-export function getData() {
-  return [
-    {
-      data: "Sales",
-      year: 40,
-      rate: 75,
-    },
-    {
-      data: "Engineering",
-      year: 45,
-      rate: 90,
-    },
-    {
-      data: "HR",
-      year: 80,
-      rate: 60,
-    },
-    {
-      data: "Marketing",
-      year: 80,
-      rate: 60,
-    },
-    {
-      data: "Finance",
-      year: 85,
-      rate: 50,
-    },
-  ];
-}
