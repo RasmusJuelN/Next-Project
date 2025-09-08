@@ -5,6 +5,14 @@ import { CommonModule } from '@angular/common';
 import { MenuSvgComponent } from '../../../shared/components/menu-svg/menu-svg.component';
 import { Role } from '../../../shared/models/user.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+/**
+ * Header component responsible for:
+ * - Displaying global and role-based navigation links.
+ * - Handling authentication state and role-based visibility.
+ * - Managing mobile menu toggling.
+ * - Supporting multi-language navigation labels via `@ngx-translate/core`.
+ */
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -15,21 +23,21 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 export class HeaderComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
-  // for language translation
-    private translate = inject(TranslateService);
+
+  /** Translation service for switching navigation labels by language. */
+  private translate = inject(TranslateService);
 
 
   isAuthenticated = false;
-  // Now userRole can be one of the Role enum values or null
   userRole: Role | null = null;
-  isMenuOpen = false; // For toggling the mobile menu
+  isMenuOpen = false;
 
-  // Global navigation links
+  /** Global navigation links visible to all users. */
   globalNavLinks: { name: string; route: string }[] = [
     { name: '', route: '/' },
   ];
 
-  // Role-specific navigation links
+  /** Role-specific navigation links (labels use translation keys). */
   navLinks: Record<Role, { name: string; route: string }[]> = {
     [Role.Student]: [
       { name: 'NAV_ACTIVE_QUESTIONNAIRES', route: '/show-active-questionnaires' }
@@ -47,15 +55,16 @@ export class HeaderComponent {
     ],
   };
 
+  /**
+   * Lifecycle hook: subscribes to authentication and role streams
+   * from `AuthService` to update UI state.
+   */
   ngOnInit() {
-    // Subscribe to authentication state
     this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       this.isAuthenticated = isAuthenticated;
     });
 
-    // Subscribe to role changes and cast the value to the Role enum if necessary.
     this.authService.userRole$.subscribe((role) => {
-      // Assuming your AuthService returns a string that matches Role values:
       if (role === Role.Teacher || role === Role.Admin || role === Role.Student) {
         this.userRole = role as Role;
       } else {
@@ -64,13 +73,19 @@ export class HeaderComponent {
     });
   }
 
+  /** Toggles the mobile navigation menu open/closed. */
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
-
+  
+  /**
+   * Logs the user out:
+   * - Calls `AuthService.logout()`.
+   * - Redirects to the home route (`'/'`).
+   */
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/']); // Redirect to login on logout
+    this.router.navigate(['/']);
   }
 //    setLanguage(lang: string) {
 //   this.translate.use(lang);

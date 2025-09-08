@@ -2,6 +2,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, fromEvent, merge, Observable, of } from 'rxjs';
 import { mapTo, startWith } from 'rxjs/operators';
 
+/**
+ * @deprecated This service has been replaced by built-in connectivity checks inside `AuthService`.
+ * Use `AuthService.isOnline$` instead.
+ *
+ * Old responsibility:
+ * - Monitored `navigator.onLine` and browser online/offline events.
+ * - Exposed an `isOnline$` observable with the connectivity status.
+ */
 @Injectable({
   providedIn: 'root',
 })
