@@ -329,23 +329,23 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     if (studentId && templateId) {
       this.DataCompareService.canGetData(studentId, templateId).subscribe({
         next: (chartData) => {
-          // Extract years for series
-          const years = Object.keys(chartData[0] || {}).filter(k => k !== 'question');
-          const series = years.map(year => ({
-            type: 'bar',
-            xKey: 'question',
-            yKey: year,
-            yName: String(year),
-            tooltip: {
-              renderer: (params: any) => {
-                return { content: `Svar: ${params.datum[year]}` };
-              }
-            }
-          }));
           this.chartOptions = {
-            data: chartData,
+            data: this.getData(chartData),
             title: { text: 'Elev Data Sammenligning' },
-            series,
+            series: [
+            {
+              type: "line",
+              xKey: "question",
+              yKey: "AnswersStudent",
+              yName: "Student2025",
+            },
+            {
+              type: "line",
+              xKey: "question",
+              yKey: "AnswersTeacher",
+              yName: "Teacher2025",
+            },
+          ],
             axes: [
               { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
               { type: 'number', position: 'left', title: { text: 'Svar' } },
@@ -354,5 +354,19 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         }
       });
     }
+    
+  }
+  getData(chartData: any[]): any[] {
+
+    console.log("Transformed Data:", chartData);  
+    return chartData[0].answers.map((item: { question: any; }) =>({
+      question: item.question,
+      AnswersStudent: 2,
+      AnswersTeacher: 1,
+      year: 2025,
+      Numbers: "nameTest",
+
+    }));
   }
 }
+
