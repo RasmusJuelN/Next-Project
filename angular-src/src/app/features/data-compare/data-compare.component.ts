@@ -316,6 +316,8 @@ export class DataCompareComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.chartOptions = null;
         // Optionally handle error (show message, etc)
+        console.warn("Error fetching chart data", err);
+        
       }
     });
   }
@@ -363,10 +365,11 @@ export class DataCompareComponent implements OnInit, OnDestroy {
       question: item.question,
       AnswersStudent: 2,
       AnswersTeacher: 1,
-      year: 2025,
       Numbers: "nameTest",
-
     }));
   }
-}
+} 
+
+
+
 
