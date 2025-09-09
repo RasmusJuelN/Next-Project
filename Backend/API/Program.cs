@@ -45,14 +45,14 @@ SystemSettings systemSettings = ConfigurationBinderService.Bind<SystemSettings>(
 
 // Add services to the container.
 
-builder.Services.AddScoped<IAuthenticationBridge, LdapAuthenticationBridge>();
+builder.Services.AddScoped<IAuthenticationBridge, ActiveDirectoryAuthenticationBridge>();
 builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<QuestionnaireTemplateService>();
 builder.Services.AddScoped<ActiveQuestionnaireService>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddSingleton<LdapSessionCacheService>();
+builder.Services.AddSingleton<CacheService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
