@@ -7,6 +7,16 @@ import { HomeService } from './services/home.service';
 import { catchError, of } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+
+/**
+ * HomeComponent
+ * 
+ * The entry point for the application. 
+ * Responsible for:
+ * - Checking authentication state.
+ * - Handling navigation to questionnaires.
+ * - Managing login/logout flows and error states.
+ */
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -20,14 +30,18 @@ export class HomeComponent implements OnInit {
   private router = inject(Router);
   // private translate = inject(TranslateService);
 
+  /** Observable tracking whether the user is logged in */
   loggedInAlready$ = this.authService.isAuthenticated$;
   activeQuestionnaireString = '';
   userRole: string | null = null;
   errorMessage: string | null = null;
   username: string = '';
 
+  /**
+   * Runs initialization logic
+   * and checks if any active questionaires exists for user).
+   */
   ngOnInit(): void {
-    // Check if an active questionnaire exists when logged in
     this.loggedInAlready$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.userRole = this.authService.getUserRole();

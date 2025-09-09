@@ -5,6 +5,18 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
+
+/**
+ * Login component.
+ *
+ * Provides a login form and integrates with the authentication service. Used inside of other components.
+ *
+ * Handles:
+ * - Username/password input.
+ * - Calling `AuthService.login` and updating UI state.
+ * - Emitting success or error events to parent components.
+ * - Showing loading and error states during login attempts.
+ */
 @Component({
   selector: 'app-login',
   standalone: true,

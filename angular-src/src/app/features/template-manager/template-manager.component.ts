@@ -12,11 +12,28 @@ import { Template, TemplateBase, TemplateStatus } from '../../shared/models/temp
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ModalComponent } from '../../shared/components/modal/modal.component';
 
+/** Modal dialog purposes supported by this page. */
 enum TemplateModalType {
   None = 'none',
   Delete = 'delete',
   Copy = 'copy'
 }
+
+/**
+ * Template manager component.
+ *
+ * Provides an interface for questionnaire templates.
+ *
+ * Handles:
+ * - Listing and searching templates (cursor pagination).
+ * - Creating, editing, finalizing, copying, and deleting.
+ * - Two-step delete confirmation via modal.
+ *
+ * Notes:
+ * - Caches cursors by page to reduce refetching.
+ * - Debounces search input (300 ms) to minimize API calls.
+ * - Uses translation keys for all labels and default values.
+ */
 @Component({
   selector: 'app-template-manager',
   standalone: true,
@@ -67,6 +84,11 @@ export class TemplateManagerComponent {
   activeModalTemplateId: string | null = null;
   deleteConfirmStep = 0;
 
+ /**
+ * Wire up debounced search and load the first page.
+ * Debounce prevents excessive calls while typing; distinctUntilChanged
+ * avoids re-querying the same term.
+ */
   ngOnInit(): void {
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
@@ -78,16 +100,20 @@ export class TemplateManagerComponent {
     this.fetchTemplateBases();
   }
 
+  /** Push new search terms into the debounced pipeline. */
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
   }
-
+  /**
+   * Change items-per-page and fetch the first page with the new size.
+   */
   onPageSizeChange(newSize: string): void {
     this.pageSize = parseInt(newSize, 10);
     this.resetData();
     this.fetchTemplateBases();
   }
 
+  /** Toggle server-side search type ('name'|'id'), */
   onSearchTypeChange(type: string): void {
     if (type === 'name' || type === 'id') {
       this.searchType = type;
@@ -96,6 +122,10 @@ export class TemplateManagerComponent {
     }
   }
 
+ /**
+ * Reset pagination state and (optionally) search parameters.
+ * Also clears the currently selected template/editor view.
+ */
   resetData(resetSearch: boolean = false): void {
     this.currentPage = 1;
     this.totalPages = 1;
@@ -107,6 +137,7 @@ export class TemplateManagerComponent {
     }
   }
 
+  /** Fetch a page of template bases. */
   private fetchTemplateBases(): void {
     this.isLoading = true;
     this.errorMessage = null;
@@ -134,6 +165,10 @@ export class TemplateManagerComponent {
       });
   }
 
+/**
+ * Handles next/prev button clicks from PaginationComponent.
+ * If moving forward without a known cursor, performs a fetch to acquire it.
+ */
   handlePageChange(event: PageChangeEvent): void {
     const newPage = event.page;
     if (event.direction === 'forward' && newPage > this.currentPage && !this.cachedCursors[newPage]) {
@@ -145,8 +180,11 @@ export class TemplateManagerComponent {
     this.currentPage = newPage;
     this.fetchTemplateBases();
   }
-
-  // Update selectTemplate to check if the template is locked
+  /**
+   * takes the id of an template makes it the selected template for editor panel
+   * Sets `isLoading` to cover the transition to the editor.
+   * @param id templateId
+   */
 selectTemplate(id: string): void {
   this.selectedTemplate = null;
   this.isLoading = true;
@@ -163,6 +201,10 @@ selectTemplate(id: string): void {
     });
 }
 
+/**
+ * Promote a draft template to Finalized on the server,
+ * then clear the editor and refresh the list.
+ */
 onFinalizeTemplate(tmpl: Template): void {
   if (tmpl.id){
   this.templateService.upgradeTemplate(tmpl.id).subscribe({
@@ -175,6 +217,10 @@ onFinalizeTemplate(tmpl: Template): void {
   }
 }
 
+/**
+ * Create a local draft with translated defaults
+ * and open it in the editor (not persisted until Save).
+ */
   addTemplate(): void {
     this.selectedTemplate = {
       id: '',
@@ -215,6 +261,11 @@ openDeleteModal(templateId: string): void {
   this.showModal(TemplateModalType.Delete, templateId);
 }
 
+/**
+ * updates the current editor state.
+ * - If no id: creates a new template then resets list & closes editor.
+ * - If id exists: updates the template and refreshes the list.
+ */
   onSaveTemplate(updatedTemplate: Template): void {
     if (!updatedTemplate.id) {
       updatedTemplate.id = `temp-${Date.now()}`;
@@ -246,22 +297,26 @@ openDeleteModal(templateId: string): void {
     this.selectedTemplate = null;
   }
 
+/** Open a modal of a given type; seed it with a specific id or selected template id. */
 showModal(type: TemplateModalType, id?: string | null) {
   this.activeModalType = type;
   this.activeModalTemplateId = id ?? this.selectedTemplate?.id ?? null;
   if (type === TemplateModalType.Delete) this.deleteConfirmStep = 0;
 }
 
+/** Close and reset modal state. */
 hideModal() {
   this.activeModalType = TemplateModalType.None;
   this.activeModalTemplateId = null;
   this.deleteConfirmStep = 0;
 }
 
+/** True when any modal is visible (used by <app-modal>). */
 get isModalOpen(): boolean { 
   return this.activeModalType !== TemplateModalType.None; 
 }
 
+/** Title text resolved from i18n depending on modal type/step. */
 get modalTitle(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
@@ -274,7 +329,7 @@ get modalTitle(): string {
       return '';
   }
 }
-
+/** Body text resolved from i18n depending on modal type/step. */
 get modalText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
@@ -288,6 +343,7 @@ get modalText(): string {
   }
 }
 
+/** Confirm button label, varies per type/step. */
 get confirmText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
@@ -301,6 +357,7 @@ get confirmText(): string {
   }
 }
 
+/** Cancel/Close button label, varies per type/step. */
 get cancelText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
@@ -311,7 +368,11 @@ get cancelText(): string {
   }
 }
 
-// --- Centralized confirm/cancel handlers ---
+/**
+ * confirm handler:
+ * - Delete: two-step confirm; on final confirm calls delete API.
+ * - Copy: loads source template, deep-copies it into a new local draft and opens editor.
+ */
 onModalConfirm(): void {
   const id = this.activeModalTemplateId ?? undefined;
   if (!id) return;
@@ -341,6 +402,12 @@ onModalConfirm(): void {
     });
   }
 }
+
+/**
+ * cancel handler:
+ * - For delete step 1, step back to initial confirm.
+ * - Otherwise close modal.
+ */
 onModalCancel(): void {
   if (this.activeModalType === TemplateModalType.Delete && this.deleteConfirmStep === 1) {
     this.deleteConfirmStep = 0;
@@ -349,6 +416,11 @@ onModalCancel(): void {
   this.hideModal();
 }
 
+/**
+ * Create a deep-cloned editable draft from an existing template:
+ * - Clears server metadata, sets Draft status, unlocks.
+ * - Assigns temporary ids to template/questions/options.
+ */
 private deepCopyAsNewTemplate(template: Template): Template {
   // Deep clone to avoid mutating the original
   const clone: Template = JSON.parse(JSON.stringify(template));

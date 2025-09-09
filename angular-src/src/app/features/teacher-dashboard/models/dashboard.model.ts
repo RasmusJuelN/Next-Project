@@ -1,18 +1,44 @@
 import { User } from "../../../shared/models/user.model";
 
-  export interface ActiveQuestionnaireBase {
-    id: string;
-    title: string;
-    description?: string;
-    activatedAt: Date;
-    studentCompletedAt: Date | null;
-    teacherCompletedAt: Date | null;
-    student?: User
-    teacher?: User
-  }
-  
-  export interface ActiveQuestionnaireResponse {
-    activeQuestionnaireBases: ActiveQuestionnaireBase[];
-    queryCursor: string | null;
-    totalCount: number;
-  }
+/**
+ * Represents a single active questionnaire entry in the teacher dashboard.
+ */
+export interface ActiveQuestionnaireBase {
+  /** Unique identifier of the active questionnaire. */
+  id: string;
+
+  /** Title of the questionnaire. */
+  title: string;
+
+  /** Optional description of the questionnaire. */
+  description?: string;
+
+  /** Date when the questionnaire was activated. */
+  activatedAt: Date;
+
+  /** Date when the student completed it, or null if pending. */
+  studentCompletedAt: Date | null;
+
+  /** Date when the teacher completed it, or null if pending. */
+  teacherCompletedAt: Date | null;
+
+  /** The student assigned to this questionnaire (if available). */
+  student?: User;
+
+  /** The teacher assigned to this questionnaire (if available). */
+  teacher?: User;
+}
+
+/**
+ * Response model for fetching active questionnaires with pagination.
+ */
+export interface ActiveQuestionnaireResponse {
+  /** List of active questionnaire entries. */
+  activeQuestionnaireBases: ActiveQuestionnaireBase[];
+
+  /** Cursor for requesting the next page, or null if none. */
+  queryCursor: string | null;
+
+  /** Total number of questionnaires available. */
+  totalCount: number;
+}

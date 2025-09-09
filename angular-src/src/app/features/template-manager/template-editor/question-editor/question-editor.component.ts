@@ -4,6 +4,18 @@ import { CommonModule } from '@angular/common';
 import { Question, Option } from '../../../../shared/models/template.model';
 import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Question editor component.
+ *
+ * Provides an interface for editing a single question within a template.
+ *
+ * Handles:
+ * - Editing the question prompt and options.
+ * - Adding and deleting options.
+ * - Validating required fields before save.
+ * - Emitting save or cancel events back to the parent.
+ * - Disabling edits when in readonly mode.
+ */
 @Component({
   selector: 'app-question-editor',
   standalone: true,
@@ -13,11 +25,16 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class QuestionEditorComponent {
   @Input() question!: Question;
+
+  /** If true, disables all editing actions. */
   @Input() readonly = false;
+  
   @Output() save = new EventEmitter<Question>();
   @Output() cancel = new EventEmitter<void>();
 
   validationErrors: string[] = [];
+
+  /** Reference to error message container for scrolling into view. */
   @ViewChild('errorContainer') errorContainer!: ElementRef;
 
   addOption(): void {
@@ -35,6 +52,14 @@ export class QuestionEditorComponent {
     this.question.options = this.question.options.filter(option => option.id !== optionId);
   }
 
+  /**
+   * Validates the current question.
+   * - Prompt must not be empty.
+   * - Must allow custom answers or have at least one option.
+   * - All options must have non-empty labels.
+   *
+   * @returns `true` if valid, else `false`.
+   */
   validateQuestion(): boolean {
     console.log(this.question)
     this.validationErrors = []; // Clear previous errors

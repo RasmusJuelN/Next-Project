@@ -1,8 +1,16 @@
 import { TemplateBase } from "../../../shared/models/template.model";
 
   
-  export interface TemplateBaseResponse {
-    templateBases: TemplateBase[];
-    queryCursor?: string; // Cursor for next items.
-    totalCount: number;
-  }
+/**
+ * Represents a paginated response of template bases.
+ */
+export interface TemplateBaseResponse {
+  /** Array of template bases. */
+  templateBases: TemplateBase[];
+
+  /** Cursor for requesting the next page of results (if available). */
+  queryCursor?: string;
+
+  /** Total number of templates available. */
+  totalCount: number;
+}

@@ -10,6 +10,18 @@ import { TeacherService } from './services/teacher.service';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Teacher dashboard component.
+ *
+ * Provides an overview of active questionnaires for teachers.
+ *
+ * Handles:
+ * - Debounced search by student name or questionnaire id.
+ * - Cursor-based pagination with cached cursors per page.
+ * - Filtering by student/teacher completion.
+ * - Copy-to-clipboard for the questionnaire answer link.
+ * - Navigation to answer/results when applicable.
+ */
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
@@ -62,8 +74,8 @@ export class TeacherDashboardComponent implements OnInit {
   }
 
   /**
-   * Calls the service with current filters/pagination and updates
-   * the displayed questionnaires, cached cursors, totalItems, and totalPages.
+   * Loads questionnaires using current search, filters, and pagination.
+   * Updates displayed items, total counts, total pages, and next-page cursor cache.
    */
   private updateDisplay(): void {
     this.isLoading = true;
@@ -103,10 +115,12 @@ export class TeacherDashboardComponent implements OnInit {
       });
   }
 
+  /** Emits a new search term into the debounced search stream. */
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
   }
 
+  /** Changes the search type ('name' | 'id'), resets pagination, and reloads data. */
   onSearchTypeChange(newType: string): void {
     this.searchType = newType as 'name' | 'id';
     this.currentPage = 1;
@@ -114,12 +128,14 @@ export class TeacherDashboardComponent implements OnInit {
     this.updateDisplay();
   }
   
+  /** Toggles completion filters for active questionnaire, resets pagination, and reloads data. */
   onCompletionFilterChange(): void {
     this.currentPage = 1;
     this.cachedCursors = { 1: null };
     this.updateDisplay();
   }
   
+  /** Updates page size, resets pagination, and reloads data. */
   onPageSizeChange(newSize: string): void {
     this.pageSize = parseInt(newSize, 10);
     this.currentPage = 1;
@@ -127,14 +143,21 @@ export class TeacherDashboardComponent implements OnInit {
     this.updateDisplay();
   }
 
+  /** Returns true if the provided size equals the current page size. */
   isSelectedPageSize(size: number): boolean {
     return size === this.pageSize;
   }
 
+  /** Moves to the given page and reloads data. */
   onPageChange(event: PageChangeEvent): void {
     this.currentPage = event.page;
     this.updateDisplay();
   }
+
+  /**
+   * Copies a direct answer URL for the given questionnaire id to the clipboard.
+   * @param id active questionnaire id
+   */
 
   copyAnswersUrl(id: string): void {
     const url = `${window.location.origin}/answer/${id}`;
