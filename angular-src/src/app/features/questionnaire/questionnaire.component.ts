@@ -9,6 +9,16 @@ import { Role } from '../../shared/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+
+/**
+ * Questionnaire component.
+ *
+ * Presents and submits an active questionnaire for the current user.
+ *
+ * Handles:
+ * - Loading questionnaire by route id.
+ * - Submitting answers when all questions are completed.
+ */
 @Component({
   selector: 'app-answer-questionnaire',
   standalone: true,
@@ -40,6 +50,7 @@ export class QuestionnaireComponent implements OnInit {
   isLoading = true;
   errorMessage: string | null = null;
 
+  /** Initializes role from token and loads questionnaire from route param. */
   ngOnInit() {
     // gets role
     const roleStr = this.authService.getUserRole();
@@ -57,7 +68,10 @@ export class QuestionnaireComponent implements OnInit {
       }
     });
   }
-
+  /**
+ * Verifies whether the user already submitted the questionnaire;
+ * loads details if not, otherwise navigates home.
+ */
   private checkAndLoadQuestionnaire(id: string) {
     this.isLoading = true;
     // First, check if the user has already submitted the questionnaire
@@ -79,6 +93,7 @@ export class QuestionnaireComponent implements OnInit {
     });
   }
 
+  /** Loads questionnaire template data and updates progress. */
   private loadQuestionnaire(id: string) {
     this.answerService.getActiveQuestionnaireById(id).subscribe({
       next: (template) => {
@@ -98,16 +113,19 @@ export class QuestionnaireComponent implements OnInit {
     });
   }
 
+  /** The question at the current index. */
   get currentQuestion() {
     return this.state.template.questions[this.state.currentQuestionIndex];
   }
 
+  /** The saved answer for the current question (if any). */
   get currentAnswer(): Answer | undefined {
     return this.state.answers.find(
       (a) => a.questionId === this.currentQuestion.id
     );
   }
 
+  /** True if every question has either an option selected or a non-empty custom answer. */
   get allQuestionsAnswered(): boolean {
     return this.state.template.questions.every((question) =>
       this.state.answers.some(
@@ -123,6 +141,7 @@ export class QuestionnaireComponent implements OnInit {
     return !!answer && (!!answer.optionId || !!answer.customAnswer?.trim());
   }
 
+  /** True if the current question has an answer (option or non-empty custom text). */
   onAnswerChange(answer: Answer): void {
     const existingIndex = this.state.answers.findIndex(
       (a) => a.questionId === answer.questionId
@@ -135,6 +154,7 @@ export class QuestionnaireComponent implements OnInit {
     this.updateProgress();
   }
 
+  /** Moves to the previous question and updates progress. */
   previousQuestion(): void {
     if (this.state.currentQuestionIndex > 0) {
       this.state.currentQuestionIndex--;
@@ -142,6 +162,7 @@ export class QuestionnaireComponent implements OnInit {
     }
   }
 
+  /** Moves to the next question and updates progress. */
   nextQuestion(): void {
     if (
       this.state.currentQuestionIndex <
@@ -152,6 +173,10 @@ export class QuestionnaireComponent implements OnInit {
     }
   }
 
+  /**
+ * Submits all answers when the questionnaire is complete.
+ * On success, marks as completed and navigates home.
+ */
   submitQuestionnaire(): void {
     if (this.allQuestionsAnswered) {
       const submission: AnswerSubmission = { answers: this.state.answers };
@@ -172,6 +197,7 @@ export class QuestionnaireComponent implements OnInit {
     }
   }
 
+  /** Recomputes progress percentage based on index and whether the current question is answered. */
   private updateProgress(): void {
     const currentQuestionAnswered = this.isAnswered ? 1 : 0;
     const totalQuestions = this.state.template.questions.length;
@@ -180,6 +206,11 @@ export class QuestionnaireComponent implements OnInit {
     this.state.progress = Math.min(progressForCurrent + progressForAnswer, 100);
   }
 
+
+  /**
+ * Returns collaborator display text based on the viewer's role:
+ * - Student sees teacher, teacher sees student.
+ */
 getCollaboratorInfo(): string | null {
   const q = this.state.template;
   const student = q?.student;

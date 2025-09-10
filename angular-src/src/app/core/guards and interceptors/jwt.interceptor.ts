@@ -16,6 +16,30 @@ function isAuthOrRefreshUrl(url: string) {
   return url.endsWith('/auth') || url.endsWith('/auth/refresh');
 }
 
+/**
+ * JWT HTTP interceptor (with coordinated refresh).
+ *
+ * Responsibilities:
+ * - Attaches `Authorization: Bearer <token>` to outgoing requests (except auth/refresh endpoints).
+ * - On `401 Unauthorized`, triggers a single token refresh and queues parallel requests
+ *   until the refresh completes; then retries the original request once.
+ * - If refresh fails, logs out and propagates the error.
+ *
+ * Notes:
+ * - Uses a module-level `isRefreshingFlag` and a `refreshSubject` to coordinate concurrent requests.
+ * - Never attaches tokens to `/auth` or `/auth/refresh`, and never tries to refresh for those calls.
+ *
+ * @param req - The outgoing HTTP request.
+ * @param next - The next interceptor/backend handler.
+ * @returns Observable stream of HTTP events.
+ *
+ * @example
+ * ```ts
+ * providers: [
+ *   { provide: HTTP_INTERCEPTORS, useValue: jwtInterceptor, multi: true }
+ * ]
+ * ```
+ */
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const tokenService = inject(TokenService);
   const authService = inject(AuthService);
@@ -41,10 +65,8 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
         return authService.refreshToken().pipe(
           switchMap(() => {
-            // refreshToken() should update TokenService internally
             const newToken = tokenService.getToken();
-            refreshSubject.next(newToken); // release queued requests
-            // Retry original request once with the fresh token
+            refreshSubject.next(newToken);
             return next(addAuth(req, newToken));
           }),
           catchError((refreshErr) => {
