@@ -3,6 +3,7 @@ using System.Reflection;
 using API.Attributes;
 using API.DTO.LDAP;
 using API.Exceptions;
+using API.Exceptions.LDAP;
 using API.Interfaces;
 using Novell.Directory.Ldap;
 using Novell.Directory.Ldap.Controls;
@@ -64,10 +65,10 @@ public class ActiveDirectoryAuthenticationBridge(
             // https://ldap.com/ldap-result-code-reference/
             throw ex.ResultCode switch
             {
-                LdapException.ConnectError => new UnauthorizedAccessException("Unable to connect to the LDAP server.", ex),
-                LdapException.InvalidCredentials => new UnauthorizedAccessException("Invalid username or password.", ex),
-                LdapException.LdapTimeout => new InvalidOperationException("The LDAP server did not respond in a timely manner.", ex),
-                LdapException.ServerDown => new InvalidOperationException("The LDAP server is currently unreachable.", ex),
+                LdapException.ConnectError => new ConnectionErrorException("Unable to connect to the LDAP server."),
+                LdapException.InvalidCredentials => new InvalidCredentialsException("Invalid username or password."),
+                LdapException.LdapTimeout => new LdapTimeoutException("The LDAP server did not respond in a timely manner."),
+                LdapException.ServerDown => new ConnectionErrorException("The LDAP server is currently unreachable."),
                 _ => new InvalidOperationException($"LDAP authentication failed with the following result code and message: {ex.ResultCode} - {ex.Message}", ex),
             };
         }
