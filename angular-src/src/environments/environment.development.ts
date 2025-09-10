@@ -1,3 +1,4 @@
+/** environment used for devolopment */
 export const environment = {
     production: false,
     useMock: false,

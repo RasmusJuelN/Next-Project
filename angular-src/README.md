@@ -26,8 +26,9 @@ The **src/app/Features** directory contains logic specific to individual pages. 
 - Other feature-specific pages
 
 ## src/app/Shared
-The **src/app/Shared** directory includes reusable components that can be utilized across multiple parts of the application. This includes:
+The **src/app/Shared** directory includes reusable components & models that can be utilized across multiple parts of the application. This includes:
 - User model
+- Template model
 - Loading component
 - Pagination component
 
@@ -41,3 +42,8 @@ During development, the API URL is sourced from `environment.ts` or `environment
 
 - Original URL: `http://localhost:4200/api`
 - Proxy URL: `http://127.0.0.1:8000/api/`
+
+## i18n Translation
+The project also uses **i18n** for translations, with string resources located inside the **assets** directory.
+- **da.json**: Dansk/Danish
+- **en.json**: Engelsk/English
