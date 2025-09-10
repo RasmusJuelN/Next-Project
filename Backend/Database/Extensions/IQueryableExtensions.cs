@@ -43,4 +43,25 @@ public static class IQueryableExtensions
     {
         return query.OrderByDescending(q => q.ActivatedAt).ThenBy(q => q.Id);
     }
+
+    // Groups
+    public static IQueryable<QuestionnaireGroupModel> OrderByNameAsc(this IQueryable<QuestionnaireGroupModel> query)
+    {
+        return query.OrderBy(g => g.Name).ThenBy(g => g.GroupId);
+    }
+
+    public static IQueryable<QuestionnaireGroupModel> OrderByNameDesc(this IQueryable<QuestionnaireGroupModel> query)
+    {
+        return query.OrderByDescending(g => g.Name).ThenBy(g => g.GroupId);
+    }
+
+    public static IQueryable<QuestionnaireGroupModel> OrderByCreatedAtAsc(this IQueryable<QuestionnaireGroupModel> query)
+    {
+        return query.OrderBy(g => g.CreatedAt).ThenBy(g => g.GroupId);
+    }
+
+    public static IQueryable<QuestionnaireGroupModel> OrderByCreatedAtDesc(this IQueryable<QuestionnaireGroupModel> query)
+    {
+        return query.OrderByDescending(g => g.CreatedAt).ThenBy(g => g.GroupId);
+    }
 }

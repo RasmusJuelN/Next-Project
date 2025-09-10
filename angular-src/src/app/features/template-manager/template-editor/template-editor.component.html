@@ -45,7 +45,7 @@
     <button
       type="button"
       (click)="onCancel()"
-      class="px-4 py-2 bg-gray-200 text-primary_dark_blue rounded-xl shadow-sm hover:bg-gray-300 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none"
+      class="px-4 py-2 bg-gray-500 text-white rounded-xl shadow-sm hover:bg-gray-600 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none"
     >
       <!-- Annuller -->
       {{ 'TMP_CANCEL' | translate }}
@@ -53,7 +53,7 @@
     <button *ngIf="!readonly"
             type="button"
             (click)="onSave()"
-            class="px-4 py-2 bg-green-500 text-white rounded-xl shadow-sm hover:bg-green-600 focus:ring-2 focus:ring-green-400 focus:outline-none border-2 border-green-500 hover:border-green-700 transition-colors">
+            class="px-4 py-2 bg-green-500 text-white rounded-xl shadow-sm hover:bg-green-600 focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors">
       {{ 'TMP_SAVE_TEMPLATE' | translate }}
     </button>
     <button *ngIf="!readonly && template?.id"
@@ -74,18 +74,18 @@
   <ul class="space-y-4">
     <li
       *ngFor="let question of template.questions"
-      class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors"
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:shadow-lg transition-shadow  transition-colors"
     >
       <span class="text-primary_dark_blue font-semibold">{{ question.prompt }}</span>
       <div class="flex space-x-2 mt-2 sm:mt-0">
         <button
-          class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
+          class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl  hover:bg-yellow-600  focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
           (click)="editQuestion(question)"
         >
           {{ readonly ? ('COMMON.BUTTONS.SHOW' | translate) : ('COMMON.BUTTONS.EDIT' | translate) }}
         </button>
         <button *ngIf="!readonly"
-          class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+          class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl  hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
           (click)="deleteQuestion(question)"
           [disabled]="readonly"
         >
@@ -99,7 +99,7 @@
   <!-- Add Question Button -->
   <div class="mt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
     <button *ngIf="!readonly"
-        class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors"
+        class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none  transition-colors"
         (click)="addQuestion()">
       <!-- Tilføj Nyt Spørgsmål -->
        {{ 'TMP_ADD_QUESTION' | translate }}
