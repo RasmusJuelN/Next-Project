@@ -8,7 +8,7 @@ namespace API.Linq;
 public class LdapQueryTranslator : ExpressionVisitor
 {
     private readonly ILogger<LdapQueryTranslator> _logger;
-    private StringBuilder _ldapFilter = new();
+    private readonly StringBuilder _ldapFilter = new();
 
     public LdapQueryTranslator()
     {
