@@ -110,7 +110,7 @@ namespace API.Controllers
 
             if (_authenticationBridge.IsConnected())
             {
-                BasicUserInfoWithObjectGuid? ldapUser = _authenticationBridge.SearchUser<BasicUserInfoWithObjectGuid>(userLogin.Username);
+                BasicUserInfoWithObjectGuidLinq? ldapUser = _authenticationBridge.SearchUser(userLogin.Username);
 
                 if (ldapUser is null)
                 {
@@ -119,13 +119,13 @@ namespace API.Controllers
                     return Unauthorized();
                 }
 
-                Guid userGuid = new(ldapUser.ObjectGUID.ByteValue);
+                Guid userGuid = new(ldapUser.ObjectGUID);
 
                 string userRole;
                 try
                 {
                     // Converts ldap role to an internal role
-                    userRole = _JWTSettings.Roles.First(x => ldapUser.MemberOf.StringValue.Contains(x.Value, StringComparison.CurrentCultureIgnoreCase)).Key;
+                    userRole = _JWTSettings.Roles.First(x => ldapUser.MemberOf.Contains(x.Value, StringComparison.CurrentCultureIgnoreCase)).Key;
                 }
                 catch (Exception e)
                 {
@@ -150,7 +150,7 @@ namespace API.Controllers
                 {
                     Guid = userGuid,
                     Username = userLogin.Username,
-                    Name = ldapUser.Name.StringValue,
+                    Name = ldapUser.Name,
                     Role = userRole,
                     Permissions = (int)permissions
                 };

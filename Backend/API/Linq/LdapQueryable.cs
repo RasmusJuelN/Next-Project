@@ -6,21 +6,19 @@ namespace API.Linq;
 
 public class LdapQueryable<T> : IQueryable<T>
 {
-    private readonly ILogger<LdapQueryable<T>> _logger;
+    private readonly ILogger _logger;
 
-    public LdapQueryable(IQueryProvider provider)
+    public LdapQueryable(IQueryProvider provider, ILogger logger)
     {
-        _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<LdapQueryable<T>>();
-        _logger.LogDebug("Creating LdapQueryable<{Type}> with constant expression", typeof(T).Name);
+        _logger = logger;
         
         Provider = provider;
         Expression = Expression.Constant(this);
     }
 
-    public LdapQueryable(IQueryProvider provider, Expression expression)
+    public LdapQueryable(IQueryProvider provider, Expression expression, ILogger logger)
     {
-        _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<LdapQueryable<T>>();
-        _logger.LogDebug("Creating LdapQueryable<{Type}> with expression: {ExpressionType}", typeof(T).Name, expression.Type.Name);
+        _logger = logger;
         
         Provider = provider;
         Expression = expression;

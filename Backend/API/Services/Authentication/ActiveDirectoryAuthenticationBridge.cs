@@ -4,6 +4,7 @@ using API.Attributes;
 using API.DTO.LDAP;
 using API.Exceptions;
 using API.Interfaces;
+using API.Linq;
 using Novell.Directory.Ldap;
 using Novell.Directory.Ldap.Controls;
 using Settings.Models;
@@ -14,6 +15,7 @@ public class ActiveDirectoryAuthenticationBridge(
     ILogger<ActiveDirectoryAuthenticationBridge> logger,
     IConfiguration configuration,
     CacheService sessionCacheService,
+    ILoggerFactory loggerFactory,
     LdapConnection? ldapConnection = null,
     string? sessionId = null) : IAuthenticationBridge
 {
@@ -21,13 +23,19 @@ public class ActiveDirectoryAuthenticationBridge(
     private readonly LDAPSettings _LdapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
     private readonly JWTSettings _JwtSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
     private readonly CacheService _cache = sessionCacheService;
+    private readonly ILoggerFactory _loggerFactory = loggerFactory;
     private LdapConnection? _Connection = ldapConnection;
     private string? _SessionId = sessionId;
+
+    public IQueryable<T> Query<T>()
+    {
+        return new LdapQueryable<T>(new LdapQueryProvider(this, _Logger, configuration), _Logger);
+    }
 
     public void Authenticate(string username, string password)
     {
         _Logger.LogInformation("Starting LDAP authentication for user: {Username}", username);
-        
+
         try
         {
             if (_Connection is not null && _Connection.Connected)
@@ -60,7 +68,7 @@ public class ActiveDirectoryAuthenticationBridge(
         catch (LdapException ex)
         {
             _Logger.LogError(ex, "LDAP authentication failed for user: {Username} with result code: {ResultCode}", username, ex.ResultCode);
-            
+
             // https://ldap.com/ldap-result-code-reference/
             throw ex.ResultCode switch
             {
@@ -76,7 +84,7 @@ public class ActiveDirectoryAuthenticationBridge(
     public TUser? SearchUser<TUser>(string username) where TUser : new()
     {
         _Logger.LogDebug("Starting user search for: {Username}", username);
-        
+
         string domain = _LdapSettings.FQDN.Split(".", 2).Last();
 
         // NETBIOS\\username
@@ -93,17 +101,22 @@ public class ActiveDirectoryAuthenticationBridge(
             _Logger.LogWarning("No users found for username: {Username}", username);
             return default;
         }
-        
+
         _Logger.LogDebug("Found {UserCount} user(s) for username: {Username}", users.Count, username);
         TUser userSearch = users.First();
 
         return userSearch;
     }
 
+    public BasicUserInfoWithObjectGuidLinq? SearchUser(string username)
+    {
+        return Query<BasicUserInfoWithObjectGuidLinq>().Where(u => u.Username.Contains(username)).FirstOrDefault();
+    }
+
     public TGroup? SearchGroup<TGroup>(string groupName) where TGroup : new()
     {
         _Logger.LogDebug("Starting group search for: {GroupName}", groupName);
-        
+
         string escapedGroupName = EscapeLDAPSearchFilter(groupName);
         TGroup? cachedLdapGroup = _cache.Get<TGroup>(escapedGroupName);
 
@@ -293,7 +306,7 @@ public class ActiveDirectoryAuthenticationBridge(
     /// <param name="attributes">The attributes to retrieve. Defaults to all attributes if not specified.</param>
     /// <returns>A list of objects of type <typeparamref name="TLdapResult"/> mapped from the LDAP search results.</returns>
     /// <exception cref="LDAPException.NotBound">Thrown if the LDAP connection is not bound.</exception>
-    private List<TLdapResult> SearchLDAP<TLdapResult>(string searchQuery, string baseDN, int scope = LdapConnection.ScopeSub) where TLdapResult : new()
+    internal List<TLdapResult> SearchLDAP<TLdapResult>(string searchQuery, string baseDN, int scope = LdapConnection.ScopeSub) where TLdapResult : new()
     {
         _Logger.LogDebug("Executing LDAP search - Query: {SearchQuery}, BaseDN: {BaseDN}, Scope: {Scope}", searchQuery, baseDN, scope);
         
@@ -430,7 +443,15 @@ public class ActiveDirectoryAuthenticationBridge(
         {
             foreach (AuthenticationMapping attr in prop.GetCustomAttributes<AuthenticationMapping>())
             {
-                prop.SetValue(mappedEntity, ldapEntry.GetAttribute(attr.EntryName));
+                //If the type of the property we're assigning it to is a bytearray
+                if (prop.PropertyType == typeof(byte[]))
+                {
+                    prop.SetValue(mappedEntity, ldapEntry.GetAttribute(attr.EntryName)?.ByteValue);
+                }
+                else
+                {
+                    prop.SetValue(mappedEntity, ldapEntry.GetAttribute(attr.EntryName)?.StringValue);
+                }
             }
         }
 

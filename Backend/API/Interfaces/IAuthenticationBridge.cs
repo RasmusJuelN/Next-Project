@@ -1,5 +1,6 @@
 using System.Reflection;
 using API.Attributes;
+using API.DTO.LDAP;
 
 namespace API.Interfaces;
 
@@ -28,6 +29,8 @@ public interface IAuthenticationBridge
     /// Returns an instance of the specified <typeparamref name="TUser"/> type if found, otherwise returns null.
     /// </returns>
     TUser? SearchUser<TUser>(string username) where TUser : new();
+
+    BasicUserInfoWithObjectGuidLinq? SearchUser(string username);
 
     /// <summary>
     /// Searches for a group using a model whose properties specify the search criteria.

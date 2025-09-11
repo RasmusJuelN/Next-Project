@@ -5,10 +5,10 @@ using Settings.Models;
 
 namespace API.Linq;
 
-public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, ILogger<LdapQueryProvider> logger, IConfiguration configuration) : IQueryProvider
+public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, ILogger logger, IConfiguration configuration) : IQueryProvider
 {
     private readonly ActiveDirectoryAuthenticationBridge _authBridge = authBridge;
-    private readonly ILogger<LdapQueryProvider> _logger = logger;
+    private readonly ILogger _logger = logger;
     private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
 
     public IQueryable CreateQuery(Expression expression)
@@ -30,7 +30,7 @@ public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, I
         _logger.LogDebug("Creating generic query for type: {ElementType}, expression type: {ExpressionType}", 
             typeof(TElement).Name, expression.Type.Name);
         
-        var result = new LdapQueryable<TElement>(this, expression);
+        var result = new LdapQueryable<TElement>(this, expression, _logger);
         _logger.LogDebug("Successfully created LdapQueryable<{ElementType}>", typeof(TElement).Name);
         
         return result;
@@ -40,7 +40,7 @@ public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, I
     {
         _logger.LogDebug("Executing non-generic query for expression type: {ExpressionType}", expression.Type.Name);
         
-        LdapQueryTranslator translator = new();
+        LdapQueryTranslator translator = new(_logger);
         string ldapFilter = translator.Translate(expression);
         _logger.LogDebug("Generated LDAP filter: {LdapFilter}", ldapFilter);
 
@@ -77,7 +77,7 @@ public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, I
         
         try
         {
-            LdapQueryTranslator translator = new();
+            LdapQueryTranslator translator = new(_logger);
             string ldapFilter = translator.Translate(expression);
             _logger.LogDebug("Generated LDAP filter for generic execution: {LdapFilter}", ldapFilter);
 
@@ -101,12 +101,16 @@ public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, I
         _logger.LogDebug("Using base DN: {BaseDN}", baseDN);
 
         // Extract the actual entity type from IEnumerable<T> if needed
-        Type entityType = typeof(TResult);
-        _logger.LogDebug("Original result type: {ResultType}", entityType.Name);
+        Type resultType = typeof(TResult);
+        Type entityType = resultType;
+        bool isCollectionResult = false;
         
-        if (entityType.IsGenericType && entityType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+        _logger.LogDebug("Original result type: {ResultType}", resultType.Name);
+        
+        if (resultType.IsGenericType && resultType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
         {
-            entityType = entityType.GetGenericArguments()[0];
+            entityType = resultType.GetGenericArguments()[0];
+            isCollectionResult = true;
             _logger.LogDebug("Extracted entity type from IEnumerable: {EntityType}", entityType.Name);
         }
 
@@ -124,8 +128,19 @@ public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, I
             _logger.LogDebug("LDAP query executed successfully, returning results for type: {ResultType}", typeof(TResult).Name);
             
             // If TResult is IEnumerable<T>, return the List<T> directly (it implements IEnumerable<T>)
-            // If TResult is T, we need to handle single item vs collection scenarios
-            return (TResult)results!;
+            if (isCollectionResult)
+            {
+                return (TResult)results!;
+            }
+            
+            // If TResult is T, return the first item from the list or default value
+            var list = results as System.Collections.IList;
+            if (list != null && list.Count > 0)
+            {
+                return (TResult)list[0]!;
+            }
+            
+            return default(TResult)!;
         }
         catch (Exception ex)
         {

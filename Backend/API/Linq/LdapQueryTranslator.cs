@@ -7,12 +7,12 @@ namespace API.Linq;
 
 public class LdapQueryTranslator : ExpressionVisitor
 {
-    private readonly ILogger<LdapQueryTranslator> _logger;
+    private readonly ILogger _logger;
     private readonly StringBuilder _ldapFilter = new();
 
-    public LdapQueryTranslator()
+    public LdapQueryTranslator(ILogger logger)
     {
-        _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<LdapQueryTranslator>();
+        _logger = logger;
     }
 
     public string Translate(Expression expression)
@@ -51,6 +51,12 @@ public class LdapQueryTranslator : ExpressionVisitor
             _ldapFilter.Append(searchValue);
             
             _ldapFilter.Append("*)");
+            return node;
+        }
+        else if (node.Method.Name == "FirstOrDefault" && node.Method.DeclaringType?.Name == "Queryable")
+        {
+            _logger.LogDebug("Processing FirstOrDefault method - processing source query");
+            Visit(node.Arguments[0]);
             return node;
         }
 
