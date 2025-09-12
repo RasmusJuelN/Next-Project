@@ -5,15 +5,10 @@ using API.Attributes;
 
 namespace API.Linq;
 
-public class LdapQueryTranslator : ExpressionVisitor
+public class LdapQueryTranslator(ILogger logger) : ExpressionVisitor
 {
-    private readonly ILogger _logger;
+    private readonly ILogger _logger = logger;
     private readonly StringBuilder _ldapFilter = new();
-
-    public LdapQueryTranslator(ILogger logger)
-    {
-        _logger = logger;
-    }
 
     public string Translate(Expression expression)
     {
