@@ -1,6 +1,6 @@
 <app-loading *ngIf="isLoading"></app-loading>
 
-<div *ngIf="!isLoading" class="flex flex-col h-full items-center justify-center bg-gray-100 p-4 sm:p-8">
+<div *ngIf="!isLoading" class="flex flex-col h-full items-center justify-center  p-4 sm:p-8">
   <!-- If there's an error message, display it; otherwise show main content -->
   <div *ngIf="errorMessage; else questionnaireContent" class="text-center p-4">
     <p class="text-red-500 font-semibold text-lg">

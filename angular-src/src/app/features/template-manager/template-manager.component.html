@@ -8,7 +8,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
         <button 
           (click)="addTemplate()" 
-          class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-2 px-6 rounded-xl shadow transition-colors w-full sm:w-auto border-2 border-primary_orange_1 hover:border-primary_dark_blue">
+          class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-2 px-6 rounded-xl shadow transition-colors w-full sm:w-auto ">
           <!-- {{'TMP_ADD_TEMPLATE' | translate}} TMP_BUTTON_CREATE_NEW -->
               {{'TMP_BUTTON_CREATE_NEW' | translate}}
         </button>
@@ -32,7 +32,7 @@
           />
         </div>
 
-        <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
+        <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2 items-center">
           <label for="pageSize" class="text-primary_dark_blue font-medium">{{'TMP_ITEMS_PER_PAGE'| translate}}</label>
           <select
             #pageSize
@@ -62,7 +62,7 @@
       <ul class="space-y-4 mt-4" *ngIf="!isLoading && !errorMessage">
         <li
           *ngFor="let template of templateBases"
-          class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors"
+          class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-gray-100 transition-colors"
         >
           <!-- title + status badge -->
           <span class="flex items-center gap-2 text-gray-800 font-medium">
@@ -81,7 +81,7 @@
           <!-- action buttons -->
           <div class="flex space-x-2 mt-2 sm:mt-0">
             <button
-              class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
+              class="px-4 py-1 text-sm bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
               (click)="selectTemplate(template.id)"
             >
               {{ template.templateStatus == templateStatus.Draft ? 'Rediger' : 'COMMON.BUTTONS.VIEW'|translate }}
@@ -89,7 +89,7 @@
 
             <button
                 (click)="showModal(TemplateModalType.Delete, template.id)"
-              class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+              class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl  hover:bg-red-600  focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
             >
               {{ 'TMP_BUTTON_DELETE' | translate }}
             </button>
