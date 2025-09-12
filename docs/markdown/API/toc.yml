@@ -5,6 +5,8 @@ items:
     href: ./creating-a-controller.md
   - name: Unit Of Work
     href: unit-of-work.md
+  - name: LINQ-to-LDAP
+    href: ./linq-to-ldap.md
   - name: Custom Attributes
     href: ./custom-attributes.md
   - name: Custom Exceptions
