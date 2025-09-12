@@ -30,6 +30,81 @@ public class LdapQueryTranslatorTest
     }
 
     [TestMethod]
+    public void Translate_NotEqual_ReturnsCorrectLdapFilter()
+    {
+        Console.WriteLine("Testing not equal translation: u.Name != \"john\"");
+        
+        // Arrange
+        Expression<Func<TestUser, bool>> expression = u => u.Name != "john";
+
+        // Act
+        var result = _translator.Translate(expression.Body);
+
+        Console.WriteLine($"Expected: (!(Name=john))");
+        Console.WriteLine($"Actual:   {result}");
+
+        // Assert
+        Assert.AreEqual("(!(Name=john))", result);
+        Console.WriteLine("✅ Test passed: Not equal translation");
+    }
+
+    [TestMethod]
+    public void Translate_NotNull_ReturnsCorrectLdapFilter()
+    {
+        Console.WriteLine("Testing null check translation: u.Name != null");
+        
+        // Arrange
+        Expression<Func<TestUser, bool>> expression = u => u.Name != null;
+
+        // Act
+        var result = _translator.Translate(expression.Body);
+
+        Console.WriteLine($"Expected: (Name=*)");
+        Console.WriteLine($"Actual:   {result}");
+
+        // Assert
+        Assert.AreEqual("(Name=*)", result);
+        Console.WriteLine("✅ Test passed: Null check translation");
+    }
+
+    [TestMethod]
+    public void Translate_ComplexConditionNotNull_ReturnsCorrectLdapFilter()
+    {
+        Console.WriteLine("Testing complex condition with not null: (u.Name != null && u.Email != null) || u.CommonName == \"Admin\"");
+        
+        // Arrange
+        Expression<Func<TestUser, bool>> expression = u => (u.Name != null && u.Email != null) || u.CommonName == "Admin";
+
+        // Act
+        var result = _translator.Translate(expression.Body);
+
+        Console.WriteLine($"Expected: (|(&(Name=*)(mail=*))(cn=Admin))");
+        Console.WriteLine($"Actual:   {result}");
+
+        // Assert
+        Assert.AreEqual("(|(&(Name=*)(mail=*))(cn=Admin))", result);
+        Console.WriteLine("✅ Test passed: Complex condition with not null translation");
+    }
+
+    [TestMethod]
+    public void Translate_ComplexConditionNotEqual_ReturnsCorrectLdapFilter()
+    {
+
+        Console.WriteLine("Testing complex condition with not equal: (u.Name != \"john\" && u.Email != null) || u.CommonName == \"Admin\"");
+        // Arrange
+        Expression<Func<TestUser, bool>> expression = u => (u.Name != "john" && u.Email != null) || u.CommonName == "Admin";
+
+        // Act
+        var result = _translator.Translate(expression.Body);
+
+        Console.WriteLine($"Expected: (|(&(!(Name=john))(mail=*))(cn=Admin))");
+        Console.WriteLine($"Actual:   {result}");
+
+        // Assert
+        Assert.AreEqual("(|(&(!(Name=john))(mail=*))(cn=Admin))", result);
+    }
+
+    [TestMethod]
     public void Translate_SimpleEquality_ReturnsCorrectLdapFilter()
     {
         Console.WriteLine("Testing simple equality translation: u.Name == \"john\"");

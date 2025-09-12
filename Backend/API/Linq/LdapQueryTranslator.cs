@@ -101,6 +101,31 @@ public class LdapQueryTranslator(ILogger logger) : ExpressionVisitor
                 Visit(node.Right);
                 _ldapFilter.Append(')');
                 break;
+            
+            case ExpressionType.NotEqual:
+                _logger.LogDebug("Processing NOT EQUAL operation");
+
+                //If the value is null, use presence check instead of not equal operator
+                if (node.Right is ConstantExpression constExpr && constExpr.Value == null)
+                {
+                    _ldapFilter.Append('(');
+                    Visit(node.Left);
+                    _ldapFilter.Append("=*)");
+                }
+                else
+                {
+                    _ldapFilter.Append("(!(");
+                    Visit(node.Left);
+                    _ldapFilter.Append('=');
+                    
+                    var value = ExtractValue(node.Right);
+                    _logger.LogDebug("Extracted not equal comparison value: {Value}", value);
+                    _ldapFilter.Append(value?.ToString() ?? "");
+                    
+                    _ldapFilter.Append("))");
+                }
+                break;
+            
                 
             default:
                 _logger.LogWarning("Unsupported binary expression type: {NodeType}", node.NodeType);
