@@ -19,7 +19,7 @@ namespace API.Controllers
 
         [HttpGet("DB")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<IActionResult> GetDatabaseLogs()
+        public IActionResult GetDatabaseLogs()
         {
             throw new NotImplementedException();
         }
