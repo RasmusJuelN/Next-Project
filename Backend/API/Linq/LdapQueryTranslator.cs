@@ -56,9 +56,9 @@ namespace API.Linq;
 /// Result: (&amp;(Name=john)(mail=*test*))
 /// </code>
 /// </example>
-public class LdapQueryTranslator(ILogger logger) : ExpressionVisitor
+public class LdapQueryTranslator(ILogger<LdapQueryTranslator> logger) : ExpressionVisitor
 {
-    private readonly ILogger _logger = logger;
+    private readonly ILogger<LdapQueryTranslator> _logger = logger;
     private readonly StringBuilder _ldapFilter = new();
 
     /// <summary>

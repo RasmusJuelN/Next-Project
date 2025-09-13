@@ -9,12 +9,12 @@ namespace UnitTests.API;
 [TestClass]
 public class LdapQueryTranslatorTest
 {
-    private readonly Mock<ILogger> _mockLogger;
+    private readonly Mock<ILogger<LdapQueryTranslator>> _mockLogger;
     private readonly LdapQueryTranslator _translator;
 
     public LdapQueryTranslatorTest()
     {
-        _mockLogger = new Mock<ILogger>();
+        _mockLogger = new Mock<ILogger<LdapQueryTranslator>>();
         _translator = new LdapQueryTranslator(_mockLogger.Object);
     }
 

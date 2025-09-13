@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Linq.Expressions;
 
@@ -40,7 +39,7 @@ namespace API.Linq;
 /// </example>
 public class LdapQueryable<T> : IQueryable<T>
 {
-    private readonly ILogger _logger;
+    private readonly ILogger<LdapQueryable<T>> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LdapQueryable{T}"/> class with a constant expression.
@@ -48,7 +47,7 @@ public class LdapQueryable<T> : IQueryable<T>
     /// </summary>
     /// <param name="provider">The query provider that will handle expression translation and execution</param>
     /// <param name="logger">Logger instance for debugging and monitoring query operations</param>
-    public LdapQueryable(IQueryProvider provider, ILogger logger)
+    public LdapQueryable(IQueryProvider provider, ILogger<LdapQueryable<T>> logger)
     {
         _logger = logger;
         
@@ -63,7 +62,7 @@ public class LdapQueryable<T> : IQueryable<T>
     /// <param name="provider">The query provider that will handle expression translation and execution</param>
     /// <param name="expression">The expression tree representing the query operations</param>
     /// <param name="logger">Logger instance for debugging and monitoring query operations</param>
-    public LdapQueryable(IQueryProvider provider, Expression expression, ILogger logger)
+    public LdapQueryable(IQueryProvider provider, Expression expression, ILogger<LdapQueryable<T>> logger)
     {
         _logger = logger;
         

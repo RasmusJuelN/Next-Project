@@ -33,21 +33,22 @@ namespace API.Linq;
 /// </list>
 /// </remarks>
 /// <param name="authBridge">The Active Directory authentication bridge for executing LDAP searches</param>
-/// <param name="logger">Logger instance for debugging and monitoring query operations</param>
+/// <param name="loggerFactory">Logger factory for creating properly typed loggers</param>
 /// <param name="configuration">Configuration containing LDAP settings like base DN</param>
 /// <example>
 /// <code>
-/// var provider = new LdapQueryProvider(authBridge, logger, configuration);
-/// var queryable = new LdapQueryable&lt;User&gt;(provider, logger);
+/// var provider = new LdapQueryProvider(authBridge, loggerFactory, configuration);
+/// var queryable = new LdapQueryable&lt;User&gt;(provider, loggerFactory);
 /// 
 /// // This will be translated and executed as an LDAP search
 /// var users = queryable.Where(u =&gt; u.Name == "john").ToList();
 /// </code>
 /// </example>
-public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, ILogger logger, IConfiguration configuration) : IQueryProvider
+public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, ILoggerFactory loggerFactory, IConfiguration configuration) : IQueryProvider
 {
     private readonly ActiveDirectoryAuthenticationBridge _authBridge = authBridge;
-    private readonly ILogger _logger = logger;
+    private readonly ILogger<LdapQueryProvider> _logger = loggerFactory.CreateLogger<LdapQueryProvider>();
+    private readonly ILoggerFactory _loggerFactory = loggerFactory;
     private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
 
     /// <summary>
@@ -88,8 +89,9 @@ public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, I
     {
         _logger.LogDebug("Creating generic query for type: {ElementType}, expression type: {ExpressionType}", 
             typeof(TElement).Name, expression.Type.Name);
-        
-        var result = new LdapQueryable<TElement>(this, expression, _logger);
+
+        var queryableLogger = _loggerFactory.CreateLogger<LdapQueryable<TElement>>();
+        var result = new LdapQueryable<TElement>(this, expression, queryableLogger);
         _logger.LogDebug("Successfully created LdapQueryable<{ElementType}>", typeof(TElement).Name);
         
         return result;
@@ -110,7 +112,9 @@ public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, I
     {
         _logger.LogDebug("Executing non-generic query for expression type: {ExpressionType}", expression.Type.Name);
         
-        LdapQueryTranslator translator = new(_logger);
+        ILogger<LdapQueryTranslator> genericLogger = _logger as ILogger<LdapQueryTranslator> ??
+                           LoggerFactory.Create(c => c.AddConfiguration(configuration)).CreateLogger<LdapQueryTranslator>();
+        LdapQueryTranslator translator = new(genericLogger);
         string ldapFilter = translator.Translate(expression);
         _logger.LogDebug("Generated LDAP filter: {LdapFilter}", ldapFilter);
 
@@ -168,7 +172,8 @@ public class LdapQueryProvider(ActiveDirectoryAuthenticationBridge authBridge, I
         
         try
         {
-            LdapQueryTranslator translator = new(_logger);
+            var translatorLogger = _loggerFactory.CreateLogger<LdapQueryTranslator>();
+            LdapQueryTranslator translator = new(translatorLogger);
             string ldapFilter = translator.Translate(expression);
             _logger.LogDebug("Generated LDAP filter for generic execution: {LdapFilter}", ldapFilter);
 
