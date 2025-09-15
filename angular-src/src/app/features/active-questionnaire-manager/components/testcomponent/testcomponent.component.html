@@ -1,0 +1,72 @@
+
+<!-- <div class="search mb-4">
+  <input
+    type="text"
+    placeholder="Search student..."
+    [(ngModel)]="searchStudent"
+    class="border p-2 w-full rounded"
+  />
+</div>
+
+<div *ngFor="let group of groups" class="mb-4 w-full max-w-3xl mx-auto">
+  <h1
+    (click)="onGroupClick(group.name)"
+    class="cursor-pointer text-blue-600 font-semibold text-lg mb-2"
+  >
+    {{ group.name }}
+  </h1>
+
+  <div *ngIf="showStudentsFor === group.name" class="p-4 bg-white rounded shadow">
+    <ul class="list-disc pl-5">
+      <li *ngFor="let student of filteredStudents(group.name)">
+        {{ student.name }}
+      </li>
+    </ul>
+  </div>
+</div> -->
+
+<div class="search mb-4">
+  <input
+    type="text"
+    placeholder="Search student..."
+    [(ngModel)]="searchStudent"
+    class="border p-2 w-full rounded"
+  />
+</div>
+
+<!-- Global search results -->
+<div *ngIf="searchStudent.trim()">
+  <div *ngFor="let group of groups" class="mb-4 w-full max-w-3xl mx-auto">
+    <h1 class="text-blue-600 font-semibold text-lg mb-2">
+      {{ group}}
+    </h1>
+
+    <!-- <div class="p-4 bg-white rounded shadow" *ngIf="filteredStudents(group.name).length > 0">
+      <ul class="list-disc pl-5">
+        <li *ngFor="let student of filteredStudents(group.name)">
+          {{ student.name }}
+        </li>
+      </ul> -->
+    </div>
+  </div>
+<!-- </div> -->
+
+<!-- Default group view (expand/collapse) -->
+<div *ngIf="!searchStudent.trim()">
+  <div *ngFor="let group of groups" class="mb-4 w-full max-w-3xl mx-auto">
+    <!-- <h1
+      (click)="onGroupClick(group.name)"
+      class="cursor-pointer text-blue-600 font-semibold text-lg mb-2"
+    >
+      {{ group}}
+    </h1> -->
+
+    <div *ngIf="showStudentsFor === group.name" class="p-4 bg-white rounded shadow">
+      <ul class="list-disc pl-5">
+        <!-- <li *ngFor="let student of filteredStudents(group.name)">
+          {{ student.name }}
+        </li> -->
+      </ul>
+    </div>
+  </div>
+</div>

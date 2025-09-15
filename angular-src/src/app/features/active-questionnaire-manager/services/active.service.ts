@@ -3,7 +3,7 @@ import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
 import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { User } from '../../../shared/models/user.model';
 
@@ -97,6 +97,8 @@ export class ActiveService {
     return this.apiService.get<ActiveQuestionnaire>(`${this.apiUrl}/${id}`);
   }
 
+
+  // 
   searchUsers(
     term: string,
     role: 'student' | 'teacher',
@@ -156,4 +158,50 @@ getQuestionnaireGroups() {
 createAnonymousQuestionnaireGroup(payload: { participantIds: string[], templateId: string }) {
   return this.apiService.post<any>(`${this.apiUrl}/anonymous-group`, payload);
 }
+
+//  getStudentsInGroup(groupName: string): Observable<LdapUserDTO[]> {
+//     return this.apiService.get<LdapUserDTO[]>(`${this.apiUrl}/Groups/${groupName}/Students`);
+//   }
+// getStudentsInGroup(groupName: string) {
+//   return this.apiService.get<any[]>(`${environment.apiUrl}/user/groups/${groupName}/students`);
+// }
+
+// Fetch all classes/groups
+getClasses(): Observable<string[]> {
+  return this.apiService.get<string[]>(`${environment.apiUrl}/user/classes`);
+}
+
+// Fetch students for a specific group (matches backend ClassStudentsDTO)
+// }
+
+getStudentsInGroup(groupName: string): Observable<{ className: string; students: string[] }[]> {
+  return this.apiService.get<{ className: string; students: string[] }[]>(
+    `${environment.apiUrl}/user/groups/${groupName}/studentsgrouped`
+  );
+}
+
+
+//   getAllGroups(): Observable<any[]> {
+//     return this.apiService.get<any[]>(`${this.apiUrl}/Groups`);
+//   }
+
+  
+
+  
+// getStudentsInGroup(groupName: string): Observable<User[]> {
+//   return this.apiService.get<{ name: string }[]>(
+//     `${environment.apiUrl}/user/groups/${groupName}/students`
+//   ).pipe(
+//     map(res => res.map(s => ({
+//       id: '', // backend doesn’t provide id
+//       fullName: s.name,
+//       userName: s.name,
+//       role: 'Student'
+//     })))
+//   );
+// }
+
+
+
+
 }

@@ -13,4 +13,6 @@ public class LdapUserDTO
 {
     [LDAPMapping("cn")]
     public string Name { get; set; }
+    [LDAPMapping("memberOf")]
+    public string ClassName { get; set; } = string.Empty;
 }

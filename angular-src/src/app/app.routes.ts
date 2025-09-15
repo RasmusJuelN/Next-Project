@@ -13,6 +13,7 @@ import { roleGuard } from './core/guards and interceptors/role-guard.guard';
 import { ResultHistoryComponent } from './features/misc/result-history/result-history.component';
 import { Role } from './shared/models/user.model';
 import { ShowActiveQuestionnaireComponent } from './features/show-active-questionnaire/show-active-questionnaire.component';
+import { TestcomponentComponent } from './features/active-questionnaire-manager/components/testcomponent/testcomponent.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -22,7 +23,8 @@ export const routes: Routes = [
     component: ResultComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: [Role.Teacher, Role.Student] },
-  }
+  },
+  { path: 'test', component: TestcomponentComponent, canActivate: [authGuard] }
   ,
   {
     path: 'show-active-questionnaires',

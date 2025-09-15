@@ -30,6 +30,26 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
         return user?.ToDto();
     }
 
+    // for get all student and teacher 
+    //public async Task<List<FullUser>> GetAllTeachersAsync()
+    //{
+    //    return await _context.Users
+    //        .OfType<TeacherModel>()
+    //        .Select(t => t.ToDto())
+    //        .ToListAsync();
+    //}
+
+    //public async Task<List<FullUser>> GetAllStudentsAsync()
+    //{
+    //    return await _context.Users
+    //        .OfType<StudentModel>()
+    //        .Select(s => s.ToDto())
+    //        .ToListAsync();
+    //}
+
+
+
+
     public async Task<Guid?> GetIdOfOldestActiveQuestionnaire(Guid id)
     {
         return await _context.ActiveQuestionnaires

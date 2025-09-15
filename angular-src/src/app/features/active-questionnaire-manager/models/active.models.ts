@@ -46,6 +46,11 @@ export interface ActiveQuestionnaire {
   //   export interface LdapUserDTO {
   //     name: string;
   // }
+  
   export interface Student {
+  id: string;
   name: string;
+  className: string;
+  // fullName?: string;
+  // userName?: string;
 }

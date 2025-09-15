@@ -6,6 +6,7 @@ using API.DTO.Responses.User;
 using API.Exceptions;
 using API.Extensions;
 using API.Services;
+using Database.DTO;
 using Database.DTO.ActiveQuestionnaire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -129,5 +130,67 @@ namespace API.Controllers
                 return StatusCode(500, $"Error fetching students: {ex.Message}");
             }
         }
+
+        //[HttpGet("Search")]
+        //[Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        //public ActionResult<UserPaginationResult> SearchStudents([FromQuery] string term, [FromQuery] int pageSize = 10)
+        //{
+        //    var result = _userService.SearchStudentsAcrossGroups(term, pageSize, null);
+        //    return Ok(result);
+        //}
+
+        [HttpGet("Groups/{groupName}/StudentsGrouped")]
+        public ActionResult<ClassStudentsDTO> GetStudentsGrouped(string groupName)
+        {
+            try
+            {
+                var students = _userService.GetStudentsInGroup(groupName);
+                var grouped = _userService.GetStudentsGrouped(students);
+                return Ok(grouped);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching grouped students: {ex.Message}");
+            }
+        }
+        //[HttpGet("Groups/Classes")]
+        //[Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        //public ActionResult<List<string>> GetAllClasses()
+        //{
+        //    try
+        //    {
+        //        var classes = _userService.GetAllClassNames();
+        //        return Ok(classes); 
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error fetching class names: {ex.Message}");
+        //    }
+        //}
+
+        [HttpGet("classes")]
+        public IActionResult GetClasses()
+        {
+            var classes = _userService.GetClassesWithStudentRole();
+            return Ok(classes);
+        }
+        //[HttpGet("SearchDynamic")]
+        //[Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        //public async Task<ActionResult<List<string>>> SearchDynamic([FromQuery] string term, [FromQuery] string type)
+        //{
+        //    try
+        //    {
+        //        var results = await _userService.SearchClassesOrTeachers(term, type);
+        //        return Ok(results);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error searching {type}: {ex.Message}");
+        //    }
+        //}
+
+
+
+
     }
 }

@@ -6,8 +6,16 @@ import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
+import { Student } from '../../models/active.models';
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
+
+// Extend the SearchEntity type for users to include sessionId and hasMore
+interface UserSearchEntity<T> extends SearchEntity<T> {
+  sessionId?: string;
+  hasMore?: boolean;
+}
+
 interface UserSearchEntity<T> extends SearchEntity<T> {
   sessionId?: string;
   hasMore?: boolean;
@@ -27,23 +35,53 @@ type SearchType = 'student' | 'teacher' | 'template';
   templateUrl: './active-builder.component.html',
   styleUrls: ['./active-builder.component.css']
 })
+
 export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
+
   public groupName: string = '';
+  public groupSearchInput: string = '';
   public isAnonymousMode = false;
+
+  public groups: { name: string }[] = [];
   
-  public student: UserSearchEntity<User> = {
-    selected: [],
-    searchInput: '',
-    searchResults: [],
-    page: 1,
-    totalPages: 1,
-    isLoading: false,
-    errorMessage: null,
-    searchSubject: new Subject<string>(),
-    sessionId: undefined,
-    hasMore: false
-  };
+
+  // public studentsByGroup: { [groupName: string]: User[] } = {};
+   public studentsByGroup: { [groupName: string]: Student[] } = {};
+   // public studentsByGroup: { [groupName: string]: any[] } = {};
+      // public allStudentsFlat: { name: string; className: string }[] = [];
+    public allStudentsFlat: Student[] = [];
+
+
+  public showStudentsFor: string | null = null; // for collapse/expand
+  public searchedGroupName: string | null = null; 
+  
+  
+  // public student: UserSearchEntity<User> = {
+  //   selected: [],
+  //   searchInput: '',
+  //   searchResults: [],
+  //   page: 1,
+  //   totalPages: 1,
+  //   isLoading: false,
+  //   errorMessage: null,
+  //   searchSubject: new Subject<string>(),
+  //   sessionId: undefined,
+  //   hasMore: false
+  // };
+  public student: UserSearchEntity<Student> = {
+  selected: [],
+  searchInput: '',
+  searchResults: [],
+  page: 1,
+  totalPages: 1,
+  isLoading: false,
+  errorMessage: null,
+  searchSubject: new Subject<string>(),
+  sessionId: undefined,
+  hasMore: false
+};
+
 
   public teacher: UserSearchEntity<User> = {
     selected: [],
@@ -77,26 +115,29 @@ export class ActiveBuilderComponent implements OnInit {
 
   ngOnInit(): void {
     // Subscribe to debounced search subjects.
-    this.student.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((term) => {
-        this.fetch('student', term);
-      });
+    // Subscribe to debounced search subjects.
+    this.student.searchSubject.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(term => this.fetch('student', term));
 
-    this.teacher.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((term) => {
-        this.fetch('teacher', term);
-      });
+    this.teacher.searchSubject.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(term => this.fetch('teacher', term));
 
-    this.template.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((term) => {
-        this.fetch('template', term);
-      });
+    this.template.searchSubject.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(term => this.fetch('template', term));
+
+    //  this.student.searchSubject.pipe(debounceTime(300), distinctUntilChanged())
+    //  .subscribe(term => this.fetch('student', term));
+
+    this.activeService.getClasses().subscribe(classes => {
+  this.groups = classes.map(c => ({ name: c }));
+
+  // Optionally preload students for each group
+  this.groups.forEach(group => this.loadStudentsForGroup(group.name));
+});
+
+
   }
 
-  // Returns the proper state based on the entity.
   private getState(entity: SearchType): SearchEntity<any> {
     if (entity === 'student') {
       return this.student;
@@ -108,46 +149,87 @@ export class ActiveBuilderComponent implements OnInit {
     throw new Error(`Unknown entity: ${entity}`);
   }
 
-  // Updated fetch method that always resets the search results and uses a constant page size.
+
+  
+  // private fetch(entity: SearchType, term: string): void {
+  //   const state = this.getState(entity);
+  //   if (!term.trim()) return;
+
+  //   state.page = 1;
+  //   state.searchResults = [];
+  //   state.isLoading = true;
+  //   state.errorMessage = null;
+
+  //   if (entity === 'student') {
+  //     // Client-side search across all students
+  //     state.searchResults = this.allStudentsFlat.filter(s =>
+  //       s.name.toLowerCase().includes(term.toLowerCase())
+  //     );
+  //     state.isLoading = false;
+  //     return;
+  //   }
+
+  //   // teacher/template backend fetch logic remains
+  //   if (entity === 'teacher') {
+  //     const userState = state as UserSearchEntity<User>;
+  //     this.activeService.searchUsers(term, entity, this.searchAmount, userState.sessionId).subscribe({
+  //       next: response => {
+  //         userState.searchResults = response.userBases || [];
+  //         userState.sessionId = response.sessionId;
+  //         userState.hasMore = false;
+  //         state.isLoading = false;
+  //       },
+  //       error: () => {
+  //         state.errorMessage = `Failed to load ${entity}s.`;
+  //         state.isLoading = false;
+  //       }
+  //     });
+  //   }
+
+  //   if (entity === 'template') {
+  //     const templateState = state as TemplateSearchEntity;
+  //     this.activeService.searchTemplates(term, templateState.queryCursor).subscribe({
+  //       next: response => {
+  //         templateState.searchResults = response.templateBases;
+  //         templateState.totalPages = 1;
+  //         state.isLoading = false;
+  //       },
+  //       error: () => {
+  //         state.errorMessage = 'Failed to load templates.';
+  //         state.isLoading = false;
+  //       }
+  //     });
+  //   }
+  // }
+
   private fetch(entity: SearchType, term: string): void {
-    const state = this.getState(entity);
-    if (!term.trim()) return;
-
-    // Always treat this as a new search.
-    state.page = 1;
+  const state = this.getState(entity);
+  if (!term.trim()) {
     state.searchResults = [];
-    if (entity !== 'template') {
-      (state as UserSearchEntity<User>).sessionId = undefined;
-    } else {
-      (state as TemplateSearchEntity).queryCursor = undefined;
-    }
-    state.isLoading = true;
-    state.errorMessage = null;
+    state.isLoading = false;
+    return;
+  }
 
-    if (entity === 'template') {
-      // For templates, pass the fixed searchAmount. (Assumes activeService.searchTemplates is updated accordingly.)
-      const templateState = state as TemplateSearchEntity;
-      this.activeService.searchTemplates(term, templateState.queryCursor).subscribe({
-        next: (response) => {
-          templateState.searchResults = response.templateBases;
-          // Disable load-more functionality by setting totalPages to 1.
-          templateState.totalPages = 1;
-          state.isLoading = false;
-        },
-        error: () => {
-          state.errorMessage = 'Failed to load templates.';
-          state.isLoading = false;
-        }
-      });
-    } else {
+  state.isLoading = true;
+  state.errorMessage = null;
+
+  if (entity === 'student') {
+    const searchTerm = term.toLowerCase();
+    state.searchResults = this.allStudentsFlat
+      .filter(s => s.name.toLowerCase().includes(searchTerm))
+      .sort((a, b) => a.name.localeCompare(b.name)); // sort alphabetically
+    state.isLoading = false;
+    return;
+  }
+
+  // teacher/template backend logic...
+   // teacher/template backend fetch logic remains
+    if (entity === 'teacher') {
       const userState = state as UserSearchEntity<User>;
-      // Use searchAmount (10) as the number of results.
       this.activeService.searchUsers(term, entity, this.searchAmount, userState.sessionId).subscribe({
-        next: (response) => {
-          const userBases = response.userBases || [];
-          userState.searchResults = userBases;
+        next: response => {
+          userState.searchResults = response.userBases || [];
           userState.sessionId = response.sessionId;
-          // Remove ability to load more.
           userState.hasMore = false;
           state.isLoading = false;
         },
@@ -157,7 +239,25 @@ export class ActiveBuilderComponent implements OnInit {
         }
       });
     }
-  }
+
+    if (entity === 'template') {
+      const templateState = state as TemplateSearchEntity;
+      this.activeService.searchTemplates(term, templateState.queryCursor).subscribe({
+        next: response => {
+          templateState.searchResults = response.templateBases;
+          templateState.totalPages = 1;
+          state.isLoading = false;
+        },
+        error: () => {
+          state.errorMessage = 'Failed to load templates.';
+          state.isLoading = false;
+        }
+      });
+    }
+}
+
+
+  
 
   onInputChange(entity: SearchType, value: string): void {
     const state = this.getState(entity);
@@ -165,7 +265,6 @@ export class ActiveBuilderComponent implements OnInit {
     state.searchSubject.next(value);
   }
 
-  // Add or remove user from selected array
   select(entity: SearchType, item: any): void {
     const state = this.getState(entity);
     if (!Array.isArray(state.selected)) {
@@ -177,9 +276,7 @@ export class ActiveBuilderComponent implements OnInit {
     } else {
       state.selected.splice(idx, 1);
     }
-    // Do NOT clear search results so user can select multiple
     state.searchInput = '';
-    // state.searchResults = [];
   }
 
   clearSelected(entity: SearchType): void {
@@ -189,7 +286,6 @@ export class ActiveBuilderComponent implements OnInit {
 
   createActiveQuestionnaire(): void {
     if (this.isAnonymousMode) {
-      // Anonymous mode: only participants and template
       if (
         !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
         !Array.isArray(this.template.selected) || this.template.selected.length === 0 ||
@@ -209,7 +305,6 @@ export class ActiveBuilderComponent implements OnInit {
       return;
     }
 
-    // Normal mode: students, teachers, template, group name
     if (
       !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
       !Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0 ||
@@ -236,8 +331,109 @@ export class ActiveBuilderComponent implements OnInit {
     });
   }
 
-
   onBackToList(): void {
     this.backToListEvent.emit();
   }
+
+// loadStudentsForGroup(groupName: string) {
+//   this.activeService.getStudentsInGroup(groupName).subscribe({
+//     next: response => {
+//       console.log('API response for group', groupName, response); // <-- log full API response
+
+//       // Find class object matching group
+//       const classData = response.find(c => c.className.toLowerCase() === groupName.toLowerCase());
+//       console.log('Matched classData', classData); // <-- log matched class
+
+//       if (!classData) {
+//         this.studentsByGroup[groupName] = [];
+//         return;
+//       }
+
+//       // Map strings to Student[]
+//       this.studentsByGroup[groupName] = classData.students.map((s: any) => ({
+//         name: typeof s === 'string' ? s : s.fullName || s.userName
+//       }));
+
+//       console.log('Mapped studentsByGroup', groupName, this.studentsByGroup[groupName]); // <-- log mapped students
+//     },
+//     error: err => {
+//       console.error('Failed to load students for group:', groupName, err);
+//       this.studentsByGroup[groupName] = [];
+//     }
+//   });
+// }
+
+loadStudentsForGroup(groupName: string) {
+  this.activeService.getStudentsInGroup(groupName).subscribe({
+    next: response => {
+      const classData = (response || []).find(
+        (c: any) => (c.className || '').toLowerCase() === groupName.toLowerCase()
+      );
+
+      if (!classData) {
+        this.studentsByGroup[groupName] = [];
+        return;
+      }
+
+      // Map students
+      const mappedStudents: Student[] = (classData.students || []).map((s: any) => ({
+        id: s.id || s.userId || s.userName || s.name, // unique ID
+        name: typeof s === 'string' ? s : s.fullName || s.userName || s.name || '',
+        className: classData.className
+      }));
+
+      this.studentsByGroup[groupName] = mappedStudents;
+
+      // Add to flat list if not already there
+      this.allStudentsFlat = [
+        ...this.allStudentsFlat,
+        ...mappedStudents.filter(ms => !this.allStudentsFlat.find(a => a.id === ms.id))
+      ];
+    },
+    error: err => {
+      console.error('Failed to load students for group:', groupName, err);
+      this.studentsByGroup[groupName] = [];
+    }
+  });
+}
+
+
+
+
+  onGroupClick(groupName: string) {
+    this.showStudentsFor = this.showStudentsFor === groupName ? null : groupName;
+    // if (this.showStudentsFor === groupName) {
+    //   this.loadStudentsForGroup(groupName);
+    // }
+  }
+
+
+  searchGroup() {
+  const input = this.groupSearchInput.trim();
+  if (!input) {
+    this.searchedGroupName = null;
+    return;
+  }
+
+  this.loadStudentsForGroup(input);
+  this.searchedGroupName = input; // keep the same casing
+}
+filteredStudents(groupName: string): Student[] {
+    const students = this.studentsByGroup[groupName] || [];
+    const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
+    if (!searchTerm) return students;
+    return students.filter(s => s.name.toLowerCase().includes(searchTerm));
+  }
+
+  
+get filteredStudentsByName(): Student[] {
+  const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
+  if (!searchTerm) return [];
+
+  return this.allStudentsFlat.filter(s => s.name.toLowerCase().includes(searchTerm));
+}
+
+
+
+
 }

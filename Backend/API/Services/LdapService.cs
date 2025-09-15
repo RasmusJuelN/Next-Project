@@ -392,22 +392,6 @@ public class LdapService
         return mappedLdapResult;
     }
 
-
-    //private static LdapMappedEntity MapLdapEntry<LdapMappedEntity>(LdapEntry entry) where LdapMappedEntity : new()
-    //{
-    //    LdapMappedEntity mappedLdapResult = new();
-
-    //    foreach (PropertyInfo prop in mappedLdapResult.GetType().GetProperties())
-    //    {
-    //        foreach (LDAPMapping attr in prop.GetCustomAttributes<LDAPMapping>())
-    //        {
-    //            prop.SetValue(mappedLdapResult, entry.GetAttribute(attr.Name));
-    //        }
-    //    }
-
-    //    return mappedLdapResult;
-    //}
-
     private void WithSASL(string username, string password)
     {
         string FQDN = _LDAPSettings.FQDN;
@@ -451,6 +435,24 @@ public class LdapService
 
         return SearchLDAP<LdapUserDTO>(searchFilter, _LDAPSettings.BaseDN);
     }
+    // Return all group names (CN values)
+    public List<string> GetAllGroups()
+    {
+        Authenticate(); // make sure connection is bound
 
+        string searchFilter = "(objectCategory=group)";
+        var groups = SearchLDAP<GroupDistinguishedName>(searchFilter, _LDAPSettings.BaseDN);
+
+        // Extract CN values from DistinguishedName
+        return groups
+            .Select(g =>
+            {
+                var cnPart = g.DistinguishedName.StringValue.Split(',')[0]; // "CN=H1"
+                return cnPart.StartsWith("CN=") ? cnPart.Substring(3) : cnPart;
+            })
+            .ToList();
+    }
+
+    public string GetBaseDN() => _LDAPSettings.BaseDN;
 
 }
