@@ -29,7 +29,6 @@ public class ActiveDirectoryAuthenticationBridge(
 
     public IQueryable<T> Query<T>()
     {
-        var providerLogger = _loggerFactory.CreateLogger<LdapQueryProvider>();
         var queryableLogger = _loggerFactory.CreateLogger<LdapQueryable<T>>();
 
         return new LdapQueryable<T>(new LdapQueryProvider(this, _loggerFactory, configuration), queryableLogger);
