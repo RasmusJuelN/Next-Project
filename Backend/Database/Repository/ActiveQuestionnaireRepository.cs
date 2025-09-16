@@ -281,7 +281,30 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
 
         return [.. activeQuestionnaires.Select(a => a.ToFullResponse()) ];
     }
+    public async Task<List<FullResponseDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
+    {
+        QuestionnaireTemplateModel template = await _context.QuestionnaireTemplates.SingleAsync(t => t.Id == templateid);
+        if (template.Title.IsNullOrEmpty())
+        {
+            throw new Exception("The requested Template Questionnaire does not exsist.");
+        }
 
+        List<ActiveQuestionnaireModel> activeQuestionnaires = await _context.ActiveQuestionnaires
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.TeacherAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.TeacherAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.Student)
+            .Include(a => a.Teacher)
+            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue && a.TeacherCompletedAt.HasValue)
+            .ToListAsync();
+
+        return [.. activeQuestionnaires.Select(a => a.ToFullResponseDate())];
+    }
 
 
 }

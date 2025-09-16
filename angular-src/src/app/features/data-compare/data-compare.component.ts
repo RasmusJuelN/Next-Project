@@ -1,3 +1,5 @@
+
+
 import { CommonModule } from "@angular/common";
 import {
   Component,
@@ -48,6 +50,10 @@ type SearchType = "student" | "template";
   styleUrl: "./data-compare.component.css",
 })
 export class DataCompareComponent implements OnInit, OnDestroy {
+  // State for question navigation
+  public currentQuestionIndex: number = 0;
+  public questions: string[] = [];
+  private allAnswers: any[] = [];
   @ViewChild("studentSearchArea", { static: false })
   studentSearchArea!: ElementRef;
   @ViewChild("templateSearchArea", { static: false })
@@ -268,8 +274,8 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         const allAnswers = apiData.flatMap(dc => dc.answers.map(ans => ({
           question: ans.question,
           studentResponse: ans.studentResponse,
-          year: new Date(dc.student.completedAt).getFullYear(),
-          month: new Date(dc.student.completedAt).toLocaleString('default', { month: 'short' }),
+          year: dc.studentCompletedAt.getFullYear(),
+          month: dc.studentCompletedAt.toLocaleString('default', { month: 'short' }),
         })));
         console.log("allAnswers", allAnswers)
         // Get unique questions for x-axis
@@ -330,43 +336,94 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     const templateId = this.template.selected[0]?.id;
     if (studentId && templateId) {
       this.DataCompareService.canGetData(studentId, templateId).subscribe({
-        next: (chartData) => {
-          this.chartOptions = {
-            data: this.getData(chartData),
-            title: { text: 'Elev Data Sammenligning' },
-            series: [
-            {
-              type: "line",
-              xKey: "question",
-              yKey: "AnswersStudent",
-              yName: "Student2025",
-            },
-            {
-              type: "line",
-              xKey: "question",
-              yKey: "AnswersTeacher",
-              yName: "Teacher2025",
-            },
-          ],
-            axes: [
-              { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
-              { type: 'number', position: 'left', title: { text: 'Svar' } },
-            ],
-          };
+        next: (apiData) => {
+          // Flatten all answers from all DataCompare objects
+          const allAnswers = apiData.flatMap(dc => dc.answers.map(ans => ({
+            question: ans.question,
+            studentResponse: ans.studentResponse,
+            year: String(new Date(dc.studentCompletedAt).getFullYear()),
+            date: new Date(dc.studentCompletedAt).toLocaleDateString(),
+          })));
+          // Get unique questions
+          this.allAnswers = allAnswers;
+          this.questions = Array.from(new Set(allAnswers.map(a => a.question)));
+          this.currentQuestionIndex = 0;
+          this.updateChartForCurrentQuestion();
+        },
+        error: (err) => {
+          this.chartOptions = null;
+          console.warn("Error fetching chart data", err);
         }
       });
     }
-    
   }
-  getData(chartData: any[]): any[] {
 
-    console.log("Transformed Data:", chartData);  
-    return chartData[0].answers.map((item: { question: any; }) =>({
-      question: item.question,
-      AnswersStudent: 2,
-      AnswersTeacher: 1,
-      Numbers: "nameTest",
+  // Update chart for the currently selected question
+  updateChartForCurrentQuestion() {
+    if (!this.questions.length) return;
+    const question = this.questions[this.currentQuestionIndex];
+    // Get all answers for this question
+    const answersForQuestion = this.allAnswers.filter(a => a.question === question);
+    // Group answers by year, and keep dates for tooltips
+    const yearGroups: { [year: string]: { answer: string, date: string }[] } = {};
+    answersForQuestion.forEach(a => {
+      if (!yearGroups[a.year]) yearGroups[a.year] = [];
+      yearGroups[a.year].push({ answer: a.studentResponse, date: a.date });
+    });
+    const years = Object.keys(yearGroups).sort();
+    // Get all possible answers for this question (from all years)
+    const answerLabels = Array.from(new Set(answersForQuestion.map(a => a.studentResponse)));
+    // Build chart data: one entry per year, each answer as a value (count of times chosen that year), and store dates for tooltips
+    const chartData = years.map(year => {
+      const entry: any = { year };
+      answerLabels.forEach(ans => {
+        // Find all dates for this answer in this year
+        const matches = yearGroups[year].filter(val => val.answer === ans);
+        entry[ans] = matches.length;
+        entry[`${ans}_dates`] = matches.map(m => m.date);
+      });
+      return entry;
+    });
+    // Build series for each answer
+    const series = answerLabels.map(ans => ({
+      type: 'bar',
+      xKey: 'year',
+      yKey: ans,
+      yName: ans,
+      stacked: true,
+      tooltip: {
+        renderer: (params: any) => {
+          if (params.datum[ans]) {
+            const dates = params.datum[`${ans}_dates`];
+            return { content: `Svar: ${ans} (${params.datum[ans]})<br>Dato: ${Array.isArray(dates) ? dates.join(', ') : ''}` };
+          }
+          return { content: '' };
+        }
+      }
     }));
+    this.chartOptions = Object.assign({}, {
+      data: chartData,
+      title: { text: question },
+      series,
+      axes: [
+        { type: 'category', position: 'bottom', title: { text: 'År' } },
+        { type: 'number', position: 'left', title: { text: 'Antal svar' }, min: 0 },
+      ],
+    });
+  }
+
+  // Navigation for questions
+  nextQuestion() {
+    if (this.currentQuestionIndex < this.questions.length - 1) {
+      this.currentQuestionIndex++;
+      this.updateChartForCurrentQuestion();
+    }
+  }
+  prevQuestion() {
+    if (this.currentQuestionIndex > 0) {
+      this.currentQuestionIndex--;
+      this.updateChartForCurrentQuestion();
+    }
   }
 } 
 

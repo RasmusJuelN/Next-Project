@@ -298,6 +298,13 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
 
     }
 
+    internal async Task<List<FullResponseDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
+    {
+
+        return await _unitOfWork.ActiveQuestionnaire.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);
+
+    }
+
     // The new() constraint on generics don't allow classes with required properties, so we can't make this generic :v
     private UserAdd GenerateStudent(Guid id)
     {

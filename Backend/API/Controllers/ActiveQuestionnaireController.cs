@@ -240,5 +240,25 @@ namespace API.Controllers
             }
             else { return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid)); }
         }
+
+        [HttpGet("{studentid},{templateid}/getResponsesFromUserAndTemplateWithDate")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<List<FullResponse>>> GetResponsesFromTemplatesAndStudentWithDate(Guid studentid, Guid templateid)
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
+                return Unauthorized();
+            }
+
+            List<FullResponseDate> response = await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);
+
+            return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid));
+        }
     }
 }

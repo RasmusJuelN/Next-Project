@@ -109,6 +109,19 @@
         <div class=" flex justify-center mt-8 w-full">
             <ag-charts class="w-[800px]" [options]="chartOptions"></ag-charts>
         </div>
+        <div class="flex justify-center items-center mt-4 gap-4">
+            <button (click)="prevQuestion()" [disabled]="currentQuestionIndex === 0"
+                class="px-3 py-2 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
+                &#8592;
+            </button>
+            <span class="text-lg font-medium">
+                {{ currentQuestionIndex + 1 }} / {{ questions.length }}
+            </span>
+            <button (click)="nextQuestion()" [disabled]="currentQuestionIndex === questions.length - 1"
+                class="px-3 py-2 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
+                &#8594;
+            </button>
+        </div>
         <div class="flex justify-center mt-6">
             <button 
                 (click)="onCompareClick()"

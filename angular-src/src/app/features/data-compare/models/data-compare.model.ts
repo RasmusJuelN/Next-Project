@@ -6,10 +6,7 @@ export interface DataCompare {
   id: string;
   title: string;
   description?: string | null;
-  student: {
-    user: User; // Ensure User type reflects properties like guid, primaryRole, etc.
-    completedAt: Date;
-  };
+  studentCompletedAt: Date;
   answers: Answer[];
 }
 

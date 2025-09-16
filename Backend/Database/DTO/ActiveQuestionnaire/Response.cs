@@ -22,10 +22,18 @@ public record class TeacherResponse : ResponseBase
     public required List<TeacherAnswer> Answers { get; set; }
 }
 
+
+
 public record class FullResponse : ResponseBase
 {
     public required Student Student { get; set; }
     public required Teacher Teacher { get; set; }
+    public required List<FullAnswer> Answers { get; set; }
+}
+
+public record class FullResponseDate : ResponseBase
+{
+    public DateTime? StudentCompletedAt { get; set; }
     public required List<FullAnswer> Answers { get; set; }
 }
 

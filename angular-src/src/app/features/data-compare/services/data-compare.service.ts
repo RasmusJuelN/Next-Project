@@ -13,7 +13,7 @@ export class DataCompareService {
   private apiService = inject(ApiService);
 
   canGetData(studentId:string, templateId:string){
-    return this.apiService.get<Array<DataCompare>>(`${this.apiUrl}/${studentId},${templateId}/getresponsesfromuserandtemplate`);
+    return this.apiService.get<Array<DataCompare>>(`${this.apiUrl}/${studentId},${templateId}/getresponsesfromuserandtemplatewithdate`);
   }
 
 

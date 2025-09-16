@@ -54,4 +54,21 @@ public static class ActiveQuestionnaireMapper
             })]
         };
     }
+    public static FullResponseDate ToFullResponseDate(this ActiveQuestionnaireModel activeQuestionnaire)
+    {
+        return new()
+        {
+            Id = activeQuestionnaire.Id,
+            Title = activeQuestionnaire.Title,
+            Description = activeQuestionnaire.Description,
+            StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
+            Answers = [.. activeQuestionnaire.StudentAnswers.Zip(activeQuestionnaire.TeacherAnswers).Select(a => new FullAnswer {
+                Question = a.First.Question!.Prompt,
+                StudentResponse = a.First.CustomResponse ?? a.First.Option!.DisplayText,
+                IsStudentResponseCustom = a.First.CustomResponse is not null,
+                TeacherResponse = a.Second.CustomResponse ?? a.Second.Option!.DisplayText,
+                IsTeacherResponseCustom = a.Second.CustomResponse is not null
+            })]
+        };
+    }
 }
