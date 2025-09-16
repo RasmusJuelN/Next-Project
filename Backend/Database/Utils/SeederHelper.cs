@@ -61,7 +61,7 @@ public class SeederHelper(ModelBuilder modelBuilder)
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to initialize seeder {seederType.Name}: {ex.Message}");
+                Console.WriteLine($"Error executing seeder {seederType.Name}: {ex}");
             }
         }
     }
