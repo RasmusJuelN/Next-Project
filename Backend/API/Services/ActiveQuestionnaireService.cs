@@ -86,9 +86,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
 
     public async Task<QuestionnaireGroupResult> ActivateQuestionnaireGroup(ActivateQuestionnaireGroup request)
     {
-        _ldap.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
 
-        if (!_ldap.connection.Bound) throw new Exception("Failed to bind to the LDAP server.");
         // Ensure all students exist
         foreach (var studentId in request.StudentIds)
         {
