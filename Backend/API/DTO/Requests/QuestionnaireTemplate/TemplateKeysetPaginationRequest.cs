@@ -3,6 +3,9 @@ using Database.Enums;
 
 namespace API.DTO.Requests.QuestionnaireTemplate;
 
+/// <summary>
+/// Represents a request for paginating questionnaire templates using keyset pagination.
+/// </summary>
 public record class TemplateKeysetPaginationRequest
 {
     /// <summary>
