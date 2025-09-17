@@ -88,7 +88,7 @@ public class SingleStudentDataSeeder(ModelBuilder modelBuilder) : IDataSeeder<Ac
 
     DateTime todayMake1 = DateTime.Parse("2025 - 08 - 20 09:58:30.5360158");
     DateTime todayMake2 = DateTime.Parse("2025 - 08 - 21 09:58:30.5360158");
-    DateTime todayMake3 = DateTime.Parse("2025 - 08 - 22 09:58:30.5360158");
+    DateTime todayMake3 = DateTime.Parse("2024 - 08 - 22 09:58:30.5360158");
 
     Guid groupID1 = Guid.Parse("E66E1023-BE16-4CF6-ADA2-B5D1F5DBBF59");
 
