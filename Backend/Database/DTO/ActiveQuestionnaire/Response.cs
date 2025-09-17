@@ -61,10 +61,9 @@ public record class FullResponse : ResponseBase
     public required List<FullAnswer> Answers { get; set; }
 }
 
-public record class FullResponseDate : ResponseBase
+public record class FullStudentRespondsDate : StudentResponse
 {
     public DateTime? StudentCompletedAt { get; set; }
-    public required List<FullAnswer> Answers { get; set; }
 }
 
 //#################################################//

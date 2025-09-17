@@ -344,7 +344,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             throw new Exception("The requested Active Questionnaire is not yet completed.");
         }
         
-        return activeQuestionnaire.ToFullResponse();
+        return activeQuestionnaire.ToFullResponseAll();
     }
 
 
@@ -384,7 +384,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     }
 
 
-    public async Task<List<FullResponse>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid) 
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid) 
     {
         //get template based on templateid
         QuestionnaireTemplateModel template = await _context.QuestionnaireTemplates.SingleAsync(t => t.Id == templateid);
@@ -400,20 +400,14 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .ThenInclude(a => a.Question)
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Option)
-            .Include(a => a.TeacherAnswers)
-            .ThenInclude(a => a.Question)
-            .Include(a => a.TeacherAnswers)
-            .ThenInclude(a => a.Option)
             .Include(a => a.Student)
-            .Include(a => a.Teacher)
-            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue && a.TeacherCompletedAt.HasValue)
+            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue)
             .ToListAsync();
 
-
-
-        return [.. activeQuestionnaires.Select(a => a.ToFullResponse()) ];
+        return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate()) ];
     }
-    public async Task<List<FullResponseDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
+
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
     {
         QuestionnaireTemplateModel template = await _context.QuestionnaireTemplates.SingleAsync(t => t.Id == templateid);
         if (template.Title.IsNullOrEmpty())
@@ -435,7 +429,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue && a.TeacherCompletedAt.HasValue)
             .ToListAsync();
 
-        return [.. activeQuestionnaires.Select(a => a.ToFullResponseDate())];
+        return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate())];
     }
 
 

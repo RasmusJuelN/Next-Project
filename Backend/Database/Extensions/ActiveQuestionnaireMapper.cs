@@ -83,7 +83,7 @@ public static class ActiveQuestionnaireMapper
     /// <exception cref="ArgumentNullException">
     /// Thrown when the activeQuestionnaire parameter is null or when required completion timestamps are null.
     /// </exception>
-    public static FullResponse ToFullResponse(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static FullResponse ToFullResponseAll(this ActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {
@@ -101,20 +101,19 @@ public static class ActiveQuestionnaireMapper
             })]
         };
     }
-    public static FullResponseDate ToFullResponseDate(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static FullStudentRespondsDate ToFullStudentRespondsDate(this ActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {
             Id = activeQuestionnaire.Id,
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
+            Student = new() { User = activeQuestionnaire.Student.ToDto(), CompletedAt = (DateTime)activeQuestionnaire.StudentCompletedAt!},
             StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
-            Answers = [.. activeQuestionnaire.StudentAnswers.Zip(activeQuestionnaire.TeacherAnswers).Select(a => new FullAnswer {
-                Question = a.First.Question!.Prompt,
-                StudentResponse = a.First.CustomResponse ?? a.First.Option!.DisplayText,
-                IsStudentResponseCustom = a.First.CustomResponse is not null,
-                TeacherResponse = a.Second.CustomResponse ?? a.Second.Option!.DisplayText,
-                IsTeacherResponseCustom = a.Second.CustomResponse is not null
+            Answers = [.. activeQuestionnaire.StudentAnswers.Select(a => new StudentAnswer {
+                Question = a.Question!.Prompt,
+                StudentResponse = a.CustomResponse ?? a.Option!.DisplayText,
+                IsStudentResponseCustom = a.CustomResponse is not null
             })]
         };
     }

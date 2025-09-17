@@ -140,6 +140,6 @@ public interface IActiveQuestionnaireRepository
     /// </remarks>
     Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid id);
 
-    Task<List<FullResponse>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid);
-    Task<List<FullResponseDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid);
+    Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid);
+    Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid);
 }

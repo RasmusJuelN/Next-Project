@@ -398,14 +398,14 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         }
     }
 
-    internal async Task<List<FullResponse>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
+    internal async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
     {
 
         return await _unitOfWork.ActiveQuestionnaire.GetResponsesFromStudentAndTemplateAsync(studentid, templateid);
 
     }
 
-    internal async Task<List<FullResponseDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
+    internal async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
     {
 
         return await _unitOfWork.ActiveQuestionnaire.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);

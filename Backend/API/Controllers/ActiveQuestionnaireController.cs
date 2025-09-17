@@ -350,11 +350,11 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            List<FullResponse> response = await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid);
+            List<FullStudentRespondsDate> response = await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid);
 
             if (response.Count > 0)
             {
-                if (userId != response[0].Student.User.Guid && userId != response[0].Teacher.User.Guid)
+                if (userId != response[0].Student.User.Guid)
                 {
                     _logger.LogWarning("User {UserId} is not authorized to view questionnaire response for {QuestionnaireId}", userId, studentid);
                     return Unauthorized();
@@ -382,7 +382,7 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            List<FullResponseDate> response = await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);
+            List<FullStudentRespondsDate> response = await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);
 
             return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid));
         }

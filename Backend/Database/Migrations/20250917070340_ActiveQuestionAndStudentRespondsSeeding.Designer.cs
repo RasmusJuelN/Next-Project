@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20250916114611_StudentResponseSeeding")]
-    partial class StudentResponseSeeding
+    [Migration("20250917070340_ActiveQuestionAndStudentRespondsSeeding")]
+    partial class ActiveQuestionAndStudentRespondsSeeding
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,6 +74,47 @@ namespace Database.Migrations
                     b.HasIndex("Title");
 
                     b.ToTable("ActiveQuestionnaire");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("6135b27d-37c1-420c-b3ef-39f76649d515"),
+                            ActivatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Description for the new template",
+                            GroupId = new Guid("e66e1023-be16-4cf6-ada2-b5d1f5dbbf59"),
+                            QuestionnaireTemplateFK = new Guid("569e97ba-40ce-4d27-00f5-08ddd8c9910c"),
+                            StudentCompletedAt = new DateTime(2025, 8, 20, 9, 58, 30, 536, DateTimeKind.Unspecified).AddTicks(158),
+                            StudentFK = 1,
+                            TeacherCompletedAt = new DateTime(2025, 8, 20, 9, 58, 30, 536, DateTimeKind.Unspecified).AddTicks(158),
+                            TeacherFK = 2,
+                            Title = "Bedste Land"
+                        },
+                        new
+                        {
+                            Id = new Guid("77a08073-bd8e-45c0-90ea-88dc3f494bf8"),
+                            ActivatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Description for the new template",
+                            GroupId = new Guid("e66e1023-be16-4cf6-ada2-b5d1f5dbbf59"),
+                            QuestionnaireTemplateFK = new Guid("569e97ba-40ce-4d27-00f5-08ddd8c9910c"),
+                            StudentCompletedAt = new DateTime(2025, 8, 21, 9, 58, 30, 536, DateTimeKind.Unspecified).AddTicks(158),
+                            StudentFK = 1,
+                            TeacherCompletedAt = new DateTime(2025, 8, 21, 9, 58, 30, 536, DateTimeKind.Unspecified).AddTicks(158),
+                            TeacherFK = 2,
+                            Title = "Bedste Land"
+                        },
+                        new
+                        {
+                            Id = new Guid("fee3e2d9-0d4c-4509-bf50-f3251c8d98ea"),
+                            ActivatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Description for the new template",
+                            GroupId = new Guid("e66e1023-be16-4cf6-ada2-b5d1f5dbbf59"),
+                            QuestionnaireTemplateFK = new Guid("569e97ba-40ce-4d27-00f5-08ddd8c9910c"),
+                            StudentCompletedAt = new DateTime(2025, 8, 22, 9, 58, 30, 536, DateTimeKind.Unspecified).AddTicks(158),
+                            StudentFK = 1,
+                            TeacherCompletedAt = new DateTime(2025, 8, 22, 9, 58, 30, 536, DateTimeKind.Unspecified).AddTicks(158),
+                            TeacherFK = 2,
+                            Title = "Bedste Land"
+                        });
                 });
 
             modelBuilder.Entity("Database.Models.ActiveQuestionnaireResponseBaseModel", b =>
@@ -761,65 +802,65 @@ namespace Database.Migrations
                         new
                         {
                             Id = -1,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
-                            OptionFK = 45,
-                            QuestionFK = 13
+                            ActiveQuestionnaireFK = new Guid("fee3e2d9-0d4c-4509-bf50-f3251c8d98ea"),
+                            OptionFK = 52,
+                            QuestionFK = 15
                         },
                         new
                         {
                             Id = -2,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
+                            ActiveQuestionnaireFK = new Guid("77a08073-bd8e-45c0-90ea-88dc3f494bf8"),
                             OptionFK = 47,
                             QuestionFK = 14
                         },
                         new
                         {
                             Id = -3,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
-                            OptionFK = 52,
-                            QuestionFK = 15
-                        },
-                        new
-                        {
-                            Id = -4,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
-                            OptionFK = 43,
+                            ActiveQuestionnaireFK = new Guid("6135b27d-37c1-420c-b3ef-39f76649d515"),
+                            OptionFK = 45,
                             QuestionFK = 13
                         },
                         new
                         {
+                            Id = -4,
+                            ActiveQuestionnaireFK = new Guid("fee3e2d9-0d4c-4509-bf50-f3251c8d98ea"),
+                            OptionFK = 55,
+                            QuestionFK = 15
+                        },
+                        new
+                        {
                             Id = -5,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
+                            ActiveQuestionnaireFK = new Guid("77a08073-bd8e-45c0-90ea-88dc3f494bf8"),
                             OptionFK = 49,
                             QuestionFK = 14
                         },
                         new
                         {
                             Id = -6,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
-                            OptionFK = 55,
-                            QuestionFK = 15
-                        },
-                        new
-                        {
-                            Id = -7,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
-                            OptionFK = 44,
+                            ActiveQuestionnaireFK = new Guid("6135b27d-37c1-420c-b3ef-39f76649d515"),
+                            OptionFK = 43,
                             QuestionFK = 13
                         },
                         new
                         {
+                            Id = -7,
+                            ActiveQuestionnaireFK = new Guid("fee3e2d9-0d4c-4509-bf50-f3251c8d98ea"),
+                            OptionFK = 56,
+                            QuestionFK = 15
+                        },
+                        new
+                        {
                             Id = -8,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
+                            ActiveQuestionnaireFK = new Guid("77a08073-bd8e-45c0-90ea-88dc3f494bf8"),
                             OptionFK = 48,
                             QuestionFK = 14
                         },
                         new
                         {
                             Id = -9,
-                            ActiveQuestionnaireFK = new Guid("3bea93c1-7c90-4c26-e329-08dddf06e1a3"),
-                            OptionFK = 56,
-                            QuestionFK = 15
+                            ActiveQuestionnaireFK = new Guid("6135b27d-37c1-420c-b3ef-39f76649d515"),
+                            OptionFK = 44,
+                            QuestionFK = 13
                         });
                 });
 
