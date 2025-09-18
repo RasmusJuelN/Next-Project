@@ -113,18 +113,46 @@
             </button>
         </div>
         <div class="flex justify-center items-center mt-4 gap-4">
-            <button (click)="prevQuestion()" [disabled]="currentQuestionIndex === 0"
-                class="px-3 py-2 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
-                &#8592;
-            </button>
-            <span class="text-lg font-medium">
-                {{ currentQuestionIndex + 1 }} / {{ questions.length }}
-            </span>
-            <button (click)="nextQuestion()" [disabled]="currentQuestionIndex === questions.length - 1"
-                class="px-3 py-2 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
-                &#8594;
-            </button>
+            <!-- Question navigation -->
+            <div class="flex flex-col gap-4">
+                <div>
+                    <button (click)="prevQuestion()" [disabled]="currentQuestionIndex === 0"
+                        class="px-3 py-2 rounded-full bg-blue-200 hover:bg-blue-300 disabled:opacity-50">
+                        &#8592;
+                    </button>
+                    <span class="text-lg font-medium">
+                        {{ currentQuestionIndex + 1 }} / {{ questions.length }}
+                    </span>
+                    <button (click)="nextQuestion()" [disabled]="currentQuestionIndex === questions.length - 1"
+                        class="px-3 py-2 rounded-full bg-blue-200 hover:bg-blue-300 disabled:opacity-50">
+                        &#8594;
+                    </button>
+                </div>
+
+                <!-- Year navigation -->
+                <div>
+                    <button (click)="prevYear()" [disabled]="currentYearIndex === 0"
+                        class="px-3 py-2 rounded-full bg-blue-200 hover:bg-blue-300 disabled:opacity-50">
+                        &#8592;
+                    </button>
+                    <span class="text-lg font-medium">
+                        {{ years[currentYearIndex] || 'xxxx' }}
+                    </span>
+                    <button (click)="nextYear()" [disabled]="currentYearIndex === years.length - 1"
+                        class="px-3 py-2 rounded-full bg-blue-200 hover:bg-blue-300 disabled:opacity-50">
+                        &#8594;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chart type dropdown -->
+
         </div>
+        <select [(ngModel)]="chartType" (change)="updateChartForCurrentQuestion()"
+            class="ml-4 px-2 py-1 rounded border border-gray-300 bg-white text-sm w-[150px]">
+            <option value="pie">Pie Chart</option>
+            <option value="bar">Bar Chart</option>
+        </select>
         <div class=" flex justify-center mt-8 w-full">
             <ag-charts class="w-[1000px] h-[500px]" [options]="chartOptions"></ag-charts>
         </div>

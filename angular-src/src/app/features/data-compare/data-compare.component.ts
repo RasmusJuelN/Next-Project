@@ -54,6 +54,9 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   public currentQuestionIndex: number = 0;
   public questions: string[] = [];
   private allAnswers: any[] = [];
+  public years: string[] = [];
+  public currentYearIndex: number = 0;
+  public chartType: string = 'pie';
   @ViewChild("studentSearchArea", { static: false })
   studentSearchArea!: ElementRef;
   @ViewChild("templateSearchArea", { static: false })
@@ -354,10 +357,12 @@ export class DataCompareComponent implements OnInit, OnDestroy {
             year: String(new Date(dc.studentCompletedAt).getFullYear()),
             date: new Date(dc.studentCompletedAt).toLocaleDateString(),
           })));
-          // Get unique questions
+          // Get unique questions and years
           this.allAnswers = allAnswers;
           this.questions = Array.from(new Set(allAnswers.map(a => a.question)));
+          this.years = Array.from(new Set(allAnswers.map(a => a.year))).sort();
           this.currentQuestionIndex = 0;
+          this.currentYearIndex = this.years.length > 0 ? this.years.length - 1 : 0;
           this.updateChartForCurrentQuestion();
         },
         error: (err) => {
@@ -368,75 +373,97 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Update chart for the currently selected question
+  // Update chart for the currently selected question and year
   updateChartForCurrentQuestion() {
-    if (!this.questions.length) return;
+    if (!this.questions.length || !this.years.length) return;
     const question = this.questions[this.currentQuestionIndex];
-    // Get all answers for this question
-    const answersForQuestion = this.allAnswers.filter(a => a.question === question);
-    // Group answers by year, and keep dates for tooltips
-    const yearGroups: { [year: string]: { answer: string, date: string }[] } = {};
-    answersForQuestion.forEach(a => {
-      if (!yearGroups[a.year]) yearGroups[a.year] = [];
-      yearGroups[a.year].push({ answer: a.studentResponse, date: a.date });
-    });
-    const years = Object.keys(yearGroups).sort();
-    // Show pie for current year (default: latest year)
-    const year = years.length ? years[years.length - 1] : '';
-    const pieData = yearGroups[year]?.map(a => a.answer) || [];
-    // Count answers for pie
+    const year = this.years[this.currentYearIndex];
+    // Get all answers for this question and year
+    const answersForQuestion = this.allAnswers.filter(a => a.question === question && a.year === year);
+    // Count answers for pie/bar
     const answerCounts: { [answer: string]: number } = {};
-    yearGroups[year]?.forEach(a => {
-      answerCounts[a.answer] = (answerCounts[a.answer] || 0) + 1;
+    answersForQuestion.forEach(a => {
+      answerCounts[a.studentResponse] = (answerCounts[a.studentResponse] || 0) + 1;
     });
-    // Pie chart expects array of { answer, count, date }
+    // Chart data: { answer, count, dates }
     const chartData = Object.keys(answerCounts).map(ans => {
       return {
         answer: ans,
         count: answerCounts[ans],
-        dates: yearGroups[year]?.filter(a => a.answer === ans).map(a => a.date) || [],
+        dates: answersForQuestion.filter(a => a.studentResponse === ans).map(a => a.date) || [],
       };
     });
-    // Pie chart options
-    this.chartOptions = {
-      data: chartData,
-      title: { text: `${question} (${year})` },
-      theme: 'ag-polychroma',
-      series: [
-        {
-          type: 'pie',
-          calloutLabelKey: 'answer',
-          sectorLabelKey: 'count',
-          angleKey: 'count',
-          calloutLabel: { offset: 20 },
-          sectorLabel: {
-            positionOffset: 30,
-            formatter: ({ datum, angleKey }: { datum: any; angleKey: string }) => {
-              const value = datum[angleKey];
-              const total = chartData.reduce((sum, d) => sum + d.count, 0);
-              const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
-              return parseFloat(percentage) >= 5 ? `${percentage}%` : '';
+    if (this.chartType === 'pie') {
+      this.chartOptions = {
+        data: chartData,
+        title: { text: `${question} (${year})` },
+        theme: 'ag-polychroma',
+        series: [
+          {
+            type: 'pie',
+            calloutLabelKey: 'answer',
+            sectorLabelKey: 'count',
+            angleKey: 'count',
+            calloutLabel: { offset: 20 },
+            sectorLabel: {
+              positionOffset: 30,
+              formatter: ({ datum, angleKey }: { datum: any; angleKey: string }) => {
+                const value = datum[angleKey];
+                const total = chartData.reduce((sum, d) => sum + d.count, 0);
+                const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+                return parseFloat(percentage) >= 5 ? `${percentage}%` : '';
+              },
+            },
+            strokeWidth: 1,
+            tooltip: {
+              enabled: true,
+              renderer: (params: { datum: any; angleKey: string }) => {
+                const { datum, angleKey } = params;
+                const value = datum[angleKey];
+                const total = chartData.reduce((sum, d) => sum + d.count, 0);
+                const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+                return {
+                  title: datum.answer,
+                  content: `Antal: ${value}<br>Andel: ${percentage}%<br>Dato: ${datum.dates.join(', ')}`,
+                };
+              },
             },
           },
-          strokeWidth: 1,
-          tooltip: {
-            enabled: true,
-            renderer: (params: { datum: any; angleKey: string }) => {
-              const { datum, angleKey } = params;
-              const value = datum[angleKey];
-              const total = chartData.reduce((sum, d) => sum + d.count, 0);
-              const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
-              return {
-                title: datum.answer,
-                content: `Antal: ${value}<br>Andel: ${percentage}%<br>Dato: ${datum.dates.join(', ')}`,
-              };
+        ],
+        legend: { enabled: false },
+        animation: { enabled: true, duration: 800 },
+      };
+    } else {
+      // Bar chart
+      this.chartOptions = {
+        data: chartData,
+        title: { text: `${question} (${year})` },
+        theme: 'ag-polychroma',
+        series: [
+          {
+            type: 'bar',
+            xKey: 'answer',
+            yKey: 'count',
+            label: { enabled: true },
+            tooltip: {
+              enabled: true,
+              renderer: (params: { datum: any }) => {
+                return {
+                  title: params.datum.answer,
+                  content: `Antal: ${params.datum.count}<br>Dato: ${params.datum.dates.join(', ')}`,
+                };
+              },
             },
           },
-        },
-      ],
-      legend: { enabled: false },
-      animation: { enabled: true, duration: 800 },
-    };
+        ],
+        axes: [
+          { type: 'category', position: 'bottom', title: { text: 'Svar' } },
+          { type: 'number', position: 'left', title: { text: 'Antal' } },
+        ],
+        legend: { enabled: false },
+        animation: { enabled: true, duration: 800 },
+      };
+    }
   }
 
   // Navigation for questions
@@ -449,6 +476,20 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   prevQuestion() {
     if (this.currentQuestionIndex > 0) {
       this.currentQuestionIndex--;
+      this.updateChartForCurrentQuestion();
+    }
+  }
+
+  // Navigation for years
+  nextYear() {
+    if (this.currentYearIndex < this.years.length - 1) {
+      this.currentYearIndex++;
+      this.updateChartForCurrentQuestion();
+    }
+  }
+  prevYear() {
+    if (this.currentYearIndex > 0) {
+      this.currentYearIndex--;
       this.updateChartForCurrentQuestion();
     }
   }
