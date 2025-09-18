@@ -138,39 +138,31 @@ public class UserService(LdapService ldapService, IUnitOfWork unitOfWork)
         return firstPart.StartsWith("CN=") ? firstPart.Substring(3) : firstPart;
     }
     // Fetch all students from all groups
-    public List<LdapUserDTO> GetAllStudents()
-    {
-        var allGroups = _ldapService.GetAllGroups(); // You'll implement this in LdapService
-        var allStudents = new List<LdapUserDTO>();
+    //public List<LdapUserDTO> GetAllStudents()
+    //{
+    //    var allGroups = _ldapService.GetAllGroups(); // You'll implement this in LdapService
+    //    var allStudents = new List<LdapUserDTO>();
 
-        foreach (var group in allGroups)
-        {
-            var students = _ldapService.GetStudentsInGroup(group);
-            allStudents.AddRange(students);
-        }
+    //    foreach (var group in allGroups)
+    //    {
+    //        var students = _ldapService.GetStudentsInGroup(group);
+    //        allStudents.AddRange(students);
+    //    }
 
-        return allStudents;
-    }
+    //    return allStudents;
+    //}
 
-    // Returns a list of class names (H1, H2, ...)
     //public List<string> GetAllClassNames()
     //{
-    //    var allGroups = _ldapService.GetAllGroups(); // This returns CNs already
-    //    return allGroups;
-    //}
-    // Returns a list of class names from LDAP
-    public List<string> GetAllClassNames()
-    {
-        // _ldapService.GetAllGroups() should return something like ["CN=H1", "CN=H2", ...]
-        var allGroups = _ldapService.GetAllGroups();
+    //    var allGroups = _ldapService.GetAllGroups();
 
-        // Extract clean class names
-        return allGroups
-            .Select(ParseClassName)
-            .Distinct()
-            .OrderBy(c => c)
-            .ToList();
-    }
+    //    // Extract clean class names
+    //    return allGroups
+    //        .Select(ParseClassName)
+    //        .Distinct()
+    //        .OrderBy(c => c)
+    //        .ToList();
+    //}
     public List<string> GetClassesWithStudentRole()
     {
         var result = new List<string> { "Student" }; // Always include "Student"
@@ -188,36 +180,6 @@ public class UserService(LdapService ldapService, IUnitOfWork unitOfWork)
 
         return result;
     }
-
-
-
-    /// <summary>
-    /// Search either classes or teachers dynamically.
-    /// </summary>
-    /// <param name="term">Search term (partial class or teacher name)</param>
-    /// <param name="searchType">"class" or "teacher"</param>
-
-
-
-    //// Search students across all groups
-    //public UserPaginationResult SearchStudentsAcrossGroups(string term, int pageSize, string? sessionId)
-    //{
-    //    if (string.IsNullOrWhiteSpace(term))
-    //        throw new ArgumentException("Search term cannot be empty.");
-
-    //    string filter = $"(|(cn=*{term}*)(name=*{term}*))";
-
-    //    var students = _ldapService.SearchLDAP<LdapUserDTO>(filter, _ldapService.GetBaseDN())
-    //                               .Take(pageSize)
-    //                               .ToList();
-
-    //    return new UserPaginationResult
-    //    {
-    //        UserBases = students,
-    //        SessionId = Guid.NewGuid().ToString(),
-    //        HasMore = students.Count == pageSize
-    //    };
-    //}
 
 
 

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, forkJoin, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
@@ -69,7 +69,8 @@ export class ActiveBuilderComponent implements OnInit {
   //   sessionId: undefined,
   //   hasMore: false
   // };
-  public student: UserSearchEntity<Student> = {
+ public student: UserSearchEntity<Student> &
+  { searchType?: 'name' | 'class', searchByName: string, searchByClass: string } = {
   selected: [],
   searchInput: '',
   searchResults: [],
@@ -79,8 +80,25 @@ export class ActiveBuilderComponent implements OnInit {
   errorMessage: null,
   searchSubject: new Subject<string>(),
   sessionId: undefined,
-  hasMore: false
+  hasMore: false,
+  searchType: 'name',
+  searchByName: '',
+  searchByClass: ''
 };
+
+
+//   public student: UserSearchEntity<Student> = {
+//   selected: [],
+//   searchInput: '',
+//   searchResults: [],
+//   page: 1,
+//   totalPages: 1,
+//   isLoading: false,
+//   errorMessage: null,
+//   searchSubject: new Subject<string>(),
+//   sessionId: undefined,
+//   hasMore: false
+// };
 
 
   public teacher: UserSearchEntity<User> = {
@@ -129,14 +147,41 @@ export class ActiveBuilderComponent implements OnInit {
     //  .subscribe(term => this.fetch('student', term));
 
     this.activeService.getClasses().subscribe(classes => {
-  this.groups = classes.map(c => ({ name: c }));
+       this.groups = classes.map(c => ({ name: c }));
 
-  // Optionally preload students for each group
-  this.groups.forEach(group => this.loadStudentsForGroup(group.name));
-});
+        const observables = this.groups.map(group =>
+      this.activeService.getStudentsInGroup(group.name)
+    );
 
+    forkJoin(observables).subscribe(responses => {
+      responses.forEach((response: any, index: number) => {
+        const groupName = this.groups[index].name;
+        const classData = (response || []).find(
+          (c: any) => (c.className || '').toLowerCase() === groupName.toLowerCase()
+        );
 
-  }
+        if (!classData) return;
+
+        const mappedStudents: Student[] = (classData.students || []).map((s: any) => ({
+          id: s.id || s.userId || s.userName || s.name,
+          name: typeof s === 'string' ? s : s.fullName || s.userName || s.name || '',
+          className: classData.className
+        }));
+
+        this.studentsByGroup[groupName] = mappedStudents;
+
+        this.allStudentsFlat = [
+          ...this.allStudentsFlat,
+          ...mappedStudents.filter(ms => !this.allStudentsFlat.find(a => a.id === ms.id))
+        ];
+      });
+    });
+  });
+}
+
+  // // Optionally preload students for each group
+  //     this.groups.forEach(group => this.loadStudentsForGroup(group.name));
+
 
   private getState(entity: SearchType): SearchEntity<any> {
     if (entity === 'student') {
@@ -213,14 +258,28 @@ export class ActiveBuilderComponent implements OnInit {
   state.isLoading = true;
   state.errorMessage = null;
 
-  if (entity === 'student') {
-    const searchTerm = term.toLowerCase();
-    state.searchResults = this.allStudentsFlat
-      .filter(s => s.name.toLowerCase().includes(searchTerm))
-      .sort((a, b) => a.name.localeCompare(b.name)); // sort alphabetically
-    state.isLoading = false;
-    return;
-  }
+  // if (entity === 'student') {
+  //   const searchTerm = term.toLowerCase();
+    // state.searchResults = this.allStudentsFlat
+    //   .filter(s => s.name.toLowerCase().includes(searchTerm))
+    //   .sort((a, b) => a.name.localeCompare(b.name)); // sort alphabetically
+    // state.isLoading = false;
+    // return;
+   if (entity === 'student') {
+  const searchTerm = term.toLowerCase();
+
+  state.searchResults = this.allStudentsFlat
+    .filter(s =>
+      (s.name?.toLowerCase().includes(searchTerm)) ||
+      (s.className?.toLowerCase().includes(searchTerm)) ||
+      (s.id?.toLowerCase().includes(searchTerm))
+    )
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  state.isLoading = false;  
+  return;
+}
+
 
   // teacher/template backend logic...
    // teacher/template backend fetch logic remains
@@ -257,13 +316,29 @@ export class ActiveBuilderComponent implements OnInit {
 }
 
 
-  
+onInputChange(
+  entity: SearchType,
+  value: string,
+  type?: 'name' | 'class'
+): void {
+  const state = this.getState(entity);
+  state.searchInput = value;
 
-  onInputChange(entity: SearchType, value: string): void {
-    const state = this.getState(entity);
-    state.searchInput = value;
-    state.searchSubject.next(value);
+  // Only set searchType for students
+  if (entity === 'student' && type) {
+    (state as UserSearchEntity<Student> & { searchType?: 'name' | 'class' }).searchType = type;
   }
+
+  state.searchSubject.next(value);
+}
+
+
+
+  // onInputChange(entity: SearchType, value: string): void {
+  //   const state = this.getState(entity);
+  //   state.searchInput = value;
+  //   state.searchSubject.next(value);
+  // }
 
   select(entity: SearchType, item: any): void {
     const state = this.getState(entity);
@@ -381,6 +456,8 @@ loadStudentsForGroup(groupName: string) {
         name: typeof s === 'string' ? s : s.fullName || s.userName || s.name || '',
         className: classData.className
       }));
+;
+
 
       this.studentsByGroup[groupName] = mappedStudents;
 
@@ -418,20 +495,82 @@ loadStudentsForGroup(groupName: string) {
   this.loadStudentsForGroup(input);
   this.searchedGroupName = input; // keep the same casing
 }
-filteredStudents(groupName: string): Student[] {
-    const students = this.studentsByGroup[groupName] || [];
-    const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
-    if (!searchTerm) return students;
-    return students.filter(s => s.name.toLowerCase().includes(searchTerm));
-  }
+// filteredStudents(groupName: string): Student[] {
+//     const students = this.studentsByGroup[groupName] || [];
+//     const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
+//     if (!searchTerm) return students;
+//     return students.filter(s => s.name.toLowerCase().includes(searchTerm));
+//   }
 
   
-get filteredStudentsByName(): Student[] {
-  const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
-  if (!searchTerm) return [];
+// get filteredStudentsByName(): Student[] {
+//   const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
+//   if (!searchTerm) return [];
 
-  return this.allStudentsFlat.filter(s => s.name.toLowerCase().includes(searchTerm));
+//   return this.allStudentsFlat.filter(s => s.name.toLowerCase().includes(searchTerm));
+// }
+  // Search across all groups
+//   get filteredStudentsByName(): Student[] {
+//     const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
+//     if (!searchTerm) return [];
+
+//     return Object.values(this.studentsByGroup)
+//       .flat()
+//       .filter(s =>
+//         (s.name?.toLowerCase().includes(searchTerm)) ||
+//         (s.className?.toLowerCase().includes(searchTerm)) ||
+//         (s.id?.toLowerCase().includes(searchTerm))
+//       );
+//   }
+
+//   // Returns all groups containing at least one student matching the search input
+// get filteredGroupsByStudent(): { name: string; students: Student[] }[] {
+//   const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
+//   if (!searchTerm) return [];
+
+//   return Object.keys(this.studentsByGroup)
+//     .map(groupName => ({
+//       name: groupName,
+//       students: this.studentsByGroup[groupName] || []
+//     }))
+//     .filter(group =>
+//       group.students.some(s => s.name?.toLowerCase().includes(searchTerm))
+//     );
+// }
+
+// Filter students by name
+get filteredStudentsByName(): Student[] {
+  const term = (this.student.searchByName || '').trim().toLowerCase();
+  if (!term) return [];
+  return Object.values(this.studentsByGroup)
+    .flat()
+    .filter(s => s.name?.toLowerCase().includes(term))
+    .sort((a,b)=> (a.name || '').localeCompare(b.name || ''));
 }
+
+// Filter students by class
+get filteredGroupsByClass(): { name: string; students: Student[] }[] {
+  const term = (this.student.searchByClass || '').trim().toLowerCase();
+  if (!term) return [];
+  return Object.keys(this.studentsByGroup)
+    .map(groupName => ({ name: groupName, students: this.studentsByGroup[groupName] || [] }))
+    .filter(group => group.students.some(s => s.className?.toLowerCase().includes(term)));
+}
+
+// Track multiple expanded groups
+// Track multiple expanded groups
+public expandedGroups: Set<string> = new Set();
+
+toggleGroupExpansion(groupName: string) {
+  if (this.expandedGroups.has(groupName)) {
+    this.expandedGroups.delete(groupName);
+  } else {
+    this.expandedGroups.add(groupName);
+  }
+}
+
+
+
 
 
 

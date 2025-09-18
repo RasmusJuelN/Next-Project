@@ -116,28 +116,22 @@ namespace API.Controllers
         }
         // test to see the list of all studentname from individual class 
         // Endpoint: GET /api/User/Groups/h1/Students
-        [HttpGet("Groups/{groupName}/Students")]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public ActionResult<List<LdapUserDTO>> GetStudentsInGroup(string groupName)
-        {
-            try
-            {
-                var students = _userService.GetStudentsInGroup(groupName);
-                return Ok(students);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error fetching students: {ex.Message}");
-            }
-        }
-
-        //[HttpGet("Search")]
+        //[HttpGet("Groups/{groupName}/Students")]
         //[Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        //public ActionResult<UserPaginationResult> SearchStudents([FromQuery] string term, [FromQuery] int pageSize = 10)
+        //public ActionResult<List<LdapUserDTO>> GetStudentsInGroup(string groupName)
         //{
-        //    var result = _userService.SearchStudentsAcrossGroups(term, pageSize, null);
-        //    return Ok(result);
+        //    try
+        //    {
+        //        var students = _userService.GetStudentsInGroup(groupName);
+        //        return Ok(students);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error fetching students: {ex.Message}");
+        //    }
         //}
+
+       
 
         [HttpGet("Groups/{groupName}/StudentsGrouped")]
         public ActionResult<ClassStudentsDTO> GetStudentsGrouped(string groupName)
@@ -153,20 +147,7 @@ namespace API.Controllers
                 return StatusCode(500, $"Error fetching grouped students: {ex.Message}");
             }
         }
-        //[HttpGet("Groups/Classes")]
-        //[Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        //public ActionResult<List<string>> GetAllClasses()
-        //{
-        //    try
-        //    {
-        //        var classes = _userService.GetAllClassNames();
-        //        return Ok(classes); 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Error fetching class names: {ex.Message}");
-        //    }
-        //}
+
 
         [HttpGet("classes")]
         public IActionResult GetClasses()
@@ -174,21 +155,6 @@ namespace API.Controllers
             var classes = _userService.GetClassesWithStudentRole();
             return Ok(classes);
         }
-        //[HttpGet("SearchDynamic")]
-        //[Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        //public async Task<ActionResult<List<string>>> SearchDynamic([FromQuery] string term, [FromQuery] string type)
-        //{
-        //    try
-        //    {
-        //        var results = await _userService.SearchClassesOrTeachers(term, type);
-        //        return Ok(results);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Error searching {type}: {ex.Message}");
-        //    }
-        //}
-
 
 
 
