@@ -85,6 +85,15 @@ public class Context : DbContext
             .OnDelete(DeleteBehavior.Cascade);
         });
 
+                // ActiveQuestionnaireResponseBaseModel
+        modelBuilder.Entity<ActiveQuestionnaireResponseBaseModel>(e => {
+            // Configure the relationship to QuestionnaireTemplateQuestion with NoAction
+            e.HasOne(r => r.Question)
+            .WithMany()
+            .HasForeignKey(r => r.QuestionFK)
+            .OnDelete(DeleteBehavior.NoAction);
+        });
+
         // UserModel
         modelBuilder.Entity<UserBaseModel>(e => {
             e.Property(u => u.PrimaryRole)

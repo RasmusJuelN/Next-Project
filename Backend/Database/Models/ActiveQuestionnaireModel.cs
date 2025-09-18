@@ -131,7 +131,7 @@ public class ActiveQuestionnaireModel
     public QuestionnaireTemplateModel? QuestionnaireTemplate { get; set; }
 
     [ForeignKey(nameof(GroupId))]
-    public QuestionnaireGroupModel Group { get; set; }
+    public QuestionnaireGroupModel? Group { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of student responses submitted for this questionnaire.
