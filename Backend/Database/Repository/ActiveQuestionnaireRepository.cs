@@ -426,7 +426,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .ThenInclude(a => a.Option)
             .Include(a => a.Student)
             .Include(a => a.Teacher)
-            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue && a.TeacherCompletedAt.HasValue)
+            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue)
             .ToListAsync();
 
         return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate())];
