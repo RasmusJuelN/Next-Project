@@ -20,6 +20,9 @@ namespace Database.Interfaces
         Guid? cursorIdPosition = null,
         DateTime? cursorCreatedAtPosition = null,
         string? titleQuery = null,
-        Guid? groupId = null);
+        Guid? groupId = null,
+        bool? pendingStudent = false,
+        bool? pendingTeacher = false);
+        
     }
 }

@@ -21,6 +21,34 @@
       </select>
     </div>
   </h2>
+   <input
+    type="text"
+    placeholder="Søg efter gruppe..."
+    [(ngModel)]="searchTitle"
+    (input)="onSearchTitleChange(searchTitle)"
+    class="px-4 py-2 border border-primary_orange_1 rounded-lg shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-white/80"
+  />
+
+  <!-- Pending filters -->
+  <div class="flex flex-col sm:flex-row gap-4 items-center">
+    <label class="flex items-center gap-2 text-primary_dark_light">
+      <input
+        type="checkbox"
+        [(ngModel)]="filterPendingStudent"
+        (change)="onFilterChange()"
+      />
+      <span class="text-sm">Elev mangler svar</span>
+    </label>
+
+    <label class="flex items-center gap-2 text-primary_dark_light">
+      <input
+        type="checkbox"
+        [(ngModel)]="filterPendingTeacher"
+        (change)="onFilterChange()"
+      />
+      <span class="text-sm">Instruktør mangler svar</span>
+    </label>
+  </div>
 
   <div *ngFor="let group of groups" 
        class="mb-8 border p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors">
@@ -29,15 +57,31 @@
       <h3 class="text-xl font-bold text-blue-900 mb-0">
         {{ group.name }}
         <span class="ml-2 text-sm text-gray-600">
-          Elev: 
-          <span class="text-green-600 font-bold">{{ getAnsweredCount(group.questionnaires, 'student') }}</span>
-          /
-          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-          Instruktør: 
-          <span class="text-green-600 font-bold">{{ getAnsweredCount(group.questionnaires, 'teacher') }}</span>
-          /
-          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-        </span>
+  Elev: 
+  <span
+    [ngClass]="{
+      'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === 0,
+      'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'student') > 0 && getAnsweredCount(group.questionnaires, 'student') < group.questionnaires.length,
+      'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === group.questionnaires.length
+    }"
+  >
+    {{ getAnsweredCount(group.questionnaires, 'student') }}
+  </span>
+  /
+  <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+  Instruktør: 
+  <span
+    [ngClass]="{
+      'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === 0,
+      'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') > 0 && getAnsweredCount(group.questionnaires, 'teacher') < group.questionnaires.length,
+      'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === group.questionnaires.length
+    }"
+  >
+    {{ getAnsweredCount(group.questionnaires, 'teacher') }}
+  </span>
+  /
+  <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+</span>
       </h3>
       <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="transition-transform duration-300 text-lg">
         ▼

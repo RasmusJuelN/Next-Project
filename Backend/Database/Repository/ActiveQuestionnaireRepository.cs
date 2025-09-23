@@ -72,7 +72,9 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         Guid? idQuery = null,
         Guid? userId = null,
         bool onlyStudentCompleted = false,
-        bool onlyTeacherCompleted = false)
+        bool onlyTeacherCompleted = false,
+        bool pendingStudent = false,         // NEW
+        bool pendingTeacher = false)
     {
         IQueryable<ActiveQuestionnaireModel> query = _genericRepository.GetAsQueryable();
 
@@ -111,6 +113,12 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         {
             query = query.Where(q => q.TeacherCompletedAt.HasValue);
         }
+
+        if (pendingStudent)
+            query = query.Where(q => !q.StudentCompletedAt.HasValue);
+
+        if (pendingTeacher)
+            query = query.Where(q => !q.TeacherCompletedAt.HasValue);
 
         int totalCount = await query.CountAsync();
 

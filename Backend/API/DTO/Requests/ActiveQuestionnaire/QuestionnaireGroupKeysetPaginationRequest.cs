@@ -9,5 +9,7 @@ namespace API.DTO.Requests.ActiveQuestionnaire
         public string? Title { get; set; }
         public Guid? GroupId { get; set; }
         public string? QueryCursor { get; set; }
+        public bool? PendingStudent { get; set; }
+        public bool? PendingTeacher { get; set; }
     }
 }

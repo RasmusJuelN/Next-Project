@@ -23,7 +23,9 @@ public interface IActiveQuestionnaireRepository
         Guid? idQuery = null,
         Guid? userId = null,
         bool onlyStudentCompleted = false,
-        bool onlyTeacherCompleted = false);
+        bool onlyTeacherCompleted = false,
+        bool pendingStudent = false,         // NEW
+        bool pendingTeacher = false);
     Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission);
     Task<bool> HasUserSubmittedAnswer(Guid userId, Guid activeQuestionnaireId);
     Task<bool> IsActiveQuestionnaireComplete(Guid activeQuestionnaireId);

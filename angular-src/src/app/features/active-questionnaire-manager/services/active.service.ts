@@ -85,7 +85,9 @@ export class ActiveService {
   getQuestionnaireGroupsPaginated(
   pageSize: number,
   queryCursor: string = '',
-  searchTitle: string = ''
+  searchTitle: string = '',
+  filterPendingStudent: boolean = false,
+  filterPendingTeacher: boolean = false
 ) {
   let params = new HttpParams().set('PageSize', pageSize.toString());
 
@@ -96,7 +98,12 @@ export class ActiveService {
   if (searchTitle) {
     params = params.set('Title', searchTitle);
   }
-
+if (filterPendingStudent) {
+    params = params.set('PendingStudent', 'true');
+  }
+  if (filterPendingTeacher) {
+    params = params.set('PendingTeacher', 'true');
+  }
   return this.apiService.get<QuestionnaireGroupKeysetPaginationResult>(
     `${this.apiUrl}/groups/paginated`,
     params

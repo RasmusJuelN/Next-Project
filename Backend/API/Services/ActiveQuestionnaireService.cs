@@ -150,7 +150,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, LdapService ldap
                 cursorId,
                 cursorCreatedAt,
                 request.Title,
-                request.GroupId
+                request.GroupId,
+                request.PendingStudent,
+                request.PendingTeacher
             );
 
         var results = groups.Select(group => new QuestionnaireGroupResult

@@ -49,7 +49,9 @@ namespace Database.Repository
     Guid? cursorIdPosition = null,
     DateTime? cursorCreatedAtPosition = null,
     string? titleQuery = null,
-    Guid? groupId = null)
+    Guid? groupId = null,
+    bool? pendingStudent = false,
+        bool? pendingTeacher = false)
         {
             IQueryable<QuestionnaireGroupModel> query = _genericRepository.GetAsQueryable();
 
@@ -64,6 +66,10 @@ namespace Database.Repository
             {
                 query = query.Where(g => g.GroupId == groupId);
             }
+            if (pendingStudent == true)
+        query = query.Where(g => g.Questionnaires.Any(q => !q.StudentCompletedAt.HasValue));
+    if (pendingTeacher == true)
+        query = query.Where(g => g.Questionnaires.Any(q => !q.TeacherCompletedAt.HasValue));
 
             int totalCount = await query.CountAsync();
 
