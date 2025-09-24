@@ -76,23 +76,28 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     public async Task<ActiveQuestionnaire> ActivateQuestionnaireAsync(
         Guid questionnaireTemplateId,
         Guid studentId,
-        Guid teacherId)
+        Guid teacherId,
+        Guid groupId)
     {
-        StudentModel student = _context.Users.Local.OfType<StudentModel>().SingleOrDefault(u => u.Guid == studentId)?? await _context.Users.OfType<StudentModel>().SingleAsync(u => u.Guid == studentId);
-        TeacherModel teacher = _context.Users.Local.OfType<TeacherModel>().SingleOrDefault(u => u.Guid == teacherId)?? await _context.Users.OfType<TeacherModel>().SingleAsync(u => u.Guid == teacherId);
+        // Fetch student and teacher
+        StudentModel student = _context.Users.Local.OfType<StudentModel>().SingleOrDefault(u => u.Guid == studentId) ?? await _context.Users.OfType<StudentModel>().SingleAsync(u => u.Guid == studentId);
+        TeacherModel teacher = _context.Users.Local.OfType<TeacherModel>().SingleOrDefault(u => u.Guid == teacherId) ?? await _context.Users.OfType<TeacherModel>().SingleAsync(u => u.Guid == teacherId);
 
+        // Fetch template
         QuestionnaireTemplateModel questionnaireTemplate = await _context.QuestionnaireTemplates
             .Include(t => t.Questions)
             .ThenInclude(q => q.Options)
             .SingleAsync(t => t.Id == questionnaireTemplateId);
 
+        // Create questionnaire and set groupId
         ActiveQuestionnaireModel activeQuestionnaire = new()
         {
             Title = questionnaireTemplate.Title,
             Description = questionnaireTemplate.Description,
             Student = student,
             Teacher = teacher,
-            QuestionnaireTemplate = questionnaireTemplate
+            QuestionnaireTemplate = questionnaireTemplate,
+            GroupId = groupId 
         };
 
         await _genericRepository.AddAsync(activeQuestionnaire);
@@ -192,6 +197,8 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
 
         return (questionnaireTemplateBases, totalCount);
     }
+
+
 
     /// <summary>
     /// Submits responses for a specific active questionnaire on behalf of a user.

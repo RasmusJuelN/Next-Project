@@ -1,4 +1,6 @@
+import { TemplateBase } from "../../../shared/models/template.model";
 import { User } from "../../../shared/models/user.model";
+export type TemplateStatus = 'draft' | 'finalized';
 
 export interface ActiveQuestionnaire {
     id: string;
@@ -10,30 +12,6 @@ export interface ActiveQuestionnaire {
     studentCompletedAt: Date | null;
     teacherCompletedAt: Date | null;
 }
-  
-
-  export interface Template {
-    id?: string; // Optional because some templates may not have an ID yet
-    templateTitle: string; // Matches API field
-    description?: string; // Optional since API does not specify this field
-    createdAt?: string; // ✅ Added (ISO Date format)
-    lastUpdated?: string; // ✅ Added (ISO Date format)
-    isLocked?: boolean; // ✅ Added (default is false)
-    questions: Question[];
-  }
-  
-  export interface Question {
-    id?: number; // Optional since API may auto-generate it
-    prompt: string; // Matches API field
-    allowCustom: boolean; // Matches API field
-    options: Option[];
-  }
-  
-  export interface Option {
-    id: number; // Matches API field
-    optionValue: number; // Matches API field
-    displayText: string; // Matches API field
-  }
   
   export interface ActiveQuestionnaireBase {
     id: string;
@@ -59,16 +37,36 @@ export interface ActiveQuestionnaire {
       hasMore: boolean;
     }
 
-    export interface TemplateBase {
-      id: string;
-      title: string;
-      createdAt: string;
-      lastUpdated: string;
-      isLocked: boolean;
-    }
     
     export interface TemplateBaseResponse {
       templateBases: TemplateBase[];
       queryCursor?: string; // Cursor for next items.
       totalCount: number;
     }
+
+    // Base DTO for a group (similar to QuestionnaireGroupBase in backend)
+export interface QuestionnaireGroupResult {
+  groupId: string;
+  name: string;
+  templateId: string;
+  questionnaires: QuestionnaireBase[];
+}
+
+export interface QuestionnaireBase {
+  id: string;
+  title: string;
+  description?: string;
+  activatedAt: string; // or Date
+  student: User;
+  teacher: User;
+  studentCompletedAt?: string; // or Date
+  teacherCompletedAt?: string; // or Date
+}
+// Response DTO for keyset pagination
+export interface QuestionnaireGroupKeysetPaginationResult {
+  groups: QuestionnaireGroupResult[];
+  queryCursor?: string;
+  totalCount: number;
+}
+
+export { TemplateBase };

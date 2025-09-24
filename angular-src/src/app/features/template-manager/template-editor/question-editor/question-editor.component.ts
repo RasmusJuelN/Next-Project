@@ -1,24 +1,44 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { Question, Option } from '../../models/template.model';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Question, Option } from '../../../../shared/models/template.model';
+import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Question editor component.
+ *
+ * Provides an interface for editing a single question within a template.
+ *
+ * Handles:
+ * - Editing the question prompt and options.
+ * - Adding and deleting options.
+ * - Validating required fields before save.
+ * - Emitting save or cancel events back to the parent.
+ * - Disabling edits when in readonly mode.
+ */
 @Component({
   selector: 'app-question-editor',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, TranslateModule],
   templateUrl: './question-editor.component.html',
   styleUrls: ['./question-editor.component.css']
 })
 export class QuestionEditorComponent {
   @Input() question!: Question;
+
+  /** If true, disables all editing actions. */
+  @Input() readonly = false;
+  
   @Output() save = new EventEmitter<Question>();
   @Output() cancel = new EventEmitter<void>();
 
   validationErrors: string[] = [];
+
+  /** Reference to error message container for scrolling into view. */
   @ViewChild('errorContainer') errorContainer!: ElementRef;
 
   addOption(): void {
+    if (this.readonly) { return; }
     const newOption: Option = {
       id: -1 * (this.question.options.length + 1),
       displayText: 'New Option',
@@ -28,9 +48,18 @@ export class QuestionEditorComponent {
   }
 
   deleteOption(optionId: number): void {
+    if (this.readonly) { return; }
     this.question.options = this.question.options.filter(option => option.id !== optionId);
   }
 
+  /**
+   * Validates the current question.
+   * - Prompt must not be empty.
+   * - Must allow custom answers or have at least one option.
+   * - All options must have non-empty labels.
+   *
+   * @returns `true` if valid, else `false`.
+   */
   validateQuestion(): boolean {
     console.log(this.question)
     this.validationErrors = []; // Clear previous errors
@@ -56,6 +85,7 @@ export class QuestionEditorComponent {
   
 
   onSave(): void {
+    if (this.readonly) { return; }
     if (this.validateQuestion()) {
       this.save.emit(this.question);
     } else {

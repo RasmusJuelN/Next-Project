@@ -88,6 +88,7 @@ public class JwtService(IConfiguration configuration)
         JwtSecurityTokenHandler tokenHandler = GetTokenHandler();
         
         TokenValidationParameters tokenValidationParameters = GetAccessTokenValidationParameters();
+        tokenValidationParameters.ValidateLifetime = false;
 
         ClaimsPrincipal principal = tokenHandler.ValidateToken(expiredToken, tokenValidationParameters, out SecurityToken securityToken);
 

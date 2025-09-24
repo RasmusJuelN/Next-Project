@@ -1,7 +1,7 @@
-import { APP_INITIALIZER, ApplicationConfig } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import {  provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { jwtInterceptor } from './core/guards and interceptors/jwt.interceptor';
 import { AuthService } from './core/services/auth.service';
@@ -19,10 +19,15 @@ import { ResultService } from './features/result/services/result.service';
 import { MockResultService } from './features/result/services/mock.result.service';
 import { TeacherService } from './features/teacher-dashboard/services/teacher.service';
 import { MockTeacherService } from './features/teacher-dashboard/services/mock.teacher.service';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
+
 
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes),provideHttpClient(
+  providers: [provideRouter(routes),
+    provideHttpClient(
     withInterceptors([jwtInterceptor]),
   ), provideAnimationsAsync(),
   {
@@ -58,5 +63,15 @@ export const appConfig: ApplicationConfig = {
     useFactory: (authService: AuthService) => () => authService.initializeAuthState(),
     deps: [AuthService],
     multi: true,
-  },]
+    },
+ 
+    provideTranslateService({
+      lang: 'en',            
+      fallbackLang: 'en',
+      loader: provideTranslateHttpLoader({
+        prefix: '/assets/i18n/',  
+        suffix: '.json',          
+      }),
+    }),
+  ],
 };

@@ -1,6 +1,7 @@
 using API.Interfaces;
 using Database;
 using Database.Interfaces;
+using Database.Repository;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace API.Services;
@@ -25,7 +26,8 @@ public class UnitOfWork(
     IQuestionnaireTemplateRepository templateRepository,
     IActiveQuestionnaireRepository activeQuestionnaire,
     IUserRepository user,
-    ITrackedRefreshTokenRepository trackedRefreshToken) : IUnitOfWork
+    ITrackedRefreshTokenRepository trackedRefreshToken,
+    IQuestionnaireGroupRepository groupRepository) : IUnitOfWork
 {
     private readonly Context _context = context;
     private IDbContextTransaction? _transaction;
@@ -61,6 +63,7 @@ public class UnitOfWork(
     /// The tracked refresh token repository instance for managing JWT refresh token lifecycle and security.
     /// </value>
     public ITrackedRefreshTokenRepository TrackedRefreshToken { get; } = trackedRefreshToken;
+    public IQuestionnaireGroupRepository QuestionnaireGroup { get; } = groupRepository;
 
     /// <summary>
     /// Asynchronously saves all pending changes in the current unit of work to the database.

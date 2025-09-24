@@ -40,13 +40,13 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
     {
         QuestionnaireTemplateModel existingTemplate = await _genericRepository.GetSingleAsync(t => t.Id == id,
             query => query.Include(t => t.Questions).ThenInclude(q => q.Options)) ?? throw new Exception("Template not found.");
-        
+
         existingTemplate.Title = updatedTemplate.Title;
         existingTemplate.Description = updatedTemplate.Description;
 
         HashSet<int> updatedQuestionIds = [.. updatedTemplate.Questions.Where(q => q.Id is not null).Select(q => q.Id!.Value)];
         IEnumerable<QuestionnaireQuestionModel> oldQuestions = existingTemplate.Questions.Where(e => !updatedQuestionIds.Contains(e.Id));
-        
+
         // Remove existing questions
         _context.RemoveRange(oldQuestions);
 
@@ -117,7 +117,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
         existingTemplate.Title = patchedTemplate.TemplateTitle ?? existingTemplate.Title;
         existingTemplate.Description = patchedTemplate.Description ?? existingTemplate.Description;
-        
+
         if (patchedTemplate.Questions is not null && patchedTemplate.Questions.Count != 0)
         {
             HashSet<int> patchedQuestionIds = [.. patchedTemplate.Questions.Select(q => q.Id)];
@@ -243,7 +243,8 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         DateTime? cursorCreatedAtPosition,
         TemplateOrderingOptions sortOrder,
         string? titleQuery,
-        Guid? idQuery)
+        Guid? idQuery,
+        TemplateStatus? templateStatus)
     {
         IQueryable<QuestionnaireTemplateModel> query = _genericRepository.GetAsQueryable();
 
@@ -257,6 +258,12 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         if (idQuery is not null)
         {
             query = query.Where(q => q.Id.ToString().Contains(idQuery.ToString()!));
+        }
+
+        if (templateStatus.HasValue)
+        {
+            var status = templateStatus.Value;
+            query = query.Where(q => q.TemplateStatus == status);
         }
 
         int totalCount = await query.CountAsync();
@@ -279,5 +286,19 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         List<QuestionnaireTemplateBase> questionnaireTemplateBases = [.. questionnaireTemplates.Select(t => t.ToBaseDto())];
 
         return (questionnaireTemplateBases, totalCount);
+    }
+    public async Task<QuestionnaireTemplate> FinalizeAsync(Guid id)
+    {
+        var existing = await _context.QuestionnaireTemplates
+            .SingleOrDefaultAsync(t => t.Id == id)
+            ?? throw new Exception("Template not found.");
+
+        if (existing.TemplateStatus != TemplateStatus.Finalized)
+        {
+            existing.TemplateStatus = TemplateStatus.Finalized;
+            existing.LastUpated = DateTime.UtcNow;
+        }
+
+        return existing.ToDto();
     }
 }

@@ -1,21 +1,54 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
-import { Question, Template } from '../models/template.model';
+import { Question, Template, TemplateStatus } from '../../../shared/models/template.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
+/**
+ * Template editor component.
+ *
+ * Provides an interface for editing a single questionnaire template.
+ *
+ * Handles:
+ * - Displaying and updating template title/description.
+ * - Adding, editing, and deleting questions.
+ * - Saving or canceling template edits.
+ * - Finalizing (publishing) a draft template.
+ * - Switching to readonly mode if the template is finalized.
+ */
 @Component({
   selector: 'app-template-editor',
   standalone: true,
-  imports: [QuestionEditorComponent, CommonModule, FormsModule],
+  imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent, TranslateModule],
   templateUrl: './template-editor.component.html',
   styleUrl: './template-editor.component.css'
 })
 export class TemplateEditorComponent {
-  @Input() template!: Template; // Input property to receive a template
-  @Output() saveTemplate = new EventEmitter<Template>(); // Output event for saving changes
-  @Output() cancelEdit = new EventEmitter<void>(); // Output event for canceling the edit
+  /** Template being edited. */
+  @Input() template!: Template;
+
+  /** Emits when the template is saved. */
+  @Output() saveTemplate = new EventEmitter<Template>();
+
+  /** Emits when the draft is finalized. */
+  @Output() finalizeDraft  = new EventEmitter<Template>();
+
+  /** Emits when editing is canceled. */
+  @Output() cancelEdit = new EventEmitter<void>();
+
+  /** Currently selected question (if editing one). */
   selectedQuestion: Question | null = null;
+
+  /** True if the template is finalized (readonly mode). */
+  readonly = false;
+
+  finalizeModalOpen = false;
+
+  ngOnChanges() {
+    this.readonly = this.template.templateStatus === TemplateStatus.Finalized;
+  }
 
   // Method to emit the saveTemplate event with the updated template
   onSave() {
@@ -64,4 +97,14 @@ export class TemplateEditorComponent {
   deleteQuestion(question: Question): void {
     this.template.questions = this.template.questions.filter(q => q.id !== question.id);
   }
+  
+  onFinalize() { this.finalizeDraft.emit(this.template); }
+  openFinalizeModal() { this.finalizeModalOpen = true; }
+  closeFinalizeModal() { this.finalizeModalOpen = false; }
+
+  confirmFinalize() {
+    this.closeFinalizeModal();
+    this.onFinalize();
+  }
+
 }

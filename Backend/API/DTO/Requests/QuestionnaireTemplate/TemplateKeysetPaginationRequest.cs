@@ -34,4 +34,5 @@ public record class TemplateKeysetPaginationRequest
     /// The cursor for where the query should start/resume from
     /// </summary>
     public string? QueryCursor { get; set; }
+    public TemplateStatus? templateStatus { get; set; }
 }

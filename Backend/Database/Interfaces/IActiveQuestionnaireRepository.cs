@@ -37,7 +37,8 @@ public interface IActiveQuestionnaireRepository
     Task<ActiveQuestionnaire> ActivateQuestionnaireAsync(
         Guid questionnaireTemplateId,
         Guid studentId,
-        Guid teacherId);
+        Guid teacherId,
+        Guid groupId);
 
     /// <summary>
     /// Performs paginated retrieval of active questionnaires with advanced filtering and sorting options using keyset pagination.

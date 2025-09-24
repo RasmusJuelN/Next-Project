@@ -198,15 +198,15 @@ namespace API.Controllers
         [ProducesResponseType(typeof(AuthenticationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Refresh([FromBody] string expiredToken)
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequest request)
         {
             if (Request.Headers.Authorization.IsNullOrEmpty()) return Unauthorized();
 
             string token = Request.Headers.Authorization!.ToString().Split(' ').Last();
 
             if (!_jwtService.TokenIsValid(token, _jwtService.GetRefreshTokenValidationParameters())) return Unauthorized();
-
-            ClaimsPrincipal principal = _jwtService.GetPrincipalFromExpiredToken(expiredToken);
+            
+            ClaimsPrincipal principal = _jwtService.GetPrincipalFromExpiredToken(request.ExpiredToken);
 
             if (User.FindFirstValue(JwtRegisteredClaimNames.Sub) != principal.FindFirstValue(JwtRegisteredClaimNames.Sub)) return Unauthorized();
 

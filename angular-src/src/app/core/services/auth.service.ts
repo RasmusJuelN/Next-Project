@@ -1,11 +1,20 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, catchError, interval, map, of, switchMap, tap, timer, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, catchError, interval, map, of, switchMap, tap, timer, firstValueFrom, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { User } from '../../shared/models/user.model';
 
+/**
+ * Authentication service.
+ *
+ * Handles:
+ * - Login/logout and token storage.
+ * - Token refresh flow (throws if no tokens available).
+ * - Online/offline server reachability with retry.
+ * - Exposes auth state (`isAuthenticated$`), role (`userRole$`), and connectivity (`isOnline$`).
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -31,6 +40,14 @@ export class AuthService {
   private retryInterval = 5000;
   private retrySubscription: any;
 
+
+  /**
+   * Logs in with username/password.
+   * - Sends `POST /auth` (form-encoded).
+   * - On success: stores tokens, updates auth/role/online state.
+   *
+   * @returns Observable emitting API response or `false` on failure.
+   */
   public login(userName: string, password: string) {
     const url = `${this.baseUrl}/auth`;
     const body = new URLSearchParams();
@@ -59,53 +76,59 @@ export class AuthService {
       );
   }
 
-  public refreshToken() {
-    const refreshToken = this.tokenService.getRefreshToken();
-    const expiredToken = this.tokenService.getToken();
-    if (!refreshToken || !expiredToken) {
-      this.logout();
-      return of(null);
-    }
-
-    const url = `${this.baseUrl}/auth/refresh`;
-
-    // Build headers using the refresh token
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${refreshToken}`,
-      'Content-Type': 'application/json'
-    });
-
-    // The refresh endpoint expects the expired access token in the body.
-    return this.apiService
-      .post<{ authToken: string, refreshToken: string }>(url, expiredToken, undefined, headers)
-      .pipe(
-        tap((response) => {
-          if (response.authToken && response.refreshToken) {
-            this.tokenService.setToken(response.authToken);
-            this.tokenService.setRefreshToken(response.refreshToken);
-          }
-        }),
-        catchError((err) => {
-          console.error('Refresh token failed:', err);
-          this.logout();
-          return of(null);
-        })
-      );
+  /**
+   * Refreshes the access token using the refresh token.
+   * - Sends `POST /auth/refresh` with `{ expiredToken }` body and `Authorization: Bearer <refreshToken>`.
+   * - On success: updates stored tokens.
+   * - If no tokens exist: logs out and **throws**.
+   *
+   * @returns Observable emitting refreshed tokens or error.
+   */
+public refreshToken() {
+  const refreshToken = this.tokenService.getRefreshToken();
+  const expiredToken = this.tokenService.getToken();
+  if (!refreshToken || !expiredToken) {
+    this.logout();
+    return throwError(() => new Error('No tokens to refresh'));
   }
 
+  const url = `${this.baseUrl}/auth/refresh`;
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${refreshToken}`,
+    'Content-Type': 'application/json'
+  });
+
+  return this.apiService
+    .post<{ authToken: string; refreshToken: string }>(url,   { expiredToken } , undefined, headers)
+    .pipe(
+      tap((res) => {
+        this.tokenService.setToken(res.authToken);
+        this.tokenService.setRefreshToken(res.refreshToken);
+      }),
+      catchError((err) => {
+        this.logout();
+        return throwError(() => err);
+      })
+    );
+}
+
+  /**
+   * Logs the user out: clears tokens/state and stops offline retry loop.
+   */
   public logout(): void {
     this.tokenService.clearToken();
     this.tokenService.clearRefreshToken();
     this.clearAuthState();
-    // Optionally stop any retry attempts if the user logs out
     this.stopRetrying();
   }
 
   /**
-   * Called once on service construction. 
-   * 1) Checks if token is still valid locally
-   * 2) If valid, tries server connectivity
-   * 3) If server is offline, attempts to retry instead of immediate logout
+   * Initializes auth state on app start:
+   * 1) Validates local token.
+   * 2) Pings server for connectivity.
+   * 3) If offline, starts periodic retries.
+   *
+   * @returns Promise resolving to `true` if authenticated, else `false`.
    */
   public initializeAuthState(): Promise<boolean> {
     const tokenExists = this.tokenService.tokenExists();
@@ -125,7 +148,6 @@ export class AuthService {
             this.userRoleSubject.next(this.getUserRole());
           } else {
             this.isOnlineSubject.next(false);
-            // Start retrying connectivity if needed
             this.startRetryingConnection();
           }
         })
@@ -133,9 +155,7 @@ export class AuthService {
     );
   }
 
-  /**
-   * Performs a simple server "ping" to confirm connectivity.
-   */
+  /** Performs a `HEAD /system/ping` to confirm server connectivity. */
   private checkServerConnection() {
     return this.apiService.head<boolean>(`${this.baseUrl}/system/ping`).pipe(
       map(() => true),
@@ -144,10 +164,9 @@ export class AuthService {
   }
 
   /**
-   * Start a timer that periodically checks server connectivity.
-   * If connectivity is restored AND the token is still valid, we
-   * restore the "authenticated" state. If the token expires during
-   * this offline period, we log out.
+   * Starts periodic connectivity checks while offline.
+   * - Logs out if the token expires during offline period.
+   * - Restores authenticated state once server is reachable and token is valid.
    */
   private startRetryingConnection() {
     // Avoid multiple subscriptions
@@ -155,10 +174,8 @@ export class AuthService {
 
     this.retrySubscription = interval(this.retryInterval)
       .pipe(
-        // Before each ping, check token validity
         tap(() => {
           if (!this.tokenService.tokenExists() || this.tokenService.isTokenExpired()) {
-            // Token has expired while offline -> log out
             this.logout();
           }
         }),
@@ -172,18 +189,14 @@ export class AuthService {
             this.isAuthenticatedSubject.next(true);
             this.userRoleSubject.next(this.getUserRole());
           }
-          // Stop further retries
           this.stopRetrying();
         } else {
-          // Still offline
           this.isOnlineSubject.next(false);
         }
       });
   }
 
-  /**
-   * Stop any ongoing retry subscription, if present.
-   */
+  /** Stops any ongoing retry subscription. */
   private stopRetrying() {
     if (this.retrySubscription) {
       this.retrySubscription.unsubscribe();
@@ -191,6 +204,10 @@ export class AuthService {
     }
   }
 
+  /**
+   * Builds a `User` model from token claims, if all are present.
+   * @returns `{ id, userName, fullName, role }` or `null`.
+   */
   getUser(): User | null {
     const id = this.getTokenInfo<string>('sub');
     const userName = this.getTokenInfo<string>('unique_name');
@@ -204,22 +221,26 @@ export class AuthService {
     return null;
   }
 
+  /** Gets the current user's id (`sub` claim) or `null`. */
   getUserId(): string | null {
     return this.getTokenInfo<string>('sub');
   }
 
+  /** Gets the current user's role (`role` claim) or `null`. */
   getUserRole(): string | null {
     return this.getTokenInfo<string>('role');
   }
 
   /**
-   * Helper to read a specific claim/key from the token.
+   * Reads a specific claim from the decoded token.
+   * @param key - Claim key to read.
    */
   private getTokenInfo<T>(key: string): T | null {
     const decodedToken = this.tokenService.getDecodedToken();
     return decodedToken && key in decodedToken ? (decodedToken[key] as T) : null;
   }
-
+  
+  /** Resets auth/role/online subjects to defaults. */
   private clearAuthState(): void {
     this.isAuthenticatedSubject.next(false);
     this.userRoleSubject.next(null);

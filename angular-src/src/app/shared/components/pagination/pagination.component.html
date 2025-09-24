@@ -5,7 +5,8 @@
       (click)="previousPage()"
       [disabled]="currentPage === 1"
       class="px-3 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 disabled:opacity-50 min-w-[40px] text-sm">
-      Previous
+      <!-- Previous -->
+       {{ 'TMP_PREVIOUS' | translate }}
     </button>
 
     <!-- Conditionally show page numbers if enabled -->
@@ -30,7 +31,8 @@
       (click)="nextPage()"
       [disabled]="currentPage === totalPages"
       class="px-3 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 disabled:opacity-50 min-w-[40px] text-sm">
-      Next
+      <!-- Next -->
+       {{ 'TMP_NEXT' | translate }}
     </button>
   </div>
 

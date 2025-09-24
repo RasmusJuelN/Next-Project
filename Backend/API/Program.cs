@@ -82,6 +82,7 @@ builder.Services.Configure<RouteOptions>(o => {
 });
 
 // Repositories
+builder.Services.AddScoped<IQuestionnaireGroupRepository, QuestionnaireGroupRepository>();
 builder.Services.AddScoped<IQuestionnaireTemplateRepository, QuestionnaireTemplateRepository>();
 builder.Services.AddScoped<IActiveQuestionnaireRepository, ActiveQuestionnaireRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -189,6 +190,7 @@ builder.Services.AddAuthorizationBuilder()
                       .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
                       .AddPolicy("TeacherOnly", policy => policy.RequireRole("teacher"))
                       .AddPolicy("StudentOnly", policy => policy.RequireRole("student"))
+                      .AddPolicy("AdminAndTeacherOnly", policy => policy.RequireRole("admin", "teacher"))
                       .AddPolicy("StudentAndTeacherOnly", policy => policy.RequireRole("student", "teacher"));
 
 

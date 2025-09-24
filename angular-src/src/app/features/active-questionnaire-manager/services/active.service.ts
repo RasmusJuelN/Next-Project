@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
-import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, Template, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
+import { ActiveQuestionnaire, QuestionnaireGroupKeysetPaginationResult, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
@@ -69,7 +69,7 @@ export class ActiveService {
   
     if (queryCursor.trim() !== '') {
       params = params.set('QueryCursor', queryCursor);
-    }
+    } 
   
     if (studentSearch.trim() !== '') {
       params = params.set('Student', studentSearch);
@@ -82,15 +82,36 @@ export class ActiveService {
     return this.apiService.get<ResponseActiveQuestionnaireBase>(this.apiUrl, params);
   }
   
+  getQuestionnaireGroupsPaginated(
+  pageSize: number,
+  queryCursor: string = '',
+  searchTitle: string = ''
+) {
+  let params = new HttpParams().set('PageSize', pageSize.toString());
 
-
-  createActiveQuestionnaire(aq: { studentId: string; teacherId: string; templateId: string }): Observable<ActiveQuestionnaire> {
-    const formData = new FormData();
-    formData.append('StudentId', aq.studentId);
-    formData.append('TeacherId', aq.teacherId);
-    formData.append('TemplateId', aq.templateId);
-    return this.apiService.post<ActiveQuestionnaire>(`${this.apiUrl}/activate`, formData);
+  if (queryCursor) {
+    params = params.set('QueryCursor', queryCursor);
   }
+
+  if (searchTitle) {
+    params = params.set('Title', searchTitle);
+  }
+
+  return this.apiService.get<QuestionnaireGroupKeysetPaginationResult>(
+    `${this.apiUrl}/groups/paginated`,
+    params
+  );
+}
+
+
+  createActiveQuestionnaire(aq: { studentIds: string[]; teacherIds: string[]; templateId: string }): Observable<ActiveQuestionnaire[]> {
+  const body = {
+    StudentIds: aq.studentIds,
+    TeacherIds: aq.teacherIds,
+    TemplateId: aq.templateId
+  };
+  return this.apiService.post<ActiveQuestionnaire[]>(`${this.apiUrl}/activate`, body);
+}
 
   getActiveQuestionnaireById(id: string): Observable<ActiveQuestionnaire> {
     return this.apiService.get<ActiveQuestionnaire>(`${this.apiUrl}/${id}`);
@@ -121,13 +142,38 @@ export class ActiveService {
     );
   }
 
-  searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
-    let params = new HttpParams().set('title', term);
-    if (queryCursor) {
-      params = params.set('queryCursor', queryCursor);
-    }
-    params = params.set('pageSize', 5);
+searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
+  let params = new HttpParams()
+    .set('title', term)
+    .set('pageSize', 5)
+    .set('templateStatus', 'Finalized');
+
+  if (queryCursor) {
+    params = params.set('queryCursor', queryCursor);
+  }
 
     return this.apiService.get<TemplateBaseResponse>(`${environment.apiUrl}/questionnaire-template/`, params);
   }
+
+  createActiveQuestionnaireGroup(aq: { name: string; templateId: string; studentIds: string[]; teacherIds: string[] }) {
+  const body = {
+    Name: aq.name,
+    TemplateId: aq.templateId,
+    StudentIds: aq.studentIds,
+    TeacherIds: aq.teacherIds
+  };
+  return this.apiService.post<any>(`${this.apiUrl}/creategroup`, body);
+}
+
+getQuestionnaireGroup(groupId: string) {
+  return this.apiService.get<any>(`${this.apiUrl}/${groupId}/getGroup`);
+}
+
+getQuestionnaireGroups() {
+  return this.apiService.get<any[]>(`${this.apiUrl}/groups`);
+}
+
+createAnonymousQuestionnaireGroup(payload: { participantIds: string[], templateId: string }) {
+  return this.apiService.post<any>(`${this.apiUrl}/anonymous-group`, payload);
+}
 }

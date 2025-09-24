@@ -67,7 +67,10 @@ public class ActiveQuestionnaireModel
     /// </remarks>
     [Required]
     public Guid QuestionnaireTemplateFK { get; set; }
-    
+
+    [Required]
+    public Guid GroupId { get; set; }
+
     /// <summary>
     /// Gets or sets the timestamp when this questionnaire was activated and made available for completion.
     /// </summary>
@@ -126,7 +129,10 @@ public class ActiveQuestionnaireModel
     [Required]
     [ForeignKey(nameof(QuestionnaireTemplateFK))]
     public required QuestionnaireTemplateModel QuestionnaireTemplate { get; set; }
-    
+
+    [ForeignKey(nameof(GroupId))]
+    public QuestionnaireGroupModel Group { get; set; }
+
     /// <summary>
     /// Gets or sets the collection of student responses submitted for this questionnaire.
     /// </summary>

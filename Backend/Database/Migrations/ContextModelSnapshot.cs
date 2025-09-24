@@ -36,6 +36,9 @@ namespace Database.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("QuestionnaireTemplateFK")
                         .HasColumnType("uniqueidentifier");
 
@@ -56,6 +59,8 @@ namespace Database.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("QuestionnaireTemplateFK");
 
@@ -141,6 +146,29 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ApplicationLogs");
+                });
+
+            modelBuilder.Entity("Database.Models.QuestionnaireGroupModel", b =>
+                {
+                    b.Property<Guid>("GroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("GroupId");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("QuestionnaireGroups");
                 });
 
             modelBuilder.Entity("Database.Models.QuestionnaireOptionModel", b =>
@@ -597,6 +625,9 @@ namespace Database.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
+                    b.Property<int>("TemplateStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -622,6 +653,7 @@ namespace Database.Migrations
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Gennemførelsesprocedure for SKP-elever ved PRAKTIK NORD",
                             LastUpated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            TemplateStatus = 0,
                             Title = "Evaluering af SKP-elever"
                         });
                 });
@@ -754,6 +786,12 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Models.ActiveQuestionnaireModel", b =>
                 {
+                    b.HasOne("Database.Models.QuestionnaireGroupModel", "Group")
+                        .WithMany("Questionnaires")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Database.Models.QuestionnaireTemplateModel", "QuestionnaireTemplate")
                         .WithMany("ActiveQuestionnaires")
                         .HasForeignKey("QuestionnaireTemplateFK")
@@ -771,6 +809,8 @@ namespace Database.Migrations
                         .HasForeignKey("TeacherFK")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("Group");
 
                     b.Navigation("QuestionnaireTemplate");
 
@@ -794,6 +834,17 @@ namespace Database.Migrations
                     b.Navigation("Option");
 
                     b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("Database.Models.QuestionnaireGroupModel", b =>
+                {
+                    b.HasOne("Database.Models.QuestionnaireTemplateModel", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
                 });
 
             modelBuilder.Entity("Database.Models.QuestionnaireOptionModel", b =>
@@ -852,6 +903,11 @@ namespace Database.Migrations
                     b.Navigation("StudentAnswers");
 
                     b.Navigation("TeacherAnswers");
+                });
+
+            modelBuilder.Entity("Database.Models.QuestionnaireGroupModel", b =>
+                {
+                    b.Navigation("Questionnaires");
                 });
 
             modelBuilder.Entity("Database.Models.QuestionnaireQuestionModel", b =>

@@ -1,0 +1,26 @@
+/* Nav underline animation: default is dark blue, expands from center on hover, orange_light when active */
+.nav-underline {
+  position: relative;
+}
+.nav-underline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  bottom: 0;
+  height: 2.5px;
+  background: var(--color-primary-orange_1, #e94f2d); /* fallback to a dark blue */
+  border-radius: 2px;
+  transition: left 0.3s cubic-bezier(.4,0,.2,1), right 0.3s cubic-bezier(.4,0,.2,1), background 0.2s;
+  z-index: 1;
+}
+.nav-underline:hover::before,
+.nav-underline:focus-visible::before {
+  left: 0;
+  right: 0;
+}
+.active-underline::before {
+  left: 0;
+  right: 0;
+  background: var(--color-primary-orange-light, #e94f2d); /* fallback to orange_light */
+}

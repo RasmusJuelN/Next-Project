@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Database.DTO.QuestionnaireTemplate;
 
 /// <summary>
@@ -17,4 +19,5 @@ public record class QuestionnaireTemplateBase
     public required DateTime CreatedAt { get; set; }
     public required DateTime LastUpdated { get; set; }
     public required bool IsLocked { get; set; }
+    public TemplateStatus TemplateStatus { get; init; }
 }

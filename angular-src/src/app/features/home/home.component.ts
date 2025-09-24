@@ -5,11 +5,22 @@ import { CommonModule } from '@angular/common';
 import { LoginComponent } from '../login/login.component';
 import { HomeService } from './services/home.service';
 import { catchError, of } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+
+/**
+ * HomeComponent
+ * 
+ * The entry point for the application. 
+ * Responsible for:
+ * - Checking authentication state.
+ * - Handling navigation to questionnaires.
+ * - Managing login/logout flows and error states.
+ */
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [LoginComponent, CommonModule],
+  imports: [LoginComponent, CommonModule, TranslateModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
@@ -17,17 +28,24 @@ export class HomeComponent implements OnInit {
   private authService = inject(AuthService);
   private homeService = inject(HomeService);
   private router = inject(Router);
+  // private translate = inject(TranslateService);
 
+  /** Observable tracking whether the user is logged in */
   loggedInAlready$ = this.authService.isAuthenticated$;
   activeQuestionnaireString = '';
   userRole: string | null = null;
   errorMessage: string | null = null;
+  username: string = '';
 
+  /**
+   * Runs initialization logic
+   * and checks if any active questionaires exists for user).
+   */
   ngOnInit(): void {
-    // Check if an active questionnaire exists when logged in
     this.loggedInAlready$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.userRole = this.authService.getUserRole();
+        this.username = this.authService.getUser()?.userName || '';
         if (this.userRole !== 'admin') {
           this.homeService
             .checkForExistingActiveQuestionnaires()
@@ -39,6 +57,7 @@ export class HomeComponent implements OnInit {
       } else {
         this.userRole = null;
         this.activeQuestionnaireString = '';
+        this.username = '';
       }
     });
   }
@@ -68,4 +87,9 @@ export class HomeComponent implements OnInit {
     this.errorMessage = 'Login failed. Please try again.';
     console.error('Login error:', error);
   }
+
+//   setLanguage(lang: string) {
+//   this.translate.use(lang);
+// }
+
 }

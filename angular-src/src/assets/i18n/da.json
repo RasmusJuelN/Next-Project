@@ -1,0 +1,127 @@
+{
+  "BUTTON_EN": "Engelsk",
+  "BUTTON_DA": "Dansk",
+  "GREETING": "Hej {{username}}!",
+  "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer",
+  "ANSWER_QUESTIONNAIRE": "Et spørgeskema kan besvares",
+  "NAV_TOGGLE_MENU": "Åbn/luk menu",
+  "NAV_LOG_OUT": "Log ud",
+   "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
+  "NAV_DATA_COMPARE": "Sammenlign Data",
+  "NAV_OVERVIEW": "Oversigt",
+  "NAV_TEMPLATES": "Skabeloner",
+   "LOGIN_WELCOME": "Velkommen",
+  "LOGIN_SUBTITLE": "Log ind for at besvare spørgeskemaer",
+  "LOGIN_USERNAME_PLACEHOLDER": "Indtast brugernavn",
+  "LOGIN_PASSWORD_PLACEHOLDER": "Indtast adgangskode",
+  "LOGIN_USERNAME_REQUIRED": "Brugernavn er påkrævet",
+  "LOGIN_PASSWORD_REQUIRED": "Adgangskode er påkrævet",
+  "LOGIN_ERROR_INVALID": "Ugyldigt brugernavn eller adgangskode.",
+  "LOGIN_ERROR_GENERAL": "Der opstod en fejl under login. Prøv igen.",
+  "LOGIN_SUBMIT": "Log ind",
+  "LOGIN_LOADING": "Logger ind...",
+  "TMP_NEW_TITLE": "Ny skabelon",
+  "TMP_NEW_DESC": "Beskrivelse af den nye skabelon",
+  "TMP_NEW_QUESTION": "Standard spørgsmål",
+
+
+  "TMP_TITLE_ADMINISTER_TEMPLATES": "Administrer Skabeloner",
+  "TMP_DATA_COMPARE_TITLE": "Sammenlign Data",
+  "TMP_BUTTON_CREATE_NEW": "Opret Ny Skabelon",
+  "TMP_SEARCH_BY_NAME": "Søg efter Navn",
+  "TMP_SEARCH_BY_ID": "Søg efter ID",
+  "TMP_SEARCH_PLACEHOLDER": "Søg i skabeloner...",
+  "TMP_ITEMS_PER_PAGE": "Elementer pr. side:",
+  "TMP_LOADING": "Indlæser...",
+  "TMP_BUTTON_EDIT": "Rediger", 
+  "TMP_BUTTON_DELETE": "Slet",
+  "TMP_DELETE": "Slet",
+  "TMP_DELETE_PERMANENT": "Slet Permanent",
+  "TMP_CANCEL": "Annuller",
+  "TMP_DELETE_CONFIRM_TITLE": "Bekræft Sletning",
+  "TMP_DELETE_CONFIRM_WARN": "Sidste Advarsel",
+  "TMP_DELETE_CONFIRM_MSG": "Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data.",
+  "TMP_DELETE_FINAL_WARN_MSG": "Advarsel: Denne handling kan ikke fortrydes. Sletning af denne skabelon vil permanent fjerne alle relaterede data. Er du helt sikker på, at du vil fortsætte?",
+  "TMP_LOCKED_TITLE": "Skabelonen er i brug",
+  "TMP_LOCKED_MSG": "Denne skabelon kan ikke redigeres, da den har været brugt.",
+  "TMP_BUTTON_CLOSE": "Luk",
+  "TMP_FAIL_LOAD_LIST": "Indlæsning af skabeloner mislykkedes. Prøv igen.",
+  "TMP_FAIL_LOAD_DETAIL": "Indlæsning af skabelondetaljer mislykkedes.",
+  "TMP_DELETE_ERROR": "Fejl ved sletning af skabelon.",
+  "TMP_UPDATE_ERROR": "Fejl ved opdatering af skabelon.",
+
+   "TMP_EDITOR_TITLE": "Skabelonredigering",
+  "TMP_TEMPLATE_TITLE": "Skabelon Titel",
+  "TMP_TEMPLATE_DESCRIPTION": "Beskrivelse",
+  "TMP_QUESTIONS": "Spørgsmål",
+  "TMP_SAVE_TEMPLATE": "Gem Skabelon",
+  "TMP_NEWQUESTION": "Nyt spørgsmål",
+  "TMP_ADD_QUESTION": "Tilføj Nyt Spørgsmål",
+
+  "TMP_NEXT": "Næste",
+  "TMP_PREVIOUS": "Forrige",
+
+
+ "TMP_ACTIVE_SURVEYS": "Aktive spørgeskemaer",
+ "TMP_SETUP_AT": "Opsat den:",
+ "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Oversigt over aktive spørgeskemaer",
+  "TMP_SEARCH_BY_STUDENT_NAME": "Søg efter elevnavn",
+  "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Søg efter aktivt spørgeskema-id",
+  "TMP_SEARCHPLACEHOLDER": "Søg...",
+  "TMP_STUDENT_DONE": "Studenten er færdig",
+  "TMP_TEACHER_DONE": "Læreren er færdig",
+  "TMP_COPY_LINK": "Kopier link til besvarelse",
+  "TMP_STUDENT_NAME": "Elevnavn:",
+  "TMP_STUDENT": "Elev",
+  "TMP_TEACHER": "Lærer",
+  "TMP_COMPLETED": "Færdig",
+  "TMP_PENDING": "Ikke færdig",
+  "TMP_ANSWER": "Svar",
+  "TMP_VIEW_RESULTS": "Se resultater",
+
+
+  "TMP_FINALIZE_TITLE": "Udgiv skabelon?",
+  "TMP_FINALIZE_TEXT": "Når en skabelon udgives, bliver den skrivebeskyttet. <br/>Er du sikker på, at du vil udgive?",
+  "TMP_FINALIZE_CONFIRM": "Udgiv",
+  "TMP_VIEW_MODE": "Template View",
+  "TMP_EDIT_MODE": "Template Editing",
+
+
+  "COMMON": {
+    "BUTTONS": {
+      "VIEW": "Vis",
+      "COPY": "Kopiér",
+      "DELETE_PERMANENT": "Slet permanent",
+      "CANCEL": "Annuller",
+      "CLOSE": "Luk",
+      "SHOW": "Vis",
+      "EDIT": "Rediger",
+      "NEXT": "Næste",
+      "PREVIOUS": "Forrige",
+      "SUBMIT": "Indsend"
+    },
+    "GREETING": "Hej {{username}}!"
+  },
+
+  "TEMPLATES": {
+    "DELETE": {
+      "TITLE": "Bekræft sletning",
+      "MSG": "Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data."
+    }
+  },
+
+  "QUESTION_EDITOR": {
+    "TITLE": "Rediger spørgsmål",
+    "LABEL_TITLE": "Titel:",
+    "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
+    "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
+    "OPTIONS": "Valgmuligheder",
+    "DELETE_OPTION": "Slet valgmulighed",
+    "ADD_OPTION": "Tilføj ny valgmulighed",
+    "SAVE": "Gem spørgsmål"
+  },
+
+  "QUESTIONAIRE": {
+    "COLLABORATOR": "Samarbejdspartner"
+  }
+}

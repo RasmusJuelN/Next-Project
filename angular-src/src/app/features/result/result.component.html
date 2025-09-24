@@ -53,4 +53,14 @@
       </div>
     </div>
   </div>
+
+<label for="charts">Change Chart Type : </label>
+<select name="charts" id="charts" [(ngModel)]="chartType" (change)="updateChart(chartType)">
+  <option value="stacked">Stacked Chart</option>
+  <option value="donut">Donut Chart</option>
+</select>
+<div class="flex justify-center mt-8 w-full" *ngIf="chartOptions">
+  <div class=" flex justify-center">
+    <ag-charts class="w-[800px]" [options]="chartOptions"></ag-charts>
+  </div>
 </div>

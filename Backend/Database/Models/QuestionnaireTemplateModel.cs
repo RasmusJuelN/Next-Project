@@ -98,6 +98,7 @@ public class QuestionnaireTemplateModel
     /// Requires a database context to be provided for accurate calculation.
     /// </remarks>
     public bool IsLocked => _context?.Set<ActiveQuestionnaireModel>().Where(q => Id == q.QuestionnaireTemplateFK).Any() ?? false;
+    public TemplateStatus TemplateStatus { get; set; } = TemplateStatus.Draft;
 
     /// <summary>
     /// Gets or sets the collection of questions that belong to this template.
