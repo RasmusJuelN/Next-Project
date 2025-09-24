@@ -89,9 +89,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
 
     public async Task<QuestionnaireGroupResult> ActivateQuestionnaireGroup(ActivateQuestionnaireGroup request)
     {
-        _ldap.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
+        _authenticationBridge.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
 
-        if (!_ldap.connection.Bound) throw new Exception("Failed to bind to the LDAP server.");
+        if (!_authenticationBridge.IsConnected()) throw new Exception("Failed to bind to the LDAP server.");
         // Ensure all students exist
         foreach (var studentId in request.StudentIds)
         {
@@ -321,7 +321,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     /// <param name="request">The activation request containing template ID, student ID, and teacher ID.</param>
     /// <returns>The activated questionnaire instance.</returns>
     /// <exception cref="Exception">Thrown when LDAP authentication fails or connection to LDAP server cannot be established.</exception>
-    public async Task<ActiveQuestionnaire> ActivateTemplate(ActivateQuestionnaire request)
+    public async Task<List<ActiveQuestionnaire>> ActivateTemplate(ActivateQuestionnaire request)
     {
         _authenticationBridge.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
 
