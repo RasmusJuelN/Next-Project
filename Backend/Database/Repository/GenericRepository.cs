@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
-internal class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
 {
     // TODO: Create custom exceptions and include logging
     private readonly Context _context;

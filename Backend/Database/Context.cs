@@ -127,18 +127,18 @@ public class Context : DbContext
         base.OnModelCreating(modelBuilder);
     }
 
-    internal DbSet<QuestionnaireTemplateModel> QuestionnaireTemplates { get; set; }
-    internal DbSet<QuestionnaireQuestionModel> QuestionnaireQuestions { get; set; }
-    internal DbSet<QuestionnaireOptionModel> QuestionnaireOptions { get; set; }
-    internal DbSet<ActiveQuestionnaireModel> ActiveQuestionnaires { get; set; }
-    internal DbSet<ActiveQuestionnaireResponseBaseModel> ActiveQuestionnaireResponses { get; set; }
-    internal DbSet<ActiveQuestionnaireStudentResponseModel> ActiveQuestionnaireStudentResponses { get; set; }
-    internal DbSet<ActiveQuestionnaireTeacherResponseModel> ActiveQuestionnaireTeacherResponses { get; set; }
-    internal DbSet<UserBaseModel> Users { get; set; }
-    internal DbSet<StudentModel> Students { get; set; }
-    internal DbSet<TeacherModel> Teachers { get; set; }
-    internal DbSet<TrackedRefreshTokenModel> RevokedRefreshTokens { get; set; }
-    internal DbSet<ApplicationLogsModel> ApplicationLogs { get; set; }
-    internal DbSet<QuestionnaireGroupModel> QuestionnaireGroups { get; set; }
+   public DbSet<QuestionnaireTemplateModel> QuestionnaireTemplates { get; set; }
+    public DbSet<QuestionnaireQuestionModel> QuestionnaireQuestions { get; set; }
+    public DbSet<QuestionnaireOptionModel> QuestionnaireOptions { get; set; }
+    public DbSet<ActiveQuestionnaireModel> ActiveQuestionnaires { get; set; }
+    public DbSet<ActiveQuestionnaireResponseBaseModel> ActiveQuestionnaireResponses { get; set; }
+    public DbSet<ActiveQuestionnaireStudentResponseModel> ActiveQuestionnaireStudentResponses { get; set; }
+    public DbSet<ActiveQuestionnaireTeacherResponseModel> ActiveQuestionnaireTeacherResponses { get; set; }
+    public DbSet<UserBaseModel> Users { get; set; }
+    public DbSet<StudentModel> Students { get; set; }
+    public DbSet<TeacherModel> Teachers { get; set; }
+    public DbSet<TrackedRefreshTokenModel> RevokedRefreshTokens { get; set; }
+    public DbSet<ApplicationLogsModel> ApplicationLogs { get; set; }
+    public DbSet<QuestionnaireGroupModel> QuestionnaireGroups { get; set; }
 
 }

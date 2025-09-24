@@ -57,7 +57,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         };
 
         await _genericRepository.AddAsync(activeQuestionnaire);
-
+        await _context.SaveChangesAsync();
         return activeQuestionnaire.ToDto();
     }
 

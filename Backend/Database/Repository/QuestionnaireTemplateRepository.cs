@@ -146,6 +146,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         }
 
         _genericRepository.Delete(existingTemplate);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<(List<QuestionnaireTemplateBase>, int)> PaginationQueryWithKeyset(

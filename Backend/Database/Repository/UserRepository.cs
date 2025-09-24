@@ -17,7 +17,6 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
         StudentModel? student = await _context.Users.OfType<StudentModel>().FirstOrDefaultAsync(t => t.Guid == id);
         return student?.ToDto();
     }
-
     public async Task<FullUser?> GetTeacherAsync(Guid id)
     {
         TeacherModel? teacher = await _context.Users.OfType<TeacherModel>().FirstOrDefaultAsync(u => u.Guid == id);
@@ -29,26 +28,6 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
         UserBaseModel? user = await _context.Users.FirstOrDefaultAsync(u => u.Guid == id);
         return user?.ToDto();
     }
-
-    // for get all student and teacher 
-    //public async Task<List<FullUser>> GetAllTeachersAsync()
-    //{
-    //    return await _context.Users
-    //        .OfType<TeacherModel>()
-    //        .Select(t => t.ToDto())
-    //        .ToListAsync();
-    //}
-
-    //public async Task<List<FullUser>> GetAllStudentsAsync()
-    //{
-    //    return await _context.Users
-    //        .OfType<StudentModel>()
-    //        .Select(s => s.ToDto())
-    //        .ToListAsync();
-    //}
-
-
-
 
     public async Task<Guid?> GetIdOfOldestActiveQuestionnaire(Guid id)
     {

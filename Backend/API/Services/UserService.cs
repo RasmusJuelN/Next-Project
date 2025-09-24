@@ -9,7 +9,6 @@ using Database.DTO;
 using Database.DTO.ActiveQuestionnaire;
 using Database.DTO.User;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-
 namespace API.Services;
 
 public class UserService(LdapService ldapService, IUnitOfWork unitOfWork)
