@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20250922082448_fixmissingresponses")]
+    partial class fixmissingresponses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -999,168 +1002,168 @@ namespace Database.Migrations
                         },
                         new
                         {
-                            Id = -16,
+                            Id = -13,
                             ActiveQuestionnaireFK = new Guid("7ff68cc7-4702-4b54-9cf7-72c24fdb57b9"),
                             OptionFK = -2,
                             QuestionFK = -1
                         },
                         new
                         {
-                            Id = -17,
+                            Id = -14,
                             ActiveQuestionnaireFK = new Guid("7ff68cc7-4702-4b54-9cf7-72c24fdb57b9"),
                             OptionFK = -4,
                             QuestionFK = -2
                         },
                         new
                         {
-                            Id = -18,
+                            Id = -15,
                             ActiveQuestionnaireFK = new Guid("7ff68cc7-4702-4b54-9cf7-72c24fdb57b9"),
                             OptionFK = -7,
                             QuestionFK = -3
                         },
                         new
                         {
-                            Id = -22,
+                            Id = -16,
                             ActiveQuestionnaireFK = new Guid("76e83a1c-73e4-4572-b0e3-3023f503151f"),
+                            OptionFK = -3,
+                            QuestionFK = -1
+                        },
+                        new
+                        {
+                            Id = -17,
+                            ActiveQuestionnaireFK = new Guid("76e83a1c-73e4-4572-b0e3-3023f503151f"),
+                            OptionFK = -5,
+                            QuestionFK = -2
+                        },
+                        new
+                        {
+                            Id = -18,
+                            ActiveQuestionnaireFK = new Guid("76e83a1c-73e4-4572-b0e3-3023f503151f"),
+                            OptionFK = -9,
+                            QuestionFK = -3
+                        },
+                        new
+                        {
+                            Id = -19,
+                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
+                            OptionFK = -1,
+                            QuestionFK = -1
+                        },
+                        new
+                        {
+                            Id = -20,
+                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
+                            OptionFK = -5,
+                            QuestionFK = -2
+                        },
+                        new
+                        {
+                            Id = -21,
+                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
+                            OptionFK = -9,
+                            QuestionFK = -3
+                        },
+                        new
+                        {
+                            Id = -22,
+                            ActiveQuestionnaireFK = new Guid("b812acd2-f43a-42f0-9a10-02158380c88c"),
                             OptionFK = -3,
                             QuestionFK = -1
                         },
                         new
                         {
                             Id = -23,
-                            ActiveQuestionnaireFK = new Guid("76e83a1c-73e4-4572-b0e3-3023f503151f"),
-                            OptionFK = -5,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -24,
-                            ActiveQuestionnaireFK = new Guid("76e83a1c-73e4-4572-b0e3-3023f503151f"),
-                            OptionFK = -9,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -28,
-                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
-                            OptionFK = -1,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -29,
-                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
-                            OptionFK = -5,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -30,
-                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
-                            OptionFK = -9,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -34,
-                            ActiveQuestionnaireFK = new Guid("b812acd2-f43a-42f0-9a10-02158380c88c"),
-                            OptionFK = -3,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -35,
                             ActiveQuestionnaireFK = new Guid("b812acd2-f43a-42f0-9a10-02158380c88c"),
                             OptionFK = -6,
                             QuestionFK = -2
                         },
                         new
                         {
-                            Id = -36,
+                            Id = -24,
                             ActiveQuestionnaireFK = new Guid("b812acd2-f43a-42f0-9a10-02158380c88c"),
                             OptionFK = -8,
                             QuestionFK = -3
                         },
                         new
                         {
-                            Id = -40,
+                            Id = -25,
                             ActiveQuestionnaireFK = new Guid("d9cf4a1e-83ef-4f3b-bf5b-ad25338dc094"),
                             OptionFK = -2,
                             QuestionFK = -1
                         },
                         new
                         {
-                            Id = -41,
+                            Id = -26,
                             ActiveQuestionnaireFK = new Guid("d9cf4a1e-83ef-4f3b-bf5b-ad25338dc094"),
                             OptionFK = -6,
                             QuestionFK = -2
                         },
                         new
                         {
-                            Id = -42,
+                            Id = -27,
                             ActiveQuestionnaireFK = new Guid("d9cf4a1e-83ef-4f3b-bf5b-ad25338dc094"),
                             OptionFK = -7,
                             QuestionFK = -3
                         },
                         new
                         {
-                            Id = -46,
+                            Id = -28,
                             ActiveQuestionnaireFK = new Guid("7c81756d-2ae8-41e8-ac79-824bc632c8a1"),
                             OptionFK = -3,
                             QuestionFK = -1
                         },
                         new
                         {
-                            Id = -47,
+                            Id = -29,
                             ActiveQuestionnaireFK = new Guid("7c81756d-2ae8-41e8-ac79-824bc632c8a1"),
                             OptionFK = -5,
                             QuestionFK = -2
                         },
                         new
                         {
-                            Id = -48,
+                            Id = -30,
                             ActiveQuestionnaireFK = new Guid("7c81756d-2ae8-41e8-ac79-824bc632c8a1"),
                             OptionFK = -7,
                             QuestionFK = -3
                         },
                         new
                         {
-                            Id = -52,
+                            Id = -31,
                             ActiveQuestionnaireFK = new Guid("4814723f-50af-4414-9c17-c79d7aac3831"),
                             OptionFK = -3,
                             QuestionFK = -1
                         },
                         new
                         {
-                            Id = -53,
+                            Id = -32,
                             ActiveQuestionnaireFK = new Guid("4814723f-50af-4414-9c17-c79d7aac3831"),
                             OptionFK = -6,
                             QuestionFK = -2
                         },
                         new
                         {
-                            Id = -54,
+                            Id = -33,
                             ActiveQuestionnaireFK = new Guid("4814723f-50af-4414-9c17-c79d7aac3831"),
                             OptionFK = -7,
                             QuestionFK = -3
                         },
                         new
                         {
-                            Id = -58,
+                            Id = -34,
                             ActiveQuestionnaireFK = new Guid("08062aef-1e18-4c86-ac07-46c9d579e750"),
                             OptionFK = -1,
                             QuestionFK = -1
                         },
                         new
                         {
-                            Id = -59,
+                            Id = -35,
                             ActiveQuestionnaireFK = new Guid("08062aef-1e18-4c86-ac07-46c9d579e750"),
                             OptionFK = -6,
                             QuestionFK = -2
                         },
                         new
                         {
-                            Id = -60,
+                            Id = -36,
                             ActiveQuestionnaireFK = new Guid("08062aef-1e18-4c86-ac07-46c9d579e750"),
                             OptionFK = -9,
                             QuestionFK = -3
@@ -1176,197 +1179,6 @@ namespace Database.Migrations
                     b.ToTable("ActiveQuestionnaireResponse");
 
                     b.HasDiscriminator().HasValue("ActiveQuestionnaireTeacherResponseModel");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = -13,
-                            ActiveQuestionnaireFK = new Guid("b65c922e-9ce0-4a7a-9e4f-9d98f0f4e213"),
-                            OptionFK = -3,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -14,
-                            ActiveQuestionnaireFK = new Guid("b65c922e-9ce0-4a7a-9e4f-9d98f0f4e213"),
-                            OptionFK = -4,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -15,
-                            ActiveQuestionnaireFK = new Guid("b65c922e-9ce0-4a7a-9e4f-9d98f0f4e213"),
-                            OptionFK = -7,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -19,
-                            ActiveQuestionnaireFK = new Guid("7ff68cc7-4702-4b54-9cf7-72c24fdb57b9"),
-                            OptionFK = -2,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -20,
-                            ActiveQuestionnaireFK = new Guid("7ff68cc7-4702-4b54-9cf7-72c24fdb57b9"),
-                            OptionFK = -5,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -21,
-                            ActiveQuestionnaireFK = new Guid("7ff68cc7-4702-4b54-9cf7-72c24fdb57b9"),
-                            OptionFK = -8,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -25,
-                            ActiveQuestionnaireFK = new Guid("76e83a1c-73e4-4572-b0e3-3023f503151f"),
-                            OptionFK = -2,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -26,
-                            ActiveQuestionnaireFK = new Guid("76e83a1c-73e4-4572-b0e3-3023f503151f"),
-                            OptionFK = -6,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -27,
-                            ActiveQuestionnaireFK = new Guid("76e83a1c-73e4-4572-b0e3-3023f503151f"),
-                            OptionFK = -9,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -31,
-                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
-                            OptionFK = -2,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -32,
-                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
-                            OptionFK = -4,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -33,
-                            ActiveQuestionnaireFK = new Guid("560fa037-52d2-4c8d-86f3-7467ed48f54d"),
-                            OptionFK = -9,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -37,
-                            ActiveQuestionnaireFK = new Guid("b812acd2-f43a-42f0-9a10-02158380c88c"),
-                            OptionFK = -1,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -38,
-                            ActiveQuestionnaireFK = new Guid("b812acd2-f43a-42f0-9a10-02158380c88c"),
-                            OptionFK = -6,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -39,
-                            ActiveQuestionnaireFK = new Guid("b812acd2-f43a-42f0-9a10-02158380c88c"),
-                            OptionFK = -7,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -43,
-                            ActiveQuestionnaireFK = new Guid("d9cf4a1e-83ef-4f3b-bf5b-ad25338dc094"),
-                            OptionFK = -3,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -44,
-                            ActiveQuestionnaireFK = new Guid("d9cf4a1e-83ef-4f3b-bf5b-ad25338dc094"),
-                            OptionFK = -6,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -45,
-                            ActiveQuestionnaireFK = new Guid("d9cf4a1e-83ef-4f3b-bf5b-ad25338dc094"),
-                            OptionFK = -9,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -49,
-                            ActiveQuestionnaireFK = new Guid("7c81756d-2ae8-41e8-ac79-824bc632c8a1"),
-                            OptionFK = -2,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -50,
-                            ActiveQuestionnaireFK = new Guid("7c81756d-2ae8-41e8-ac79-824bc632c8a1"),
-                            OptionFK = -5,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -51,
-                            ActiveQuestionnaireFK = new Guid("7c81756d-2ae8-41e8-ac79-824bc632c8a1"),
-                            OptionFK = -9,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -55,
-                            ActiveQuestionnaireFK = new Guid("4814723f-50af-4414-9c17-c79d7aac3831"),
-                            OptionFK = -1,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -56,
-                            ActiveQuestionnaireFK = new Guid("4814723f-50af-4414-9c17-c79d7aac3831"),
-                            OptionFK = -5,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -57,
-                            ActiveQuestionnaireFK = new Guid("4814723f-50af-4414-9c17-c79d7aac3831"),
-                            OptionFK = -7,
-                            QuestionFK = -3
-                        },
-                        new
-                        {
-                            Id = -61,
-                            ActiveQuestionnaireFK = new Guid("08062aef-1e18-4c86-ac07-46c9d579e750"),
-                            OptionFK = -3,
-                            QuestionFK = -1
-                        },
-                        new
-                        {
-                            Id = -62,
-                            ActiveQuestionnaireFK = new Guid("08062aef-1e18-4c86-ac07-46c9d579e750"),
-                            OptionFK = -4,
-                            QuestionFK = -2
-                        },
-                        new
-                        {
-                            Id = -63,
-                            ActiveQuestionnaireFK = new Guid("08062aef-1e18-4c86-ac07-46c9d579e750"),
-                            OptionFK = -7,
-                            QuestionFK = -3
-                        });
                 });
 
             modelBuilder.Entity("Database.Models.StudentModel", b =>

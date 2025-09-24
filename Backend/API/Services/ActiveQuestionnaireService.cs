@@ -412,6 +412,11 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
 
     }
 
+    internal async Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups)
+    {
+        return await _unitOfWork.ActiveQuestionnaire.GetAnonymisedResponses(templateId, users, groups);
+    }
+
     /// <summary>
     /// Generates a student user entity from user storage information for database insertion.
     /// </summary>

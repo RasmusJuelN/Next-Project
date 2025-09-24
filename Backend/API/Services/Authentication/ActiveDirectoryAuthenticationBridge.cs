@@ -135,6 +135,8 @@ public class ActiveDirectoryAuthenticationBridge(
 
     public TEntity? SearchId<TEntity>(string Id) where TEntity : new()
     {
+        EnsureBoundConnection();
+
         _Logger.LogDebug("Starting entity search by ID: {Id}", Id);
         
         if (string.IsNullOrEmpty(Id))
@@ -398,7 +400,7 @@ public class ActiveDirectoryAuthenticationBridge(
         if (_Connection is null || !_Connection.Bound)
         {
             _Logger.LogDebug("Connection is null or not bound, establishing service account connection");
-            BindWithSimple(_LdapSettings.SA, _LdapSettings.SAPassword);
+            Authenticate(_LdapSettings.SA, _LdapSettings.SAPassword);
         }
     }
 

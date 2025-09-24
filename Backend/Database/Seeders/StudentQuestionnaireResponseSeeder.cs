@@ -54,12 +54,14 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
 
 
                 modelBuilder.Entity<ActiveQuestionnaireStudentResponseModel>().HasData(activeQuestionnaire.StudentAnswers);
+                modelBuilder.Entity<ActiveQuestionnaireTeacherResponseModel>().HasData(activeQuestionnaire.TeacherAnswers);
 
                 activeQuestionnaire.Student = null;
                 activeQuestionnaire.Teacher = null;
                 activeQuestionnaire.Group = null;
                 activeQuestionnaire.QuestionnaireTemplate = null;
                 activeQuestionnaire.StudentAnswers = [];
+                activeQuestionnaire.TeacherAnswers = [];
 
                 modelBuilder.Entity<ActiveQuestionnaireModel>().HasData(activeQuestionnaire);
             }
@@ -134,17 +136,27 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
             Guid.Parse("4814723f-50af-4414-9c17-c79d7aac3831"),
             Guid.Parse("08062aef-1e18-4c86-ac07-46c9d579e750")
         ];
-        DateTime activatedAtTime = DateTime.Parse("2023 - 08 - 20 09:58:30.5360158");
+        List<DateTime> activatedAtTimes = [
+            DateTime.Parse("2023 - 03 - 20 09:58:30.5360158"),
+            DateTime.Parse("2023 - 06 - 20 09:58:30.5360158"),
+            DateTime.Parse("2023 - 09 - 20 09:58:30.5360158"),
+            DateTime.Parse("2024 - 03 - 20 09:58:30.5360158"),
+            DateTime.Parse("2024 - 06 - 20 09:58:30.5360158"),
+            DateTime.Parse("2024 - 09 - 20 09:58:30.5360158"),
+            DateTime.Parse("2025 - 03 - 20 09:58:30.5360158"),
+            DateTime.Parse("2025 - 06 - 20 09:58:30.5360158"),
+            DateTime.Parse("2025 - 09 - 20 09:58:30.5360158"),
+        ];
         List<DateTime> completedAtTime = [
-            DateTime.Parse("2023 - 08 - 20 09:58:30.5360158"),
-            DateTime.Parse("2023 - 08 - 21 09:58:30.5360158"),
-            DateTime.Parse("2023 - 08 - 22 09:58:30.5360158"),
-            DateTime.Parse("2024 - 08 - 20 09:58:30.5360158"),
-            DateTime.Parse("2024 - 08 - 21 09:58:30.5360158"),
-            DateTime.Parse("2024 - 08 - 22 09:58:30.5360158"),
-            DateTime.Parse("2025 - 08 - 20 09:58:30.5360158"),
-            DateTime.Parse("2025 - 08 - 21 09:58:30.5360158"),
-            DateTime.Parse("2025 - 08 - 22 09:58:30.5360158")
+            DateTime.Parse("2023 - 03 - 21 09:58:30.5360158"),
+            DateTime.Parse("2023 - 06 - 21 09:58:30.5360158"),
+            DateTime.Parse("2023 - 09 - 21 09:58:30.5360158"),
+            DateTime.Parse("2024 - 03 - 21 09:58:30.5360158"),
+            DateTime.Parse("2024 - 06 - 21 09:58:30.5360158"),
+            DateTime.Parse("2024 - 09 - 21 09:58:30.5360158"),
+            DateTime.Parse("2025 - 03 - 21 09:58:30.5360158"),
+            DateTime.Parse("2025 - 06 - 21 09:58:30.5360158"),
+            DateTime.Parse("2025 - 09 - 21 09:58:30.5360158")
         ];
 
         // Questionnaire Group
@@ -154,14 +166,26 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
 
         // Active Questionnaire Student Responses. We need to set the ID of the response, the question foreign key, and option foreign key
         // Generate 9 responses: 3 questionnaires × 3 questions each = 9 total responses
-        int responseIdCounter = -1;
+        int responseIdCounter = -10;
 
         Random random = new(205732675);
 
         // Fixed "random" response pattern to simulate real-world scenarios
         // Each inner array represents responses for one questionnaire [Q1_option, Q2_option, Q3_option]
         // Options are 0-indexed within each question's available options
-        int[][] fixedResponsePattern = [
+        int[][] studentResponsePattern = [
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
+            [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)]
+        ];
+
+        int[][] teacherResponsePattern = [
             [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
             [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
             [random.Next(0, 3), random.Next(0, 3), random.Next(0, 3)],
@@ -200,7 +224,7 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
                     TeacherFK = teacherId,
                     QuestionnaireTemplateFK = templateId,
                     GroupId = groupId,
-                    ActivatedAt = activatedAtTime,
+                    ActivatedAt = activatedAtTimes[i],
                     StudentCompletedAt = completedAtTime[i],
                     TeacherCompletedAt = completedAtTime[i],
                     Student = new StudentModel()
@@ -255,7 +279,16 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
                         {
                             Id = responseIdCounter--,
                             QuestionFK = questionFK,
-                            OptionFK = options[questionFK].Keys.ElementAt(fixedResponsePattern[i][questionIndex]),
+                            OptionFK = options[questionFK].Keys.ElementAt(studentResponsePattern[i][questionIndex]),
+                            ActiveQuestionnaireFK = activeQuestionnaireIds[i],
+                            CustomResponse = null
+                        })],
+                    TeacherAnswers = [.. questions.Keys.Select((questionFK, questionIndex) =>
+                        new ActiveQuestionnaireTeacherResponseModel()
+                        {
+                            Id = responseIdCounter--,
+                            QuestionFK = questionFK,
+                            OptionFK = options[questionFK].Keys.ElementAt(teacherResponsePattern[i][questionIndex]),
                             ActiveQuestionnaireFK = activeQuestionnaireIds[i],
                             CustomResponse = null
                         })]

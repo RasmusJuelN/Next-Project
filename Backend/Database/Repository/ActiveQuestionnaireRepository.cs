@@ -1,4 +1,5 @@
 using Database.DTO.ActiveQuestionnaire;
+using Database.DTO.QuestionnaireTemplate;
 using Database.Enums;
 using Database.Extensions;
 using Database.Interfaces;
@@ -39,7 +40,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     {
         ActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
             query => query.Include(a => a.Student).Include(a => a.Teacher)) ?? throw new Exception("Active questionnaire not found.");
-        
+
         return activeQuestionnaire.ToBaseDto();
     }
 
@@ -57,7 +58,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     {
         ActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
             query => query.Include(a => a.Student).Include(a => a.Teacher).Include(a => a.QuestionnaireTemplate.Questions).ThenInclude(q => q.Options)) ?? throw new Exception("Active questionnaire not found.");
-        
+
         return activeQuestionnaire.ToDto();
     }
 
@@ -98,7 +99,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             Student = student,
             Teacher = teacher,
             QuestionnaireTemplate = questionnaireTemplate,
-            GroupId = groupId 
+            GroupId = groupId
         };
 
         await _genericRepository.AddAsync(activeQuestionnaire);
@@ -338,12 +339,12 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .Include(a => a.Student)
             .Include(a => a.Teacher)
             .SingleAsync(a => a.Id == id);
-        
+
         if (!activeQuestionnaire.StudentCompletedAt.HasValue || !activeQuestionnaire.TeacherCompletedAt.HasValue)
         {
             throw new Exception("The requested Active Questionnaire is not yet completed.");
         }
-        
+
         return activeQuestionnaire.ToFullResponseAll();
     }
 
@@ -384,7 +385,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     }
 
 
-    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid) 
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
     {
         //get template based on templateid
         QuestionnaireTemplateModel template = await _context.QuestionnaireTemplates.SingleAsync(t => t.Id == templateid);
@@ -404,7 +405,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue)
             .ToListAsync();
 
-        return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate()) ];
+        return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate())];
     }
 
     public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
@@ -432,5 +433,67 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate())];
     }
 
+    public async Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups)
+    {
+        // Get the template with its active questionnaires and all related data
+        var templateData = await _context.QuestionnaireTemplates
+            .Where(t => t.Id == templateId)
+            .Select(t => new
+            {
+                t.Title,
+                t.Description,
+                ActiveQuestionnaires = t.ActiveQuestionnaires.Select(a => new
+                {
+                    a.Id,
+                    ActivatedAt = a.ActivatedAt.Date,
+                    StudentAnswers = a.StudentAnswers.Select(sa => new
+                    {
+                        QuestionPrompt = sa.Question!.Prompt,
+                        Answer = sa.CustomResponse ?? sa.Option!.DisplayText
+                    }).ToList(),
+                    TeacherAnswers = a.TeacherAnswers.Select(ta => new
+                    {
+                        QuestionPrompt = ta.Question!.Prompt,
+                        Answer = ta.CustomResponse ?? ta.Option!.DisplayText
+                    }).ToList()
+                }).ToList()
+            })
+            .SingleOrDefaultAsync() ?? throw new Exception("Survey response summary not found.");
 
+        // Create individual results for each questionnaire (one dataset per questionnaire)
+        var anonymisedDataSet = templateData.ActiveQuestionnaires.Select(questionnaire => 
+        {
+            var allAnswers = new List<dynamic>();
+            allAnswers.AddRange(questionnaire.StudentAnswers);
+            allAnswers.AddRange(questionnaire.TeacherAnswers);
+
+            return new AnonymisedSurveyResults
+            {
+                DatasetTitle = questionnaire.ActivatedAt.ToString("yyyy-MM-dd"),
+                ParticipantCount = questionnaire.StudentAnswers.Count + questionnaire.TeacherAnswers.Count,
+                AnonymisedResponses = [.. allAnswers
+                    .GroupBy(response => response.QuestionPrompt)
+                    .Select(questionGroup => new AnonymisedResponsesQuestion
+                    {
+                        Question = questionGroup.Key,
+                        Answers = [.. questionGroup
+                            .GroupBy(response => response.Answer)
+                            .Select(answerGroup => new AnonymisedResponsesAnswer
+                            {
+                                Answer = answerGroup.Key,
+                                Count = answerGroup.Count()
+                            })]
+                    })]
+            };
+        })
+        .OrderBy(result => result.DatasetTitle)
+        .ToList();
+
+        return new SurveyResponseSummary
+        {
+            Title = templateData.Title,
+            Description = templateData.Description,
+            AnonymisedResponseDataSet = anonymisedDataSet
+        };
+    }
 }

@@ -337,7 +337,7 @@ namespace API.Controllers
 
         [HttpGet("{studentid},{templateid}/getResponsesFromUserAndTemplate")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
-        public async Task<ActionResult<List<FullResponse>>> GetResponsesFromTemplatesAndStudent(Guid studentid,Guid templateid) 
+        public async Task<ActionResult<List<FullResponse>>> GetResponsesFromTemplatesAndStudent(Guid studentid, Guid templateid)
         {
             Guid userId;
             try
@@ -385,6 +385,22 @@ namespace API.Controllers
             List<FullStudentRespondsDate> response = await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);
 
             return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid));
+        }
+
+        [HttpGet("GetAnonymisedResponses/")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<SurveyResponseSummary>> GetAnonymisedResponses([FromQuery] AnonymisedResponsesRequest responsesRequest)
+        {
+            try
+            {
+                SurveyResponseSummary result = await _questionnaireService.GetAnonymisedResponses(responsesRequest.QuestionnaireId, responsesRequest.Users, responsesRequest.Groups);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching anonymised responses: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
