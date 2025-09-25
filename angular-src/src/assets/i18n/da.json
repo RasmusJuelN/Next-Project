@@ -19,6 +19,7 @@
   "GREETING": "Hej {{username}}!",
   "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer",
   "ANSWER_QUESTIONNAIRE": "Et spørgeskema kan besvares",
+  "NAV_TOGGLE_MENU": "Åbn/luk menu",
   "NAV_LOG_OUT": "Log ud",
   "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
   "NAV_DATA_COMPARE": "Sammenlign Data",
@@ -109,13 +110,17 @@
   "COMMON.BUTTONS.EDIT": "Edit",
 
   "QUESTION_EDITOR": {
-    "TITLE": "Rediger Spørgsmål",
-    "LABEL_TITLE": "Titel:",
-    "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
-    "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
-    "OPTIONS": "Valgmuligheder",
-    "DELETE_OPTION": "Slet Valgmulighed",
-    "ADD_OPTION": "Tilføj Ny Valgmulighed",
-    "SAVE": "Gem Spørgsmål"
+      "TITLE": "Rediger spørgsmål",
+      "LABEL_TITLE": "Titel:",
+      "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
+      "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
+      "OPTIONS": "Valgmuligheder",
+      "DELETE_OPTION": "Slet valgmulighed",
+      "ADD_OPTION": "Tilføj ny valgmulighed",
+      "SAVE": "Gem spørgsmål"
+    },
+
+  "QUESTIONAIRE": {
+    "COLLABORATOR": "Samarbejdspartner"
   }
 }

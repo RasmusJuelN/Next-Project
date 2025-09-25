@@ -8,6 +8,9 @@ using Database.DTO.ActiveQuestionnaire;
 using Database.DTO.User;
 using Database.Enums;
 using Settings.Models;
+using Database.DTO.User;
+using API.Exceptions;
+using System.Net;
 using Database.Models;
 
 namespace API.Services;
@@ -86,7 +89,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
 
     public async Task<QuestionnaireGroupResult> ActivateQuestionnaireGroup(ActivateQuestionnaireGroup request)
     {
+        _authenticationBridge.Authenticate(_ldapSettings.SA, _ldapSettings.SAPassword);
 
+        if (!_authenticationBridge.IsConnected()) throw new Exception("Failed to bind to the LDAP server.");
         // Ensure all students exist
         foreach (var studentId in request.StudentIds)
         {
@@ -153,6 +158,72 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             Questionnaires = questionnaireDtos
         };
     }
+
+    public async Task<QuestionnaireGroupKeysetPaginationResult> FetchQuestionnaireGroups(QuestionnaireGroupKeysetPaginationRequest request)
+    {
+        DateTime? cursorCreatedAt = null;
+        Guid? cursorId = null;
+
+        if (!string.IsNullOrEmpty(request.QueryCursor))
+        {
+            cursorCreatedAt = DateTime.Parse(request.QueryCursor.Split('_')[0]);
+            cursorId = Guid.Parse(request.QueryCursor.Split('_')[1]);
+        }
+
+        (List<QuestionnaireGroupModel> groups, int totalCount) = await _unitOfWork.QuestionnaireGroup
+            .PaginationQueryWithKeyset(
+                request.PageSize,
+                request.Order,
+                cursorId,
+                cursorCreatedAt,
+                request.Title,
+                request.GroupId
+            );
+
+        var results = groups.Select(group => new QuestionnaireGroupResult
+        {
+            GroupId = group.GroupId,
+            Name = group.Name,
+            TemplateId = group.TemplateId,
+            Questionnaires = group.Questionnaires.Select(q => new ActiveQuestionnaireAdminBase
+            {
+                Id = q.Id,
+                Title = q.Title,
+                Description = q.Description,
+                ActivatedAt = q.ActivatedAt,
+                Student = new UserBase
+                {
+                    UserName = q.Student.UserName,
+                    FullName = q.Student.FullName
+                },
+                Teacher = new UserBase
+                {
+                    UserName = q.Teacher.UserName,
+                    FullName = q.Teacher.FullName
+                },
+                StudentCompletedAt = q.StudentCompletedAt,
+                TeacherCompletedAt = q.TeacherCompletedAt
+            }).ToList()
+        }).ToList();
+
+        QuestionnaireGroupModel? lastGroup = groups.Count > 0 ? groups.Last() : null;
+
+        string? queryCursor = null;
+        if (lastGroup is not null)
+        {
+            queryCursor = $"{lastGroup.CreatedAt:O}_{lastGroup.GroupId}";
+        }
+
+        return new QuestionnaireGroupKeysetPaginationResult
+        {
+            Groups = results, //  now includes questionnaires
+            QueryCursor = queryCursor,
+            TotalCount = totalCount
+        };
+    }
+
+
+
 
     public async Task<QuestionnaireGroupResult?> GetQuestionnaireGroup(Guid groupId)
     {
@@ -486,3 +557,4 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
 
 
 }
+// Add the missing CreatedAt property to the QuestionnaireGroupResult class

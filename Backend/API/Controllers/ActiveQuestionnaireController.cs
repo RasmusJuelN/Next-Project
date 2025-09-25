@@ -61,6 +61,23 @@ namespace API.Controllers
             return Ok(await _questionnaireService.FetchActiveQuestionnaireBases(request));
         }
 
+        [HttpGet("groups/paginated")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<QuestionnaireGroupKeysetPaginationResult>> GetGroupsPaginated(
+    [FromQuery] QuestionnaireGroupKeysetPaginationRequest request)
+        {
+            try
+            {
+                var result = await _questionnaireService.FetchQuestionnaireGroups(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching paginated questionnaire groups: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         /// <summary>
         /// Activates a questionnaire template by creating an active questionnaire instance.
         /// </summary>

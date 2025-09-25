@@ -6,6 +6,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
+/**
+ * Template editor component.
+ *
+ * Provides an interface for editing a single questionnaire template.
+ *
+ * Handles:
+ * - Displaying and updating template title/description.
+ * - Adding, editing, and deleting questions.
+ * - Saving or canceling template edits.
+ * - Finalizing (publishing) a draft template.
+ * - Switching to readonly mode if the template is finalized.
+ */
 @Component({
   selector: 'app-template-editor',
   standalone: true,
@@ -14,12 +26,22 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
   styleUrl: './template-editor.component.css'
 })
 export class TemplateEditorComponent {
-  @Input() template!: Template; // Input property to receive a template
-  @Output() saveTemplate = new EventEmitter<Template>(); // Output event for saving changes
+  /** Template being edited. */
+  @Input() template!: Template;
+
+  /** Emits when the template is saved. */
+  @Output() saveTemplate = new EventEmitter<Template>();
+
+  /** Emits when the draft is finalized. */
   @Output() finalizeDraft  = new EventEmitter<Template>();
 
-  @Output() cancelEdit = new EventEmitter<void>(); // Output event for canceling the edit
+  /** Emits when editing is canceled. */
+  @Output() cancelEdit = new EventEmitter<void>();
+
+  /** Currently selected question (if editing one). */
   selectedQuestion: Question | null = null;
+
+  /** True if the template is finalized (readonly mode). */
   readonly = false;
 
   finalizeModalOpen = false;

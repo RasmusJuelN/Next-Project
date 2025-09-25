@@ -55,7 +55,7 @@
           #pageSize
           id="pageSize"
           (change)="onPageSizeChange(pageSize.value)"
-          class="border border-primary_orange rounded-lg px-3 py-2 focus:ring-primary_orange focus:border-primary_orange text-sm w-full sm:w-auto bg-white/80 text-center"
+          class="border border-primary_orange rounded-lg px-3 py-2 focus:ring-primary_orange focus:border-primary_orange text-sm w-full sm:w-auto bg-white/80 text-left"
         >
           <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
             {{ size }}
