@@ -8,7 +8,6 @@ import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
 import { Student } from '../../models/active.models';
 
-// Extend the SearchEntity type for users to include sessionId and hasMore
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
 interface UserSearchEntity<T> extends SearchEntity<T> {
@@ -46,10 +45,7 @@ export class ActiveBuilderComponent implements OnInit {
   public groups: { name: string }[] = [];
   
 
-  // public studentsByGroup: { [groupName: string]: User[] } = {};
    public studentsByGroup: { [groupName: string]: Student[] } = {};
-   // public studentsByGroup: { [groupName: string]: any[] } = {};
-      // public allStudentsFlat: { name: string; className: string }[] = [];
     public allStudentsFlat: Student[] = [];
 
 
@@ -57,18 +53,7 @@ export class ActiveBuilderComponent implements OnInit {
   public searchedGroupName: string | null = null; 
   
   
-  // public student: UserSearchEntity<User> = {
-  //   selected: [],
-  //   searchInput: '',
-  //   searchResults: [],
-  //   page: 1,
-  //   totalPages: 1,
-  //   isLoading: false,
-  //   errorMessage: null,
-  //   searchSubject: new Subject<string>(),
-  //   sessionId: undefined,
-  //   hasMore: false
-  // };
+  
  public student: UserSearchEntity<Student> &
   { searchType?: 'name' | 'class', searchByName: string, searchByClass: string } = {
   selected: [],
@@ -85,20 +70,6 @@ export class ActiveBuilderComponent implements OnInit {
   searchByName: '',
   searchByClass: ''
 };
-
-
-//   public student: UserSearchEntity<Student> = {
-//   selected: [],
-//   searchInput: '',
-//   searchResults: [],
-//   page: 1,
-//   totalPages: 1,
-//   isLoading: false,
-//   errorMessage: null,
-//   searchSubject: new Subject<string>(),
-//   sessionId: undefined,
-//   hasMore: false
-// };
 
 
   public teacher: UserSearchEntity<User> = {
@@ -133,7 +104,6 @@ export class ActiveBuilderComponent implements OnInit {
 
   ngOnInit(): void {
     // Subscribe to debounced search subjects.
-    // Subscribe to debounced search subjects.
     this.student.searchSubject.pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(term => this.fetch('student', term));
 
@@ -143,8 +113,7 @@ export class ActiveBuilderComponent implements OnInit {
     this.template.searchSubject.pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(term => this.fetch('template', term));
 
-    //  this.student.searchSubject.pipe(debounceTime(300), distinctUntilChanged())
-    //  .subscribe(term => this.fetch('student', term));
+  
 
     this.activeService.getClasses().subscribe(classes => {
        this.groups = classes.map(c => ({ name: c }));
@@ -179,10 +148,6 @@ export class ActiveBuilderComponent implements OnInit {
   });
 }
 
-  // // Optionally preload students for each group
-  //     this.groups.forEach(group => this.loadStudentsForGroup(group.name));
-
-
   private getState(entity: SearchType): SearchEntity<any> {
     if (entity === 'student') {
       return this.student;
@@ -195,58 +160,6 @@ export class ActiveBuilderComponent implements OnInit {
   }
 
 
-  
-  // private fetch(entity: SearchType, term: string): void {
-  //   const state = this.getState(entity);
-  //   if (!term.trim()) return;
-
-  //   state.page = 1;
-  //   state.searchResults = [];
-  //   state.isLoading = true;
-  //   state.errorMessage = null;
-
-  //   if (entity === 'student') {
-  //     // Client-side search across all students
-  //     state.searchResults = this.allStudentsFlat.filter(s =>
-  //       s.name.toLowerCase().includes(term.toLowerCase())
-  //     );
-  //     state.isLoading = false;
-  //     return;
-  //   }
-
-  //   // teacher/template backend fetch logic remains
-  //   if (entity === 'teacher') {
-  //     const userState = state as UserSearchEntity<User>;
-  //     this.activeService.searchUsers(term, entity, this.searchAmount, userState.sessionId).subscribe({
-  //       next: response => {
-  //         userState.searchResults = response.userBases || [];
-  //         userState.sessionId = response.sessionId;
-  //         userState.hasMore = false;
-  //         state.isLoading = false;
-  //       },
-  //       error: () => {
-  //         state.errorMessage = `Failed to load ${entity}s.`;
-  //         state.isLoading = false;
-  //       }
-  //     });
-  //   }
-
-  //   if (entity === 'template') {
-  //     const templateState = state as TemplateSearchEntity;
-  //     this.activeService.searchTemplates(term, templateState.queryCursor).subscribe({
-  //       next: response => {
-  //         templateState.searchResults = response.templateBases;
-  //         templateState.totalPages = 1;
-  //         state.isLoading = false;
-  //       },
-  //       error: () => {
-  //         state.errorMessage = 'Failed to load templates.';
-  //         state.isLoading = false;
-  //       }
-  //     });
-  //   }
-  // }
-
   private fetch(entity: SearchType, term: string): void {
   const state = this.getState(entity);
   if (!term.trim()) {
@@ -258,13 +171,7 @@ export class ActiveBuilderComponent implements OnInit {
   state.isLoading = true;
   state.errorMessage = null;
 
-  // if (entity === 'student') {
-  //   const searchTerm = term.toLowerCase();
-    // state.searchResults = this.allStudentsFlat
-    //   .filter(s => s.name.toLowerCase().includes(searchTerm))
-    //   .sort((a, b) => a.name.localeCompare(b.name)); // sort alphabetically
-    // state.isLoading = false;
-    // return;
+
    if (entity === 'student') {
   const searchTerm = term.toLowerCase();
 
@@ -280,9 +187,6 @@ export class ActiveBuilderComponent implements OnInit {
   return;
 }
 
-
-  // teacher/template backend logic...
-   // teacher/template backend fetch logic remains
     if (entity === 'teacher') {
       const userState = state as UserSearchEntity<User>;
       this.activeService.searchUsers(term, entity, this.searchAmount, userState.sessionId).subscribe({
@@ -332,13 +236,6 @@ onInputChange(
   state.searchSubject.next(value);
 }
 
-
-
-  // onInputChange(entity: SearchType, value: string): void {
-  //   const state = this.getState(entity);
-  //   state.searchInput = value;
-  //   state.searchSubject.next(value);
-  // }
 
   select(entity: SearchType, item: any): void {
     const state = this.getState(entity);
@@ -410,33 +307,6 @@ onInputChange(
     this.backToListEvent.emit();
   }
 
-// loadStudentsForGroup(groupName: string) {
-//   this.activeService.getStudentsInGroup(groupName).subscribe({
-//     next: response => {
-//       console.log('API response for group', groupName, response); // <-- log full API response
-
-//       // Find class object matching group
-//       const classData = response.find(c => c.className.toLowerCase() === groupName.toLowerCase());
-//       console.log('Matched classData', classData); // <-- log matched class
-
-//       if (!classData) {
-//         this.studentsByGroup[groupName] = [];
-//         return;
-//       }
-
-//       // Map strings to Student[]
-//       this.studentsByGroup[groupName] = classData.students.map((s: any) => ({
-//         name: typeof s === 'string' ? s : s.fullName || s.userName
-//       }));
-
-//       console.log('Mapped studentsByGroup', groupName, this.studentsByGroup[groupName]); // <-- log mapped students
-//     },
-//     error: err => {
-//       console.error('Failed to load students for group:', groupName, err);
-//       this.studentsByGroup[groupName] = [];
-//     }
-//   });
-// }
 
 loadStudentsForGroup(groupName: string) {
   this.activeService.getStudentsInGroup(groupName).subscribe({
@@ -474,16 +344,9 @@ loadStudentsForGroup(groupName: string) {
   });
 }
 
-
-
-
   onGroupClick(groupName: string) {
     this.showStudentsFor = this.showStudentsFor === groupName ? null : groupName;
-    // if (this.showStudentsFor === groupName) {
-    //   this.loadStudentsForGroup(groupName);
-    // }
   }
-
 
   searchGroup() {
   const input = this.groupSearchInput.trim();
@@ -495,48 +358,7 @@ loadStudentsForGroup(groupName: string) {
   this.loadStudentsForGroup(input);
   this.searchedGroupName = input; // keep the same casing
 }
-// filteredStudents(groupName: string): Student[] {
-//     const students = this.studentsByGroup[groupName] || [];
-//     const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
-//     if (!searchTerm) return students;
-//     return students.filter(s => s.name.toLowerCase().includes(searchTerm));
-//   }
 
-  
-// get filteredStudentsByName(): Student[] {
-//   const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
-//   if (!searchTerm) return [];
-
-//   return this.allStudentsFlat.filter(s => s.name.toLowerCase().includes(searchTerm));
-// }
-  // Search across all groups
-//   get filteredStudentsByName(): Student[] {
-//     const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
-//     if (!searchTerm) return [];
-
-//     return Object.values(this.studentsByGroup)
-//       .flat()
-//       .filter(s =>
-//         (s.name?.toLowerCase().includes(searchTerm)) ||
-//         (s.className?.toLowerCase().includes(searchTerm)) ||
-//         (s.id?.toLowerCase().includes(searchTerm))
-//       );
-//   }
-
-//   // Returns all groups containing at least one student matching the search input
-// get filteredGroupsByStudent(): { name: string; students: Student[] }[] {
-//   const searchTerm = (this.student.searchInput || '').trim().toLowerCase();
-//   if (!searchTerm) return [];
-
-//   return Object.keys(this.studentsByGroup)
-//     .map(groupName => ({
-//       name: groupName,
-//       students: this.studentsByGroup[groupName] || []
-//     }))
-//     .filter(group =>
-//       group.students.some(s => s.name?.toLowerCase().includes(searchTerm))
-//     );
-// }
 
 // Filter students by name
 get filteredStudentsByName(): Student[] {
@@ -557,7 +379,6 @@ get filteredGroupsByClass(): { name: string; students: Student[] }[] {
     .filter(group => group.students.some(s => s.className?.toLowerCase().includes(term)));
 }
 
-// Track multiple expanded groups
 // Track multiple expanded groups
 public expandedGroups: Set<string> = new Set();
 
