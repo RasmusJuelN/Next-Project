@@ -1,15 +1,31 @@
 {
+  "DATA_COMPARE.SEARCH_STUDENT_LABEL": "Søg efter Elev:",
+  "DATA_COMPARE.SEARCH_STUDENT_PLACEHOLDER": "Indtast navn på elever...",
+  "DATA_COMPARE.LOADING_STUDENTS": "Indlæser elever...",
+  "DATA_COMPARE.LOAD_MORE_STUDENTS": "Indlæs Flere Elever",
+  "DATA_COMPARE.SELECTED_STUDENTS": "Valgte Elever:",
+  "DATA_COMPARE.REMOVE": "Fjern",
+  "DATA_COMPARE.CLEAR_ALL": "Ryd Alle",
+  "DATA_COMPARE.SEARCH_TEMPLATE_LABEL": "Søg efter Skabelon:",
+  "DATA_COMPARE.SEARCH_TEMPLATE_PLACEHOLDER": "Indtast skabelontitel...",
+  "DATA_COMPARE.LOADING_TEMPLATES": "Indlæser skabeloner...",
+  "DATA_COMPARE.LOAD_MORE_TEMPLATES": "Indlæs Flere Skabeloner",
+  "DATA_COMPARE.SELECTED_TEMPLATES": "Valgte Skabeloner:",
+  "DATA_COMPARE.UPDATE_CHART": "Opdater Graf",
+  "DATA_COMPARE.PIE_CHART": "Pie",
+  "DATA_COMPARE.BAR_CHART": "Bar",
   "BUTTON_EN": "Engelsk",
   "BUTTON_DA": "Dansk",
   "GREETING": "Hej {{username}}!",
   "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer",
   "ANSWER_QUESTIONNAIRE": "Et spørgeskema kan besvares",
+  "NAV_TOGGLE_MENU": "Åbn/luk menu",
   "NAV_LOG_OUT": "Log ud",
-   "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
+  "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
   "NAV_DATA_COMPARE": "Sammenlign Data",
   "NAV_OVERVIEW": "Oversigt",
   "NAV_TEMPLATES": "Skabeloner",
-   "LOGIN_WELCOME": "Velkommen",
+  "LOGIN_WELCOME": "Velkommen",
   "LOGIN_SUBTITLE": "Log ind for at besvare spørgeskemaer",
   "LOGIN_USERNAME_PLACEHOLDER": "Indtast brugernavn",
   "LOGIN_PASSWORD_PLACEHOLDER": "Indtast adgangskode",
@@ -23,7 +39,6 @@
   "TMP_NEW_DESC": "Beskrivelse af den nye skabelon",
   "TMP_NEW_QUESTION": "Standard spørgsmål",
 
-
   "TMP_TITLE_ADMINISTER_TEMPLATES": "Administrer Skabeloner",
   "TMP_DATA_COMPARE_TITLE": "Sammenlign Data",
   "TMP_BUTTON_CREATE_NEW": "Opret Ny Skabelon",
@@ -32,7 +47,7 @@
   "TMP_SEARCH_PLACEHOLDER": "Søg i skabeloner...",
   "TMP_ITEMS_PER_PAGE": "Elementer pr. side:",
   "TMP_LOADING": "Indlæser...",
-  "TMP_BUTTON_EDIT": "Rediger", 
+  "TMP_BUTTON_EDIT": "Rediger",
   "TMP_BUTTON_DELETE": "Slet",
   "TMP_DELETE": "Slet",
   "TMP_DELETE_PERMANENT": "Slet Permanent",
@@ -49,7 +64,7 @@
   "TMP_DELETE_ERROR": "Fejl ved sletning af skabelon.",
   "TMP_UPDATE_ERROR": "Fejl ved opdatering af skabelon.",
 
-   "TMP_EDITOR_TITLE": "Skabelonredigering",
+  "TMP_EDITOR_TITLE": "Skabelonredigering",
   "TMP_TEMPLATE_TITLE": "Skabelon Titel",
   "TMP_TEMPLATE_DESCRIPTION": "Beskrivelse",
   "TMP_QUESTIONS": "Spørgsmål",
@@ -60,10 +75,9 @@
   "TMP_NEXT": "Næste",
   "TMP_PREVIOUS": "Forrige",
 
-
- "TMP_ACTIVE_SURVEYS": "Aktive spørgeskemaer",
- "TMP_SETUP_AT": "Opsat den:",
- "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Oversigt over aktive spørgeskemaer",
+  "TMP_ACTIVE_SURVEYS": "Aktive spørgeskemaer",
+  "TMP_SETUP_AT": "Opsat den:",
+  "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Oversigt over aktive spørgeskemaer",
   "TMP_SEARCH_BY_STUDENT_NAME": "Søg efter elevnavn",
   "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Søg efter aktivt spørgeskema-id",
   "TMP_SEARCHPLACEHOLDER": "Søg...",
@@ -78,8 +92,6 @@
   "TMP_ANSWER": "Svar",
   "TMP_VIEW_RESULTS": "Se resultater",
   "TMP_TITLE_TEMPLATE_LIST": "Skabelonliste",
-
-
 
   "COMMON.BUTTONS.VIEW": "Vis",
   "COMMON.BUTTONS.COPY": "Kopiér",
@@ -111,13 +123,17 @@
   },
 
   "QUESTION_EDITOR": {
-  "TITLE": "Rediger Spørgsmål",
-  "LABEL_TITLE": "Titel:",
-  "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
-  "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
-  "OPTIONS": "Valgmuligheder",
-  "DELETE_OPTION": "Slet Valgmulighed",
-  "ADD_OPTION": "Tilføj Ny Valgmulighed",
-  "SAVE": "Gem Spørgsmål"
-}
+      "TITLE": "Rediger spørgsmål",
+      "LABEL_TITLE": "Titel:",
+      "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
+      "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
+      "OPTIONS": "Valgmuligheder",
+      "DELETE_OPTION": "Slet valgmulighed",
+      "ADD_OPTION": "Tilføj ny valgmulighed",
+      "SAVE": "Gem spørgsmål"
+    },
+
+  "QUESTIONAIRE": {
+    "COLLABORATOR": "Samarbejdspartner"
+  }
 }

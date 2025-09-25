@@ -1,5 +1,17 @@
+
+
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, ViewChild, inject, Output } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  Output,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { ActiveAnonymousBuilderComponent } from "../active-questionnaire-manager/components/active-anonymous-builder/active-anonymous-builder.component";
@@ -8,6 +20,8 @@ import { User } from "../../shared/models/user.model";
 import { SearchEntity } from "../active-questionnaire-manager/models/searchEntity.model";
 import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 import { TemplateBase } from "../active-questionnaire-manager/models/active.models";
+import { AgCharts } from "ag-charts-angular";
+import { DataCompareService } from "./services/data-compare.service";
 
 interface UserSearchEntity<T> extends SearchEntity<T> {
   sessionId?: string;
@@ -26,17 +40,61 @@ type SearchType = "student" | "template";
     TranslateModule,
     CommonModule,
     FormsModule,
-    ActiveAnonymousBuilderComponent,
+    AgCharts,
+    //ActiveAnonymousBuilderComponent,
   ],
+  template: `    <ag-charts-angular
+      [options]="chartOptions"
+    ></ag-charts-angular> `,
   templateUrl: "./data-compare.component.html",
   styleUrl: "./data-compare.component.css",
 })
 export class DataCompareComponent implements OnInit, OnDestroy {
-  @ViewChild('studentSearchArea', { static: false }) studentSearchArea!: ElementRef;
-  @ViewChild('templateSearchArea', { static: false }) templateSearchArea!: ElementRef;
+  // State for question navigation
+  public currentQuestionIndex: number = 0;
+  public questions: string[] = [];
+  private allAnswers: any[] = [];
+  public years: string[] = [];
+  public currentYearIndex: number = 0;
+  public chartType: string = 'pie';
+  @ViewChild("studentSearchArea", { static: false })
+  studentSearchArea!: ElementRef;
+  @ViewChild("templateSearchArea", { static: false })
+  templateSearchArea!: ElementRef;
+  constructor(
+    public DataCompareService: DataCompareService
+  ) {}
 
   public showStudentResults = false;
   public showTemplateResults = false;
+
+  public chartOptions: any = {
+    data: [],
+    title: {
+      text: "Elev Data Sammenligning",
+    },
+      series: [
+      {
+        type: "area",
+        xKey: "month",
+        yKey: "subscriptions",
+        yName: "Subscriptions",
+      },
+      {
+        type: "area",
+        xKey: "month",
+        yKey: "services",
+        yName: "Services",
+      },
+      {
+        type: "area",
+        xKey: "month",
+        yKey: "products",
+        yName: "Products",
+      },
+    ],
+  };
+  
 
   private handleDocumentClick = (event: MouseEvent) => {
     const studentArea = this.studentSearchArea?.nativeElement;
@@ -95,10 +153,10 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         this.fetch("template", term);
       });
 
-  document.addEventListener('click', this.handleDocumentClick, true);
+    document.addEventListener("click", this.handleDocumentClick, true);
   }
   ngOnDestroy(): void {
-    document.removeEventListener('click', this.handleDocumentClick, true);
+    document.removeEventListener("click", this.handleDocumentClick, true);
   }
 
   // Returns the proper state based on the entity.
@@ -173,6 +231,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     const idx = state.selected.findIndex((u: any) => u.id === item.id);
     if (idx === -1) {
       state.selected.push(item);
+      state.selected = state.selected.slice(-1); // Keep only the last selecteds
     } else {
       state.selected.splice(idx, 1);
     }
@@ -181,7 +240,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     // state.searchResults = [];
 
     // Optionally close results after selection
-    if (entity === 'student') {
+    if (entity === "student") {
       this.showStudentResults = false;
     } else {
       this.showTemplateResults = false;
@@ -199,7 +258,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     state.searchSubject.next(value);
 
     // Show results when typing
-    if (entity === 'student') {
+    if (entity === "student") {
       this.showStudentResults = true;
     } else {
       this.showTemplateResults = true;
@@ -209,4 +268,252 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   onBackToList(): void {
     this.backToListEvent.emit();
   }
+
+  // Fetch and transform API data for the chart
+  fetchChartData(studentId: string, templateId: string) {
+    this.DataCompareService.canGetData(studentId, templateId).subscribe({
+      next: (apiData) => {
+        // Flatten all answers from all DataCompare objects
+        const allAnswers = apiData.flatMap(dc => dc.answers.map(ans => ({
+          question: ans.question,
+          studentResponse: ans.studentResponse,
+          year: dc.studentCompletedAt.getFullYear(),
+          month: dc.studentCompletedAt.toLocaleString('default', { month: 'short' }),
+        })));
+        console.log("allAnswers", allAnswers)
+        // Get unique questions for x-axis
+        const questions = Array.from(new Set(allAnswers.map(a => a.question)));
+        // Get unique years for series (or use another grouping if needed)
+        const years = Array.from(new Set(allAnswers.map(a => a.year))).sort();
+
+        // Build chart data: one entry per question, each year as a value
+        const chartData: any[] = [];
+        questions.forEach(question => {
+          const entry: any = { question };
+          years.forEach(year => {
+            const found = allAnswers.find(a => a.year === year && a.question === question);
+            entry[year] = found ? Number(found.studentResponse) : null;
+          });
+          chartData.push(entry);
+        });
+
+        // Build series for each year
+        const series = years.map((year) => ({
+          type: "pie",
+          theme: {
+            baseTheme: "ag-polychroma",
+            overrides: {
+              bar: {
+                series: {
+                  label: { enabled: true },
+                },
+              },
+            },
+          },
+          xKey: "question",
+          yKey: year,
+          yName: String(year),
+          tooltip: {
+            renderer: (params: any) => {
+              return { content: `Svar: ${params.datum[year]}` };
+            },
+          },
+        }));
+
+        this.chartOptions = {
+          data: chartData,
+          title: {
+            text: "Elev Data Sammenligning",
+          },
+          series,
+          axes: [
+            { type: 'category', position: 'bottom', title: { text: 'Spørgsmål' } },
+            { type: 'number', position: 'left', title: { text: 'Svar' } },
+          ],
+        };
+      },
+      error: (err) => {
+        this.chartOptions = null;
+        // Optionally handle error (show message, etc)
+        console.warn("Error fetching chart data", err);
+        
+      }
+    });
+  }
+
+
+
+  
+  onCompareClick() {
+    const studentId = this.student.selected[0]?.id;
+    const templateId = this.template.selected[0]?.id;
+    if (studentId && templateId) {
+      this.DataCompareService.canGetData(studentId, templateId).subscribe({
+        next: (apiData) => {
+          // Flatten all answers from all DataCompare objects
+          const allAnswers = apiData.flatMap(dc => dc.answers.map(ans => ({
+            question: ans.question,
+            studentResponse: ans.studentResponse,
+            year: String(new Date(dc.studentCompletedAt).getFullYear()),
+            date: new Date(dc.studentCompletedAt).toLocaleDateString(),
+          })));
+          // Get unique questions and years
+          this.allAnswers = allAnswers;
+          this.questions = Array.from(new Set(allAnswers.map(a => a.question)));
+          this.years = Array.from(new Set(allAnswers.map(a => a.year))).sort();
+          this.currentQuestionIndex = 0;
+          this.currentYearIndex = this.years.length > 0 ? this.years.length - 1 : 0;
+          this.updateChartForCurrentQuestion();
+        },
+        error: (err) => {
+          this.chartOptions = null;
+          console.warn("Error fetching chart data", err);
+        }
+      });
+    }
+  }
+
+  // Update chart for the currently selected question and year
+updateChartForCurrentQuestion() {
+  if (!Array.isArray(this.questions) || !Array.isArray(this.years) || !this.questions.length || !this.years.length) return;
+  const question = this.questions[this.currentQuestionIndex];
+  const year = this.years[this.currentYearIndex];
+  // Get all answers for this question and year
+  const answersForQuestion = this.allAnswers.filter(a => a.question === question && a.year === year);
+  // Build answer counts and dates for each answer
+  const answerCounts: Record<string, { count: number, dates: string[] }> = {};
+  answersForQuestion.forEach(a => {
+    if (!answerCounts[a.studentResponse]) answerCounts[a.studentResponse] = { count: 0, dates: [] };
+    answerCounts[a.studentResponse].count++;
+    answerCounts[a.studentResponse].dates.push(a.date);
+  });
+  // Bar chart: one data row, xKey is question, yKeys are answers
+  const chartData: any[] = [];
+  const entry: Record<string, any> = { question };
+  Object.entries(answerCounts).forEach(([answer, obj]) => {
+    entry[answer] = obj.count;
+    entry[`${answer}_dates`] = obj.dates;
+  });
+  chartData.push(entry);
+  // Always set theme as an object at root
+  const theme = {
+    baseTheme: "ag-polychroma",
+    overrides: {
+      bar: { series: { label: { enabled: true } } },
+    },
+  };
+  if (this.chartType === 'pie') {
+    // Pie chart logic unchanged
+    const pieData = Object.entries(answerCounts).map(([ans, obj]) => {
+      return {
+        answer: ans,
+        count: obj.count,
+        dates: obj.dates,
+      };
+    });
+    this.chartOptions = {
+      data: pieData,
+      title: { text: `${question} (${year})` },
+      theme,
+      series: [
+        {
+          type: 'pie',
+          calloutLabelKey: 'answer',
+          sectorLabelKey: 'count',
+          angleKey: 'count',
+          calloutLabel: { offset: 20 },
+          sectorLabel: {
+            positionOffset: 30,
+            formatter: ({ datum, angleKey }: { datum: any; angleKey: string }) => {
+              const value = datum[angleKey];
+              const total = pieData.reduce((sum, d) => sum + d.count, 0);
+              const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+              return parseFloat(percentage) >= 5 ? `${percentage}%` : '';
+            },
+          },
+          strokeWidth: 1,
+          tooltip: {
+            enabled: true,
+            renderer: (params: { datum: any; angleKey: string }) => {
+              const { datum, angleKey } = params;
+              const value = datum[angleKey];
+              const total = pieData.reduce((sum, d) => sum + d.count, 0);
+              const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+              return {
+                title: datum.answer,
+                content: `Antal: ${value}<br>Andel: ${percentage}%<br>Dato: ${datum.dates.join(', ')}`,
+              };
+            },
+          },
+        },
+      ],
+      legend: { enabled: true },
+      animation: { enabled: true, duration: 800 },
+    };
+  } else {
+    // Bar chart (match ResultComponent style)
+    const series = Object.keys(answerCounts).map(answer => ({
+      type: "bar",
+      xKey: "question",
+      yKey: answer,
+      yName: `Svar: ${answer}`,
+      stacked: true,
+      label: { enabled: true },
+      tooltip: {
+        enabled: true,
+        renderer: (params: { datum: any }) => {
+          const dates = params.datum[`${answer}_dates`] || [];
+          return {
+            title: answer,
+            content: `Antal: ${params.datum[answer]}<br>Dato: ${dates.join(", ")}`,
+          };
+        },
+      },
+    }));
+    this.chartOptions = {
+      data: chartData,
+      theme,
+      title: { text: `${question} (${year})`, fontSize: 18 },
+      series,
+      axes: [
+        { type: "category", position: "bottom", title: { text: "Spørgsmål" } },
+        { type: "number", position: "left", title: { text: "Antal" } },
+      ],
+      legend: { enabled: true },
+      animation: { enabled: true, duration: 800 },
+    };
+  }
 }
+
+  // Navigation for questions
+  nextQuestion() {
+    if (this.currentQuestionIndex < this.questions.length - 1) {
+      this.currentQuestionIndex++;
+      this.updateChartForCurrentQuestion();
+    }
+  }
+  prevQuestion() {
+    if (this.currentQuestionIndex > 0) {
+      this.currentQuestionIndex--;
+      this.updateChartForCurrentQuestion();
+    }
+  }
+
+  // Navigation for years
+  nextYear() {
+    if (this.currentYearIndex < this.years.length - 1) {
+      this.currentYearIndex++;
+      this.updateChartForCurrentQuestion();
+    }
+  }
+  prevYear() {
+    if (this.currentYearIndex > 0) {
+      this.currentYearIndex--;
+      this.updateChartForCurrentQuestion();
+    }
+  }
+} 
+
+
+
+

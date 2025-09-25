@@ -85,6 +85,15 @@ public class Context : DbContext
             .OnDelete(DeleteBehavior.Cascade);
         });
 
+                // ActiveQuestionnaireResponseBaseModel
+        modelBuilder.Entity<ActiveQuestionnaireResponseBaseModel>(e => {
+            // Configure the relationship to QuestionnaireTemplateQuestion with NoAction
+            e.HasOne(r => r.Question)
+            .WithMany()
+            .HasForeignKey(r => r.QuestionFK)
+            .OnDelete(DeleteBehavior.NoAction);
+        });
+
         // UserModel
         modelBuilder.Entity<UserBaseModel>(e => {
             e.Property(u => u.PrimaryRole)
@@ -103,26 +112,9 @@ public class Context : DbContext
             .HasDefaultValueSql("SYSUTCDATETIME()");
         });
 
-        QuestionnaireTemplateModel? defaultTemplate = DefaultDataSeeder.SeedQuestionnaireTemplate();
-
-        if (defaultTemplate is not null)
-        {
-            // Seeding doesn't allow relationships in the entity
-            // so we first seed each entity in the relationships
-            // and link them by their foreign keys, and then remove
-            // them from the entity.
-            foreach (QuestionnaireQuestionModel question in defaultTemplate.Questions)
-            {
-                modelBuilder.Entity<QuestionnaireOptionModel>().HasData(question.Options);
-                question.Options = [];
-            }
-            
-            modelBuilder.Entity<QuestionnaireQuestionModel>().HasData(defaultTemplate.Questions);
-
-            defaultTemplate.Questions = [];
-
-            modelBuilder.Entity<QuestionnaireTemplateModel>().HasData(defaultTemplate);
-        }
+        // Initialize all data seeders
+        SeederHelper seederHelper = new(modelBuilder);
+        seederHelper.Seed();
 
         base.OnModelCreating(modelBuilder);
     }

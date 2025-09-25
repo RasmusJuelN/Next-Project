@@ -3,36 +3,35 @@ using Database.Enums;
 
 namespace API.DTO.Requests.ActiveQuestionnaire;
 
+/// <summary>
+/// Represents the base request model for keyset pagination of active questionnaires.
+/// </summary>
+/// <remarks>
+/// This request is used to retrieve a paginated list of active questionnaires, supporting keyset pagination,
+/// ordering, filtering by title, and cursor-based navigation.
+/// </remarks>
 public record class ActiveQuestionnaireKeysetPaginationRequestBase
 {
-    /// <summary>
-    /// How many items the pagination query should return.
-    /// </summary>
     [DefaultValue(5)]
     public required int PageSize { get; set; }
     
-    /// <summary>
-    /// The order in which the items should be paginated and queried in.
-    /// </summary>
     [DefaultValue(ActiveQuestionnaireOrderingOptions.ActivatedAtDesc)]
     public ActiveQuestionnaireOrderingOptions Order { get; set; } = ActiveQuestionnaireOrderingOptions.ActivatedAtDesc;
     
-    /// <summary>
-    /// The title to search for in the templates.
-    /// </summary>
     public string? Title { get; set; }
 
-    /// <summary>
-    /// The partial or exact ID of a template.
-    /// </summary>
     public Guid? ActiveQuestionnaireId { get; set; }
 
-    /// <summary>
-    /// The cursor for where the query should start/resume from
-    /// </summary>
     public string? QueryCursor { get; set; }
 }
 
+/// <summary>
+/// Represents a request for keyset pagination of active questionnaires for a student.
+/// </summary>
+/// <remarks>
+/// This request allows students to retrieve their active questionnaires with options to filter by teacher,
+/// whether the student has completed the questionnaire, and pagination settings.
+/// </remarks>
 public record class ActiveQuestionnaireKeysetPaginationRequestStudent : ActiveQuestionnaireKeysetPaginationRequestBase
 {
     public string? Teacher { get; set; }
@@ -40,6 +39,13 @@ public record class ActiveQuestionnaireKeysetPaginationRequestStudent : ActiveQu
 
 }
 
+/// <summary>
+/// Represents a request for keyset pagination of active questionnaires for a teacher.
+/// </summary>
+/// <remarks>
+/// This request allows teachers to retrieve active questionnaires assigned to their students,
+/// wether the teacher or student has completed the questionnaire, and pagination settings.
+/// </remarks>
 public record class ActiveQuestionnaireKeysetPaginationRequestTeacher : ActiveQuestionnaireKeysetPaginationRequestBase
 {
     public string? Student { get; set; }
@@ -47,6 +53,16 @@ public record class ActiveQuestionnaireKeysetPaginationRequestTeacher : ActiveQu
     public bool FilterTeacherCompleted { get; set; }
 }
 
+/// <summary>
+/// Represents a request for keyset pagination of active questionnaires with full filtering options.
+/// This request is intended for scenarios where both students and teachers can be filtered,
+/// and allows for comprehensive pagination and ordering.
+/// </summary>
+/// <remarks>
+/// This request extends the base pagination request to include additional filtering options
+/// for both students and teachers, allowing for a more detailed and flexible query.
+/// It is useful in administrative contexts or when detailed filtering is required.
+/// </remarks>
 public record class ActiveQuestionnaireKeysetPaginationRequestFull : ActiveQuestionnaireKeysetPaginationRequestBase
 {
     public string? Teacher { get; set; }

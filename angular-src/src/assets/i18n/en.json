@@ -1,5 +1,19 @@
 {
-
+  "DATA_COMPARE.SEARCH_STUDENT_LABEL": "Search for Student:",
+  "DATA_COMPARE.SEARCH_STUDENT_PLACEHOLDER": "Enter student name...",
+  "DATA_COMPARE.LOADING_STUDENTS": "Loading students...",
+  "DATA_COMPARE.LOAD_MORE_STUDENTS": "Load More Students",
+  "DATA_COMPARE.SELECTED_STUDENTS": "Selected Students:",
+  "DATA_COMPARE.REMOVE": "Remove",
+  "DATA_COMPARE.CLEAR_ALL": "Clear All",
+  "DATA_COMPARE.SEARCH_TEMPLATE_LABEL": "Search for Template:",
+  "DATA_COMPARE.SEARCH_TEMPLATE_PLACEHOLDER": "Enter template title...",
+  "DATA_COMPARE.LOADING_TEMPLATES": "Loading templates...",
+  "DATA_COMPARE.LOAD_MORE_TEMPLATES": "Load More Templates",
+  "DATA_COMPARE.SELECTED_TEMPLATES": "Selected Templates:",
+  "DATA_COMPARE.UPDATE_CHART": "Update Chart",
+  "DATA_COMPARE.PIE_CHART": "Pie Chart",
+  "DATA_COMPARE.BAR_CHART": "Bar Chart",
   "BUTTON_EN": "English",
   "BUTTON_DA": "Dansk",
   "GREETING": "Hello {{username}}!",
@@ -11,7 +25,7 @@
   "NAV_DATA_COMPARE": "Data Compare",
   "NAV_OVERVIEW": "Overview",
   "NAV_TEMPLATES": "Templates",
-   "LOGIN_WELCOME": "Welcome",
+  "LOGIN_WELCOME": "Welcome",
   "LOGIN_SUBTITLE": "Log in to answer questionnaires",
   "LOGIN_USERNAME_PLACEHOLDER": "Enter username",
   "LOGIN_PASSWORD_PLACEHOLDER": "Enter password",
@@ -22,12 +36,11 @@
   "LOGIN_SUBMIT": "Sign In",
   "LOGIN_LOADING": "Signing In...",
   "TMP_NEW_TITLE": "New Template",
-  "TMP_NEW_DESC":"Description for the new template",
+  "TMP_NEW_DESC": "Description for the new template",
   "TMP_NEW_QUESTION": "Default Question",
 
-
-   "TMP_TITLE_ADMINISTER_TEMPLATES": "Manage Templates",
-   "TMP_DATA_COMPARE_TITLE": "Data Compare",
+  "TMP_TITLE_ADMINISTER_TEMPLATES": "Manage Templates",
+  "TMP_DATA_COMPARE_TITLE": "Data Compare",
   "TMP_BUTTON_CREATE_NEW": "Create New Template",
   "TMP_SEARCH_BY_NAME": "Search by Name",
   "TMP_SEARCH_BY_ID": "Search by ID",
@@ -62,12 +75,11 @@
   "TMP_NEXT": "Next",
   "TMP_PREVIOUS": "Previous",
 
-   "TMP_ACTIVE_SURVEYS": "Active surveys",
-   "TMP_ANSWER": "Answer",
-   "TMP_SETUP_AT": "Setup at:",
+  "TMP_ACTIVE_SURVEYS": "Active surveys",
+  "TMP_ANSWER": "Answer",
+  "TMP_SETUP_AT": "Setup at:",
 
-
-   "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires",
+  "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires",
   "TMP_SEARCH_BY_STUDENT_NAME": "Search by Student Name",
   "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Search by Active Questionnaire ID",
   "TMP_SEARCHPLACEHOLDER": "Search...",
@@ -82,7 +94,6 @@
   "TMP_VIEW_RESULTS": "View Results",
   "TMP_TITLE_TEMPLATE_LIST": "Template List",
 
-  
   "COMMON.BUTTONS.VIEW": "View",
   "COMMON.BUTTONS.COPY": "Copy",
   "COMMON.BUTTONS.DELETE_PERMANENT": "Delete Permanently",
@@ -95,8 +106,6 @@
   "TMP_FINALIZE_TITLE": "Publish template?",
   "TMP_FINALIZE_TEXT": "When a template is published, it becomes read-only. <br/>Are you sure you want to publish?",
   "TMP_FINALIZE_CONFIRM": "Publish",
-  "COMMON.BUTTONS.SHOW": "View",
-  "COMMON.BUTTONS.EDIT": "Edit",
   "TMP_VIEW_MODE": "Template View",
   "TMP_EDIT_MODE": "Template Editing",
 
@@ -122,5 +131,8 @@
     "DELETE_OPTION": "Delete Option",
     "ADD_OPTION": "Add New Option",
     "SAVE": "Save Question"
-}
+  },
+  "QUESTIONAIRE": {
+    "COLLABORATOR": "Collaborator"
+  }
 }

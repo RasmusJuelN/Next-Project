@@ -2,11 +2,35 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Event emitted when the page changes.
+ */
 export interface PageChangeEvent {
+  /** Target page number */
   page: number;
+
+  /** How the page change occurred. */
   direction: 'forward' | 'backward' | 'jump';
 }
 
+/**
+ * Pagination component.
+ *
+ * Features:
+ * - Provides Previous/Next navigation.
+ * - Shows numbered pages (with ellipses when pages are many).
+ * - Emits `PageChangeEvent` for external handling.
+ * - Can toggle visibility of page numbers (via `showPageNumbers`).
+ *
+ * @example
+ * ```html
+ * <app-pagination
+ *   [currentPage]="page"
+ *   [totalPages]="totalPages"
+ *   (pageChange)="onPageChange($event)">
+ * </app-pagination>
+ * ```
+ */
 @Component({
   selector: 'app-pagination',
   standalone: true,
@@ -20,6 +44,7 @@ export class PaginationComponent {
   // New input to control whether page numbers are shown.
   @Input() showPageNumbers: boolean = true;
   @Output() pageChange = new EventEmitter<PageChangeEvent>();
+
 
   get pages(): number[] {
     const maxVisiblePages = 5;

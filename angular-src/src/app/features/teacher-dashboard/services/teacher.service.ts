@@ -6,6 +6,16 @@ import { ApiService } from '../../../core/services/api.service';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { HttpParams } from '@angular/common/http';
 
+/**
+ * Teacher service.
+ *
+ * Provides teacher-specific operations for active questionnaires.
+ *
+ * Handles:
+ * - Fetching active questionnaires with cursor-based pagination.
+ * - Searching by student name or questionnaire id.
+ * - Filtering by student/teacher completion status.
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -13,6 +23,18 @@ export class TeacherService {
   private apiUrl = `${environment.apiUrl}/user/teacher`;
   private apiService = inject(ApiService);
 
+
+  /**
+   * Retrieves active questionnaires for the teacher.
+   *
+   * @param searchTerm Text to search (student name or questionnaire id).
+   * @param searchType Field to search: 'name' | 'id'.
+   * @param queryCursor Cursor for the next page (null for first page).
+   * @param pageSize Number of items per page.
+   * @param filterStudentCompleted If true, only include those where student is done.
+   * @param filterTeacherCompleted If true, only include those where teacher is done.
+   * @returns Observable emitting the paginated response.
+   */
   getQuestionnaires(
     searchTerm: string,
     searchType: 'name' | 'id',

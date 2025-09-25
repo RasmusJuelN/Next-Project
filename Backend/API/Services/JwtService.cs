@@ -8,9 +8,40 @@ using API.DTO.Responses.Auth;
 
 namespace API.Services;
 
+/// <summary>
+/// Provides JSON Web Token (JWT) generation, validation, and management services for authentication and authorization.
+/// This service handles both access tokens (short-lived) and refresh tokens (long-lived) with separate signing keys
+/// to ensure security isolation between token types.
+/// </summary>
+/// <remarks>
+/// The service implements a dual-token authentication strategy:
+/// <list type="bullet">
+/// <item><description>Access tokens: Short-lived tokens for API access with configurable expiration</description></item>
+/// <item><description>Refresh tokens: Long-lived tokens for obtaining new access tokens</description></item>
+/// </list>
+/// All tokens use HMAC-SHA256 signing and include comprehensive validation to prevent token tampering.
+/// </remarks>
 public class JwtService(IConfiguration configuration)
 {
     private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
+    
+    /// <summary>
+    /// Generates a short-lived access token containing the specified claims.
+    /// </summary>
+    /// <param name="claims">The collection of claims to include in the access token.</param>
+    /// <returns>A JWT access token string signed with the access token secret.</returns>
+    /// <remarks>
+    /// Access tokens are designed for API authentication and have a shorter lifespan
+    /// as configured in the JWT settings. They use a separate signing key from refresh tokens
+    /// to provide security isolation. The token includes:
+    /// <list type="bullet">
+    /// <item><description>User claims and roles for authorization</description></item>
+    /// <item><description>Configurable expiration time (typically 15-60 minutes)</description></item>
+    /// <item><description>Not-before time set to current UTC time</description></item>
+    /// </list>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when claims collection is null.</exception>
+    /// <exception cref="SecurityTokenException">Thrown when token generation fails.</exception>
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
         JwtSecurityToken jwtSecurityToken = new(
@@ -23,6 +54,23 @@ public class JwtService(IConfiguration configuration)
         return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
     }
 
+    /// <summary>
+    /// Generates a long-lived refresh token containing the specified claims.
+    /// </summary>
+    /// <param name="claims">The collection of claims to include in the refresh token.</param>
+    /// <returns>A JWT refresh token string signed with the refresh token secret.</returns>
+    /// <remarks>
+    /// Refresh tokens are used to obtain new access tokens without requiring user re-authentication.
+    /// They have a longer lifespan and use a separate signing key for enhanced security:
+    /// <list type="bullet">
+    /// <item><description>Extended expiration time (typically 7-30 days)</description></item>
+    /// <item><description>Separate signing key from access tokens</description></item>
+    /// <item><description>Should be stored securely and rotated regularly</description></item>
+    /// </list>
+    /// The refresh token should only be used for token renewal operations.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when claims collection is null.</exception>
+    /// <exception cref="SecurityTokenException">Thrown when token generation fails.</exception>
     public string GenerateRefreshToken(IEnumerable<Claim> claims)
     {
         JwtSecurityToken jwtSecurityToken = new(

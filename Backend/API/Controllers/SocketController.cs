@@ -5,11 +5,42 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Provides WebSocket endpoints for real-time communication functionality.
+    /// This controller handles WebSocket connections and implements various communication patterns
+    /// including ping-pong health checks and message echoing capabilities.
+    /// </summary>
+    /// <remarks>
+    /// This controller is excluded from API documentation and requires WebSocket upgrade requests.
+    /// All endpoints in this controller are designed to work with WebSocket protocols only.
+    /// Regular HTTP requests to these endpoints will result in appropriate error responses.
+    /// 
+    /// The controller supports:
+    /// - Connection health monitoring through ping-pong messages
+    /// - Message echoing for testing and development purposes
+    /// - Proper WebSocket lifecycle management including connection establishment and cleanup
+    /// </remarks>
     [Route("/ws")]
     [ApiController]
     [ApiExplorerSettings(IgnoreApi = true)]
     public class SocketController : ControllerBase
     {
+        /// <summary>
+        /// Handles WebSocket ping-pong communication for connection health monitoring.
+        /// Accepts WebSocket connections and responds to "ping" messages with "pong" responses.
+        /// For any other messages, echoes the received message back to the client.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint requires a WebSocket upgrade request. If a regular HTTP request is made,
+        /// it will return a 400 Bad Request status code.
+        /// 
+        /// The method maintains the WebSocket connection until the client initiates closure,
+        /// continuously listening for incoming messages and responding appropriately.
+        /// </remarks>
+        /// <returns>
+        /// A task that represents the asynchronous WebSocket communication operation.
+        /// The task completes when the WebSocket connection is closed by the client.
+        /// </returns>
         [Route("ping")]
         [AllowAnonymous]
         public async Task Ping()
