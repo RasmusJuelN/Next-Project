@@ -80,6 +80,7 @@
   "TMP_COMPLETED": "Completed",
   "TMP_PENDING": "Pending",
   "TMP_VIEW_RESULTS": "View Results",
+  "TMP_TITLE_TEMPLATE_LIST": "Template List",
 
   
   "COMMON.BUTTONS.VIEW": "View",
@@ -100,7 +101,17 @@
   "TMP_EDIT_MODE": "Template Editing",
 
 
-  
+  "ACTIVE_LIST": {
+    "TITLE": "Manage Active Questionnaires",
+    "BUTTON_CREATE": "Assign a Questionnaire",
+    "SUBTITLE": "Active Questionnaires",
+    "SEARCH_PLACEHOLDER": "Search for group...",
+    "FILTER_STUDENT_PENDING": "Student pending answer",
+    "FILTER_TEACHER_PENDING": "Teacher pending answer",
+    "ITEMS_PER_PAGE": "Items per page:",
+    "GROUP_STUDENT": "Student",
+    "GROUP_TEACHER": "Teacher"
+  },
 
   "QUESTION_EDITOR": {
     "TITLE": "Edit Question",

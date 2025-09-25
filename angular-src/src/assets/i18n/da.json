@@ -67,8 +67,8 @@
   "TMP_SEARCH_BY_STUDENT_NAME": "Søg efter elevnavn",
   "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Søg efter aktivt spørgeskema-id",
   "TMP_SEARCHPLACEHOLDER": "Søg...",
-  "TMP_STUDENT_DONE": "Studenten er færdig",
-  "TMP_TEACHER_DONE": "Læreren er færdig",
+  "TMP_STUDENT_DONE": "Elev færdig",
+  "TMP_TEACHER_DONE": "Lærer færdig",
   "TMP_COPY_LINK": "Kopier link til besvarelse",
   "TMP_STUDENT_NAME": "Elevnavn:",
   "TMP_STUDENT": "Elev",
@@ -77,6 +77,7 @@
   "TMP_PENDING": "Ikke færdig",
   "TMP_ANSWER": "Svar",
   "TMP_VIEW_RESULTS": "Se resultater",
+  "TMP_TITLE_TEMPLATE_LIST": "Skabelonliste",
 
 
 
@@ -97,6 +98,17 @@
   "COMMON.BUTTONS.SHOW": "View",
   "COMMON.BUTTONS.EDIT": "Edit",
 
+  "ACTIVE_LIST": {
+    "TITLE": "Administrer Aktive Spørgeskemaer",
+    "BUTTON_CREATE": "Tildel et Spørgeskema",
+    "SUBTITLE": "Aktive Spørgeskemaer",
+    "SEARCH_PLACEHOLDER": "Søg efter gruppe...",
+    "FILTER_STUDENT_PENDING": "Elev mangler svar",
+    "FILTER_TEACHER_PENDING": "Lærer mangler svar",
+    "ITEMS_PER_PAGE": "Elementer pr. side:",
+    "GROUP_STUDENT": "Elev",
+    "GROUP_TEACHER": "Lærer"
+  },
 
   "QUESTION_EDITOR": {
   "TITLE": "Rediger Spørgsmål",

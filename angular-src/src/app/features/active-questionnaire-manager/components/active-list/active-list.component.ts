@@ -7,11 +7,12 @@ import { QuestionnaireGroupResult, QuestionnaireGroupKeysetPaginationResult } fr
 
 import { PageChangeEvent, PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../../../shared/loading/loading.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-active-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent, TranslateModule],
   templateUrl: './active-list.component.html',
   styleUrls: ['./active-list.component.css']
 })
@@ -33,7 +34,7 @@ export class ActiveListComponent implements OnInit {
   totalPages: number = 0;
 
   // Cache cursors
-  cachedCursors: { [pageNumber: number]: string | null } = {};
+  cachedCursors: { [pageNumber: number]: string | null } = {1: null};
 
   // Search filters
   searchTitle: string = '';

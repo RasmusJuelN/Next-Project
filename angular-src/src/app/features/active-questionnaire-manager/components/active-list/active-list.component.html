@@ -1,43 +1,39 @@
 <div class="flex flex-col bg-white/90 shadow-xl rounded-2xl border-2 border-primary_orange_1 sm:p-10 sm:max-w-[1100px] mx-auto">
   <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left m-2">
-    Administrer Aktive Spørgeskemaer
+    {{ 'ACTIVE_LIST.TITLE' | translate }}
   </h2>
 
   <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 w-full">
     <button 
       (click)="onCreateNewQuestionnaire()"
       class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors w-full sm:w-auto">
-      Tildel et Spørgeskema
+      {{ 'ACTIVE_LIST.BUTTON_CREATE' | translate }}
     </button>
   </div>
 
   <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 flex items-center justify-between"
       >
-    Aktive Spørgeskemaer
-    <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-      <label class="text-primary_dark_blue font-medium">Elementer pr. side:</label>
-      <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)" class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[80px] bg-gray-50 font-bold text-center">
-        <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
-      </select>
-    </div>
+    {{ 'ACTIVE_LIST.SUBTITLE' | translate }}
+    
   </h2>
-   <input
+   <div class="flex flex-row items-center gap-4 w-full mb-4">
+  <input
     type="text"
-    placeholder="Søg efter gruppe..."
+    placeholder="{{ 'ACTIVE_LIST.SEARCH_PLACEHOLDER' | translate }}"
     [(ngModel)]="searchTitle"
     (input)="onSearchTitleChange(searchTitle)"
-    class="px-4 py-2 border border-primary_orange_1 rounded-lg shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-white/80"
+    class="px-4 py-2 border-primary_orange rounded-lg focus:ring-primary_orange focus:border-primary_orange text-sm bg-white/80"
+    style="width: 260px; min-width: 200px;"
   />
 
-  <!-- Pending filters -->
-  <div class="flex flex-col sm:flex-row gap-4 items-center">
+  <div class="flex flex-row gap-4 items-center">
     <label class="flex items-center gap-2 text-primary_dark_light">
       <input
         type="checkbox"
         [(ngModel)]="filterPendingStudent"
         (change)="onFilterChange()"
       />
-      <span class="text-sm">Elev mangler svar</span>
+      <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_STUDENT_PENDING' | translate }}</span>
     </label>
 
     <label class="flex items-center gap-2 text-primary_dark_light">
@@ -46,9 +42,18 @@
         [(ngModel)]="filterPendingTeacher"
         (change)="onFilterChange()"
       />
-      <span class="text-sm">Instruktør mangler svar</span>
+      <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_TEACHER_PENDING' | translate }}</span>
     </label>
   </div>
+  <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto ml-auto">
+      <label class="text-primary_dark_blue font-medium">{{ 'ACTIVE_LIST.ITEMS_PER_PAGE' | translate }}</label>
+      <select [(ngModel)]="pageSize" 
+      (change)="onPageSizeChange(pageSize)" 
+      class="border border-primary_orange rounded-lg px-3 py-2 focus:ring-primary_orange focus:border-primary_orange text-sm w-full sm:w-auto bg-white/80 text-left">
+        <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
+      </select>
+    </div>
+</div>
 
   <div *ngFor="let group of groups" 
        class="mb-8 border p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors">
@@ -57,7 +62,7 @@
       <h3 class="text-xl font-bold text-blue-900 mb-0">
         {{ group.name }}
         <span class="ml-2 text-sm text-gray-600">
-  Elev: 
+  {{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }} 
   <span
     [ngClass]="{
       'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === 0,
@@ -69,7 +74,7 @@
   </span>
   /
   <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-  Instruktør: 
+  {{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }}  
   <span
     [ngClass]="{
       'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === 0,
@@ -98,13 +103,13 @@
           </div>
           <div class="flex flex-col sm:flex-row sm:gap-6 mt-2 sm:mt-0">
             <span>
-              <strong>Elev:</strong>
+              <strong>{{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }} </strong>
               <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-extrabold': !q.studentCompletedAt}">
                 {{ q.student.fullName }}
               </span>
             </span>
             <span>
-              <strong>Instruktør:</strong>
+              <strong>{{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }} </strong>
               <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
                 {{ q.teacher.fullName }}
               </span>

@@ -5,47 +5,51 @@
       <h2 class="text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">{{'TMP_TITLE_ADMINISTER_TEMPLATES'| translate}}</h2>
 
       <!-- Search & Actions -->
-      <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
-        <button 
-          (click)="addTemplate()" 
-          class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-2 px-6 rounded-xl shadow transition-colors w-full sm:w-auto ">
-          <!-- {{'TMP_ADD_TEMPLATE' | translate}} TMP_BUTTON_CREATE_NEW -->
-              {{'TMP_BUTTON_CREATE_NEW' | translate}}
-        </button>
+      <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 w-full">
+    <button 
+      (click)="addTemplate()" 
+      class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors w-full sm:w-auto">
+      {{'TMP_BUTTON_CREATE_NEW' | translate}}
+    </button>
+  </div>
 
-        <div class="flex w-full items-center gap-4">
-          <select
-            #searchType
-            (change)="onSearchTypeChange(searchType.value)"
-            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm min-w-[150px] bg-gray-50"
-          >
-            <option value="name" selected>{{'TMP_SEARCH_BY_NAME' | translate}}</option>
-            <option value="id">{{'TMP_SEARCH_BY_ID' | translate}}</option>
-          </select>
+  <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 flex items-center justify-between">
+    {{'TMP_TITLE_TEMPLATE_LIST' | translate}}
+  </h2>
 
-          <input
-            #search
-            type="text"
-            (input)="onSearchChange(search.value)"
-            placeholder="{{'TMP_SEARCH_PLACEHOLDER' | translate}}"
-            class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm flex-grow min-w-[200px] bg-gray-50"
-          />
-        </div>
+  <div class="flex flex-row items-center gap-4 w-full mb-4">
+    <select
+      #searchType
+      (change)="onSearchTypeChange(searchType.value)"
+      class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm min-w-[150px] bg-gray-50"
+    >
+      <option value="name" selected>{{'TMP_SEARCH_BY_NAME' | translate}}</option>
+      <option value="id">{{'TMP_SEARCH_BY_ID' | translate}}</option>
+    </select>
 
-        <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2 items-center">
-          <label for="pageSize" class="text-primary_dark_blue font-medium">{{'TMP_ITEMS_PER_PAGE'| translate}}</label>
-          <select
-            #pageSize
-            id="pageSize"
-            (change)="onPageSizeChange(pageSize.value)"
-            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-auto bg-gray-50"
-          >
-            <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
-              {{ size }}
-            </option>
-          </select>
-        </div>
-      </div>
+    <input
+      #search
+      type="text"
+      (input)="onSearchChange(search.value)"
+      placeholder="{{'TMP_SEARCH_PLACEHOLDER' | translate}}"
+      class="px-4 py-2 border-primary_orange_1 rounded-lg focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-white/80"
+      style="width: 260px; min-width: 200px;"
+    />
+
+    <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto ml-auto">
+      <label for="pageSize" class="text-primary_dark_blue font-medium">{{'TMP_ITEMS_PER_PAGE'| translate}}</label>
+      <select
+        #pageSize
+        id="pageSize"
+        (change)="onPageSizeChange(pageSize.value)"
+        class="border border-primary_orange_1 rounded-lg px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-auto bg-white/80 text-left"
+      >
+        <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+  </div>
 
       <!-- Loading Indicator Inside Content -->
       <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
