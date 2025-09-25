@@ -1,32 +1,30 @@
-<div class="relative min-h-screen h-full bg-gradient-to-br from-primary_dark_blue via-primary_orange_darker to-primary_dark_light">
+<div
+  class="relative min-h-screen h-full bg-gradient-to-br from-primary_dark_blue via-primary_orange_darker to-primary_dark_light">
 
   <!-- Language dropdown floating in top-right -->
+  <nav>
+    
+  </nav>
   <div class="absolute top-6 right-4 z-50">
     <div class="relative">
       <!-- Trigger -->
-      <button
-        class="bg-gray-200 px-1 py-1 rounded flex items-center gap-2 hover:bg-gray-300"
-        (click)="showDropdown = !showDropdown"
-      >
-        <img [src]="currentFlag" class="w-6 h-4" alt="Selected Language"/>
+      <button class="bg-gray-200 px-1 py-1 rounded flex items-center gap-2 hover:bg-gray-300"
+        (click)="showDropdown = !showDropdown">
+        <img [src]="currentFlag" class="w-6 h-4" alt="Selected Language" />
         <span>{{ currentLang.toUpperCase() }}</span>
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M19 9l-7 7-7-7"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       <!-- Menu -->
-      <div *ngIf="showDropdown"
-           class="absolute right-0 mt-1 w-32 bg-white border rounded shadow-lg">
-        <button class="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
-                (click)="setLanguage('en')">
-          <img src="assets/icons/united-states-flag-icon.svg" class="w-6 h-4" alt="English"/>
+      <div *ngIf="showDropdown" class="absolute right-0 mt-1 w-32 bg-white border rounded shadow-lg">
+        <button class="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100" (click)="setLanguage('en')">
+          <img src="assets/icons/united-states-flag-icon.svg" class="w-6 h-4" alt="English" />
           English
         </button>
-        <button class="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
-                (click)="setLanguage('da')">
-          <img src="assets/icons/denmark-flag-icon.svg" class="w-6 h-4" alt="Danish"/>
+        <button class="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100" (click)="setLanguage('da')">
+          <img src="assets/icons/denmark-flag-icon.svg" class="w-6 h-4" alt="Danish" />
           Danish
         </button>
       </div>
