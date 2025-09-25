@@ -49,7 +49,7 @@ namespace API.Controllers
         /// Use the returned session identifiers to navigate through multiple pages of results.
         /// </remarks>
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminAndTeacherOnly")]
         [ProducesResponseType(typeof(UserQueryPaginationResult), StatusCodes.Status200OK)]
         public ActionResult<UserQueryPaginationResult> UserPaginationQuery([FromQuery] UserQueryPagination request)
         {
