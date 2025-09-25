@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -23,13 +23,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 export class HeaderComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
-
-  /** Translation service for switching navigation labels by language. */
   private translate = inject(TranslateService);
 
+  readonly isAuthenticated = this.authService.isAuthenticated; // already a computed in the service
+  readonly userRole = computed<Role | null>(() => this.authService.user()?.role ?? null);
 
-  isAuthenticated = false;
-  userRole: Role | null = null;
   isMenuOpen = false;
 
   /** Global navigation links visible to all users. */
@@ -55,23 +53,6 @@ export class HeaderComponent {
     ],
   };
 
-  /**
-   * Lifecycle hook: subscribes to authentication and role streams
-   * from `AuthService` to update UI state.
-   */
-  ngOnInit() {
-    this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
-      this.isAuthenticated = isAuthenticated;
-    });
-
-    this.authService.userRole$.subscribe((role) => {
-      if (role === Role.Teacher || role === Role.Admin || role === Role.Student) {
-        this.userRole = role as Role;
-      } else {
-        this.userRole = null;
-      }
-    });
-  }
 
   /** Toggles the mobile navigation menu open/closed. */
   toggleMenu(): void {
