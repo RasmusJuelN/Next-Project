@@ -374,97 +374,116 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   }
 
   // Update chart for the currently selected question and year
-  updateChartForCurrentQuestion() {
-    if (!this.questions.length || !this.years.length) return;
-    const question = this.questions[this.currentQuestionIndex];
-    const year = this.years[this.currentYearIndex];
-    // Get all answers for this question and year
-    const answersForQuestion = this.allAnswers.filter(a => a.question === question && a.year === year);
-    // Count answers for pie/bar
-    const answerCounts: { [answer: string]: number } = {};
-    answersForQuestion.forEach(a => {
-      answerCounts[a.studentResponse] = (answerCounts[a.studentResponse] || 0) + 1;
-    });
-    // Chart data: { answer, count, dates }
-    const chartData = Object.keys(answerCounts).map(ans => {
+updateChartForCurrentQuestion() {
+  if (!Array.isArray(this.questions) || !Array.isArray(this.years) || !this.questions.length || !this.years.length) return;
+  const question = this.questions[this.currentQuestionIndex];
+  const year = this.years[this.currentYearIndex];
+  // Get all answers for this question and year
+  const answersForQuestion = this.allAnswers.filter(a => a.question === question && a.year === year);
+  // Build answer counts and dates for each answer
+  const answerCounts: Record<string, { count: number, dates: string[] }> = {};
+  answersForQuestion.forEach(a => {
+    if (!answerCounts[a.studentResponse]) answerCounts[a.studentResponse] = { count: 0, dates: [] };
+    answerCounts[a.studentResponse].count++;
+    answerCounts[a.studentResponse].dates.push(a.date);
+  });
+  // Bar chart: one data row, xKey is question, yKeys are answers
+  const chartData: any[] = [];
+  const entry: Record<string, any> = { question };
+  Object.entries(answerCounts).forEach(([answer, obj]) => {
+    entry[answer] = obj.count;
+    entry[`${answer}_dates`] = obj.dates;
+  });
+  chartData.push(entry);
+  // Always set theme as an object at root
+  const theme = {
+    baseTheme: "ag-polychroma",
+    overrides: {
+      bar: { series: { label: { enabled: true } } },
+    },
+  };
+  if (this.chartType === 'pie') {
+    // Pie chart logic unchanged
+    const pieData = Object.entries(answerCounts).map(([ans, obj]) => {
       return {
         answer: ans,
-        count: answerCounts[ans],
-        dates: answersForQuestion.filter(a => a.studentResponse === ans).map(a => a.date) || [],
+        count: obj.count,
+        dates: obj.dates,
       };
     });
-    if (this.chartType === 'pie') {
-      this.chartOptions = {
-        data: chartData,
-        title: { text: `${question} (${year})` },
-        theme: 'ag-polychroma',
-        series: [
-          {
-            type: 'pie',
-            calloutLabelKey: 'answer',
-            sectorLabelKey: 'count',
-            angleKey: 'count',
-            calloutLabel: { offset: 20 },
-            sectorLabel: {
-              positionOffset: 30,
-              formatter: ({ datum, angleKey }: { datum: any; angleKey: string }) => {
-                const value = datum[angleKey];
-                const total = chartData.reduce((sum, d) => sum + d.count, 0);
-                const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
-                return parseFloat(percentage) >= 5 ? `${percentage}%` : '';
-              },
-            },
-            strokeWidth: 1,
-            tooltip: {
-              enabled: true,
-              renderer: (params: { datum: any; angleKey: string }) => {
-                const { datum, angleKey } = params;
-                const value = datum[angleKey];
-                const total = chartData.reduce((sum, d) => sum + d.count, 0);
-                const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
-                return {
-                  title: datum.answer,
-                  content: `Antal: ${value}<br>Andel: ${percentage}%<br>Dato: ${datum.dates.join(', ')}`,
-                };
-              },
+    this.chartOptions = {
+      data: pieData,
+      title: { text: `${question} (${year})` },
+      theme,
+      series: [
+        {
+          type: 'pie',
+          calloutLabelKey: 'answer',
+          sectorLabelKey: 'count',
+          angleKey: 'count',
+          calloutLabel: { offset: 20 },
+          sectorLabel: {
+            positionOffset: 30,
+            formatter: ({ datum, angleKey }: { datum: any; angleKey: string }) => {
+              const value = datum[angleKey];
+              const total = pieData.reduce((sum, d) => sum + d.count, 0);
+              const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+              return parseFloat(percentage) >= 5 ? `${percentage}%` : '';
             },
           },
-        ],
-        legend: { enabled: false },
-        animation: { enabled: true, duration: 800 },
-      };
-    } else {
-      // Bar chart
-      this.chartOptions = {
-        data: chartData,
-        title: { text: `${question} (${year})` },
-        theme: 'ag-polychroma',
-        series: [
-          {
-            type: 'bar',
-            xKey: 'answer',
-            yKey: 'count',
-            label: { enabled: true },
-            tooltip: {
-              enabled: true,
-              renderer: (params: { datum: any }) => {
-                return {
-                  title: params.datum.answer,
-                  content: `Antal: ${params.datum.count}<br>Dato: ${params.datum.dates.join(', ')}`,
-                };
-              },
+          strokeWidth: 1,
+          tooltip: {
+            enabled: true,
+            renderer: (params: { datum: any; angleKey: string }) => {
+              const { datum, angleKey } = params;
+              const value = datum[angleKey];
+              const total = pieData.reduce((sum, d) => sum + d.count, 0);
+              const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+              return {
+                title: datum.answer,
+                content: `Antal: ${value}<br>Andel: ${percentage}%<br>Dato: ${datum.dates.join(', ')}`,
+              };
             },
           },
-        ],
-        axes: [
-          { type: 'category', position: 'bottom', title: { text: 'Svar' } },
-          { type: 'number', position: 'left', title: { text: 'Antal' } },
-        ],
-        legend: { enabled: false },
-        animation: { enabled: true, duration: 800 },
-      };
-    }
+        },
+      ],
+      legend: { enabled: true },
+      animation: { enabled: true, duration: 800 },
+    };
+  } else {
+    // Bar chart (match ResultComponent style)
+    const series = Object.keys(answerCounts).map(answer => ({
+      type: "bar",
+      xKey: "question",
+      yKey: answer,
+      yName: `Svar: ${answer}`,
+      stacked: true,
+      label: { enabled: true },
+      tooltip: {
+        enabled: true,
+        renderer: (params: { datum: any }) => {
+          const dates = params.datum[`${answer}_dates`] || [];
+          return {
+            title: answer,
+            content: `Antal: ${params.datum[answer]}<br>Dato: ${dates.join(", ")}`,
+          };
+        },
+      },
+    }));
+    this.chartOptions = {
+      data: chartData,
+      theme,
+      title: { text: `${question} (${year})`, fontSize: 18 },
+      series,
+      axes: [
+        { type: "category", position: "bottom", title: { text: "Spørgsmål" } },
+        { type: "number", position: "left", title: { text: "Antal" } },
+      ],
+      legend: { enabled: true },
+      animation: { enabled: true, duration: 800 },
+    };
   }
+}
 
   // Navigation for questions
   nextQuestion() {

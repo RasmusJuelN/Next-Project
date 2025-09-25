@@ -159,9 +159,9 @@ export class ResultComponent implements OnInit {
   }
 
   generateDonutOptions(data: Result): AgChartOptions {
+    // Match DataCompareComponent's pie styling
     const answerCounts: Record<string, number> = {};
     data.answers.forEach((answer) => {
-      // Brug "Brugerdefineret svar" hvis svaret er brugerdefineret
       const responses = [
         answer.isStudentResponseCustom
           ? "Brugerdefineret svar"
@@ -177,26 +177,46 @@ export class ResultComponent implements OnInit {
     });
     const chartData = Object.entries(answerCounts).map(([answer, count]) => ({
       answer, count,
+      dates: [] // No date info in this context
     }));
-    const total = chartData.reduce((sum, d) => sum + d.count, 0);
-
     return {
       data: chartData,
-      title: { text: "Svarfordeling (Donut)", fontSize: 18 },
-      footnote: { text: `Total: ${total}` },
+      title: { text: `Svarfordeling` },
+      theme: 'ag-polychroma',
       series: [
         {
-          type: "donut",
-          angleKey: "count",
-          sectorLabelKey: "count",
-          calloutLabelKey: "answer",
-          innerRadiusRatio: 1,
-          sectorSpacing: 4,
-          calloutLabel: { enabled: false },
-          title: { text: "Antal" },
+          type: 'pie',
+          calloutLabelKey: 'answer',
+          sectorLabelKey: 'count',
+          angleKey: 'count',
+          calloutLabel: { offset: 20 },
+          sectorLabel: {
+            positionOffset: 30,
+            formatter: ({ datum, angleKey }: { datum: any; angleKey: string }) => {
+              const value = datum[angleKey];
+              const total = chartData.reduce((sum, d) => sum + d.count, 0);
+              const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+              return parseFloat(percentage) >= 5 ? `${percentage}%` : '';
+            },
+          },
+          strokeWidth: 1,
+          tooltip: {
+            enabled: true,
+            renderer: (params: { datum: any; angleKey: string }) => {
+              const { datum, angleKey } = params;
+              const value = datum[angleKey];
+              const total = chartData.reduce((sum, d) => sum + d.count, 0);
+              const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+              return {
+                title: datum.answer,
+                content: `Antal: ${value}<br>Andel: ${percentage}%` // No date info
+              };
+            },
+          },
         },
       ],
-      legend: { position: "right" },
+      legend: { enabled: false },
+      animation: { enabled: true, duration: 800 },
     };
   }
 }

@@ -5,15 +5,16 @@
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
             <div class="flex flex-col w-full" #studentSearchArea>
-                <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter Elev:</label>
+                <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'DATA_COMPARE.SEARCH_STUDENT_LABEL' | translate }}</label>
                 <input type="text" placeholder="Indtast navn på elever..." [(ngModel)]="student.searchInput"
                     (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
                     class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+                    [placeholder]="'DATA_COMPARE.SEARCH_STUDENT_PLACEHOLDER' | translate"
                     #studentSearch />
 
                 <!-- Loading Indicator -->
                 <div *ngIf="student.isLoading" class="text-blue-500 text-sm mt-2">
-                    Indlæser elever...
+                    {{ 'DATA_COMPARE.LOADING_STUDENTS' | translate }}
                 </div>
 
                 <!-- Error Message -->
@@ -34,37 +35,37 @@
                     <!-- Load More Button -->
                     <button *ngIf="student.page < student.totalPages"
                         class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition">
-                        Indlæs Flere Elever
+                        {{ 'DATA_COMPARE.LOAD_MORE_STUDENTS' | translate }}
                     </button>
                 </div>
 
                 <!-- Selected Students List -->
                 <div *ngIf="student.selected.length > 0"
                     class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
-                    <strong>Valgte Elever:</strong>
+                    <strong>{{ 'DATA_COMPARE.SELECTED_STUDENTS' | translate }}</strong>
                     <ul class="mt-1 space-y-1">
                         <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
                             <span>{{ stud.fullName }} ({{ stud.userName }})</span>
                             <button (click)="select('student', stud)"
-                                class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
+                                class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{ 'DATA_COMPARE.REMOVE' | translate }}</button>
                         </li>
                     </ul>
                     <button (click)="clearSelected('student')"
-                        class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd
-                        Alle</button>
+                        class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">{{ 'DATA_COMPARE.CLEAR_ALL' | translate }}</button>
                 </div>
             </div>
 
             <div class="flex flex-col w-full mt-4 sm:mt-0" #templateSearchArea>
-                <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">Søg efter Skabelon:</label>
+                <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'DATA_COMPARE.SEARCH_TEMPLATE_LABEL' | translate }}</label>
                 <input type="text" placeholder="Indtast skabelontitel..." [(ngModel)]="template.searchInput"
                     (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
                     class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+                    [placeholder]="'DATA_COMPARE.SEARCH_TEMPLATE_PLACEHOLDER' | translate"
                     #templateSearch />
 
                 <!-- Loading Indicator -->
                 <div *ngIf="template.isLoading" class="text-blue-500 text-sm mt-2">
-                    Indlæser skabeloner...
+                    {{ 'DATA_COMPARE.LOADING_TEMPLATES' | translate }}
                 </div>
 
                 <!-- Error Message -->
@@ -85,74 +86,91 @@
                     <!-- Load More Button -->
                     <button *ngIf="template.page < template.totalPages"
                         class="mt-2 w-full px-4 py-2 bg-primary_orange_1 hover:bg-primary_orange_light text-white text-center font-medium rounded-xl border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors">
-                        Indlæs Flere Skabeloner
+                        {{ 'DATA_COMPARE.LOAD_MORE_TEMPLATES' | translate }}
                     </button>
                 </div>
 
                 <!-- Selected Templates List -->
                 <div *ngIf="template.selected.length > 0"
                     class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
-                    <strong>Valgte Skabeloner:</strong>
+                    <strong>{{ 'DATA_COMPARE.SELECTED_TEMPLATES' | translate }}</strong>
                     <ul class="mt-1 space-y-1">
                         <li *ngFor="let temp of template.selected" class="flex justify-between items-center">
                             <span>{{ temp.title }}</span>
                             <button (click)="select('template', temp)"
-                                class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">Fjern</button>
+                                class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{ 'DATA_COMPARE.REMOVE' | translate }}</button>
                         </li>
                     </ul>
                     <button (click)="clearSelected('template')"
-                        class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">Ryd
-                        Alle</button>
+                        class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">{{ 'DATA_COMPARE.CLEAR_ALL' | translate }}</button>
                 </div>
             </div>
         </div>
-        <div class="flex justify-center mt-6">
-            <button (click)="onCompareClick()" [disabled]="!student.selected.length || !template.selected.length"
-                class="px-6 py-3 bg-primary_orange_1 hover:bg-primary_orange_light text-white font-medium rounded-xl border-2 border-primary_orange_1 hover:border-primary_dark_blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                Opdater Graf
-            </button>
+        <div class="flex justify-center items-center mt-6 gap-4">
+            <div class="flex items-center gap-4">
+                <button (click)="onCompareClick()" [disabled]="!student.selected.length || !template.selected.length"
+                    class="transition-all h-[50px] duration-150 px-6 py-3 rounded-xl shadow bg-gradient-to-r from-primary_orange_1 to-primary_orange_light text-white font-bold text-lg hover:from-primary_orange_light hover:to-primary_orange_1 active:scale-95 border-2 border-primary_orange_1 hover:border-primary_dark_blue disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {{ 'DATA_COMPARE.UPDATE_CHART' | translate }}
+                </button>
+        
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="relative inline-block">
+                    <select [(ngModel)]="chartType" (change)="updateChartForCurrentQuestion()"
+                        class="appearance-none px-4 py-3 rounded-xl border-2 border-primary_orange_1 bg-white text-sm w-[125px] h-[50px] font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary_orange_1">
+                        <option value="pie">{{ 'DATA_COMPARE.PIE_CHART' | translate }}</option>
+                        <option value="bar">{{ 'DATA_COMPARE.BAR_CHART' | translate }}</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <svg class="w-4 h-4 text-primary_orange_1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
         </div>
+        
+
         <div class="flex justify-center items-center mt-4 gap-4">
             <!-- Question navigation -->
             <div class="flex flex-col gap-4">
-                <div>
+                <div class="flex items-center gap-2 justify-center">
                     <button (click)="prevQuestion()" [disabled]="currentQuestionIndex === 0"
-                        class="px-3 py-2 rounded-full bg-blue-200 hover:bg-blue-300 disabled:opacity-50">
-                        &#8592;
+                        class="transition-all duration-150 px-4 py-2 rounded-xl shadow bg-gradient-to-r from-primary_orange_1 to-primary_orange_light text-white font-bold text-lg hover:from-primary_orange_light hover:to-primary_orange_1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                     </button>
-                    <span class="text-lg font-medium">
+                    <span class="text-lg font-semibold text-primary_orange_1 mx-2">
                         {{ currentQuestionIndex + 1 }} / {{ questions.length }}
                     </span>
                     <button (click)="nextQuestion()" [disabled]="currentQuestionIndex === questions.length - 1"
-                        class="px-3 py-2 rounded-full bg-blue-200 hover:bg-blue-300 disabled:opacity-50">
-                        &#8594;
+                        class="transition-all duration-150 px-4 py-2 rounded-xl shadow bg-gradient-to-r from-primary_orange_1 to-primary_orange_light text-white font-bold text-lg hover:from-primary_orange_light hover:to-primary_orange_1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </div>
 
                 <!-- Year navigation -->
                 <div>
-                    <button (click)="prevYear()" [disabled]="currentYearIndex === 0"
-                        class="px-3 py-2 rounded-full bg-blue-200 hover:bg-blue-300 disabled:opacity-50">
-                        &#8592;
-                    </button>
-                    <span class="text-lg font-medium">
-                        {{ years[currentYearIndex] || 'xxxx' }}
-                    </span>
-                    <button (click)="nextYear()" [disabled]="currentYearIndex === years.length - 1"
-                        class="px-3 py-2 rounded-full bg-blue-200 hover:bg-blue-300 disabled:opacity-50">
-                        &#8594;
-                    </button>
+                    <div class="flex items-center gap-2 justify-center mt-2">
+                        <button (click)="prevYear()" [disabled]="currentYearIndex === 0"
+                            class="transition-all duration-150 px-4 py-2 rounded-xl shadow bg-gradient-to-r from-primary_orange_1 to-primary_orange_light text-white font-bold text-lg hover:from-primary_orange_light hover:to-primary_orange_1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <span class="text-lg font-semibold text-primary_orange_1 mx-2">
+                            {{ years[currentYearIndex] || 'xxxx' }}
+                        </span>
+                        <button (click)="nextYear()" [disabled]="currentYearIndex === years.length - 1"
+                            class="transition-all duration-150 px-4 py-2 rounded-xl shadow bg-gradient-to-r from-primary_orange_1 to-primary_orange_light text-white font-bold text-lg hover:from-primary_orange_light hover:to-primary_orange_1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
-
-            <!-- Chart type dropdown -->
-
         </div>
-        <select [(ngModel)]="chartType" (change)="updateChartForCurrentQuestion()"
-            class="ml-4 px-2 py-1 rounded border border-gray-300 bg-white text-sm w-[150px]">
-            <option value="pie">Pie Chart</option>
-            <option value="bar">Bar Chart</option>
-        </select>
+
         <div class=" flex justify-center mt-8 w-full">
             <ag-charts class="w-[1000px] h-[500px]" [options]="chartOptions"></ag-charts>
         </div>
