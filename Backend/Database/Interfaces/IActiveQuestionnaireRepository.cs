@@ -73,7 +73,7 @@ public interface IActiveQuestionnaireRepository
         bool onlyTeacherCompleted = false,
         bool pendingStudent = false,         // NEW
         bool pendingTeacher = false);
-        bool onlyTeacherCompleted = false);
+
 
     /// <summary>
     /// Submits answers for a specific active questionnaire on behalf of a user.
