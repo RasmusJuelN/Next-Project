@@ -18,7 +18,7 @@ public static class QuestionnaireGroupMapper
             TemplateId = group.TemplateId,
             Name = group.Name,
             CreatedAt = group.CreatedAt,
-            TemplateTitle = group.Template?.Title, // optional
+            TemplateTitle = group.Template?.Title,
             QuestionnaireCount = group.Questionnaires?.Count ?? 0
         };
     }

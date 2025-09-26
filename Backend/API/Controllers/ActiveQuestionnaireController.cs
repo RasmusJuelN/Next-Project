@@ -61,22 +61,6 @@ namespace API.Controllers
             return Ok(await _questionnaireService.FetchActiveQuestionnaireBases(request));
         }
 
-        [HttpGet("groups/paginated")]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<QuestionnaireGroupKeysetPaginationResult>> GetGroupsPaginated(
-    [FromQuery] QuestionnaireGroupKeysetPaginationRequest request)
-        {
-            try
-            {
-                var result = await _questionnaireService.FetchQuestionnaireGroups(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching paginated questionnaire groups: {Message}", ex.Message);
-                return StatusCode(500, ex.Message);
-            }
-        }
 
         /// <summary>
         /// Activates a questionnaire template by creating an active questionnaire instance.
@@ -99,6 +83,52 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of questionnaire groups using keyset pagination.
+        /// </summary>
+        /// <param name="request">
+        /// The <see cref="QuestionnaireGroupKeysetPaginationRequest"/> containing pagination,
+        /// ordering, and optional filtering parameters.
+        /// </param>
+        /// <returns>
+        /// An <see cref="ActionResult{QuestionnaireGroupKeysetPaginationResult}"/> containing
+        /// the requested page of questionnaire groups, or an error response if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated as an Admin. 
+        /// Errors are logged and return HTTP 500 if an exception occurs.
+        /// </remarks>
+        [HttpGet("groups/paginated")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<QuestionnaireGroupKeysetPaginationResult>> GetGroupsPaginated([FromQuery] QuestionnaireGroupKeysetPaginationRequest request)
+        {
+            try
+            {
+                var result = await _questionnaireService.FetchQuestionnaireGroupsWithKeysetPagination(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching paginated questionnaire groups: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new questionnaire group from a specified template and assigns participants.
+        /// </summary>
+        /// <param name="request">
+        /// The <see cref="ActivateQuestionnaireGroup"/> object containing the group name, template ID,
+        /// and lists of student and teacher GUIDs to include.
+        /// </param>
+        /// <returns>
+        /// An <see cref="ActionResult{QuestionnaireGroupResult}"/> containing the created group details,
+        /// or an error response if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated as an Admin.
+        /// Errors are logged and return HTTP 500 if an exception occurs.
+        /// </remarks>
         [HttpPost("createGroup")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<QuestionnaireGroupResult>> CreateGroup([FromBody] ActivateQuestionnaireGroup request)
@@ -115,6 +145,18 @@ namespace API.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Retrieves all questionnaire groups including their active questionnaires and participants.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="ActionResult{List{QuestionnaireGroupResult}}"/> containing all questionnaire groups,
+        /// or an error response if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated as an Admin.
+        /// Errors are logged and return HTTP 500 if an exception occurs.
+        /// </remarks>
         [HttpGet("groups")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<List<QuestionnaireGroupResult>>> GetAllGroups()
@@ -131,7 +173,18 @@ namespace API.Controllers
             }
         }
 
-        // Get info about a questionnaire group
+        /// <summary>
+        /// Retrieves detailed information about a single questionnaire group by its ID.
+        /// </summary>
+        /// <param name="groupId">The GUID of the questionnaire group to retrieve.</param>
+        /// <returns>
+        /// An <see cref="ActionResult{QuestionnaireGroupResult}"/> containing the group details if found,
+        /// <c>NotFound()</c> if the group does not exist, or an error response if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated. Admin access is not strictly required.
+        /// Errors are logged and return HTTP 500 if an exception occurs.
+        /// </remarks>
         [HttpGet("{groupId}/getGroup")]
         [Authorize(AuthenticationSchemes = "AccessToken")]
         public async Task<ActionResult<QuestionnaireGroupResult>> GetGroup(Guid groupId)
