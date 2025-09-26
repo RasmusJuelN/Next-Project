@@ -30,13 +30,14 @@
       </a> -->
       <!-- Role-Specific Links -->
       <a
-        *ngFor="let link of (userRole ? navLinks[userRole] : [])"
+        *ngFor="let link of navLinksForUser()"
         [routerLink]="link.route"
         class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
         (click)="toggleMenu()"
       >
         {{ link.name | translate }}
       </a>
+
 
       <!-- Translate button code -->
 
@@ -71,9 +72,9 @@
         {{ link.name }}
       </a> -->
       <a
-        *ngFor="let link of (userRole ? navLinks[userRole] : [])"
+        *ngFor="let link of navLinksForUser()"
         [routerLink]="link.route"
-        [routerLinkActive]="'active-underline'"
+        routerLinkActive="active-underline"
         class="nav-underline px-2 py-2 flex items-center text-base font-medium text-primary_dark_blue transition-colors border-transparent my-2"
         style="height:auto;"
       >

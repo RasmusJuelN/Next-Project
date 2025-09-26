@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { User } from '../../../shared/models/user.model';
+import { Role, User } from '../../../shared/models/user.model';
 
 export enum Rating {
   A = 'A',
@@ -47,11 +47,11 @@ export class ResultHistoryComponent {
       id: 'res-1',
       templateName: 'Math Quiz',
       student: {
-        user: { id: 's1', userName: 'Student One', fullName: "Jake", role:"student" },
+        user: { id: 's1', userName: 'Student One', fullName: "Jake", role:Role.Student },
         answeredWhen: new Date('2025-03-01T10:00:00')
       },
       teacher: {
-        user: { id: 't1', userName: 'Teacher One', fullName: "Jake", role:"teacher" },
+        user: { id: 't1', userName: 'Teacher One', fullName: "Jake", role:Role.Teacher },
         answeredWhen: new Date('2025-03-01T12:00:00')
       },
       answers: [
@@ -79,11 +79,11 @@ export class ResultHistoryComponent {
       id: 'res-2',
       templateName: 'Science Test',
       student: {
-        user: { id: 's2', userName: 'Student One', fullName: "Jake", role:"student" },
+        user: { id: 's2', userName: 'Student One', fullName: "Jake", role:Role.Student },
         answeredWhen: new Date('2025-03-01T10:00:00')
       },
       teacher: {
-        user: { id: 't2', userName: 'Teacher One', fullName: "Jake", role:"teacher" },
+        user: { id: 't2', userName: 'Teacher One', fullName: "Jake", role:Role.Teacher },
         answeredWhen: new Date('2025-03-01T12:00:00')
       },
       answers: [

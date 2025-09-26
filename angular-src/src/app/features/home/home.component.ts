@@ -1,11 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from '../login/login.component';
 import { HomeService } from './services/home.service';
-import { catchError, of } from 'rxjs';
+import { catchError, of, take } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Role } from '../../shared/models/user.model';
 
 
 /**
@@ -24,43 +25,55 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   private authService = inject(AuthService);
   private homeService = inject(HomeService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
   // private translate = inject(TranslateService);
 
-  /** Observable tracking whether the user is logged in */
-  loggedInAlready$ = this.authService.isAuthenticated$;
-  activeQuestionnaireString = '';
-  userRole: string | null = null;
-  errorMessage: string | null = null;
-  username: string = '';
+  readonly user = this.authService.user;
+  readonly userRole = computed(() => this.user()?.role ?? null);
+  readonly username = computed(() => this.user()?.userName ?? '');
 
-  /**
-   * Runs initialization logic
-   * and checks if any active questionaires exists for user).
-   */
-  ngOnInit(): void {
-    this.loggedInAlready$.subscribe((isLoggedIn) => {
-      if (isLoggedIn) {
-        this.userRole = this.authService.getUserRole();
-        this.username = this.authService.getUser()?.userName || '';
-        if (this.userRole !== 'admin') {
-          this.homeService
-            .checkForExistingActiveQuestionnaires()
-            .pipe(catchError((error) => of({ exists: false, id: null })))
-            .subscribe((response: any) => {
-              this.activeQuestionnaireString = response?.id || '';
-            });
-        }
-      } else {
-        this.userRole = null;
-        this.activeQuestionnaireString = '';
-        this.username = '';
+  // Local UI state as a signal
+  readonly activeQuestionnaireString = signal('');
+  readonly errorMessage = signal<string | null>(null);
+
+
+  constructor() {
+    effect(() => {
+      const u = this.user();
+
+      // logged out
+      if (!u) {
+        this.activeQuestionnaireString.set('');
+        this.errorMessage.set(null);
+        return;
       }
+
+      // admin: skip fetch
+      if (u.role === Role.Admin) {
+        this.activeQuestionnaireString.set('');
+        return;
+      }
+      // side effect without tracking local writes
+      untracked(() => {
+        this.homeService.checkForExistingActiveQuestionnaires()
+          .pipe(
+            // take(1) is optional for HttpClient
+            catchError(() => {
+              this.errorMessage.set('Could not load active questionnaire.');
+              return of({ exists: false, id: '' as string });
+            })
+          )
+          .subscribe(({ id }) => {
+            this.activeQuestionnaireString.set(id ?? '');
+          });
+      });
     });
   }
+  
 
   // Redirects based on user role
   toHub() {
@@ -74,17 +87,13 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  onLoginSuccess(){
-    
-  }
-
   logout() {
     this.authService.logout();
     this.router.navigate(['/']);
   }
 
   onLoginError(error: string) {
-    this.errorMessage = 'Login failed. Please try again.';
+    this.errorMessage.set('Login failed. Please try again.');
     console.error('Login error:', error);
   }
 

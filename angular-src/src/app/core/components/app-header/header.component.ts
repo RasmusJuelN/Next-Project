@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -24,7 +24,8 @@ export class HeaderComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private translate = inject(TranslateService);
-
+  private cdr = inject(ChangeDetectorRef)
+  
   readonly isAuthenticated = this.authService.isAuthenticated; // already a computed in the service
   readonly userRole = computed<Role | null>(() => this.authService.user()?.role ?? null);
 
@@ -53,7 +54,10 @@ export class HeaderComponent {
     ],
   };
 
-
+  readonly navLinksForUser= computed(() => {
+    const role = this.userRole();
+    return role != null ? this.navLinks[role] : [];
+  });
   /** Toggles the mobile navigation menu open/closed. */
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
@@ -66,6 +70,7 @@ export class HeaderComponent {
    */
   logout(): void {
     this.authService.logout();
+    this.cdr.markForCheck();
     this.router.navigate(['/']);
   }
 //    setLanguage(lang: string) {

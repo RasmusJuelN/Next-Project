@@ -1,13 +1,14 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { QuestionComponent } from './question/question.component';
 import { AnswerService } from './services/answer.service';
 import { Answer, AnswerSubmission, QuestionnaireState } from './models/answer.model';
 import { LoadingComponent } from '../../shared/loading/loading.component';
-import { Role } from '../../shared/models/user.model';
+import { Role, User } from '../../shared/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { map } from 'rxjs';
 
 
 /**
@@ -26,12 +27,14 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.css'],
 })
-export class QuestionnaireComponent implements OnInit {
+export class QuestionnaireComponent {
   private answerService = inject(AnswerService);
   private authService = inject(AuthService)
-  userRole?:Role
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+
+  readonly user = this.authService.user;
 
   state: QuestionnaireState = {
     template: {
@@ -50,23 +53,19 @@ export class QuestionnaireComponent implements OnInit {
   isLoading = true;
   errorMessage: string | null = null;
 
-  /** Initializes role from token and loads questionnaire from route param. */
   ngOnInit() {
-    // gets role
-    const roleStr = this.authService.getUserRole();
-    if (roleStr && Object.values(Role).includes(roleStr as Role)) {
-      this.userRole = roleStr as Role;
+    const u = this.user(); 
+    if (!u) { this.router.navigate(['/'], { replaceUrl: true }); return; }
+
+  this.route.paramMap
+  .subscribe((pm) => {
+    const questionnaireId = pm.get('id');
+    if (questionnaireId) {
+      this.checkAndLoadQuestionnaire(questionnaireId);
     } else {
-      this.userRole = undefined;
+      console.error('No questionnaire ID found in route!');
     }
-    this.route.paramMap.subscribe((params) => {
-      const questionnaireId = params.get('id');
-      if (questionnaireId) {
-        this.checkAndLoadQuestionnaire(questionnaireId);
-      } else {
-        console.error('No questionnaire ID found in route!');
-      }
-    });
+  });
   }
   /**
  * Verifies whether the user already submitted the questionnaire;
@@ -95,7 +94,8 @@ export class QuestionnaireComponent implements OnInit {
 
   /** Loads questionnaire template data and updates progress. */
   private loadQuestionnaire(id: string) {
-    this.answerService.getActiveQuestionnaireById(id).subscribe({
+    this.answerService.getActiveQuestionnaireById(id)
+    .subscribe({
       next: (template) => {
         if (template) {
           this.state.template = template;
@@ -212,12 +212,15 @@ export class QuestionnaireComponent implements OnInit {
  * - Student sees teacher, teacher sees student.
  */
 getCollaboratorInfo(): string | null {
+  const user = this.user();
+  const role = user?.role;
   const q = this.state.template;
   const student = q?.student;
   const teacher = q?.teacher;
-  if (!student || !teacher || !this.userRole) return null;
 
-  switch (this.userRole) {
+  if (!student || !teacher || !role) return null;
+
+  switch (role) {
     case Role.Student:
       return `${teacher.fullName} (${teacher.userName})`;
     case Role.Teacher:
@@ -227,5 +230,9 @@ getCollaboratorInfo(): string | null {
     default:
       return null;
   }
-  }
+}
+}
+
+function takeUntilDestroyed(destroyRef: DestroyRef): import("rxjs").OperatorFunction<import("@angular/router").ParamMap, unknown> {
+  throw new Error('Function not implemented.');
 }
