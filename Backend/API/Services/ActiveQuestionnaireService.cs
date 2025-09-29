@@ -7,11 +7,8 @@ using API.Interfaces;
 using Database.DTO.ActiveQuestionnaire;
 using Database.DTO.User;
 using Database.Enums;
-using Settings.Models;
-using Database.DTO.User;
-using API.Exceptions;
-using System.Net;
 using Database.Models;
+using Settings.Models;
 
 namespace API.Services;
 
@@ -345,6 +342,31 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
 
         return results;
     }
+
+    /// <summary>
+    /// Retrieves all questionnaire groups and returns them as basic result objects containing only ID and name information.
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a list of <see cref="QuestionnaireGroupBasicResult"/> 
+    /// objects with basic group information (GroupId and Name).
+    /// </returns>
+    public async Task<List<QuestionnaireGroupBasicResult>> GetAllQuestionnaireGroupsBasic()
+    {
+        var groups = await _unitOfWork.QuestionnaireGroup.GetAllAsync();
+        var results = new List<QuestionnaireGroupBasicResult>();
+
+        foreach (var group in groups)
+        {
+            results.Add(new QuestionnaireGroupBasicResult
+            {
+                GroupId = group.GroupId,
+                Name = group.Name
+            });
+        }
+
+        return results;
+    }
+
     /// <summary>
     /// Fetches an active questionnaire by its unique identifier.
     /// </summary>

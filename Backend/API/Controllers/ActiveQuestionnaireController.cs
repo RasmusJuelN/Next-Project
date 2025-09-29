@@ -174,6 +174,32 @@ namespace API.Controllers
         }
 
         /// <summary>
+        /// Retrieves basic information for all questionnaire groups.
+        /// </summary>
+        /// <returns>
+        /// A list of <see cref="QuestionnaireGroupBasicResult"/> containing basic information about all questionnaire groups.
+        /// Returns HTTP 200 with the list on success, or HTTP 500 with error message on failure.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires admin authorization and uses access token authentication.
+        /// </remarks>
+        [HttpGet("groupsBasic")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<List<QuestionnaireGroupBasicResult>>> GetAllGroupsBasic()
+        {
+            try
+            {
+                var results = await _questionnaireService.GetAllQuestionnaireGroupsBasic();
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching all questionnaire groups: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Retrieves detailed information about a single questionnaire group by its ID.
         /// </summary>
         /// <param name="groupId">The GUID of the questionnaire group to retrieve.</param>
