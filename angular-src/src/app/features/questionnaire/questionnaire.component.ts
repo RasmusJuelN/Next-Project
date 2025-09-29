@@ -232,7 +232,3 @@ getCollaboratorInfo(): string | null {
   }
 }
 }
-
-function takeUntilDestroyed(destroyRef: DestroyRef): import("rxjs").OperatorFunction<import("@angular/router").ParamMap, unknown> {
-  throw new Error('Function not implemented.');
-}

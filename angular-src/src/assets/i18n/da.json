@@ -109,6 +109,32 @@
   "COMMON.BUTTONS.SHOW": "View",
   "COMMON.BUTTONS.EDIT": "Edit",
 
+
+  "COMMON": {
+    "BUTTONS": {
+      "VIEW": "Vis",
+      "EDIT": "Rediger",
+      "COPY": "Kopiér",
+      "DELETE_PERMANENT": "Slet Permanent",
+      "CANCEL": "Annuller",
+      "CLOSE": "Luk",
+      "PREVIOUS" : "Forrige",
+      "NEXT" : "Næste"
+    },
+    "GREETING": "Hej {{username}}!"
+  },
+
+
+  "LOGIN": {
+    "ERRORS": {
+      "INVALID": "Ugyldigt brugernavn eller adgangskode.",
+      "NETWORK": "Kunne ikke oprette forbindelse til serveren. Tjek din internetforbindelse.",
+      "SERVER": "Der opstod en serverfejl. Prøv igen senere.",
+      "GENERIC": "Der opstod en uventet fejl. Prøv igen."
+    }
+  },
+
+
   "QUESTION_EDITOR": {
       "TITLE": "Rediger spørgsmål",
       "LABEL_TITLE": "Titel:",

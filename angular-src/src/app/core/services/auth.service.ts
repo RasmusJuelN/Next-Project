@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { Role, User } from '../../shared/models/user.model';
+import { LoginErrorCode, LoginResult } from '../../features/home/models/login.model';
 
 interface AuthTokens {
   authToken: string;
@@ -55,7 +56,7 @@ export class AuthService {
    *
    * @returns Observable emitting API response or `false` on failure.
    */
-  public login(userName: string, password: string): Observable<boolean> {
+  public login(userName: string, password: string): Observable<LoginResult> {
     const url = `${this.baseUrl}/auth`;
     const body = new URLSearchParams();
     body.set('username', userName);
@@ -70,11 +71,18 @@ export class AuthService {
         this._user.set(this.buildUserFromToken());
         this._isOnline.set(true);
       }),
-      map(() => true),
+      map(() => ({ success: true } as const)),
       catchError(err => {
-        console.error('Authentication failed:', err);
-        this.logout();
-        return of(false);
+      const code: LoginErrorCode =
+        err.status === 0 ? 'NETWORK' :
+        err.status === 401 ? 'INVALID_CREDENTIALS' :
+        err.status === 500 ? 'SERVER' :
+        'UNKNOWN';
+
+      // Optional: only logout on non-401 cases
+      if (code !== 'INVALID_CREDENTIALS') this.logout();
+
+      return of({ success: false, code });
       })
     );
   }

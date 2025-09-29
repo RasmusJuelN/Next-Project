@@ -15,17 +15,22 @@ export class ShowActiveService {
   constructor() { }
 
   fetchActiveQuestionnaires(): Observable<ActiveQuestionnaireBase[]> {
-    const params = new HttpParams().set('pageSize', '100'); // Or whatever limit you want
-  
-    return this.authService.userRole$.pipe(
-      take(1),
-      switchMap(role => {
-        const endpoint = role === Role.Student
-          ? 'api/user/student/activequestionnaires/pending'
-          : 'api/user/teacher/activequestionnaires/pending';
-        return this.apiService.get<ActiveQuestionnaireBase[]>(endpoint, params);
-      })
-    );
+    const user = this.authService.user();
+    const role = user?.role;
+
+    if (!role || (role !== Role.Student && role !== Role.Teacher)) {
+      return of([]);
+    }
+
+    
+    const params = new HttpParams().set('pageSize', '100');
+
+    const endpoint =
+      role === Role.Student
+        ? 'api/user/student/activequestionnaires/pending'
+        : 'api/user/teacher/activequestionnaires/pending';
+
+    return this.apiService.get<ActiveQuestionnaireBase[]>(endpoint, params);
   }
   
 }

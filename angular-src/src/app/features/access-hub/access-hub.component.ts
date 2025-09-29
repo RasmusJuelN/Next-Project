@@ -22,7 +22,7 @@ import { Role } from '../../shared/models/user.model';
 export class AccessHubComponent {
   private authService = inject(AuthService);
 
-  readonly isAuthenticated = this.authService.isAuthenticated; // already a computed in the service
+  readonly isAuthenticated = this.authService.isAuthenticated;
   readonly userRole = computed<Role | null>(() => this.authService.user()?.role ?? null);
 
   /** Navigation links available for each role. */

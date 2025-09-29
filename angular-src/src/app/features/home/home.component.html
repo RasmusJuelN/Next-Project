@@ -8,12 +8,12 @@
 
  
     <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center">
-       {{ 'GREETING' | translate:{ username: username } }}
+       {{ 'COMMON.GREETING' | translate:{ username: username() } }}
 
       <!-- Hej {{ username  | translate}}! -->
     </h2>
 
-    <p *ngIf="!activeQuestionnaireString" class="text-center text-gray-500 mb-4">
+    <p *ngIf="!activeQuestionnaireId" class="text-center text-gray-500 mb-4">
       {{ 'NO_ACTIVE_QUESTIONNAIRE' | translate }}
       <!-- Der er ingen aktive spørgeskemaer  -->
     </p>
@@ -21,7 +21,7 @@
     <!-- Action Buttons -->
     <div class="space-y-4">
       <button
-        *ngIf="activeQuestionnaireString"
+        *ngIf="activeQuestionnaireId"
         class="dashboard-button w-full bg-primary_orange_1 text-white py-3 px-4 rounded-lg hover:bg-primary_orange_light focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         (click)="toActiveQuestionnaire()"
       >

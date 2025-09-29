@@ -1,7 +1,7 @@
 <div class="relative min-h-screen h-full bg-gradient-to-br from-primary_dark_blue via-primary_orange_darker to-primary_dark_light">
 
   <!-- Language dropdown floating in top-right -->
-  <div class="absolute top-6 right-4 z-50">
+  <div class="absolute top-6 right-4 z-50 print:hidden">
     <div class="relative">
       <!-- Trigger -->
       <button
@@ -35,7 +35,7 @@
 
   <!-- Page content -->
   <app-header></app-header>
-  <main class="flex-grow pt-24">
+  <main class="flex-grow pt-24 print:pt-0">
     <router-outlet></router-outlet>
   </main>
 </div>

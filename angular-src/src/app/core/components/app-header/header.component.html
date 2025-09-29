@@ -3,7 +3,7 @@
   <!-- Hamburger -->
   <button
     type="button"
-    class="fixed top-4 left-4 z-50 sm:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white bg-transparent"
+    class="fixed top-4 left-4 z-50 sm:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white bg-transparent print:hidden"
     (click)="toggleMenu()"
   >
     <!-- <span class="sr-only">Toggle menu</span> -->
@@ -14,7 +14,7 @@
   <!-- Mobile Nav Drawer -->
   <nav
     *ngIf="isMenuOpen"
-    class="fixed top-0 left-0 z-40 h-full bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16"
+    class="fixed top-0 left-0 z-40 h-full bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16 print:hidden"
   >
     <div class="flex flex-col flex-1 gap-1">
 
@@ -55,7 +55,7 @@
   </nav>
 
   <!-- Desktop Nav -->
-<nav class="hidden rounded-xl sm:flex fixed z-50 h-16 bg-gray-100 top-4 shadow-lg items-center px-8 w-[80vw] max-w-7xl left-1/2 -translate-x-1/2">
+<nav class="hidden rounded-xl sm:flex fixed z-50 h-16 bg-gray-100 top-4 shadow-lg items-center px-8 w-[80vw] max-w-7xl left-1/2 -translate-x-1/2 print:hidden">
   <div class="flex items-center h-full cursor-pointer" [routerLink]="'/'">
 
     <img src="assets/images/next_logo.png" alt="Logo" class="h-8 w-auto" />

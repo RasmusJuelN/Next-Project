@@ -1,12 +1,13 @@
-import { Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal, untracked } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from '../login/login.component';
 import { HomeService } from './services/home.service';
-import { catchError, of, take } from 'rxjs';
+import { catchError, map, of, switchMap, take } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Role } from '../../shared/models/user.model';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 
 /**
@@ -36,43 +37,33 @@ export class HomeComponent {
   readonly userRole = computed(() => this.user()?.role ?? null);
   readonly username = computed(() => this.user()?.userName ?? '');
 
-  // Local UI state as a signal
-  readonly activeQuestionnaireString = signal('');
-  readonly errorMessage = signal<string | null>(null);
-
+  activeQuestionnaireId: string = '';
+  errorMessage: string | null = null;
 
   constructor() {
-    effect(() => {
-      const u = this.user();
-
-      // logged out
-      if (!u) {
-        this.activeQuestionnaireString.set('');
-        this.errorMessage.set(null);
-        return;
-      }
-
-      // admin: skip fetch
-      if (u.role === Role.Admin) {
-        this.activeQuestionnaireString.set('');
-        return;
-      }
-      // side effect without tracking local writes
-      untracked(() => {
-        this.homeService.checkForExistingActiveQuestionnaires()
-          .pipe(
-            // take(1) is optional for HttpClient
-            catchError(() => {
-              this.errorMessage.set('Could not load active questionnaire.');
-              return of({ exists: false, id: '' as string });
-            })
-          )
-          .subscribe(({ id }) => {
-            this.activeQuestionnaireString.set(id ?? '');
-          });
-      });
+    toObservable(this.user).pipe(
+      switchMap(u => {
+        // reset on no user/admin
+        if (!u || u.role === Role.Admin) {
+          this.activeQuestionnaireId = '';
+          this.errorMessage = null;
+          return of<string | null>(null); // nothing to load
+        }
+        // load ID for non-admin users
+        return this.homeService.checkForExistingActiveQuestionnaires().pipe(
+          map(({ id }) => id ?? ''),
+          catchError(() => {
+            this.errorMessage = 'Could not load active questionnaire.';
+            return of(''); // keep UI stable
+          })
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(id => {
+      if (id !== null) this.activeQuestionnaireId = id; // null means we already reset above
     });
   }
+
   
 
   // Redirects based on user role
@@ -82,8 +73,8 @@ export class HomeComponent {
 
   // Navigate to the active questionnaire
   toActiveQuestionnaire() {
-    if (this.activeQuestionnaireString) {
-      this.router.navigate(['/answer', this.activeQuestionnaireString]);
+    if (this.activeQuestionnaireId) {
+      this.router.navigate(['/answer', this.activeQuestionnaireId]);
     }
   }
 
@@ -93,7 +84,7 @@ export class HomeComponent {
   }
 
   onLoginError(error: string) {
-    this.errorMessage.set('Login failed. Please try again.');
+    this.errorMessage ='Login failed. Please try again.';
     console.error('Login error:', error);
   }
 

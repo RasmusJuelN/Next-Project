@@ -4,19 +4,17 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { finalize } from 'rxjs';
+import { LoginErrorCode } from '../home/models/login.model';
 
 
-/**
- * Login component.
- *
- * Provides a login form and integrates with the authentication service. Used inside of other components.
- *
- * Handles:
- * - Username/password input.
- * - Calling `AuthService.login` and updating UI state.
- * - Emitting success or error events to parent components.
- * - Showing loading and error states during login attempts.
- */
+const ERROR_I18N: Record<LoginErrorCode, string> = {
+  INVALID_CREDENTIALS: 'LOGIN.ERRORS.INVALID',
+  NETWORK: 'LOGIN.ERRORS.NETWORK',
+  SERVER: 'LOGIN.ERRORS.SERVER',
+  UNKNOWN: 'LOGIN.ERRORS.GENERIC',
+};
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -29,35 +27,30 @@ export class LoginComponent {
   private router = inject(Router);
   
 
-  @Output() loggedIn = new EventEmitter<boolean>(); // Emits true if login succeeds
-  @Output() errorOccurred = new EventEmitter<string>(); // Emits error message if login fails
+  @Output() loggedIn = new EventEmitter<boolean>();
+  @Output() errorOccurred = new EventEmitter<LoginErrorCode>();
 
   userName = '';
   password = '';
-  errorMessage = '';
-  // 
-   isLoading = false;
+
+  errorKey: string | null = null;
+
+  isLoading = false;
 
   login() {
-        this.isLoading = true; //  Set loading to true
+    if (this.isLoading) return;
+    this.isLoading = true;
+    this.errorKey = null;
 
-    this.authService.login(this.userName, this.password).subscribe({
-      next: (isAuthenticated) => {
-        this.isLoading = false; // Set loading to false after login attempt
-        if (isAuthenticated) {
-          this.loggedIn.emit(true); // Notify parent component of successful login
-        } else {
-          const errorMsg = 'Invalid username or password.'; //{{'LOGIN_ERROR_INVALID' | translate  }}
-          this.errorMessage = errorMsg;
-          this.errorOccurred.emit(errorMsg); // Notify parent component of the error
-        }
-      },
-      error: (error) => {
-        this.isLoading = false; // Set loading to false on error
-        const errorMsg = 'An error occurred during login. Please try again.'; //{{'LOGIN_ERROR_GENERIC' | translate }}
-        this.errorMessage = errorMsg;
-        this.errorOccurred.emit(errorMsg);
-      },
+    this.authService.login(this.userName, this.password).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe(res => {
+      if (res.success) {
+        this.loggedIn.emit(true);
+        return;
+      }
+      this.errorKey = ERROR_I18N[res.code];
+      this.errorOccurred.emit(res.code);
     });
   }
 
