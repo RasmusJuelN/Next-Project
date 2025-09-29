@@ -457,6 +457,19 @@ namespace API.Controllers
             return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid));
         }
 
+
+        /// <summary>
+        /// Retrieves anonymised survey responses for a specific questionnaire.
+        /// </summary>
+        /// <param name="responsesRequest">The request containing questionnaire ID, users, and groups to filter responses.</param>
+        /// <returns>
+        /// An <see cref="ActionResult{T}"/> containing a <see cref="SurveyResponseSummary"/> with anonymised response data,
+        /// or a 500 status code with error message if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires teacher authorization and uses access token authentication.
+        /// The response data is anonymised to protect user privacy while providing survey insights.
+        /// </remarks>
         [HttpGet("GetAnonymisedResponses/")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
         public async Task<ActionResult<SurveyResponseSummary>> GetAnonymisedResponses([FromQuery] AnonymisedResponsesRequest responsesRequest)
