@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { LoginErrorCode } from '../home/models/login.model';
+import { LanguageSwitcherComponent } from '../../core/components/language-switcher/language-switcher.component';
 
 
 const ERROR_I18N: Record<LoginErrorCode, string> = {
@@ -18,7 +19,7 @@ const ERROR_I18N: Record<LoginErrorCode, string> = {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule],
+  imports: [FormsModule, CommonModule, TranslateModule, LanguageSwitcherComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })

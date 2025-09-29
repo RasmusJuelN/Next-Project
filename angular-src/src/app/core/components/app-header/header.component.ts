@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MenuSvgComponent } from '../../../shared/components/menu-svg/menu-svg.component';
 import { Role } from '../../../shared/models/user.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 /**
  * Header component responsible for:
@@ -16,7 +17,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule, MenuSvgComponent, TranslateModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule, MenuSvgComponent, TranslateModule, LanguageSwitcherComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })

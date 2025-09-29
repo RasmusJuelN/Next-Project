@@ -9,7 +9,7 @@ import { LanguageSwitcherComponent } from './core/components/language-switcher/l
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterOutlet, HeaderComponent, LanguageSwitcherComponent],
+  imports: [CommonModule, RouterModule, RouterOutlet, HeaderComponent],
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.css'],
   // providers: [TranslateService]
