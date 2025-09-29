@@ -451,21 +451,30 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             {
                 t.Title,
                 t.Description,
-                ActiveQuestionnaires = t.ActiveQuestionnaires.Select(a => new
-                {
-                    a.Id,
-                    ActivatedAt = a.ActivatedAt.Date,
-                    StudentAnswers = a.StudentAnswers.Select(sa => new
+                ActiveQuestionnaires = t.ActiveQuestionnaires
+                    .Where(a => 
+                        // Filter by groups if provided
+                        groups.Count == 0 || groups.Contains(a.GroupId)
+                    )
+                    .Select(a => new
                     {
-                        QuestionPrompt = sa.Question!.Prompt,
-                        Answer = sa.CustomResponse ?? sa.Option!.DisplayText
-                    }).ToList(),
-                    TeacherAnswers = a.TeacherAnswers.Select(ta => new
-                    {
-                        QuestionPrompt = ta.Question!.Prompt,
-                        Answer = ta.CustomResponse ?? ta.Option!.DisplayText
+                        a.Id,
+                        ActivatedAt = a.ActivatedAt.Date,
+                        StudentAnswers = a.StudentAnswers
+                            .Where(sa => users.Count == 0 || (a.Student != null && users.Contains(a.Student.Guid)))
+                            .Select(sa => new
+                            {
+                                QuestionPrompt = sa.Question!.Prompt,
+                                Answer = sa.CustomResponse ?? sa.Option!.DisplayText
+                            }).ToList(),
+                        TeacherAnswers = a.TeacherAnswers
+                            .Where(ta => users.Count == 0 || (a.Teacher != null && users.Contains(a.Teacher.Guid)))
+                            .Select(ta => new
+                            {
+                                QuestionPrompt = ta.Question!.Prompt,
+                                Answer = ta.CustomResponse ?? ta.Option!.DisplayText
+                            }).ToList()
                     }).ToList()
-                }).ToList()
             })
             .SingleOrDefaultAsync() ?? throw new Exception("Survey response summary not found.");
 
