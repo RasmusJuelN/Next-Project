@@ -9,7 +9,7 @@
   >
     <span class="flex items-center gap-2">
       <img [src]="i18n.currentOption().flagSrc" alt="" class="h-4 w-6 object-cover rounded-sm" />
-      <span class="truncate">{{ i18n.currentOption().label }}</span>
+      <span class="truncate">{{ i18n.currentOption().label | translate }}</span>
     </span>
     <svg class="h-4 w-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -32,7 +32,7 @@
         class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
       >
         <img [src]="opt.flagSrc" alt="" class="h-4 w-6 object-cover rounded-sm" />
-        <span class="truncate">{{ opt.label }}</span>
+        <span class="truncate">{{ opt.label | translate }}</span>
         <span class="ml-auto" *ngIf="i18n.currentLang() === opt.code">✓</span>
       </button>
     </li>

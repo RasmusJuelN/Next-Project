@@ -20,8 +20,8 @@ export class I18nService {
 
   // If you prefer i18n’d labels, use keys & translate.stream (see note below)
   private readonly labelByCode: Record<Lang, string> = {
-    en: 'English',
-    da: 'Dansk',
+    en: 'LANG.EN',
+    da: 'LANG.DA',
   };
 
   // Options list the component will iterate over

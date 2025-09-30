@@ -7,7 +7,7 @@
     (click)="toggleMenu()"
   >
     <!-- <span class="sr-only">Toggle menu</span> -->
-         <span class="sr-only">{{'NAV_TOGGLE_MENU' | translate}} </span>
+         <span class="sr-only">{{'NAV.TOGGLE_MENU' | translate}} </span>
     <app-menu-svg [logoType]="isMenuOpen ? 'close' : 'menu'"></app-menu-svg>
   </button>
 
@@ -17,7 +17,14 @@
     class="fixed top-0 left-0 z-40 h-full bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16 print:hidden"
   >
     <div class="flex flex-col flex-1 gap-1">
-
+    <a
+      [routerLink]="'/'"
+      routerLinkActive="router-link-active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
+      (click)="toggleMenu()">
+      {{ 'NAV.HOME' | translate : {} : 'Home' }}
+    </a>
 
       <!-- Global Links -->
       <!-- <a
@@ -51,7 +58,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
         </svg>
-         {{ 'NAV_LOG_OUT' | translate }}
+         {{ 'NAV.LOG_OUT' | translate }}
       </button>
     </div>
   </nav>
@@ -60,7 +67,9 @@
 <nav class="hidden sm:grid fixed z-50 top-4 h-16 w-[90vw] max-w-7xl left-1/2 -translate-x-1/2
             grid-cols-[auto_1fr_auto] items-center gap-4 bg-gray-100 rounded-xl shadow-lg px-6 print:hidden">
   <!-- Left -->
-  <div class="shrink-0"><img src="assets/images/next_logo.png" class="h-8 w-auto" /></div>
+  <a [routerLink]="'/'">
+    <img src="assets/images/next_logo.png" class="h-8 w-auto cursor-pointer" />
+  </a>
 
   <!-- Center: centered flex, drag-to-scroll, no overlap -->
   <div class="relative min-w-0 overflow-x-auto scrollbar-none" appDragScroll>
@@ -83,7 +92,7 @@
   <div class="ml-auto flex items-center gap-4 shrink-0">
     <app-language-switcher></app-language-switcher>
     <button (click)="logout()" class="text-primary_orange_1 hover:text-primary_orange_light">
-      {{ 'NAV_LOG_OUT' | translate }}
+      {{ 'NAV.LOG_OUT' | translate }}
     </button>
   </div>
 </nav>

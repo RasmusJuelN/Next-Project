@@ -34,24 +34,24 @@ export class HeaderComponent {
 
   /** Global navigation links visible to all users. */
   globalNavLinks: { name: string; route: string }[] = [
-    { name: '', route: '/' },
+    { name: 'NAV.HOME', route: '/' },
   ];
 
   /** Role-specific navigation links (labels use translation keys). */
   navLinks: Record<Role, { name: string; route: string }[]> = {
     [Role.Student]: [
-      { name: 'NAV_ACTIVE_QUESTIONNAIRES', route: '/show-active-questionnaires' }
+      { name: 'NAV.ACTIVE_QUESTIONNAIRES', route: '/show-active-questionnaires' }
     ],
     [Role.Teacher]: [
       //{ name: 'Overview', route: '/hub' },
-      { name: 'NAV_OVERVIEW', route: '/teacher-dashboard' },
-      { name: 'NAV_ACTIVE_QUESTIONNAIRES', route: '/show-active-questionnaires' },
-      { name: 'NAV_DATA_COMPARE', route: '/data-compare' }
+      { name: 'NAV.OVERVIEW', route: '/teacher-dashboard' },
+      { name: 'NAV.ACTIVE_QUESTIONNAIRES', route: '/show-active-questionnaires' },
+      { name: 'NAV.DATA_COMPARE', route: '/data-compare' }
     ],
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },
-      { name: 'NAV_TEMPLATES', route: '/templates' },
-      { name: 'NAV_ACTIVE_QUESTIONNAIRES', route: '/active-questionnaire' }
+      { name: 'NAV.TEMPLATES', route: '/templates' },
+      { name: 'NAV.ACTIVE_QUESTIONNAIRES', route: '/active-questionnaire' }
     ],
   };
 
