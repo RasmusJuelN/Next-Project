@@ -41,10 +41,12 @@
                         <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
                             class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
                             <ng-container *ngIf="stud.type === 'user'; else groupResult">
-                                <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName }})</span></span>
+                                <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName
+                                        }})</span></span>
                             </ng-container>
                             <ng-template #groupResult>
-                                <span class="font-semibold text-primary_dark_blue">{{ stud.type === 'group' ? stud.name : '' }}</span>
+                                <span class="font-semibold text-primary_dark_blue">{{ stud.type === 'group' ? stud.name
+                                    : '' }}</span>
                                 <span class="ml-2 text-xs text-gray-500">[Gruppe]</span>
                             </ng-template>
                         </li>
@@ -64,10 +66,12 @@
                     <ul class="mt-1 space-y-1">
                         <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
                             <ng-container *ngIf="stud.type === 'user'; else selectedGroup">
-                                <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName }})</span></span>
+                                <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName
+                                        }})</span></span>
                             </ng-container>
                             <ng-template #selectedGroup>
-                                <span class="font-semibold text-primary_dark_blue">{{ stud.type === 'group' ? stud.name : '' }}</span>
+                                <span class="font-semibold text-primary_dark_blue">{{ stud.type === 'group' ? stud.name
+                                    : '' }}</span>
                                 <span class="ml-2 text-xs text-gray-500">[Gruppe]</span>
                             </ng-template>
                             <button (click)="select('student', stud)"
@@ -139,7 +143,7 @@
         <!-- Chart update and type selection -->
         <div class="flex justify-center items-center mt-6 gap-4">
             <!-- Update chart button -->
-            <div class="flex items-center gap-4">
+            <!-- <div class="flex items-center gap-4">
                 <button (click)="onCompareClick()" [disabled]="!template.selected.length"
                     class="transition-all h-[50px] duration-150 px-6 py-3 rounded-xl shadow bg-gradient-to-r from-primary_orange_1 to-primary_orange_light text-white font-bold text-lg hover:from-primary_orange_light hover:to-primary_orange_1 active:scale-95 border-2 border-primary_orange_1 hover:border-primary_dark_blue disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -149,24 +153,9 @@
                     {{ 'DATA_COMPARE.UPDATE_CHART' | translate }}
                 </button>
 
-            </div>
+            </div> -->
             <!-- Chart type selector -->
-            <div class="flex items-center gap-2">
-                <div class="relative inline-block">
-                    <select [(ngModel)]="chartType" (change)="updateChartForCurrentQuestion()"
-                        class="appearance-none px-4 py-3 rounded-xl border-2 border-primary_orange_1 bg-white text-sm w-[125px] h-[50px] font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary_orange_1">
-                        <option value="pie">{{ 'DATA_COMPARE.PIE_CHART' | translate }}</option>
-                        <option value="bar">{{ 'DATA_COMPARE.BAR_CHART' | translate }}</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg class="w-4 h-4 text-primary_orange_1" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                            </path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
 
@@ -213,6 +202,23 @@
                                     d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
+                    </div>
+                    <div class="text-lg font-semibold  ml-6">
+                        <div class="relative inline-block">
+                            <select [(ngModel)]="chartType" (change)="updateChartForCurrentQuestion()"
+                                class="appearance-none px-4 py-3 rounded-xl border-2 border-primary_orange_1 bg-white text-sm w-[125px] h-[45px] font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary_orange_1">
+                                <option value="pie">{{ 'DATA_COMPARE.PIE_CHART' | translate }}</option>
+                                <option value="bar">{{ 'DATA_COMPARE.BAR_CHART' | translate }}</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                <svg class="w-4 h-4 text-primary_orange_1" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

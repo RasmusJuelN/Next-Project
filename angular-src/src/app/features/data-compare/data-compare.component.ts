@@ -1,5 +1,3 @@
-
-
 // Angular component for comparing anonymised questionnaire data
 import { CommonModule } from "@angular/common";
 import {
@@ -23,10 +21,12 @@ import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 import { TemplateBase } from "../active-questionnaire-manager/models/active.models";
 import { AgCharts } from "ag-charts-angular";
 import { DataCompareService } from "./services/data-compare.service";
-import { HttpClient } from '@angular/common/http';
+import { HttpClient } from "@angular/common/http";
 
 // User or group result type for search
-type UserOrGroup = (User & { type: 'user' }) | ({ groupId: string; name: string; type: 'group' });
+type UserOrGroup =
+  | (User & { type: "user" })
+  | { groupId: string; name: string; type: "group" };
 
 interface UserSearchEntity {
   selected: UserOrGroup[];
@@ -49,15 +49,10 @@ type SearchType = "student" | "template";
 @Component({
   selector: "app-data-compare",
   standalone: true,
-  imports: [
-    TranslateModule,
-    CommonModule,
-    FormsModule,
-    AgCharts,
-  ],
-  template: `    <ag-charts-angular
-      [options]="chartOptions"
-    ></ag-charts-angular> `,
+  imports: [TranslateModule, CommonModule, FormsModule, AgCharts],
+  template: `
+    <ag-charts-angular [options]="chartOptions"></ag-charts-angular>
+  `,
   templateUrl: "./data-compare.component.html",
   styleUrl: "./data-compare.component.css",
 })
@@ -77,7 +72,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   // Index of the currently selected year
   public currentYearIndex: number = 0;
   // Chart type: 'pie' or 'bar'
-  public chartType: string = 'pie';
+  public chartType: string = "pie";
   // References to search input areas for click-outside logic
   @ViewChild("studentSearchArea", { static: false })
   studentSearchArea!: ElementRef;
@@ -100,7 +95,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     title: {
       text: "Elev Data Sammenligning",
     },
-      series: [
+    series: [
       {
         type: "area",
         xKey: "month",
@@ -121,7 +116,6 @@ export class DataCompareComponent implements OnInit, OnDestroy {
       },
     ],
   };
-  
 
   /**
    * Handles click events outside of search areas to close dropdowns
@@ -225,8 +219,8 @@ export class DataCompareComponent implements OnInit, OnDestroy {
    */
   private fetch(entity: SearchType, term: string): void {
     const state = this.getState(entity);
-  // Ignore empty search terms
-  if (!term.trim()) return;
+    // Ignore empty search terms
+    if (!term.trim()) return;
 
     // Always treat this as a new search (reset pagination and results)
     state.page = 1;
@@ -240,7 +234,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     state.isLoading = true;
     state.errorMessage = null;
 
-  if (entity === "template") {
+    if (entity === "template") {
       const templateState = state as TemplateSearchEntity;
       // Search for templates (only first page, disables load-more)
       this.activeService
@@ -258,7 +252,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
           },
         });
     } else {
-  const userState = state as UserSearchEntity;
+      const userState = state as UserSearchEntity;
       // Search for users
       this.activeService
         .searchUsers(term, entity, this.searchAmount, userState.sessionId)
@@ -267,25 +261,38 @@ export class DataCompareComponent implements OnInit, OnDestroy {
             const userBases = response.userBases || [];
             userState.sessionId = response.sessionId;
             // Now also search for groups
-            this.http.get<any[]>(`${this.DataCompareService.apiUrl}/groupsbasic`).subscribe({
-              next: (groups) => {
-                // Filter groups by search term
-                const filteredGroups = groups.filter(g => g.name.toLowerCase().includes(term.toLowerCase()));
-                // Mark type for rendering
-                const groupResults = filteredGroups.map(g => ({ ...g, type: 'group' }));
-                const userResults = userBases.map(u => ({ ...u, type: 'user' }));
-                // Merge users and groups
-                userState.searchResults = [...userResults, ...groupResults];
-                userState.hasMore = false;
-                state.isLoading = false;
-              },
-              error: () => {
-                // If group search fails, just show users
-                userState.searchResults = userBases.map(u => ({ ...u, type: 'user' }));
-                userState.hasMore = false;
-                state.isLoading = false;
-              }
-            });
+            this.http
+              .get<any[]>(`${this.DataCompareService.apiUrl}/groupsbasic`)
+              .subscribe({
+                next: (groups) => {
+                  // Filter groups by search term
+                  const filteredGroups = groups.filter((g) =>
+                    g.name.toLowerCase().includes(term.toLowerCase())
+                  );
+                  // Mark type for rendering
+                  const groupResults = filteredGroups.map((g) => ({
+                    ...g,
+                    type: "group",
+                  }));
+                  const userResults = userBases.map((u) => ({
+                    ...u,
+                    type: "user",
+                  }));
+                  // Merge users and groups
+                  userState.searchResults = [...userResults, ...groupResults];
+                  userState.hasMore = false;
+                  state.isLoading = false;
+                },
+                error: () => {
+                  // If group search fails, just show users
+                  userState.searchResults = userBases.map((u) => ({
+                    ...u,
+                    type: "user",
+                  }));
+                  userState.hasMore = false;
+                  state.isLoading = false;
+                },
+              });
           },
           error: () => {
             state.errorMessage = `Failed to load ${entity}s.`;
@@ -301,18 +308,21 @@ export class DataCompareComponent implements OnInit, OnDestroy {
    * Selects or deselects a user or group from the search results
    */
   select(entity: SearchType, item: any): void {
+    this.onCompareClick();
     const state = this.getState(entity);
     if (!Array.isArray(state.selected)) {
       state.selected = [];
     }
     // Only allow one selected item (keep last selected)
-  // Use id for users, groupId for groups
-  const idKey = item.type === 'group' ? 'groupId' : 'id';
-  const idx = state.selected.findIndex((u: any) => (u.type === item.type && u[idKey] === item[idKey]));
+    // Use id for users, groupId for groups
+    const idKey = item.type === "group" ? "groupId" : "id";
+    const idx = state.selected.findIndex(
+      (u: any) => u.type === item.type && u[idKey] === item[idKey]
+    );
     if (idx === -1) {
       state.selected.push(item);
       // Only keep the last selected item
-      state.selected = state.selected.slice(-1); 
+      state.selected = state.selected.slice(-1);
     } else {
       state.selected.splice(idx, 1);
     }
@@ -356,21 +366,25 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     this.backToListEvent.emit();
   }
 
-
   /**
    * Fetches anonymised response data and prepares navigation state (questions, years)
    * @param templateId Questionnaire/template GUID
    * @param studentId User GUID (optional)
    */
   fetchChartData(templateId: string, studentId?: string) {
-    this.DataCompareService.getAnonymisedResponses(templateId, studentId).subscribe({
+    this.DataCompareService.getAnonymisedResponses(
+      templateId,
+      studentId
+    ).subscribe({
       next: (apiData) => {
         // Defensive: fallback to empty array if API response is missing
         const datasets = apiData.anonymisedResponseDataSet || [];
         // Build set of all unique questions
         const questionsSet = new Set<string>();
         datasets.forEach((dataset: any) => {
-          dataset.anonymisedResponses.forEach((q: any) => questionsSet.add(q.question));
+          dataset.anonymisedResponses.forEach((q: any) =>
+            questionsSet.add(q.question)
+          );
         });
         this.questions = Array.from(questionsSet);
         // Build set of all unique years (extract from datasetTitle)
@@ -385,18 +399,16 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         this.allAnswers = datasets;
         // Start at first question and last year (most recent)
         this.currentQuestionIndex = 0;
-        this.currentYearIndex = this.years.length > 0 ? this.years.length - 1 : 0;
+        this.currentYearIndex =
+          this.years.length > 0 ? this.years.length - 1 : 0;
         this.updateChartForCurrentQuestion();
       },
       error: (err) => {
         this.chartOptions = null;
         console.warn("Error fetching anonymised chart data", err);
-      }
+      },
     });
   }
-
-
-
 
   /**
    * Handles chart update: fetches data for selected template and (optionally) user
@@ -406,9 +418,9 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     let studentId: string | undefined = undefined;
     if (this.student.selected.length > 0) {
       const selected = this.student.selected[0];
-      if (selected.type === 'user') {
+      if (selected.type === "user") {
         studentId = (selected as User).id;
-      } else if (selected.type === 'group') {
+      } else if (selected.type === "group") {
         studentId = selected.groupId;
       }
     }
@@ -422,16 +434,26 @@ export class DataCompareComponent implements OnInit, OnDestroy {
    * Aggregates all answers for the question in the selected year
    */
   updateChartForCurrentQuestion() {
-    if (!Array.isArray(this.questions) || !Array.isArray(this.years) || !this.questions.length || !this.years.length) return;
+    if (
+      !Array.isArray(this.questions) ||
+      !Array.isArray(this.years) ||
+      !this.questions.length ||
+      !this.years.length
+    )
+      return;
     const question = this.questions[this.currentQuestionIndex];
     const year = this.years[this.currentYearIndex];
     // Filter all datasets for the selected year (datasetTitle starts with year)
-    const datasetsForYear = this.allAnswers.filter((d: any) => d.datasetTitle?.startsWith(year));
+    const datasetsForYear = this.allAnswers.filter((d: any) =>
+      d.datasetTitle?.startsWith(year)
+    );
     // Aggregate answer counts for the selected question across all datasets in the year
-    const answerCounts: Record<string, { count: number, dates: string[] }> = {};
+    const answerCounts: Record<string, { count: number; dates: string[] }> = {};
     datasetsForYear.forEach((dataset: any) => {
       // Find the question object in this dataset
-      const questionObj = dataset.anonymisedResponses.find((q: any) => q.question === question);
+      const questionObj = dataset.anonymisedResponses.find(
+        (q: any) => q.question === question
+      );
       if (questionObj) {
         // For each answer, sum counts and collect dates
         questionObj.answers.forEach((a: any) => {
@@ -458,7 +480,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         bar: { series: { label: { enabled: true } } },
       },
     };
-    if (this.chartType === 'pie') {
+    if (this.chartType === "pie") {
       // Pie chart: each answer is a slice, value is count
       const pieData = Object.entries(answerCounts).map(([ans, obj]) => {
         return {
@@ -473,19 +495,27 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         theme,
         series: [
           {
-            type: 'pie',
-            calloutLabelKey: 'answer',
-            sectorLabelKey: 'count',
-            angleKey: 'count',
+            type: "pie",
+            calloutLabelKey: "answer",
+            sectorLabelKey: "count",
+            angleKey: "count",
             calloutLabel: { offset: 20 },
             sectorLabel: {
               positionOffset: 30,
               // Only show percentage label if >= 5%
-              formatter: ({ datum, angleKey }: { datum: any; angleKey: string }) => {
+              formatter: ({
+                datum,
+                angleKey,
+              }: {
+                datum: any;
+                angleKey: string;
+              }) => {
                 const value = datum[angleKey];
                 const total = pieData.reduce((sum, d) => sum + d.count, 0);
-                const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
-                return parseFloat(percentage) >= 5 ? `${percentage}%` : '';
+                const percentage = total
+                  ? ((value / total) * 100).toFixed(1)
+                  : "0";
+                return parseFloat(percentage) >= 5 ? `${percentage}%` : "";
               },
             },
             strokeWidth: 1,
@@ -495,11 +525,15 @@ export class DataCompareComponent implements OnInit, OnDestroy {
                 const { datum, angleKey } = params;
                 const value = datum[angleKey];
                 const total = pieData.reduce((sum, d) => sum + d.count, 0);
-                const percentage = total ? ((value / total) * 100).toFixed(1) : '0';
+                const percentage = total
+                  ? ((value / total) * 100).toFixed(1)
+                  : "0";
                 // Tooltip shows answer, count, percentage, and all dates
                 return {
                   title: datum.answer,
-                  content: `Antal: ${value}<br> Dato: ${datum.dates.join(', ')}`,
+                  content: `Antal: ${value}<br> Dato: ${datum.dates.join(
+                    ", "
+                  )}`,
                 };
               },
             },
@@ -510,7 +544,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
       };
     } else {
       // Bar chart: each answer is a bar, value is count
-      const series = Object.keys(answerCounts).map(answer => ({
+      const series = Object.keys(answerCounts).map((answer) => ({
         type: "bar",
         xKey: "question",
         yKey: answer,
@@ -524,7 +558,9 @@ export class DataCompareComponent implements OnInit, OnDestroy {
             const dates = params.datum[`${answer}_dates`] || [];
             return {
               title: answer,
-              content: `Antal: ${params.datum[answer]}<br>Dato: ${dates.join(", ")}`,
+              content: `Antal: ${params.datum[answer]}<br>Dato: ${dates.join(
+                ", "
+              )}`,
             };
           },
         },
@@ -535,7 +571,11 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         title: { text: `${question} (${year})`, fontSize: 18 },
         series,
         axes: [
-          { type: "category", position: "bottom", title: { text: "Spørgsmål" } },
+          {
+            type: "category",
+            position: "bottom",
+            title: { text: "Spørgsmål" },
+          },
           { type: "number", position: "left", title: { text: "Antal" } },
         ],
         legend: { enabled: true },
@@ -581,8 +621,4 @@ export class DataCompareComponent implements OnInit, OnDestroy {
       this.updateChartForCurrentQuestion();
     }
   }
-} 
-
-
-
-
+}
