@@ -1,30 +1,23 @@
 <!-- Header navigation: responsive (mobile drawer + desktop bar), role-based links, translation support -->
 <ng-container *ngIf="isAuthenticated()">
   <!-- Hamburger -->
-  <button
-    type="button"
+  <button type="button"
     class="fixed top-4 left-4 z-50 sm:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white bg-transparent print:hidden"
-    (click)="toggleMenu()"
-  >
+    (click)="toggleMenu()">
     <!-- <span class="sr-only">Toggle menu</span> -->
-         <span class="sr-only">{{'NAV.TOGGLE_MENU' | translate}} </span>
+    <span class="sr-only">{{'NAV.TOGGLE_MENU' | translate}} </span>
     <app-menu-svg [logoType]="isMenuOpen ? 'close' : 'menu'"></app-menu-svg>
   </button>
 
   <!-- Mobile Nav Drawer -->
-  <nav
-    *ngIf="isMenuOpen"
-    class="fixed top-0 left-0 z-40 h-full bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16 print:hidden"
-  >
+  <nav *ngIf="isMenuOpen"
+    class="fixed top-0 left-0 z-40 h-full bg-white/90 bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16 print:hidden">
     <div class="flex flex-col flex-1 gap-1">
-    <a
-      [routerLink]="'/'"
-      routerLinkActive="router-link-active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
-      (click)="toggleMenu()">
-      {{ 'NAV.HOME' | translate : {} : 'Home' }}
-    </a>
+      <a [routerLink]="'/'" routerLinkActive="router-link-active" [routerLinkActiveOptions]="{ exact: true }"
+        class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
+        (click)="toggleMenu()">
+        {{ 'NAV.HOME' | translate : {} : 'Home' }}
+      </a>
 
       <!-- Global Links -->
       <!-- <a
@@ -36,9 +29,7 @@
         {{ link.name }}
       </a> -->
       <!-- Role-Specific Links -->
-      <a
-        *ngFor="let link of navLinksForUser()"
-        [routerLink]="link.route"
+      <a *ngFor="let link of navLinksForUser()" [routerLink]="link.route"
         class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
         (click)="toggleMenu()">
         {{ link.name | translate }}
@@ -46,52 +37,48 @@
 
 
       <!-- Translate button code -->
-    <div class="mt-2 mb-4">
-      <app-language-switcher></app-language-switcher>
-    </div>
-      <button
-        (click)="logout()"
+      <div class="mt-2 mb-4">
+        <app-language-switcher></app-language-switcher>
+      </div>
+      <button (click)="logout()"
         class="flex items-center gap-2 w-full mb-4 px-3 py-2 rounded-md text-base font-medium text-primary_orange_light hover:text-primary_dark_blue transition-colors"
         style="margin-top:auto;">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
         </svg>
-         {{ 'NAV.LOG_OUT' | translate }}
+        {{ 'NAV.LOG_OUT' | translate }}
       </button>
     </div>
   </nav>
 
   <!-- Desktop Nav -->
-<!-- Desktop Nav -->
-<nav
-  class="hidden sm:grid fixed z-50 top-4 h-16 w-[90vw] max-w-7xl left-1/2 -translate-x-1/2
-         grid-cols-[1fr_auto_1fr] items-center gap-4 bg-gray-100 rounded-xl shadow-lg px-6 print:hidden">
+  <!-- Desktop Nav -->
+  <nav class="hidden sm:grid fixed z-50 top-4 h-16 w-[90vw] max-w-7xl left-1/2 -translate-x-1/2
+         grid-cols-[1fr_auto_1fr] items-center gap-4 bg-white/90 rounded-xl shadow-lg px-6 print:hidden border-2 border-primary_orange_1">
 
-  <!-- Left -->
-  <a [routerLink]="'/'" class="justify-self-start">
-    <img src="assets/images/next_logo.png" class="h-8 w-auto cursor-pointer" />
-  </a>
+    <!-- Left -->
+    <a [routerLink]="'/'" class="justify-self-start">
+      <img src="assets/images/next_logo.png" class="h-8 w-auto cursor-pointer" />
+    </a>
 
-  <!-- Center -->
-  <div class="relative col-start-2 min-w-0 overflow-x-auto scrollbar-none" appDragScroll>
-    <div class="flex gap-6 justify-center w-max mx-auto">
-      <a *ngFor="let link of navLinksForUser()"
-         [routerLink]="link.route"
-         routerLinkActive="active-underline"
-         class="nav-underline px-1 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue">
-        {{ link.name | translate }}
-      </a>
+    <!-- Center -->
+    <div class="relative col-start-2 min-w-0 overflow-x-auto scrollbar-none" appDragScroll>
+      <div class="flex gap-6 justify-center w-max mx-auto">
+        <a *ngFor="let link of navLinksForUser()" [routerLink]="link.route" routerLinkActive="active-underline"
+          class="nav-underline px-1 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue">
+          {{ link.name | translate }}
+        </a>
+      </div>
     </div>
-  </div>
 
-  <!-- Right -->
-  <div class="col-start-3 justify-self-end flex items-center gap-4 shrink-0">
-    <app-language-switcher></app-language-switcher>
-    <button (click)="logout()" class="text-primary_orange_1 hover:text-primary_orange_light">
-      {{ 'NAV.LOG_OUT' | translate }}
-    </button>
-  </div>
-</nav>
+    <!-- Right -->
+    <div class="col-start-3 justify-self-end flex items-center gap-4 shrink-0">
+      <app-language-switcher></app-language-switcher>
+      <button (click)="logout()" class="text-primary_orange_1 hover:text-primary_orange_light">
+        {{ 'NAV.LOG_OUT' | translate }}
+      </button>
+    </div>
+  </nav>
 
 </ng-container>
