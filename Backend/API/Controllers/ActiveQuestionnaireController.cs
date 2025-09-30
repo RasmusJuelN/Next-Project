@@ -184,7 +184,7 @@ namespace API.Controllers
         /// This endpoint requires admin authorization and uses access token authentication.
         /// </remarks>
         [HttpGet("groupsBasic")]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminAndTeacherOnly")]
         public async Task<ActionResult<List<QuestionnaireGroupBasicResult>>> GetAllGroupsBasic()
         {
             try
