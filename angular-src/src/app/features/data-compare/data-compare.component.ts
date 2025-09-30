@@ -23,8 +23,20 @@ import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 import { TemplateBase } from "../active-questionnaire-manager/models/active.models";
 import { AgCharts } from "ag-charts-angular";
 import { DataCompareService } from "./services/data-compare.service";
+import { HttpClient } from '@angular/common/http';
 
-interface UserSearchEntity<T> extends SearchEntity<T> {
+// User or group result type for search
+type UserOrGroup = (User & { type: 'user' }) | ({ groupId: string; name: string; type: 'group' });
+
+interface UserSearchEntity {
+  selected: UserOrGroup[];
+  searchInput: string;
+  searchResults: UserOrGroup[];
+  page: number;
+  totalPages: number;
+  isLoading: boolean;
+  errorMessage: string | null;
+  searchSubject: Subject<string>;
   sessionId?: string;
   hasMore?: boolean;
 }
@@ -72,8 +84,10 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   @ViewChild("templateSearchArea", { static: false })
   templateSearchArea!: ElementRef;
   // Inject DataCompareService for API calls
+  // Inject HttpClient for group search
   constructor(
-    public DataCompareService: DataCompareService
+    public DataCompareService: DataCompareService,
+    private http: HttpClient
   ) {}
 
   // Controls visibility of student/template search results dropdowns
@@ -131,7 +145,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   /**
    * State for student search and selection
    */
-  public student: UserSearchEntity<User> = {
+  public student: UserSearchEntity = {
     selected: [],
     searchInput: "",
     searchResults: [],
@@ -206,6 +220,9 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   /**
    * Handles search input for students/templates and updates results
    */
+  /**
+   * Fetches users and groups for the search term and merges results
+   */
   private fetch(entity: SearchType, term: string): void {
     const state = this.getState(entity);
   // Ignore empty search terms
@@ -216,14 +233,14 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     state.searchResults = [];
     // Reset sessionId for user search, queryCursor for template search
     if (entity !== "template") {
-      (state as UserSearchEntity<User>).sessionId = undefined;
+      (state as UserSearchEntity).sessionId = undefined;
     } else {
       (state as TemplateSearchEntity).queryCursor = undefined;
     }
     state.isLoading = true;
     state.errorMessage = null;
 
-    if (entity === "template") {
+  if (entity === "template") {
       const templateState = state as TemplateSearchEntity;
       // Search for templates (only first page, disables load-more)
       this.activeService
@@ -241,19 +258,34 @@ export class DataCompareComponent implements OnInit, OnDestroy {
           },
         });
     } else {
-      const userState = state as UserSearchEntity<User>;
-      // Search for users (only first page, disables load-more)
+  const userState = state as UserSearchEntity;
+      // Search for users
       this.activeService
         .searchUsers(term, entity, this.searchAmount, userState.sessionId)
         .subscribe({
           next: (response) => {
-            // Defensive: fallback to empty array if userBases is missing
             const userBases = response.userBases || [];
-            userState.searchResults = userBases;
             userState.sessionId = response.sessionId;
-            // Disable load-more (always false)
-            userState.hasMore = false;
-            state.isLoading = false;
+            // Now also search for groups
+            this.http.get<any[]>(`${this.DataCompareService.apiUrl}/groupsbasic`).subscribe({
+              next: (groups) => {
+                // Filter groups by search term
+                const filteredGroups = groups.filter(g => g.name.toLowerCase().includes(term.toLowerCase()));
+                // Mark type for rendering
+                const groupResults = filteredGroups.map(g => ({ ...g, type: 'group' }));
+                const userResults = userBases.map(u => ({ ...u, type: 'user' }));
+                // Merge users and groups
+                userState.searchResults = [...userResults, ...groupResults];
+                userState.hasMore = false;
+                state.isLoading = false;
+              },
+              error: () => {
+                // If group search fails, just show users
+                userState.searchResults = userBases.map(u => ({ ...u, type: 'user' }));
+                userState.hasMore = false;
+                state.isLoading = false;
+              }
+            });
           },
           error: () => {
             state.errorMessage = `Failed to load ${entity}s.`;
@@ -265,13 +297,18 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   /**
    * Selects or deselects a user/template from the search results
    */
+  /**
+   * Selects or deselects a user or group from the search results
+   */
   select(entity: SearchType, item: any): void {
     const state = this.getState(entity);
     if (!Array.isArray(state.selected)) {
       state.selected = [];
     }
     // Only allow one selected item (keep last selected)
-    const idx = state.selected.findIndex((u: any) => u.id === item.id);
+  // Use id for users, groupId for groups
+  const idKey = item.type === 'group' ? 'groupId' : 'id';
+  const idx = state.selected.findIndex((u: any) => (u.type === item.type && u[idKey] === item[idKey]));
     if (idx === -1) {
       state.selected.push(item);
       // Only keep the last selected item
@@ -366,7 +403,15 @@ export class DataCompareComponent implements OnInit, OnDestroy {
    */
   onCompareClick() {
     const templateId = this.template.selected[0]?.id;
-    const studentId = this.student.selected.length > 0 ? this.student.selected[0].id : undefined;
+    let studentId: string | undefined = undefined;
+    if (this.student.selected.length > 0) {
+      const selected = this.student.selected[0];
+      if (selected.type === 'user') {
+        studentId = (selected as User).id;
+      } else if (selected.type === 'group') {
+        studentId = selected.groupId;
+      }
+    }
     if (templateId) {
       this.fetchChartData(templateId, studentId);
     }

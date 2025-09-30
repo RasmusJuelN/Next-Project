@@ -13,7 +13,7 @@ export class DataCompareService {
   /**
    * Base API URL for active questionnaire endpoints
    */
-  private apiUrl = `${environment.apiUrl}/active-questionnaire`;
+  public apiUrl = `${environment.apiUrl}/active-questionnaire`;
 
   /**
    * Injected API service for HTTP requests
