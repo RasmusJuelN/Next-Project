@@ -42,22 +42,18 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
   const router = inject(Router);
 
   const allowedRoles: Role[] = route.data?.['roles'] || [];
+  const user = authService.user();
 
-  return authService.userRole$.pipe(
-    map((userRole) => {
-      if (!userRole) {
-        router.navigate(['/']);
-        return false;
-      }
+  if (!user) {
+    router.navigate(['/']);
+    return false;
+  }
 
-      const role = userRole as Role;
-      const hasAccess = allowedRoles.includes(role);
-      if (!hasAccess) {
-        router.navigate(['/']);
-        return false;
-      }
+  const hasAccess = allowedRoles.includes(user.role);
+  if (!hasAccess) {
+    router.navigate(['/']);
+    return false;
+  }
 
-      return true;
-    })
-  );
+  return true;
 };
