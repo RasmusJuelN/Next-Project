@@ -1,40 +1,5 @@
 {
-  "DATA_COMPARE.SEARCH_STUDENT_LABEL": "Search for Student:",
-  "DATA_COMPARE.SEARCH_STUDENT_PLACEHOLDER": "Enter student name...",
-  "DATA_COMPARE.LOADING_STUDENTS": "Loading students...",
-  "DATA_COMPARE.LOAD_MORE_STUDENTS": "Load More Students",
-  "DATA_COMPARE.SELECTED_STUDENTS": "Selected Students:",
-  "DATA_COMPARE.REMOVE": "Remove",
-  "DATA_COMPARE.CLEAR_ALL": "Clear All",
-  "DATA_COMPARE.SEARCH_TEMPLATE_LABEL": "Search for Template:",
-  "DATA_COMPARE.SEARCH_TEMPLATE_PLACEHOLDER": "Enter template title...",
-  "DATA_COMPARE.LOADING_TEMPLATES": "Loading templates...",
-  "DATA_COMPARE.LOAD_MORE_TEMPLATES": "Load More Templates",
-  "DATA_COMPARE.SELECTED_TEMPLATES": "Selected Templates:",
-  "DATA_COMPARE.UPDATE_CHART": "Update Chart",
-  "DATA_COMPARE.PIE_CHART": "Pie Chart",
-  "DATA_COMPARE.BAR_CHART": "Bar Chart",
-  "BUTTON_EN": "English",
-  "BUTTON_DA": "Dansk",
-  "GREETING": "Hello {{username}}!",
   "NO_ACTIVE_QUESTIONNAIRE": "There are no active questionnaires",
-  "ANSWER_QUESTIONNAIRE": "A questionnaire can be answered",
-  "NAV_TOGGLE_MENU": "Toggle menu",
-  "NAV_LOG_OUT": "Log out",
-  "NAV_ACTIVE_QUESTIONNAIRES": "Active Questionnaires",
-  "NAV_DATA_COMPARE": "Data Compare",
-  "NAV_OVERVIEW": "Overview",
-  "NAV_TEMPLATES": "Templates",
-  "LOGIN_WELCOME": "Welcome",
-  "LOGIN_SUBTITLE": "Log in to answer questionnaires",
-  "LOGIN_USERNAME_PLACEHOLDER": "Enter username",
-  "LOGIN_PASSWORD_PLACEHOLDER": "Enter password",
-  "LOGIN_USERNAME_REQUIRED": "Username is required",
-  "LOGIN_PASSWORD_REQUIRED": "Password is required",
-  "LOGIN_ERROR_INVALID": "Invalid username or password.",
-  "LOGIN_ERROR_GENERAL": "An error occurred during login. Please try again.",
-  "LOGIN_SUBMIT": "Sign In",
-  "LOGIN_LOADING": "Signing In...",
   "TMP_NEW_TITLE": "New Template",
   "TMP_NEW_DESC": "Description for the new template",
   "TMP_NEW_QUESTION": "Default Question",
@@ -94,14 +59,8 @@
   "TMP_VIEW_RESULTS": "View Results",
   "TMP_TITLE_TEMPLATE_LIST": "Template List",
 
-  "COMMON.BUTTONS.VIEW": "View",
-  "COMMON.BUTTONS.COPY": "Copy",
-  "COMMON.BUTTONS.DELETE_PERMANENT": "Delete Permanently",
-  "COMMON.BUTTONS.CANCEL": "Cancel",
-  "COMMON.BUTTONS.CLOSE": "Close",
   "TEMPLATES.DELETE.TITLE": "Confirm Deletion",
   "TEMPLATES.DELETE.MSG": "Are you sure you want to delete this template? This action will delete related data.",
-  "COMMON.GREETING": "Hello {{username}}!",
 
   "TMP_FINALIZE_TITLE": "Publish template?",
   "TMP_FINALIZE_TEXT": "When a template is published, it becomes read-only. <br/>Are you sure you want to publish?",
@@ -109,17 +68,57 @@
   "TMP_VIEW_MODE": "Template View",
   "TMP_EDIT_MODE": "Template Editing",
 
+  "COMMON": {
+    "BUTTONS": {
+      "VIEW": "View",
+      "EDIT": "Edit",
+      "COPY": "Copy",
+      "DELETE_PERMANENT": "Delete Permanently",
+      "CANCEL": "Cancel",
+      "CLOSE": "Close",
+      "PREVIOUS": "Previous",
+      "NEXT": "Next",
+      "SUBMIT" : "Submit"
+    },
+    "GREETING": "Hello {{username}}!",
+    "ROLES": {
+      "STUDENT": "Student",
+      "TEACHER": "Teacher",
+      "ADMIN": "Admin"
+    }
+  },
 
-  "ACTIVE_LIST": {
-    "TITLE": "Manage Active Questionnaires",
-    "BUTTON_CREATE": "Assign a Questionnaire",
-    "SUBTITLE": "Active Questionnaires",
-    "SEARCH_PLACEHOLDER": "Search for group...",
-    "FILTER_STUDENT_PENDING": "Student pending answer",
-    "FILTER_TEACHER_PENDING": "Teacher pending answer",
-    "ITEMS_PER_PAGE": "Items per page:",
-    "GROUP_STUDENT": "Student",
-    "GROUP_TEACHER": "Teacher"
+  "LOGIN": {
+    "WELCOME": "Welcome",
+    "SUBTITLE": "Log in to answer questionnaires",
+    "USERNAME_PLACEHOLDER": "Enter username",
+    "PASSWORD_PLACEHOLDER": "Enter password",
+    "USERNAME_REQUIRED": "Username is required",
+    "PASSWORD_REQUIRED": "Password is required",
+    "ERROR_INVALID": "Invalid username or password.",
+    "ERROR_GENERAL": "An error occurred during login. Please try again.",
+    "SUBMIT": "Sign In",
+    "LOADING": "Signing In...",
+    "ERRORS": {
+      "INVALID": "Invalid username or password.",
+      "NETWORK": "Could not connect to the server. Check your internet connection.",
+      "SERVER": "A server error occurred. Please try again later.",
+      "GENERIC": "An unexpected error occurred. Please try again."
+    }
+  },
+  "NAV": {
+    "TOGGLE_MENU": "Toggle menu",
+    "LOG_OUT": "Log out",
+    "ACTIVE_QUESTIONNAIRES": "Active Questionnaires",
+    "DATA_COMPARE": "Data Compare",
+    "OVERVIEW": "Overview",
+    "TEMPLATES": "Templates",
+    "HOME": "Home"
+  },
+
+  "HOME" : {
+    "ANSWER_QUESTIONNAIRE" :"A questionnaire can be answered",
+    "NO_ACTIVE_QUESTIONNAIRE": "There are no active questionnaires"
   },
 
   "QUESTION_EDITOR": {
@@ -134,5 +133,26 @@
   },
   "QUESTIONAIRE": {
     "COLLABORATOR": "Collaborator"
+  },
+  "DATA_COMPARE" : {
+    "SEARCH_STUDENT_LABEL": "Search for Student:",
+    "SEARCH_STUDENT_PLACEHOLDER": "Enter student name...",
+    "LOADING_STUDENTS": "Loading students...",
+    "LOAD_MORE_STUDENTS": "Load More Students",
+    "SELECTED_STUDENTS": "Selected Students:",
+    "REMOVE": "Remove",
+    "CLEAR_ALL": "Clear All",
+    "SEARCH_TEMPLATE_LABEL": "Search for Template:",
+    "SEARCH_TEMPLATE_PLACEHOLDER": "Enter template title...",
+    "LOADING_TEMPLATES": "Loading templates...",
+    "LOAD_MORE_TEMPLATES": "Load More Templates",
+    "SELECTED_TEMPLATES": "Selected Templates:",
+    "UPDATE_CHART": "Update Chart",
+    "PIE_CHART": "Pie Chart",
+    "BAR_CHART": "Bar Chart"
+  },
+  "LANG": {
+    "EN": "English",
+    "DA": "Danish"
   }
 }

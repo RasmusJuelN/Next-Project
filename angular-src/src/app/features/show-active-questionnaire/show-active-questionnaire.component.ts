@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { take, switchMap } from 'rxjs/operators';
 import { ShowActiveService } from './services/show-active.service';
 import { ActiveQuestionnaireResponse, ActiveQuestionnaireBase } from './models/show-active.model';
@@ -20,17 +20,29 @@ export class ShowActiveQuestionnaireComponent {
   authService = inject(AuthService);
 
   activeQuestionnaires: ActiveQuestionnaireBase[] = [];
-  currentUserRole!: Role;
+  readonly user = this.authService.user;
   public Role = Role;
 
-  ngOnInit(): void {
-    this.authService.userRole$.pipe(take(1)).subscribe((role) => {
-      if (role) {
-        this.currentUserRole = role as Role;
+  constructor() {
+    effect(() => {
+      const role = this.user()?.role;
+      if (role === Role.Student || role === Role.Teacher) {
         this.fetch();
       }
     });
   }
+
+shouldShowAnswerButton(q: ActiveQuestionnaireBase): boolean {
+  const role = this.user()?.role ?? null
+  if (!role) return false;
+
+  if (role === Role.Student && !q.studentCompletedAt) return true;
+  if (role === Role.Teacher && !q.teacherCompletedAt) return true;
+
+  return false;
+}
+
+
 
   fetch(): void {
     this.showActiveService.fetchActiveQuestionnaires().subscribe({

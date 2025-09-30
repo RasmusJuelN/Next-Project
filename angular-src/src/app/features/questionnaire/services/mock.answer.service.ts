@@ -249,7 +249,7 @@ export class MockAnswerService {
 
 // Get active questionnaire by instance ID and check if user is allowed
 getActiveQuestionnaireById(instanceId: string): Observable<Questionnaire | undefined> {
-  const userId = this.authService.getUserId();
+  const userId = this.authService.user()?.id;
   if (!userId) {
     console.error('No user logged in.');
     return of(undefined);

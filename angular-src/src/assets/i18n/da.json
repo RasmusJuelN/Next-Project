@@ -1,40 +1,5 @@
 {
-  "DATA_COMPARE.SEARCH_STUDENT_LABEL": "Søg efter Elev:",
-  "DATA_COMPARE.SEARCH_STUDENT_PLACEHOLDER": "Indtast navn på elever...",
-  "DATA_COMPARE.LOADING_STUDENTS": "Indlæser elever...",
-  "DATA_COMPARE.LOAD_MORE_STUDENTS": "Indlæs Flere Elever",
-  "DATA_COMPARE.SELECTED_STUDENTS": "Valgte Elever:",
-  "DATA_COMPARE.REMOVE": "Fjern",
-  "DATA_COMPARE.CLEAR_ALL": "Ryd Alle",
-  "DATA_COMPARE.SEARCH_TEMPLATE_LABEL": "Søg efter Skabelon:",
-  "DATA_COMPARE.SEARCH_TEMPLATE_PLACEHOLDER": "Indtast skabelontitel...",
-  "DATA_COMPARE.LOADING_TEMPLATES": "Indlæser skabeloner...",
-  "DATA_COMPARE.LOAD_MORE_TEMPLATES": "Indlæs Flere Skabeloner",
-  "DATA_COMPARE.SELECTED_TEMPLATES": "Valgte Skabeloner:",
-  "DATA_COMPARE.UPDATE_CHART": "Opdater Graf",
-  "DATA_COMPARE.PIE_CHART": "Pie",
-  "DATA_COMPARE.BAR_CHART": "Bar",
-  "BUTTON_EN": "Engelsk",
-  "BUTTON_DA": "Dansk",
-  "GREETING": "Hej {{username}}!",
   "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer",
-  "ANSWER_QUESTIONNAIRE": "Et spørgeskema kan besvares",
-  "NAV_TOGGLE_MENU": "Åbn/luk menu",
-  "NAV_LOG_OUT": "Log ud",
-  "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
-  "NAV_DATA_COMPARE": "Sammenlign Data",
-  "NAV_OVERVIEW": "Oversigt",
-  "NAV_TEMPLATES": "Skabeloner",
-  "LOGIN_WELCOME": "Velkommen",
-  "LOGIN_SUBTITLE": "Log ind for at besvare spørgeskemaer",
-  "LOGIN_USERNAME_PLACEHOLDER": "Indtast brugernavn",
-  "LOGIN_PASSWORD_PLACEHOLDER": "Indtast adgangskode",
-  "LOGIN_USERNAME_REQUIRED": "Brugernavn er påkrævet",
-  "LOGIN_PASSWORD_REQUIRED": "Adgangskode er påkrævet",
-  "LOGIN_ERROR_INVALID": "Ugyldigt brugernavn eller adgangskode.",
-  "LOGIN_ERROR_GENERAL": "Der opstod en fejl under login. Prøv igen.",
-  "LOGIN_SUBMIT": "Log ind",
-  "LOGIN_LOADING": "Logger ind...",
   "TMP_NEW_TITLE": "Ny skabelon",
   "TMP_NEW_DESC": "Beskrivelse af den nye skabelon",
   "TMP_NEW_QUESTION": "Standard spørgsmål",
@@ -85,30 +50,78 @@
   "TMP_TEACHER_DONE": "Lærer færdig",
   "TMP_COPY_LINK": "Kopier link til besvarelse",
   "TMP_STUDENT_NAME": "Elevnavn:",
-  "TMP_STUDENT": "Elev",
-  "TMP_TEACHER": "Lærer",
+  "TMP_STUDENT": "Elev:",
+  "TMP_TEACHER": "Lærer:",
   "TMP_COMPLETED": "Færdig",
   "TMP_PENDING": "Ikke færdig",
   "TMP_ANSWER": "Svar",
   "TMP_VIEW_RESULTS": "Se resultater",
   "TMP_TITLE_TEMPLATE_LIST": "Skabelonliste",
 
-  "COMMON.BUTTONS.VIEW": "Vis",
-  "COMMON.BUTTONS.COPY": "Kopiér",
-  "COMMON.BUTTONS.DELETE_PERMANENT": "Slet Permanent",
-  "COMMON.BUTTONS.CANCEL": "Annuller",
-  "COMMON.BUTTONS.CLOSE": "Luk",
   "TEMPLATES.DELETE.TITLE": "Bekræft Sletning",
   "TEMPLATES.DELETE.MSG": "Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data.",
-  "COMMON.GREETING": "Hej {{username}}!",
 
   "TMP_FINALIZE_TITLE": "Udgiv skabelon?",
   "TMP_FINALIZE_TEXT": "Når en skabelon udgives, bliver den skrivebeskyttet. <br/>Er du sikker på, at du vil udgive?",
   "TMP_FINALIZE_CONFIRM": "Udgiv",
-  "TMP_VIEW_MODE": "Template View",
-  "TMP_EDIT_MODE": "Template Editing",
-  "COMMON.BUTTONS.SHOW": "View",
-  "COMMON.BUTTONS.EDIT": "Edit",
+  "TMP_VIEW_MODE": "Skabelonvisning",
+  "TMP_EDIT_MODE": "Skabelonredigering",
+
+  "NAV" : {
+    "TOGGLE_MENU": "Åbn/luk menu",
+    "LOG_OUT": "Log ud",
+    "ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
+    "DATA_COMPARE": "Sammenlign Data",
+    "OVERVIEW": "Oversigt",
+    "TEMPLATES": "Skabeloner",
+    "HOME" : "Hjem"
+  },
+
+
+  "COMMON": {
+    "BUTTONS": {
+      "VIEW": "Vis",
+      "EDIT": "Rediger",
+      "COPY": "Kopiér",
+      "DELETE_PERMANENT": "Slet Permanent",
+      "CANCEL": "Annuller",
+      "CLOSE": "Luk",
+      "PREVIOUS" : "Forrige",
+      "NEXT" : "Næste",
+      "SUBMIT" : "send"
+    },
+    "GREETING": "Hej {{username}}!",
+    "ROLES": {
+      "STUDENT": "Elev",
+      "TEACHER": "Lærer",
+      "ADMIN": "Admin"
+    }
+  },
+
+
+  "LOGIN": {
+    "WELCOME": "Velkommen",
+    "SUBTITLE": "Log ind for at besvare spørgeskemaer",
+    "USERNAME_PLACEHOLDER": "Indtast brugernavn",
+    "PASSWORD_PLACEHOLDER": "Indtast adgangskode",
+    "USERNAME_REQUIRED": "Brugernavn er påkrævet",
+    "PASSWORD_REQUIRED": "Adgangskode er påkrævet",
+    "ERROR_INVALID": "Ugyldigt brugernavn eller adgangskode.",
+    "ERROR_GENERAL": "Der opstod en fejl under login. Prøv igen.",
+    "SUBMIT": "Log ind",
+    "LOADING": "Logger ind...",
+    "ERRORS": {
+      "INVALID": "Ugyldigt brugernavn eller adgangskode.",
+      "NETWORK": "Kunne ikke oprette forbindelse til serveren. Tjek din internetforbindelse.",
+      "SERVER": "Der opstod en serverfejl. Prøv igen senere.",
+      "GENERIC": "Der opstod en uventet fejl. Prøv igen."
+    }
+  },
+
+  "HOME" : {
+    "ANSWER_QUESTIONNAIRE" :"Et spørgeskema kan besvares",
+    "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer"
+  },
 
   "ACTIVE_LIST": {
     "TITLE": "Administrer Aktive Spørgeskemaer",
@@ -135,5 +148,27 @@
 
   "QUESTIONAIRE": {
     "COLLABORATOR": "Samarbejdspartner"
+  },
+  "DATA_COMPARE" : {
+    "SEARCH_STUDENT_LABEL": "Søg efter Elev:",
+    "SEARCH_STUDENT_PLACEHOLDER": "Indtast navn på elever...",
+    "LOADING_STUDENTS": "Indlæser elever...",
+    "LOAD_MORE_STUDENTS": "Indlæs Flere Elever",
+    "SELECTED_STUDENTS": "Valgte Elever:",
+    "REMOVE": "Fjern",
+    "CLEAR_ALL": "Ryd Alle",
+    "SEARCH_TEMPLATE_LABEL": "Søg efter Skabelon:",
+    "SEARCH_TEMPLATE_PLACEHOLDER": "Indtast skabelontitel...",
+    "LOADING_TEMPLATES": "Indlæser skabeloner...",
+    "LOAD_MORE_TEMPLATES": "Indlæs Flere Skabeloner",
+    "SELECTED_TEMPLATES": "Valgte Skabeloner:",
+    "UPDATE_CHART": "Opdater Graf",
+    "PIE_CHART": "Pie",
+    "BAR_CHART": "Bar"
+  },
+  "LANG": {
+    "EN": "Engelsk",
+    "DA": "Dansk"
   }
+
 }
