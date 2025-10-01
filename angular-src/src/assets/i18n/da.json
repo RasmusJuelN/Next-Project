@@ -150,8 +150,8 @@
     "COLLABORATOR": "Samarbejdspartner"
   },
   "DATA_COMPARE" : {
-    "SEARCH_STUDENT_LABEL": "Søg efter Elev:",
-    "SEARCH_STUDENT_PLACEHOLDER": "Indtast navn på elever...",
+    "SEARCH_STUDENT_LABEL": "Søg efter elev eller gruppe:",
+    "SEARCH_STUDENT_PLACEHOLDER": "Indtast elev eller gruppe navn...",
     "LOADING_STUDENTS": "Indlæser elever...",
     "LOAD_MORE_STUDENTS": "Indlæs Flere Elever",
     "SELECTED_STUDENTS": "Valgte Elever:",

@@ -135,8 +135,8 @@
     "COLLABORATOR": "Collaborator"
   },
   "DATA_COMPARE" : {
-    "SEARCH_STUDENT_LABEL": "Search for Student:",
-    "SEARCH_STUDENT_PLACEHOLDER": "Enter student name...",
+    "SEARCH_STUDENT_LABEL": "Search for student or group:",
+    "SEARCH_STUDENT_PLACEHOLDER": "Enter student or group name...",
     "LOADING_STUDENTS": "Loading students...",
     "LOAD_MORE_STUDENTS": "Load More Students",
     "SELECTED_STUDENTS": "Selected Students:",

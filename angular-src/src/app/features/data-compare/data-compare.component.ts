@@ -308,7 +308,6 @@ export class DataCompareComponent implements OnInit, OnDestroy {
    * Selects or deselects a user or group from the search results
    */
   select(entity: SearchType, item: any): void {
-    this.onCompareClick();
     const state = this.getState(entity);
     if (!Array.isArray(state.selected)) {
       state.selected = [];
@@ -334,6 +333,8 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     } else {
       this.showTemplateResults = false;
     }
+    // Update chart after selection state is updated
+    this.onCompareClick();
   }
 
   /**

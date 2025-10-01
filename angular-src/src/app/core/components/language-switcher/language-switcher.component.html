@@ -1,12 +1,8 @@
 <div class="relative inline-block text-left w-full sm:w-auto">
   <!-- Trigger -->
-  <button
-    type="button"
-    (click)="showDropdown = !showDropdown"
+  <button type="button" (click)="showDropdown = !showDropdown"
     class="w-full sm:w-44 inline-flex items-center justify-between gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-    aria-haspopup="listbox"
-    [attr.aria-expanded]="showDropdown"
-  >
+    aria-haspopup="listbox" [attr.aria-expanded]="showDropdown">
     <span class="flex items-center gap-2">
       <img [src]="i18n.currentOption().flagSrc" alt="" class="h-4 w-6 object-cover rounded-sm" />
       <span class="truncate">{{ i18n.currentOption().label | translate }}</span>
@@ -17,20 +13,14 @@
   </button>
 
   <!-- Menu -->
-  <ul
-    *ngIf="showDropdown"
-    role="listbox"
-    class="absolute z-50 mt-2
+  <ul *ngIf="showDropdown" role="listbox" class="absolute z-50 mt-2
            left-0 sm:left-auto sm:right-0  <!-- left align on mobile, right on desktop -->
            w-full sm:w-44                 <!-- full width on mobile -->
-           origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
-  >
+           origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none border-2 border-primary_orange_1">
+
     <li *ngFor="let opt of i18n.options()" role="option" [attr.aria-selected]="i18n.currentLang() === opt.code">
-      <button
-        type="button"
-        (click)="onSelect(opt.code)"
-        class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-      >
+      <button type="button" (click)="onSelect(opt.code)"
+        class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
         <img [src]="opt.flagSrc" alt="" class="h-4 w-6 object-cover rounded-sm" />
         <span class="truncate">{{ opt.label | translate }}</span>
         <span class="ml-auto" *ngIf="i18n.currentLang() === opt.code">✓</span>
