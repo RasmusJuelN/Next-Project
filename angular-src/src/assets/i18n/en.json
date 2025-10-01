@@ -121,6 +121,19 @@
     "NO_ACTIVE_QUESTIONNAIRE": "There are no active questionnaires"
   },
 
+  "ACTIVE_LIST": {
+    "TITLE": "Manage Active Questionnaires",
+    "BUTTON_CREATE": "Assign a Questionnaire",
+    "SUBTITLE": "Active Questionnaires",
+    "SEARCH_PLACEHOLDER": "Search for group...",
+    "FILTER_STUDENT_PENDING": "Student pending response",
+    "FILTER_TEACHER_PENDING": "Teacher pending response",
+    "ITEMS_PER_PAGE": "Items per page:",
+    "GROUP_STUDENT": "Student",
+    "GROUP_TEACHER": "Teacher"
+  },
+
+
   "QUESTION_EDITOR": {
     "TITLE": "Edit Question",
     "LABEL_TITLE": "Title:",
