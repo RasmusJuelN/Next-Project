@@ -1,114 +1,116 @@
-<div class="flex flex-col bg-white/90 shadow-xl rounded-2xl border-2 border-primary_orange_1 sm:p-10 sm:max-w-[1100px] mx-auto">
-  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left m-2">
+<!-- Active list -->
+<div class="flex flex-col bg-white/90 shadow-xl rounded-2xl border-2 border-primary_orange_1 p-4 sm:p-10 sm:max-w-[1100px] mx-auto">
+  <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4 sm:mb-6 text-center sm:text-left m-2">
     {{ 'ACTIVE_LIST.TITLE' | translate }}
   </h2>
 
-  <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 w-full">
+  <!-- Create button -->
+  <div class="grid grid-cols-1 gap-4 w-full">
     <button 
       (click)="onCreateNewQuestionnaire()"
-      class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors w-full sm:w-auto">
+      class="w-full sm:w-auto bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors">
       {{ 'ACTIVE_LIST.BUTTON_CREATE' | translate }}
     </button>
   </div>
 
-  <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 flex items-center justify-between"
-      >
+  <!-- Sub-title -->
+  <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mt-6 mb-3">
     {{ 'ACTIVE_LIST.SUBTITLE' | translate }}
-    
   </h2>
-   <div class="flex flex-row items-center gap-4 w-full mb-4">
-  <input
-    type="text"
-    placeholder="{{ 'ACTIVE_LIST.SEARCH_PLACEHOLDER' | translate }}"
-    [(ngModel)]="searchTitle"
-    (input)="onSearchTitleChange(searchTitle)"
-    class="px-4 py-2 border-primary_orange rounded-lg focus:ring-primary_orange focus:border-primary_orange text-sm bg-white/80"
-    style="width: 260px; min-width: 200px;"
-  />
 
-  <div class="flex flex-row gap-4 items-center">
-    <label class="flex items-center gap-2 text-primary_dark_light">
-      <input
-        type="checkbox"
-        [(ngModel)]="filterPendingStudent"
-        (change)="onFilterChange()"
-      />
-      <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_STUDENT_PENDING' | translate }}</span>
-    </label>
+  <!-- Controls -->
+  <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full mb-4">
+    <!-- Search -->
+    <input
+      type="text"
+      placeholder="{{ 'ACTIVE_LIST.SEARCH_PLACEHOLDER' | translate }}"
+      [(ngModel)]="searchTitle"
+      (input)="onSearchTitleChange(searchTitle)"
+      class="w-full sm:w-64 px-4 py-2 border-primary_orange rounded-lg focus:ring-primary_orange focus:border-primary_orange text-sm bg-white/80" />
 
-    <label class="flex items-center gap-2 text-primary_dark_light">
-      <input
-        type="checkbox"
-        [(ngModel)]="filterPendingTeacher"
-        (change)="onFilterChange()"
-      />
-      <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_TEACHER_PENDING' | translate }}</span>
-    </label>
-  </div>
-  <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto ml-auto">
-      <label class="text-primary_dark_blue font-medium">{{ 'ACTIVE_LIST.ITEMS_PER_PAGE' | translate }}</label>
-      <select [(ngModel)]="pageSize" 
-      (change)="onPageSizeChange(pageSize)" 
-      class="border border-primary_orange rounded-lg px-3 py-2 focus:ring-primary_orange focus:border-primary_orange text-sm w-full sm:w-auto bg-white/80 text-left">
+    <!-- Filters -->
+    <div class="flex flex-col xs:flex-row gap-2 sm:gap-4">
+      <label class="flex items-center gap-2 text-primary_dark_light py-1">
+        <input type="checkbox" class="h-4 w-4" [(ngModel)]="filterPendingStudent" (change)="onFilterChange()" />
+        <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_STUDENT_PENDING' | translate }}</span>
+      </label>
+
+      <label class="flex items-center gap-2 text-primary_dark_light py-1">
+        <input type="checkbox" class="h-4 w-4" [(ngModel)]="filterPendingTeacher" (change)="onFilterChange()" />
+        <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_TEACHER_PENDING' | translate }}</span>
+      </label>
+    </div>
+
+    <!-- Page size -->
+    <div class="w-full sm:w-auto sm:ml-auto flex items-center gap-2">
+      <label class="text-primary_dark_blue font-medium text-sm sm:text-base whitespace-nowrap">
+        {{ 'ACTIVE_LIST.ITEMS_PER_PAGE' | translate }}
+      </label>
+      <select
+        [(ngModel)]="pageSize"
+        (change)="onPageSizeChange(pageSize)"
+        class="w-full sm:w-auto border border-primary_orange rounded-lg px-3 py-2 focus:ring-primary_orange focus:border-primary_orange text-sm bg-white/80">
         <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
       </select>
     </div>
-</div>
+  </div>
 
-  <div *ngFor="let group of groups" 
-       class="mb-8 border p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors">
-    
-    <div class="flex items-center justify-between cursor-pointer" (click)="toggleGroupCollapse(group.groupId)">
-      <h3 class="text-xl font-bold text-blue-900 mb-0">
+  <!-- Groups -->
+  <div *ngFor="let group of groups" class="mb-6 p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors">
+    <button
+      type="button"
+      class="w-full flex items-start sm:items-center justify-between gap-3 cursor-pointer text-left"
+      (click)="toggleGroupCollapse(group.groupId)"
+      [attr.aria-expanded]="!groupCollapsed[group.groupId]"
+      [attr.aria-controls]="'group-panel-' + group.groupId">
+      <h3 class="text-lg sm:text-xl font-bold text-blue-900 leading-snug">
         {{ group.name }}
-        <span class="ml-2 text-sm text-gray-600">
-  {{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }} 
-  <span
-    [ngClass]="{
-      'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === 0,
-      'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'student') > 0 && getAnsweredCount(group.questionnaires, 'student') < group.questionnaires.length,
-      'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === group.questionnaires.length
-    }"
-  >
-    {{ getAnsweredCount(group.questionnaires, 'student') }}
-  </span>
-  /
-  <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-  {{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }}  
-  <span
-    [ngClass]="{
-      'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === 0,
-      'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') > 0 && getAnsweredCount(group.questionnaires, 'teacher') < group.questionnaires.length,
-      'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === group.questionnaires.length
-    }"
-  >
-    {{ getAnsweredCount(group.questionnaires, 'teacher') }}
-  </span>
-  /
-  <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-</span>
+        <span class="ml-0 sm:ml-2 block sm:inline text-xs sm:text-sm text-gray-600">
+          {{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }}
+          <span
+            [ngClass]="{
+              'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === 0,
+              'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'student') > 0 && getAnsweredCount(group.questionnaires, 'student') < group.questionnaires.length,
+              'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === group.questionnaires.length
+            }">
+            {{ getAnsweredCount(group.questionnaires, 'student') }}
+          </span>
+          /
+          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+          &nbsp;{{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }}
+          <span
+            [ngClass]="{
+              'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === 0,
+              'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') > 0 && getAnsweredCount(group.questionnaires, 'teacher') < group.questionnaires.length,
+              'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === group.questionnaires.length
+            }">
+            {{ getAnsweredCount(group.questionnaires, 'teacher') }}
+          </span>
+          /
+          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+        </span>
       </h3>
-      <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="transition-transform duration-300 text-lg">
-        ▼
-      </span>
-    </div>
+      <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="shrink-0 transition-transform duration-300 text-lg">▼</span>
+    </button>
 
     <div *ngIf="!groupCollapsed[group.groupId]">
-      <ul class="space-y-4 mt-4">
-        <li *ngFor="let q of group.questionnaires" 
-            class="p-4 bg-white rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <span class="font-semibold text-gray-800">{{ q.title }}</span>
-            <span class="ml-2 text-xs text-gray-500">({{ q.activatedAt | date:'dd-MM-yyyy HH:mm' }})</span>
+      <ul class="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
+        <li
+          *ngFor="let q of group.questionnaires"
+          class="p-4 bg-white rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div class="min-w-0">
+            <span class="block font-semibold text-gray-800 break-words">{{ q.title }}</span>
+            <span class="block sm:inline text-xs text-gray-500">{{ q.activatedAt | date:'dd-MM-yyyy HH:mm' }}</span>
           </div>
-          <div class="flex flex-col sm:flex-row sm:gap-6 mt-2 sm:mt-0">
-            <span>
+
+          <div class="flex flex-col sm:flex-row sm:gap-6 gap-1">
+            <span class="text-sm">
               <strong>{{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }} </strong>
               <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-extrabold': !q.studentCompletedAt}">
                 {{ q.student.fullName }}
               </span>
             </span>
-            <span>
+            <span class="text-sm">
               <strong>{{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }} </strong>
               <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
                 {{ q.teacher.fullName }}
@@ -120,16 +122,17 @@
     </div>
   </div>
 
+  <!-- Footer / pagination -->
   <div *ngIf="!isListCollapsed">
-    <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
+    <div class="flex justify-center items-center min-h-[120px]" *ngIf="isLoading">
       <app-loading></app-loading>
     </div>
 
     <div *ngIf="errorMessage" class="text-center p-4">
-      <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
+      <p class="text-red-500 font-semibold text-base sm:text-lg">{{ errorMessage }}</p>
     </div>
 
-    <app-pagination 
+    <app-pagination
       *ngIf="!isLoading && !errorMessage"
       [currentPage]="currentPage"
       [totalPages]="totalPages"
