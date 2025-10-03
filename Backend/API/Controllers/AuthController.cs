@@ -103,9 +103,9 @@ namespace API.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            catch (LDAPException.InvalidCredentials)
+            catch (UnauthorizedAccessException e)
             {
-                return Unauthorized();
+                return Unauthorized(e.Message);
             }
 
             if (_authenticationBridge.IsConnected())
