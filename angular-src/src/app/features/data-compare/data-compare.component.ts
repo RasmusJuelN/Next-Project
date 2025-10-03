@@ -372,10 +372,11 @@ export class DataCompareComponent implements OnInit, OnDestroy {
    * @param templateId Questionnaire/template GUID
    * @param studentId User GUID (optional)
    */
-  fetchChartData(templateId: string, studentId?: string) {
+  fetchChartData(templateId: string, userId?: string, groupId?: string) {
     this.DataCompareService.getAnonymisedResponses(
       templateId,
-      studentId
+      userId,
+      groupId
     ).subscribe({
       next: (apiData) => {
         // Defensive: fallback to empty array if API response is missing
@@ -416,17 +417,18 @@ export class DataCompareComponent implements OnInit, OnDestroy {
    */
   onCompareClick() {
     const templateId = this.template.selected[0]?.id;
-    let studentId: string | undefined = undefined;
+    let userId: string | undefined = undefined;
+    let groupId: string | undefined = undefined;
     if (this.student.selected.length > 0) {
       const selected = this.student.selected[0];
       if (selected.type === "user") {
-        studentId = (selected as User).id;
+        userId = (selected as User).id;
       } else if (selected.type === "group") {
-        studentId = selected.groupId;
+        groupId = selected.groupId;
       }
     }
     if (templateId) {
-      this.fetchChartData(templateId, studentId);
+      this.fetchChartData(templateId, userId, groupId);
     }
   }
 

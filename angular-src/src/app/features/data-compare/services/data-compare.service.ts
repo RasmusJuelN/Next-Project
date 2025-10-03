@@ -27,13 +27,22 @@ export class DataCompareService {
    * @param studentId User GUID (optional)
    * @returns Observable with anonymised response data
    */
-  getAnonymisedResponses(templateId: string, studentId?: string) {
-    // Build API URL with query parameters
+  /**
+   * Fetches anonymised responses for a questionnaire.
+   * If userId is provided, fetches for that user; if groupId is provided, fetches for that group.
+   * @param templateId Questionnaire/template GUID
+   * @param userId User GUID (optional)
+   * @param groupId Group GUID (optional)
+   * @returns Observable with anonymised response data
+   */
+  getAnonymisedResponses(templateId: string, userId?: string, groupId?: string) {
     let url = `${environment.apiUrl}/active-questionnaire/getanonymisedresponses?QuestionnaireId=${templateId}`;
-    if (studentId) {
-      url += `&UserId=${studentId}`;
+    if (userId) {
+      url += `&UserId=${userId}`;
     }
-    // Make GET request to backend
+    if (groupId) {
+      url += `&Groups=${groupId}`;
+    }
     return this.apiService.get<any>(url);
   }
 }
