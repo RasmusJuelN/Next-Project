@@ -110,8 +110,8 @@
         <!-- Enhanced Submit Button -->
         <button
           type="submit"
-          class="group relative w-full overflow-hidden bg-gradient-to-br from-primary_orange_1 to-primary_dark_blue text-white py-4 rounded-2xl font-semibold text-lg shadow-2xl hover:shadow-primary_orange_1/25 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none  "
-          [disabled]="isLoading"
+          class="group relative w-full overflow-hidden bg-gradient-to-br from-primary_orange_1 to-primary_dark_blue text-white py-4 rounded-2xl font-semibold text-lg shadow-2xl hover:shadow-primary_orange_1/25 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          [disabled]="isLoading || loginForm.invalid"
         >
           <!-- Button Background Animation -->
           <div class="absolute inset-0 bg-gradient-to-br from-primary_orange_1 to-primary_dark_blue opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

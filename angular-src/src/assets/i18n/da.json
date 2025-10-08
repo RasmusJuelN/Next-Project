@@ -114,7 +114,13 @@
       "INVALID": "Ugyldigt brugernavn eller adgangskode.",
       "NETWORK": "Kunne ikke oprette forbindelse til serveren. Tjek din internetforbindelse.",
       "SERVER": "Der opstod en serverfejl. Prøv igen senere.",
-      "GENERIC": "Der opstod en uventet fejl. Prøv igen."
+      "GENERIC": "Der opstod en uventet fejl. Prøv igen.",
+      "BAD_REQUEST": "Ugyldig anmodning. Tjek din indtastning.",
+      "FORBIDDEN": "Adgang nægtet.",
+      "RATE_LIMITED": "For mange forsøg. Vent venligst før du prøver igen.",
+      "UNAVAILABLE": "Tjenesten er midlertidigt utilgængelig.",
+      "TIMEOUT": "Anmodningen fik timeout. Prøv igen.",
+      "REQUIRED_FIELDS": "Udfyld venligst alle påkrævede felter."
     }
   },
 

@@ -10,10 +10,16 @@ import { LanguageSwitcherComponent } from '../../core/components/language-switch
 
 
 const ERROR_I18N: Record<LoginErrorCode, string> = {
-  INVALID_CREDENTIALS: 'LOGIN.ERRORS.INVALID',
-  NETWORK: 'LOGIN.ERRORS.NETWORK',
-  SERVER: 'LOGIN.ERRORS.SERVER',
-  UNKNOWN: 'LOGIN.ERRORS.GENERIC',
+  [LoginErrorCode.InvalidCredentials]: 'LOGIN.ERRORS.INVALID',
+  [LoginErrorCode.Network]:            'LOGIN.ERRORS.NETWORK',
+  [LoginErrorCode.Server]:             'LOGIN.ERRORS.SERVER',
+  [LoginErrorCode.Unknown]:            'LOGIN.ERRORS.GENERIC',
+  // If your enum also includes these, keep them:
+  [LoginErrorCode.BadRequest]:         'LOGIN.ERRORS.BAD_REQUEST',
+  [LoginErrorCode.Forbidden]:          'LOGIN.ERRORS.FORBIDDEN',
+  [LoginErrorCode.RateLimited]:        'LOGIN.ERRORS.RATE_LIMITED',
+  [LoginErrorCode.Unavailable]:        'LOGIN.ERRORS.UNAVAILABLE',
+  [LoginErrorCode.Timeout]:            'LOGIN.ERRORS.TIMEOUT',
 };
 
 @Component({
@@ -56,6 +62,11 @@ export class LoginComponent {
   }
 
   onSubmit() {
+    // Prevent submission if required fields are empty
+    if (!this.userName?.trim() || !this.password?.trim()) {
+      this.errorKey = 'LOGIN.ERRORS.REQUIRED_FIELDS';
+      return;
+    }
     this.login();
   }
 }

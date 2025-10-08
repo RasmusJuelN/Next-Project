@@ -85,7 +85,6 @@ export class HomeComponent {
 
   onLoginError(error: string) {
     this.errorMessage ='Login failed. Please try again.';
-    console.error('Login error:', error);
   }
 
 //   setLanguage(lang: string) {

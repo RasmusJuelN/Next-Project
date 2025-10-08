@@ -8,7 +8,7 @@
       </h2>
 
       <!-- Navigation for Specific Roles -->
-      <nav class="mb-6 flex-grow" *ngIf="userRole">
+      <nav class="mb-6 flex-grow" *ngIf="userRole()">
         <ul class="space-y-4">
           <li *ngFor="let link of navLinksForUser()">
             <a

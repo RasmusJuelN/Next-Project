@@ -103,7 +103,13 @@
       "INVALID": "Invalid username or password.",
       "NETWORK": "Could not connect to the server. Check your internet connection.",
       "SERVER": "A server error occurred. Please try again later.",
-      "GENERIC": "An unexpected error occurred. Please try again."
+      "GENERIC": "An unexpected error occurred. Please try again.",
+      "BAD_REQUEST": "Invalid request. Please check your input.",
+      "FORBIDDEN": "Access denied.",
+      "RATE_LIMITED": "Too many attempts. Please wait before trying again.",
+      "UNAVAILABLE": "Service temporarily unavailable.",
+      "TIMEOUT": "Request timed out. Please try again.",
+      "REQUIRED_FIELDS": "Please fill in all required fields."
     }
   },
   "NAV": {

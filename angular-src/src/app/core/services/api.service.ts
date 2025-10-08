@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ErrorHandlingService } from './error-handling.service';
@@ -27,9 +27,9 @@ export class ApiService {
    * @param params - Optional query parameters
    * @param headers - Optional HTTP headers
    */
-  get<T>(url: string, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
+  get<T>(url: string, params?: HttpParams, headers?: HttpHeaders, context?: HttpContext): Observable<T> {
     return this.http
-      .get<T>(url, { params, headers })
+      .get<T>(url, { params, headers, context })
       .pipe(catchError((error) => this.errorHandler.handleError(error, 'GET Request Failed')));
   }
 
@@ -40,9 +40,9 @@ export class ApiService {
    * @param params - Optional query parameters
    * @param headers - Optional HTTP headers
    */
-  post<T>(url: string, body: any, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
+  post<T>(url: string, body: any, params?: HttpParams, headers?: HttpHeaders, context?: HttpContext): Observable<T> {
     return this.http
-      .post<T>(url, body, { params, headers })
+      .post<T>(url, body, { params, headers, context })
       .pipe(catchError((error) => this.errorHandler.handleError(error, 'POST Request Failed')));
   }
 

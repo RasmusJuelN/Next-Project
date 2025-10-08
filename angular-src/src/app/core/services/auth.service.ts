@@ -1,4 +1,4 @@
-import { HttpHeaders } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { catchError, interval, map, of, switchMap, tap, firstValueFrom, throwError, Subscription, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -73,16 +73,13 @@ export class AuthService {
       }),
       map(() => ({ success: true } as const)),
       catchError(err => {
-      const code: LoginErrorCode =
-        err.status === 0 ? 'NETWORK' :
-        err.status === 401 ? 'INVALID_CREDENTIALS' :
-        err.status === 500 ? 'SERVER' :
-        'UNKNOWN';
+        const code = this.mapHttpErrorToLoginErrorCode(err);
 
-      // Optional: only logout on non-401 cases
-      if (code !== 'INVALID_CREDENTIALS') this.logout();
+        if (code !== LoginErrorCode.InvalidCredentials) {
+          this.logout();
+        }
 
-      return of({ success: false, code });
+        return of({ success: false, code });
       })
     );
   }
@@ -228,6 +225,11 @@ public refreshToken() {
     this._isOnline.set(true);
   }
 
+/**
+ * Constructs a User object from JWT token claims.
+ * Extracts user information from the decoded token and validates that all required fields are present.
+ * @returns A complete User object if all required claims are found and valid, otherwise null
+ */
 private buildUserFromToken(): User | null {
   const id = this.getTokenInfo<string>('sub');
   const userName = this.getTokenInfo<string>('unique_name');
@@ -241,6 +243,13 @@ private buildUserFromToken(): User | null {
 
   return null;
 }
+
+/**
+ * Maps a string value to a Role enum.
+ * Compares against Role enum values (which are string enums) in a case-insensitive manner.
+ * @param value - The string value from the token to map to a Role enum
+ * @returns The corresponding Role enum value, or null if no match found
+ */
 private mapToRoleEnum(value: string | null): Role | null {
   if (!value) return null;
 
@@ -254,6 +263,34 @@ private mapToRoleEnum(value: string | null): Role | null {
     default:
       return null;
   }
+}
+
+/**
+ * Maps HTTP error response to login error code.
+ * TODO: Currently maps based on HTTP status codes only. 
+ * Should be updated to extract specific error codes from the response body
+ * when the API provides more detailed error information.
+ */
+private mapHttpErrorToLoginErrorCode(httpError: HttpErrorResponse): LoginErrorCode {
+  switch (httpError.status) {
+    case 0:
+      return LoginErrorCode.Network;
+    case 400:
+      return LoginErrorCode.BadRequest;
+    case 401:
+      return LoginErrorCode.InvalidCredentials;
+    case 403:
+      return LoginErrorCode.Forbidden;
+    case 429:
+      return LoginErrorCode.RateLimited;
+    case 503:
+      return LoginErrorCode.Unavailable;
+  }
+
+  if (httpError.status >= 500 && httpError.status < 600) {
+    return LoginErrorCode.Server;
+  }
+  return LoginErrorCode.Unknown;
 }
 
 }
