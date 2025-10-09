@@ -1,0 +1,21 @@
+items:
+- name: Getting Started
+  items:
+  - name: Technical Overview
+    href: index.md
+  - name: Application Overview
+    href: application-overview.md
+  - name: Development Setup
+    href: getting-started.md
+- name: User Guides
+  items:
+  - name: User Workflows
+    href: user-workflows.md
+  - name: Quick Reference
+    href: quick-reference.md
+- name: Features
+  items:
+  - name: Authentication
+    href: authentication.md
+  - name: Internationalization
+    href: i18n.md
