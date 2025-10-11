@@ -8,6 +8,8 @@ public class LDAPSettings : Base, ILDAPSettings
 
     public string Host { get; set; } = string.Empty;
     public int Port { get; set; } = 0;
+    public int SSLPort { get; set; } = 0;
+    public bool UseSSL { get; set; } = true;
     public string FQDN { get; set; } = string.Empty;
     public string BaseDN { get; set; } = string.Empty;
     public string SA { get; set; } = string.Empty;
