@@ -175,6 +175,20 @@
   "LANG": {
     "EN": "Engelsk",
     "DA": "Dansk"
+  },
+  "PDF": {
+    "TITLE": "Matrixskema (Lærer / Elev)",
+    "META_NOTE": "Spørgsmål kan have 0–15 muligheder. Kun valgte viser et X. Custom-bemærkninger vises nedenfor.",
+    "NO_OPTIONS_NOTE": "Ingen foruddefinerede muligheder — brug bemærkningsfeltet nedenfor.",
+    "TEACHER_ROW": "Lærer",
+    "STUDENT_ROW": "Elev",
+    "TEACHER_CUSTOM": "Lærer (custom):",
+    "STUDENT_CUSTOM": "Elev (custom):",
+    "TABLE_TEMPLATE": "Skabelon",
+    "TABLE_STUDENT": "Elev",
+    "TABLE_TEACHER": "Lærer",
+    "FOOTER_LEFT": "Print: markér X i hånden. PDF viser alle custom-bemærkninger.",
+    "PAGE": "Side"
   }
 
 }

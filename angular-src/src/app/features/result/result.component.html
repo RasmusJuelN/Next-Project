@@ -2,12 +2,28 @@
 <div *ngIf="errorMessage" class="text-center text-red-500">{{ errorMessage }}</div>
 
 <div *ngIf="result" class="answer-session bg-gray-100 p-6 max-w-4xl mx-auto print:bg-white print:shadow-none print:p-0 print:overflow-visible relative">
-  <button
-  (click)="printPage()"
-  class="absolute top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded print:hidden"
->
-  Print
-</button>
+  <div class="absolute top-4 right-4 flex gap-2 print:hidden">
+    <button
+      (click)="openPdf()"
+      class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      title="Open PDF in new tab"
+    >
+      Open PDF
+    </button>
+    <button
+      (click)="generatePdf()"
+      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      title="Download PDF"
+    >
+      Download PDF
+    </button>
+    <button
+      (click)="printPage()"
+      class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+    >
+      Print
+    </button>
+  </div>
   <h2 class="text-2xl font-semibold text-gray-800 mb-6 print:text-black">
     Skabelon: {{ result.title }}
   </h2>
