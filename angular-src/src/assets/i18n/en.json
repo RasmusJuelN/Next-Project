@@ -173,5 +173,19 @@
   "LANG": {
     "EN": "English",
     "DA": "Danish"
+  },
+  "PDF": {
+    "TITLE": "Matrix Questionnaire (Teacher / Student)",
+    "META_NOTE": "Questions can have 0–15 options. Only chosen options show an X. Custom remarks print below.",
+    "NO_OPTIONS_NOTE": "No predefined options for this question — use the remarks area below.",
+    "TEACHER_ROW": "Teacher",
+    "STUDENT_ROW": "Student",
+    "TEACHER_CUSTOM": "Teacher custom:",
+    "STUDENT_CUSTOM": "Student custom:",
+    "TABLE_TEMPLATE": "Template",
+    "TABLE_STUDENT": "Student",
+    "TABLE_TEACHER": "Teacher",
+    "FOOTER_LEFT": "Print: mark X by hand as needed. PDF shows any custom remarks.",
+    "PAGE": "Page"
   }
 }
