@@ -34,6 +34,7 @@ public class ApplicationLogRepository(Context context, ILoggerFactory loggerFact
     public async Task AddAsync(ApplicationLog applicationLog)
     {
         await _genericRepository.AddAsync(applicationLog.ToModel());
+        await _context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -47,6 +48,7 @@ public class ApplicationLogRepository(Context context, ILoggerFactory loggerFact
     public async Task AddRangeAsync(List<ApplicationLog> applicationLogs)
     {
         await _genericRepository.AddRangeAsync([.. applicationLogs.Select(l => l.ToModel())]);
+        await _context.SaveChangesAsync();
     }
 
     /// <summary>
