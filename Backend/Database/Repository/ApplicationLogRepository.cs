@@ -63,4 +63,11 @@ public class ApplicationLogRepository(Context context, ILoggerFactory loggerFact
     {
         return await _context.ApplicationLogs.Select(q => q.Category).Distinct().ToListAsync();
     }
+
+
+    /// <inheritdoc/>
+    public async Task<List<int>> GetLogEventIDsAsync()
+    {
+        return await _context.ApplicationLogs.Select(log => log.EventId).Distinct().ToListAsync();
+    }
 }

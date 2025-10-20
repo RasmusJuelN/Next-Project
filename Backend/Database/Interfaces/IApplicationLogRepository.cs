@@ -36,4 +36,13 @@ public interface IApplicationLogRepository
     /// Categories help organize logs by functional area or component type.
     /// </remarks>
     Task<List<string>> GetLogCategoriesAsync();
+
+    /// <summary>
+    /// Asynchronously retrieves a list of all log event IDs from the application log repository.
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a list of integers
+    /// representing the unique identifiers of log events.
+    /// </returns>
+    Task<List<int>> GetLogEventIDsAsync();
 }
