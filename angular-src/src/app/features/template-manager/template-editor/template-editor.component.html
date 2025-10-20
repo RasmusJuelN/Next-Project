@@ -17,7 +17,7 @@
       name="title"
       [(ngModel)]="template.title"
       [disabled]="readonly"
-      class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
+      class="block w-full px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
       [placeholder]="'TMP_NEW_TITLE' | translate"
     />
   </div>
@@ -33,7 +33,7 @@
       name="description"
       [(ngModel)]="template.description"
       rows="4"
-      class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
+      class="block w-full px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
      [placeholder]="'TMP_NEW_DESC' | translate"
       [disabled]="readonly"
     ></textarea>
@@ -74,7 +74,7 @@
   <ul class="space-y-4">
     <li
       *ngFor="let question of template.questions"
-      class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:shadow-lg transition-shadow  transition-colors"
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover"
     >
       <span class="text-primary_dark_blue font-semibold">{{ question.prompt }}</span>
       <div class="flex space-x-2 mt-2 sm:mt-0">

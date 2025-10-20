@@ -1,4 +1,4 @@
-<div class="flex flex-col w-full bg-white/90 shadow-xl rounded-2xl sm:p-10 border border-primary_dark_light sm:min-w-[1100px]">
+<div class="flex flex-col w-full bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border border-primary_dark_light sm:min-w-[1100px]">
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-semibold text-gray-800 text-center sm:text-left m-0">
       {{ isAnonymousMode ? 'Anonymt Spørgeskema' : 'Evaluerings spørgeskema' }}
@@ -17,7 +17,7 @@
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter deltagere (navn, hold e.l.):</label>
         <input type="text" placeholder="Indtast navn på elever..." [(ngModel)]="student.searchInput"
           (input)="onInputChange('student', studentSearch.value)"
-          class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
           #studentSearch />
 
         <!-- Loading Indicator -->
@@ -34,7 +34,7 @@
         <div *ngIf="student.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
           <ul class="space-y-1">
             <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
-              class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+              class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
               {{ stud.fullName }} ({{ stud.userName }})
             </li>
           </ul>
@@ -67,7 +67,7 @@
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter Skabelon:</label>
         <input type="text" placeholder="Indtast skabelontitel..." [(ngModel)]="template.searchInput"
           (input)="onInputChange('template', templateSearch.value)"
-          class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
           #templateSearch />
 
         <!-- Loading Indicator -->
@@ -84,7 +84,7 @@
         <div *ngIf="template.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
           <ul class="space-y-1">
             <li *ngFor="let temp of template.searchResults" (click)="select('template', temp)"
-              class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+              class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
               {{ temp.title }}
             </li>
           </ul>
@@ -114,7 +114,7 @@
       <div class="flex flex-col row-start-2 col-start-2">
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Opret navn på spørgeskema:</label>
         <input type="text" placeholder="f.eks. ''Evaluering af undervisning - Alle Elever''" [(ngModel)]="groupName"
-          class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
+          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
       </div>
 
 
@@ -145,7 +145,7 @@
         placeholder="Indtast navn på elever..."
         [(ngModel)]="student.searchInput"
         (input)="onInputChange('student', studentSearch.value)"
-        class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+        class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
         #studentSearch
       />
       <div *ngIf="studentError" style="color: red; font-size: 0.9em;">{{ studentError }}</div>
@@ -165,7 +165,7 @@
         <div *ngIf="student.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
           <ul class="space-y-1">
             <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
-              class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+              class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
               {{ stud.fullName }} ({{ stud.userName }})
             </li>
           </ul>
@@ -201,7 +201,7 @@
         placeholder="Indtast navn på instruktører..."
         [(ngModel)]="teacher.searchInput"
         (input)="onInputChange('teacher', teacherSearch.value)"
-        class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+        class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
         #teacherSearch
       />
       <div *ngIf="teacherError" style="color: red; font-size: 0.9em;">{{ teacherError }}</div>
@@ -220,7 +220,7 @@
         <div *ngIf="teacher.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
           <ul class="space-y-1">
             <li *ngFor="let teach of teacher.searchResults" (click)="select('teacher', teach)"
-              class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+              class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
               {{ teach.fullName }} ({{ teach.userName }})
             </li>
           </ul>
@@ -256,7 +256,7 @@
       placeholder="Indtast skabelontitel..."
       [(ngModel)]="template.searchInput"
       (input)="onInputChange('template', templateSearch.value)"
-      class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+      class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
       #templateSearch
     />
     <div *ngIf="templateError" style="color: red; font-size: 0.9em;">{{ templateError }}</div>
@@ -275,7 +275,7 @@
       <div *ngIf="template.searchResults.length > 0" class="mt-2 bg-white shadow-md rounded-lg p-2">
         <ul class="space-y-1">
           <li *ngFor="let temp of template.searchResults" (click)="select('template', temp)"
-            class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+            class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
             {{ temp.title }}
           </li>
         </ul>
@@ -305,7 +305,7 @@
     type="text"
     placeholder="f.eks. ''Hold123 - evaluering af elever''"
     [(ngModel)]="groupName"
-    class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+    class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
   />
 </div>
   <!-- Finish and Back Buttons -->

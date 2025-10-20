@@ -20,7 +20,7 @@
 
     <li *ngFor="let opt of i18n.options()" role="option" [attr.aria-selected]="i18n.currentLang() === opt.code">
       <button type="button" (click)="onSelect(opt.code)"
-        class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+        class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-secondary_background_hover">
         <img [src]="opt.flagSrc" alt="" class="h-4 w-6 object-cover rounded-sm" />
         <span class="truncate">{{ opt.label | translate }}</span>
         <span class="ml-auto" *ngIf="i18n.currentLang() === opt.code">✓</span>

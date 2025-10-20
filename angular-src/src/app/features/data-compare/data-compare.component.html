@@ -8,7 +8,7 @@
 <div class="flex flex-col items-center w-full ">
     <!-- Main card container -->
     <div
-        class="flex flex-col w-full max-w-full sm:max-w-4xl bg-white/90 shadow-xl rounded-2xl sm:p-10 border-primary_dark_light: px-4 py-2 border-2 border-primary_orange_1  focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm  bg-gray-50">
+        class="flex flex-col w-full max-w-full sm:max-w-4xl bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border-primary_dark_light: px-4 py-2 border-2 border-primary_orange_1  focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm  bg-gray-50">
         <!-- Title -->
         <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center">{{'TMP_DATA_COMPARE_TITLE' | translate}}
         </h2>
@@ -21,7 +21,7 @@
                 <!-- Template search input -->
                 <input type="text" placeholder="Indtast skabelontitel..." [(ngModel)]="template.searchInput"
                     (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
-                    class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+                    class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
                     [placeholder]="'DATA_COMPARE.SEARCH_TEMPLATE_PLACEHOLDER' | translate" #templateSearch />
 
                 <!-- Loading indicator for template search -->
@@ -39,7 +39,7 @@
                     class="mt-2 bg-white shadow-md rounded-lg p-2">
                     <ul class="space-y-1">
                         <li *ngFor="let temp of template.searchResults" (click)="select('template', temp)"
-                            class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+                            class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
                             {{ temp.title }}
                         </li>
                     </ul>
@@ -77,7 +77,7 @@
                 <!-- Student search input -->
                 <input type="text" placeholder="Indtast navn på elever..." [(ngModel)]="student.searchInput"
                     (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
-                    class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+                    class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
                     [placeholder]="'DATA_COMPARE.SEARCH_STUDENT_PLACEHOLDER' | translate" #studentSearch />
 
                 <!-- Loading indicator for student search -->
@@ -95,7 +95,7 @@
                     class="mt-2 bg-white shadow-md rounded-lg p-2">
                     <ul class="space-y-1">
                         <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
-                            class="py-2 px-4 hover:bg-gray-100 cursor-pointer rounded">
+                            class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
                             <ng-container *ngIf="stud.type === 'user'; else groupResult">
                                 <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName
                                         }})</span></span>
@@ -209,7 +209,7 @@
                     <div class="text-lg font-semibold  ml-6">
                         <div class="relative inline-block">
                             <select [(ngModel)]="chartType" (change)="updateChartForCurrentQuestion()"
-                                class="appearance-none px-4 py-3 rounded-xl border-2 border-primary_orange_1 bg-white text-sm w-[125px] h-[45px] font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary_orange_1">
+                                class="appearance-none px-4 py-3 rounded-xl border border-primary_orange_1 bg-white text-sm w-[125px] h-[45px] font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary_orange_1">
                                 <option value="pie">{{ 'DATA_COMPARE.PIE_CHART' | translate }}</option>
                                 <option value="bar">{{ 'DATA_COMPARE.BAR_CHART' | translate }}</option>
                             </select>

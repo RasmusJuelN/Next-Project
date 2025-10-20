@@ -1,6 +1,6 @@
 <!-- Template List Section -->
 <div class="flex flex-col items-center w-full min-h-full p-4 sm:p-8">
-  <div class="flex flex-col w-full max-w-5xl bg-white/90 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
+  <div class="flex flex-col w-full max-w-5xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
 
     <ng-container *ngIf="!selectedTemplate; else editor">
 
@@ -30,7 +30,7 @@
         <select
           #searchType
           (change)="onSearchTypeChange(searchType.value)"
-          class="w-full sm:w-auto min-w-0 border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50">
+          class="w-full sm:w-auto min-w-0 border border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50">
           <option value="name" selected>{{ 'TMP_SEARCH_BY_NAME' | translate }}</option>
           <option value="id">{{ 'TMP_SEARCH_BY_ID' | translate }}</option>
         </select>
@@ -41,7 +41,7 @@
           type="text"
           (input)="onSearchChange(search.value)"
           placeholder="{{ 'TMP_SEARCH_PLACEHOLDER' | translate }}"
-          class="w-full sm:w-64 px-4 py-2 border-primary_orange_1 rounded-lg focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-white/80" />
+          class="w-full sm:w-64 px-4 py-2 border-primary_orange_1 rounded-lg focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80" />
 
         <!-- Page Size Selector -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
@@ -52,7 +52,7 @@
             #pageSize
             id="pageSize"
             (change)="onPageSizeChange(pageSize.value)"
-            class="w-full sm:w-auto border border-primary_orange_1 rounded-lg px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-white/80 text-left">
+            class="w-full sm:w-auto border border-primary_orange_1 rounded-lg px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80 text-left">
             <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">{{ size }}</option>
           </select>
         </div>
@@ -73,7 +73,7 @@
 
         <li
           *ngFor="let template of templateBases"
-          class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-gray-100 transition-colors">
+          class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover transition-colors">
 
           <!-- Title + Status -->
           <span class="w-full sm:w-auto flex items-center gap-2 text-gray-800 font-medium break-words">
