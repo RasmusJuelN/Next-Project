@@ -4,13 +4,32 @@ import { TranslateService } from '@ngx-translate/core';
 const LANGS = ['en', 'da'] as const;
 export type Lang = (typeof LANGS)[number];
 type LangOption = { code: Lang; label: string; flagSrc: string };
-const DEFAULT_LANG: Lang = LANGS[0];
+const DEFAULT_LANG: Lang = 'da'; // Changed to Danish as default
 
 @Injectable({
   providedIn: 'root'
 })
 export class I18nService {
   readonly currentLang = signal<Lang>(DEFAULT_LANG);
+
+  /**
+   * Gets the initial language for the application
+   * Priority: localStorage > default (Danish)
+   */
+  static getInitialLanguage(): Lang {
+    // 1. Check localStorage for user's saved preference (highest priority)
+    try {
+      const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('lang') : null;
+      if (savedLang && (LANGS as readonly string[]).includes(savedLang)) {
+        return savedLang as Lang;
+      }
+    } catch {
+      // localStorage access failed, continue to default
+    }
+
+    // 2. Fallback to default
+    return DEFAULT_LANG;
+  }
 
   // Single source of truth for flags
   private readonly flagByCode: Record<Lang, string> = {
@@ -71,15 +90,7 @@ export class I18nService {
 
   // ---------- internals ----------
   private resolveInitialLang(): Lang {
-    const saved = this.safeGet('lang');
-    if (this.isSupported(saved)) return saved as Lang;
-
-    /*
-    // SSR-safe browser detection Checks for browser lang
-    const navLang = this.safeNavigatorLang();
-    if (this.isSupported(navLang)) return navLang as Lang;
-    */
-    return DEFAULT_LANG;
+    return I18nService.getInitialLanguage();
   }
 
   private normalize(v: unknown): Lang | null {
