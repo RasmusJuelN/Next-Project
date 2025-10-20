@@ -26,11 +26,10 @@ public class ApplicationLogsModel
     /// Gets or sets the primary log message content.
     /// </summary>
     /// <remarks>
-    /// Contains the main log message with a maximum length of 1000 characters.
+    /// Contains the main log message.
     /// Should provide clear, concise information about the logged event or condition.
     /// </remarks>
     [Required]
-    [MaxLength(1000)]
     public required string Message { get; set; }
     
     /// <summary>
@@ -78,9 +77,7 @@ public class ApplicationLogsModel
     /// </summary>
     /// <remarks>
     /// Contains serialized exception information including stack traces and inner exceptions.
-    /// Maximum length of 5000 characters to accommodate detailed error information.
     /// Null for non-error log entries.
     /// </remarks>
-    [MaxLength(5000)]
     public string? Exception { get; set; }
 }
