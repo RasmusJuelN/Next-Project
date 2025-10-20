@@ -73,11 +73,11 @@
       [maxlength]="500"
       (input)="onCustomAnswerChange()"
     ></textarea>
-    <div class="text-sm text-primary_dark_blue mt-1">
-      {{ customAnswer.length }} / 500 characters
+    <div class="text-sm text-white mt-1">
+      {{ customAnswer.length }} / 500 {{ 'QUESTIONAIRE.CUSTOM_ANSWER_CHARACTER_COUNT' | translate }}
     </div>
     <div *ngIf="ToFewCharacters" class="text-red-500 text-sm mt-1">
-      Too few characters to proceed.
+      {{ 'QUESTIONAIRE.CUSTOM_ANSWER_ERROR' | translate }}
     </div>
   </div>
 </div>

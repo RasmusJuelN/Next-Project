@@ -6,7 +6,7 @@
   </div>
 
   <ng-template #questionnaireContent>
-    <div class="bg-black/10 shadow-primary_orange_1/50 p-8 rounded-lg shadow-2xl border-2 border-primary_orange_1 w-full max-w-[1000px] min-w-[320px] sm:min-w-[600px] lg:min-w-[900px] min-h-[350px] max-h-[80vh] overflow-hidden flex flex-col overflow-y-auto">
+    <div class="bg-black/10 shadow-primary_orange_1/20 p-8 rounded-lg shadow-2xl border-2 border-primary_orange_1 w-full max-w-[1000px] min-w-[320px] sm:min-w-[600px] lg:min-w-[900px] min-h-[350px] max-h-[80vh] overflow-hidden flex flex-col overflow-y-auto custom-scrollbar">
       <!-- Fixed Header -->
       <div class=" px-4 rounded-xl mb-8 ">
         <div class="mb-4 flex items-center justify-between">
@@ -38,7 +38,7 @@
         </div>
       </div>
       
-      <!-- Scrollable Question Content -->
+      <!-- Question Content -->
       <div class="flex-grow mb-2">
         <app-question
           [question]="currentQuestion"

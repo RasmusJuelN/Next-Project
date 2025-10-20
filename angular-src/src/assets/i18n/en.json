@@ -151,7 +151,9 @@
     "SAVE": "Save Question"
   },
   "QUESTIONAIRE": {
-    "COLLABORATOR": "Collaborator"
+    "COLLABORATOR": "Collaborator",
+    "CUSTOM_ANSWER_ERROR": "Too few characters to proceed.",
+    "CUSTOM_ANSWER_CHARACTER_COUNT": "characters"
   },
   "DATA_COMPARE" : {
     "SEARCH_STUDENT_LABEL": "Search for student or group:",

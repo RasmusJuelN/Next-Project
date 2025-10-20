@@ -153,7 +153,9 @@
     },
 
   "QUESTIONAIRE": {
-    "COLLABORATOR": "Samarbejdspartner"
+    "COLLABORATOR": "Samarbejdspartner",
+    "CUSTOM_ANSWER_ERROR": "Indtast dit svar for at fortsætte.",
+    "CUSTOM_ANSWER_CHARACTER_COUNT": "tegn"
   },
   "DATA_COMPARE" : {
     "SEARCH_STUDENT_LABEL": "Søg efter elev eller gruppe:",
