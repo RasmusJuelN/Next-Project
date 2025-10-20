@@ -178,17 +178,42 @@
   },
   "PDF": {
     "TITLE": "Matrixskema (Lærer / Elev)",
-    "META_NOTE": "Spørgsmål kan have 0–15 muligheder. Kun valgte viser et X. Custom-bemærkninger vises nedenfor.",
-    "NO_OPTIONS_NOTE": "Ingen foruddefinerede muligheder — brug bemærkningsfeltet nedenfor.",
+    "META_NOTE": "Spørgsmål kan have 0-10 muligheder. Valgte viser et X. Hvis der er mulighed for eget svar , vises det under tabellen.",
+    "NO_OPTIONS_NOTE": "Ingen foruddefinerede muligheder — kig på feltet nedenfor.",
     "TEACHER_ROW": "Lærer",
     "STUDENT_ROW": "Elev",
-    "TEACHER_CUSTOM": "Lærer (custom):",
-    "STUDENT_CUSTOM": "Elev (custom):",
+    "TEACHER_CUSTOM": "Lærer (eget svar):",
+    "STUDENT_CUSTOM": "Elev (eget svar):",
     "TABLE_TEMPLATE": "Skabelon",
     "TABLE_STUDENT": "Elev",
     "TABLE_TEACHER": "Lærer",
-    "FOOTER_LEFT": "Print: markér X i hånden. PDF viser alle custom-bemærkninger.",
+    "FOOTER_LEFT": "",
     "PAGE": "Side"
+  },
+
+  "RESULT": {
+    "COMPRESSED_VIEW": "Komprimeret visning",
+    "FULL_VIEW": "Fuld visning",
+    "COMPRESSED_VIEW_SHORT": "Komprimeret",
+    "FULL_VIEW_SHORT": "Fuld",
+    "TOGGLE_VIEW_TOOLTIP": "Skift visningstilstand",
+    "OPEN_PDF": "Åbn PDF",
+    "OPEN_PDF_SHORT": "Åbn",
+    "OPEN_PDF_TOOLTIP": "Åbn PDF i ny fane",
+    "DOWNLOAD_PDF": "Download PDF",
+    "DOWNLOAD_PDF_SHORT": "Download",
+    "DOWNLOAD_PDF_TOOLTIP": "Download PDF",
+    "PRINT": "Udskriv",
+    "PRINT_SHORT": "Udskriv",
+    "PRINT_TOOLTIP": "Udskriv",
+    "TEMPLATE_TITLE": "Skabelon:",
+    "STUDENT_LABEL": "Elev",
+    "TEACHER_LABEL": "Lærer",
+    "COMPLETED_ON": "Fuldført den:",
+    "CUSTOM_ANSWER": "Brugerdefineret svar",
+    "CUSTOM_RESPONSES": "Brugerdefinerede svar:",
+    "NO_OPTIONS_AVAILABLE": "Ingen valgmuligheder tilgængelige for dette spørgsmål",
+    "SCROLL_HINT": "Scroll horisontalt for at se alle valgmuligheder →"
   }
 
 }

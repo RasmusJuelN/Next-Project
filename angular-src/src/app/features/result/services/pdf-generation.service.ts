@@ -202,16 +202,6 @@ export class PdfGenerationService {
 
     const body = [header];
 
-    // Only add teacher row if response is not custom
-    if (!teacherResponse.isCustom) {
-      const teacherRow = this.createMatrixRow(
-        this.translate.instant('PDF.TEACHER_ROW'), 
-        teacherResponse, 
-        options
-      );
-      body.push(teacherRow);
-    }
-    
     // Only add student row if response is not custom
     if (!studentResponse.isCustom) {
       const studentRow = this.createMatrixRow(
@@ -220,6 +210,16 @@ export class PdfGenerationService {
         options
       );
       body.push(studentRow);
+    }
+
+    // Only add teacher row if response is not custom
+    if (!teacherResponse.isCustom) {
+      const teacherRow = this.createMatrixRow(
+        this.translate.instant('PDF.TEACHER_ROW'), 
+        teacherResponse, 
+        options
+      );
+      body.push(teacherRow);
     }
 
     return {
@@ -271,28 +271,9 @@ export class PdfGenerationService {
   private createCustomResponsesSection(teacherResponse: any, studentResponse: any): any[] {
     const customStack: any[] = [];
 
-    if (teacherResponse.isCustom) {
-      customStack.push({
-        margin: [0, 6, 0, 0],
-        columns: [
-          { 
-            text: this.translate.instant('PDF.TEACHER_CUSTOM'), 
-            width: 120, 
-            italics: true, 
-            color: '#6b7280' 
-          },
-          { 
-            text: teacherResponse.text, 
-            width: '*', 
-            fontSize: 9 
-          },
-        ],
-      });
-    }
-
     if (studentResponse.isCustom) {
       customStack.push({
-        margin: [0, 2, 0, 0],
+        margin: [0, 6, 0, 0],
         columns: [
           { 
             text: this.translate.instant('PDF.STUDENT_CUSTOM'), 
@@ -302,6 +283,25 @@ export class PdfGenerationService {
           },
           { 
             text: studentResponse.text, 
+            width: '*', 
+            fontSize: 9 
+          },
+        ],
+      });
+    }
+
+    if (teacherResponse.isCustom) {
+      customStack.push({
+        margin: [0, 2, 0, 0],
+        columns: [
+          { 
+            text: this.translate.instant('PDF.TEACHER_CUSTOM'), 
+            width: 120, 
+            italics: true, 
+            color: '#6b7280' 
+          },
+          { 
+            text: teacherResponse.text, 
             width: '*', 
             fontSize: 9 
           },

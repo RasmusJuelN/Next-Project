@@ -9,12 +9,13 @@ import { AgCharts } from "ag-charts-angular";
 import { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
+import { TranslateService, TranslateModule } from "@ngx-translate/core";
 
 @Component({
   selector: "app-result",
   standalone: true,
   providers: [ResultService, PdfGenerationService],
-  imports: [CommonModule, AgCharts, RouterModule, FormsModule],
+  imports: [CommonModule, AgCharts, RouterModule, FormsModule, TranslateModule],
   templateUrl: "./result.component.html",
   template: `
     <button (click)="updateChart('stacked')">Stacked</button>
@@ -34,11 +35,15 @@ export class ResultComponent implements OnInit {
 
   chartType: "stacked" | "donut" = "stacked";
   chartOptions: AgChartOptions | null = null;
+  
+  // Toggle between compressed and full view
+  isFullView = false;
 
   constructor(
     private route: ActivatedRoute,
     private resultService: ResultService,
-    private pdfGenerationService: PdfGenerationService
+    private pdfGenerationService: PdfGenerationService,
+    public translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -69,6 +74,31 @@ export class ResultComponent implements OnInit {
 
   printPage(): void {
     window.print();
+  }
+
+  toggleView(): void {
+    this.isFullView = !this.isFullView;
+  }
+
+  getTemplateQuestionOptions(questionPrompt: string): any[] {
+    if (!this.template) return [];
+    const templateQuestion = this.template.questions.find(q => q.prompt === questionPrompt);
+    return templateQuestion?.options?.slice(0, 15) || [];
+  }
+
+  isOptionSelected(response: string, isCustom: boolean, option: any, index: number): boolean {
+    if (isCustom || !response) return false;
+    
+    // Try to match by option value, display text, or index
+    if (response === option.displayText) return true;
+    if (response === option.optionValue?.toString()) return true;
+    if (response === (index + 1).toString()) return true; // Match 1-based index
+    if (response === index.toString()) return true; // Match 0-based index
+    
+    // Try exact text match (case insensitive)
+    if (response?.toLowerCase() === option.displayText?.toLowerCase()) return true;
+    
+    return false;
   }
 
   generatePdf(): void {
