@@ -21,6 +21,7 @@ import { TeacherService } from './features/teacher-dashboard/services/teacher.se
 import { MockTeacherService } from './features/teacher-dashboard/services/mock.teacher.service';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { I18nService } from './core/services/I18n.service';
 
 
 
@@ -63,11 +64,20 @@ export const appConfig: ApplicationConfig = {
     useFactory: (authService: AuthService) => () => authService.initializeAuthState(),
     deps: [AuthService],
     multi: true,
+  },
+  {
+    provide: APP_INITIALIZER,
+    useFactory: (i18nService: I18nService) => () => {
+      // The constructor already handles initialization
+      return Promise.resolve();
     },
+    deps: [I18nService],
+    multi: true,
+  },
  
     provideTranslateService({
-      lang: 'en',            
-      fallbackLang: 'en',
+      lang: I18nService.getInitialLanguage(),            
+      fallbackLang: 'da',
       loader: provideTranslateHttpLoader({
         prefix: '/assets/i18n/',  
         suffix: '.json',          

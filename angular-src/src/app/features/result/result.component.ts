@@ -1,18 +1,21 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ResultService } from "./services/result.service";
+import { PdfGenerationService } from "./services/pdf-generation.service";
 import { Result } from "./models/result.model";
+import { Template, TemplateStatus } from "../../shared/models/template.model";
 import { CommonModule } from "@angular/common";
 import { AgCharts } from "ag-charts-angular";
 import { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
+import { TranslateService, TranslateModule } from "@ngx-translate/core";
 
 @Component({
   selector: "app-result",
   standalone: true,
-  providers: [ResultService],
-  imports: [CommonModule, AgCharts, RouterModule, FormsModule],
+  providers: [ResultService, PdfGenerationService],
+  imports: [CommonModule, AgCharts, RouterModule, FormsModule, TranslateModule],
   templateUrl: "./result.component.html",
   template: `
     <button (click)="updateChart('stacked')">Stacked</button>
@@ -26,13 +29,21 @@ import { FormsModule } from "@angular/forms";
 })
 export class ResultComponent implements OnInit {
   result: Result | null = null;
+  template: Template | null = null;
   isLoading = true;
   errorMessage: string | null = null;
 
   chartType: "stacked" | "donut" = "stacked";
+  chartOptions: AgChartOptions | null = null;
+  
+  // Toggle between compressed and full view
+  isFullView = false;
+
   constructor(
     private route: ActivatedRoute,
-    private resultService: ResultService
+    private resultService: ResultService,
+    private pdfGenerationService: PdfGenerationService,
+    public translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -49,7 +60,7 @@ export class ResultComponent implements OnInit {
             this.isLoading = false;
           }
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error(err);
           this.errorMessage = "Fejl ved kontrol af resultatadgang.";
           this.isLoading = false;
@@ -65,22 +76,119 @@ export class ResultComponent implements OnInit {
     window.print();
   }
 
-  chartOptions: AgChartOptions | null = null;
+  toggleView(): void {
+    this.isFullView = !this.isFullView;
+  }
+
+  getTemplateQuestionOptions(questionPrompt: string): any[] {
+    if (!this.template) return [];
+    const templateQuestion = this.template.questions.find(q => q.prompt === questionPrompt);
+    return templateQuestion?.options?.slice(0, 15) || [];
+  }
+
+  isOptionSelected(response: string, isCustom: boolean, option: any, index: number): boolean {
+    if (isCustom || !response) return false;
+    
+    // Try to match by option value, display text, or index
+    if (response === option.displayText) return true;
+    if (response === option.optionValue?.toString()) return true;
+    if (response === (index + 1).toString()) return true; // Match 1-based index
+    if (response === index.toString()) return true; // Match 0-based index
+    
+    // Try exact text match (case insensitive)
+    if (response?.toLowerCase() === option.displayText?.toLowerCase()) return true;
+    
+    return false;
+  }
+
+  generatePdf(): void {
+    if (this.result) {
+      try {
+        // Use actual template if available, otherwise create mock template
+        const template = this.template || this.createTemplateFromResult(this.result);
+        this.pdfGenerationService.generatePdf(this.result, template);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF. Please try again.');
+      }
+    } else {
+      alert('Result data not available. Please wait for data to load.');
+    }
+  }
+
+  openPdf(): void {
+    if (this.result) {
+      try {
+        // Use actual template if available, otherwise create mock template
+        const template = this.template || this.createTemplateFromResult(this.result);
+        this.pdfGenerationService.openPdf(this.result, template);
+      } catch (error) {
+        console.error('Error opening PDF:', error);
+        alert('Error opening PDF. Please try again.');
+      }
+    } else {
+      alert('Result data not available. Please wait for data to load.');
+    }
+  }
+
+  private createTemplateFromResult(result: Result): Template {
+    // Fallback method: Create a basic template from result data when actual template is not available
+    // This ensures PDF generation still works even if template fetch fails
+    const questions = result.answers.map((answer, index) => ({
+      id: index + 1,
+      prompt: answer.question,
+      allowCustom: answer.isStudentResponseCustom || answer.isTeacherResponseCustom,
+      options: [] // We don't have the original options, so leave empty
+    }));
+
+    return {
+      id: result.id,
+      title: result.title,
+      description: result.description || '',
+      templateStatus: TemplateStatus.Finalized,
+      questions: questions
+    };
+  }
 
   fetchResult(id: string): void {
+    // Fetch both result and template
     this.resultService.getResultById(id).subscribe({
       next: (data: Result) => {
         if (data) {
           this.result = data;
           this.updateChart(this.chartType, data);
+          
+          // Now fetch the template
+          this.fetchTemplate(id);
         } else {
           this.errorMessage = "Resultat ikke fundet.";
+          this.isLoading = false;
+        }
+      },
+      error: (err: any) => {
+        console.error(err);
+        this.errorMessage = "Resultat ikke fundet.";
+        this.isLoading = false;
+      },
+    });
+  }
+
+  fetchTemplate(id: string): void {
+    this.resultService.getTemplateByResultId(id).subscribe({
+      next: (templateData: Template) => {
+        if (templateData) {
+          this.template = templateData;
+          console.log('Template loaded successfully for PDF generation');
+        } else {
+          console.warn('Template data is empty, PDF generation will use fallback template');
         }
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error(err);
-        this.errorMessage = "Resultat ikke fundet.";
+      error: (err: any) => {
+        console.error('Error fetching template:', err);
+        console.warn('Template fetch failed, PDF generation will use fallback template created from result data');
+        // Don't show error to user, just log it and continue
+        // PDF generation will fall back to mock template if needed
         this.isLoading = false;
       },
     });

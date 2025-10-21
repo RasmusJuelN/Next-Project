@@ -175,5 +175,44 @@
   "LANG": {
     "EN": "English",
     "DA": "Danish"
+  },
+  "PDF": {
+    "TITLE": "Matrix Questionnaire (Teacher / Student)",
+    "META_NOTE": "Questions can have 0–10 options. Only chosen predefined options show an X. If there is an option for own answer, it is shown below.",
+    "NO_OPTIONS_NOTE": "No predefined options for this question — use the remarks area below.",
+    "TEACHER_ROW": "Teacher",
+    "STUDENT_ROW": "Student",
+    "TEACHER_CUSTOM": "Teacher (own answer):",
+    "STUDENT_CUSTOM": "Student (own answer):",
+    "TABLE_TEMPLATE": "Template",
+    "TABLE_STUDENT": "Student",
+    "TABLE_TEACHER": "Teacher",
+    "FOOTER_LEFT": "",
+    "PAGE": "Page"
+  },
+
+  "RESULT": {
+    "COMPRESSED_VIEW": "Compressed View",
+    "FULL_VIEW": "Full View",
+    "COMPRESSED_VIEW_SHORT": "Compressed",
+    "FULL_VIEW_SHORT": "Full",
+    "TOGGLE_VIEW_TOOLTIP": "Toggle view mode",
+    "OPEN_PDF": "Open PDF",
+    "OPEN_PDF_SHORT": "Open",
+    "OPEN_PDF_TOOLTIP": "Open PDF in new tab",
+    "DOWNLOAD_PDF": "Download PDF",
+    "DOWNLOAD_PDF_SHORT": "Download",
+    "DOWNLOAD_PDF_TOOLTIP": "Download PDF",
+    "PRINT": "Print",
+    "PRINT_SHORT": "Print",
+    "PRINT_TOOLTIP": "Print",
+    "TEMPLATE_TITLE": "Template:",
+    "STUDENT_LABEL": "Student",
+    "TEACHER_LABEL": "Teacher",
+    "COMPLETED_ON": "Completed on:",
+    "CUSTOM_ANSWER": "Custom answer",
+    "CUSTOM_RESPONSES": "Custom responses:",
+    "NO_OPTIONS_AVAILABLE": "No options available for this question",
+    "SCROLL_HINT": "Scroll horizontally to see all options →"
   }
 }
