@@ -63,6 +63,7 @@ public sealed class DBLogger(
             Message = message,
             LogLevel = logLevel,
             EventId = eventId.Id,
+            EventDescription = eventId.Name ?? string.Empty,
             Category = _categoryName,
             Exception = exception?.ToString() ?? string.Empty
         };

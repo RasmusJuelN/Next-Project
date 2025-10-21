@@ -21,7 +21,7 @@ public class ApplicationLogsModel
     /// </summary>
     [Key]
     public int Id { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the primary log message content.
     /// </summary>
@@ -31,7 +31,7 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public required string Message { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the severity level of this log entry using Microsoft.Extensions.Logging.LogLevel.
     /// </summary>
@@ -41,7 +41,7 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public required LogLevel LogLevel { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the timestamp when this log entry was created.
     /// </summary>
@@ -51,7 +51,7 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public DateTime Timestamp { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the event identifier associated with this log entry.
     /// </summary>
@@ -61,7 +61,16 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public required int EventId { get; set; }
-    
+
+    /// <summary>
+    /// Gets or sets the description of the event associated with this log entry.
+    /// </summary>
+    /// <remarks>
+    /// Provides additional context about the event being logged, and which type it is.
+    /// </remarks>
+    [Required]
+    public required string EventDescription { get; set; }
+
     /// <summary>
     /// Gets or sets the category or source component that generated this log entry.
     /// </summary>
@@ -71,7 +80,7 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public required string Category { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the optional exception details if this log entry is related to an error.
     /// </summary>
