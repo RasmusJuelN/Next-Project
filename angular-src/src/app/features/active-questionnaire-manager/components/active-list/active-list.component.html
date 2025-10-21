@@ -30,12 +30,12 @@
 
     <!-- Filters -->
     <div class="flex flex-row xs:flex-row gap-2 sm:gap-4">
-      <label class="flex items-center gap-2 text-primary_dark_light py-1">
+      <label class="flex items-center gap-2 text-primary_dark_blue py-1">
         <input type="checkbox" class="h-4 w-4" [(ngModel)]="filterPendingStudent" (change)="onFilterChange()" />
         <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_STUDENT_PENDING' | translate }}</span>
       </label>
 
-      <label class="flex items-center gap-2 text-primary_dark_light py-1">
+      <label class="flex items-center gap-2 text-primary_dark_blue py-1">
         <input type="checkbox" class="h-4 w-4" [(ngModel)]="filterPendingTeacher" (change)="onFilterChange()" />
         <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_TEACHER_PENDING' | translate }}</span>
       </label>
