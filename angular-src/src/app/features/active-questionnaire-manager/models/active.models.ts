@@ -43,6 +43,34 @@ export interface ActiveQuestionnaire {
       queryCursor?: string; // Cursor for next items.
       totalCount: number;
     }
+
+    // Base DTO for a group (similar to QuestionnaireGroupBase in backend)
+export interface QuestionnaireGroupResult {
+  groupId: string;
+  name: string;
+  templateId: string;
+  questionnaires: QuestionnaireBase[];
+}
+
+export interface QuestionnaireBase {
+  id: string;
+  title: string;
+  description?: string;
+  activatedAt: string; // or Date
+  student: User;
+  teacher: User;
+  studentCompletedAt?: string; // or Date
+  teacherCompletedAt?: string; // or Date
+}
+// Response DTO for keyset pagination
+export interface QuestionnaireGroupKeysetPaginationResult {
+  groups: QuestionnaireGroupResult[];
+  queryCursor?: string;
+  totalCount: number;
+}
+
+export { TemplateBase };
+
   //   export interface LdapUserDTO {
   //     name: string;
   // }

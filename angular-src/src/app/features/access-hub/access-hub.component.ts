@@ -1,9 +1,17 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Role } from '../../shared/models/user.model';
 
+/**
+ * AccessHubComponent
+ * 
+ * Acts as a central navigation hub that dynamically renders links based on roles * 
+ * Features:
+ * - Subscribes to authentication and role state from AuthService.
+ * - Provides different navigation options for Students, Teachers, and Admins.
+ */
 @Component({
   selector: 'app-access-hub',
   standalone: true,
@@ -14,10 +22,10 @@ import { Role } from '../../shared/models/user.model';
 export class AccessHubComponent {
   private authService = inject(AuthService);
 
-  userRole:Role | null = null;
-  isAuthenticated: boolean = false;
+  readonly isAuthenticated = this.authService.isAuthenticated;
+  readonly userRole = computed<Role | null>(() => this.authService.user()?.role ?? null);
 
-  // Define navLinks with a specific type
+  /** Navigation links available for each role. */
   navLinks: Partial<Record<Role, { name: string; route: string }[]>> = {
     [Role.Student]: [
       { name: 'Nuværende aktive spørgeskemaer', route: '/show-active-questionnaires' }
@@ -33,13 +41,8 @@ export class AccessHubComponent {
     ]
   };
 
-  ngOnInit(): void {
-    this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
-      this.isAuthenticated = isAuthenticated;
-    });
-
-    this.authService.userRole$.subscribe((role) => {
-      this.userRole = role as Role
-    });
-  }
+  readonly navLinksForUser= computed(() => {
+    const role = this.userRole();
+    return role != null ? this.navLinks[role] : [];
+  });
 }

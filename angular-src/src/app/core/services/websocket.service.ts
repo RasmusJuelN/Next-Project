@@ -4,6 +4,16 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Observable, Subject, timer } from 'rxjs';
 import { retryWhen, switchMap, tap } from 'rxjs/operators';
 
+/**
+ * @deprecated This WebSocket service is no longer used.
+ * It has been superseded by HTTP-based APIs and/or other real-time mechanisms.
+ *
+ * Old responsibilities:
+ * - Opened a WebSocket connection.
+ * - Retried on disconnect with exponential backoff.
+ * - Exposed connection status as an observable.
+ * - Supported optional heartbeat messages.
+ */
 @Injectable({
   providedIn: 'root',
 })

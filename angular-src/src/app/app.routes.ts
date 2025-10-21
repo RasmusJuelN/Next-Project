@@ -13,7 +13,7 @@ import { roleGuard } from './core/guards and interceptors/role-guard.guard';
 import { ResultHistoryComponent } from './features/misc/result-history/result-history.component';
 import { Role } from './shared/models/user.model';
 import { ShowActiveQuestionnaireComponent } from './features/show-active-questionnaire/show-active-questionnaire.component';
-import { TestcomponentComponent } from './features/active-questionnaire-manager/components/testcomponent/testcomponent.component';
+import { DataCompareComponent } from './features/data-compare/data-compare.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -57,6 +57,12 @@ export const routes: Routes = [
   {
     path: 'teacher-dashboard',
     component: TeacherDashboardComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.Teacher] },
+  },
+    {
+    path: 'data-compare',
+    component: DataCompareComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: [Role.Teacher] },
   },

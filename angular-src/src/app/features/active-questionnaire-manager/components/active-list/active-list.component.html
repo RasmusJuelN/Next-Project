@@ -1,97 +1,127 @@
-<div class="flex flex-col bg-white shadow-md rounded-lg p-6 sm:p-8 sm:max-w-[1100px] mx-auto">
-  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left m-2">
-    Administrer Aktive Spørgeskemaer
+<!-- Active list -->
+<div class="flex flex-col bg-primary_background_white/80 shadow-xl rounded-2xl border-2 border-primary_orange_1 p-4 sm:p-10 sm:max-w-[1100px] mx-auto">
+  <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4 sm:mb-6 text-center sm:text-left m-2">
+    {{ 'ACTIVE_LIST.TITLE' | translate }}
   </h2>
 
-  <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 w-full">
+  <!-- Create button -->
+  <div class="grid grid-cols-1 gap-4 w-full">
     <button 
       (click)="onCreateNewQuestionnaire()"
-      class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors w-full sm:w-auto border-2 border-primary_orange_1 hover:border-primary_dark_blue">
-      Tildel et Spørgeskema
+      class="w-full sm:w-auto bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors">
+      {{ 'ACTIVE_LIST.BUTTON_CREATE' | translate }}
     </button>
+  </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-      <div class="flex flex-col w-full">
-        <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter elever:</label>
-        <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
-          <select [(ngModel)]="searchStudentType" (change)="onSearchStudentTypeChange(searchStudentType)"
-            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[110px] bg-gray-50">
-            <option value="fullName">Fulde Navn</option>
-            <option value="userName">Brugernavn</option>
-            <option value="both" selected>Begge</option>
-          </select>
-          <input type="text" placeholder="Skriv her..." [(ngModel)]="searchStudent"
-            (ngModelChange)="onSearchStudentChange($event)"
-            class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
-        </div>
-      </div>
+  <!-- Sub-title -->
+  <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mt-6 mb-3">
+    {{ 'ACTIVE_LIST.SUBTITLE' | translate }}
+  </h2>
 
-      <div class="flex flex-col w-full">
-        <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter instruktør:</label>
-        <div class="grid grid-cols-[auto_1fr] sm:flex gap-2 items-center">
-          <select [(ngModel)]="searchTeacherType" (change)="onSearchTeacherTypeChange(searchTeacherType)"
-            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[110px] bg-gray-50">
-            <option value="fullName">Fulde Navn</option>
-            <option value="userName">Brugernavn</option>
-            <option value="both" selected>Begge</option>
-          </select>
-          <input type="text" placeholder="Skriv her..." [(ngModel)]="searchTeacher"
-            (ngModelChange)="onSearchTeacherChange($event)"
-            class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
-        </div>
-      </div>
+  <!-- Controls -->
+  <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full mb-4">
+    <!-- Search -->
+    <input
+      type="text"
+      placeholder="{{ 'ACTIVE_LIST.SEARCH_PLACEHOLDER' | translate }}"
+      [(ngModel)]="searchTitle"
+      (input)="onSearchTitleChange(searchTitle)"
+      class="w-full sm:w-64 px-4 py-2 border-primary_orange rounded-lg focus:ring-primary_orange focus:border-primary_orange text-sm bg-primary_background_white/80" />
+
+    <!-- Filters -->
+    <div class="flex flex-row xs:flex-row gap-2 sm:gap-4">
+      <label class="flex items-center gap-2 text-primary_dark_light py-1">
+        <input type="checkbox" class="h-4 w-4" [(ngModel)]="filterPendingStudent" (change)="onFilterChange()" />
+        <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_STUDENT_PENDING' | translate }}</span>
+      </label>
+
+      <label class="flex items-center gap-2 text-primary_dark_light py-1">
+        <input type="checkbox" class="h-4 w-4" [(ngModel)]="filterPendingTeacher" (change)="onFilterChange()" />
+        <span class="text-sm">{{ 'ACTIVE_LIST.FILTER_TEACHER_PENDING' | translate }}</span>
+      </label>
     </div>
 
-    <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-      <label class="text-primary_dark_blue font-medium">Elementer pr. side:</label>
-      <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)"
-        class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-[80px] bg-gray-50">
+    <!-- Page size -->
+    <div class="w-full sm:w-auto sm:ml-auto flex items-center gap-2">
+      <label class="text-primary_dark_blue font-medium text-sm sm:text-base whitespace-nowrap">
+        {{ 'ACTIVE_LIST.ITEMS_PER_PAGE' | translate }}
+      </label>
+      <select
+        [(ngModel)]="pageSize"
+        (change)="onPageSizeChange(pageSize)"
+        class="w-full sm:w-auto border border-primary_orange_1 rounded-lg px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80 text-left">
         <option *ngFor="let size of [5, 10, 15, 20]" [value]="size">{{ size }}</option>
       </select>
     </div>
   </div>
 
-  <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 cursor-pointer flex items-center justify-between"
-      (click)="toggleListCollapse()">
-    Aktive Spørgeskemaer
-
-  </h2>
-
-  <div *ngFor="let group of groups; let i = index" class="mb-8 border border-gray-300 rounded-lg shadow p-4 bg-gray-50">
-    <div class="flex items-center justify-between cursor-pointer" (click)="toggleGroupCollapse(i)">
-      <h3 class="text-xl font-bold text-blue-700 mb-0">
-        {{ group.name }}
-        <span class="ml-2 text-sm text-gray-600">
-          Elev: 
-          <span class="text-green-600 font-bold">{{ getAnsweredCount(group.questionnaires, 'student') }}</span>
-          /
-          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-          Instruktør: 
-          <span class="text-green-600 font-bold">{{ getAnsweredCount(group.questionnaires, 'teacher') }}</span>
-          /
-          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-        </span>
-      </h3>
-      <span [class.rotate-180]="groupCollapsed[i]" class="transition-transform duration-300 text-lg">
-        ▼
-      </span>
+  <!-- Groups -->
+  <div *ngFor="let group of groups" class="mb-6 p-2 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover transition-colors">
+  <button
+    type="button"
+    class="w-full text-left p-2"
+    (click)="toggleGroupCollapse(group.groupId)"
+    [attr.aria-expanded]="!groupCollapsed[group.groupId]"
+    [attr.aria-controls]="'group-panel-' + group.groupId">
+    
+    <!-- Group header: name, status (left) and arrow (right) -->
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <h3 class="text-lg sm:text-xl font-bold text-blue-900 leading-snug mb-1 sm:mb-0">
+          {{ group.name }}
+        </h3>
+        <div class="flex flex-row flex-wrap gap-2 text-xs sm:text-sm text-gray-600">
+          <span>
+            {{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }}
+            <span
+              [ngClass]="{
+                'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === 0,
+                'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'student') > 0 && getAnsweredCount(group.questionnaires, 'student') < group.questionnaires.length,
+                'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === group.questionnaires.length
+              }">
+              {{ getAnsweredCount(group.questionnaires, 'student') }}
+            </span>
+            /
+            <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+          </span>
+          <span>
+            {{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }}
+            <span
+              [ngClass]="{
+                'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === 0,
+                'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') > 0 && getAnsweredCount(group.questionnaires, 'teacher') < group.questionnaires.length,
+                'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === group.questionnaires.length
+              }">
+              {{ getAnsweredCount(group.questionnaires, 'teacher') }}
+            </span>
+            /
+            <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+          </span>
+        </div>
+      </div>
+      <!-- Collapse arrow on the right -->
+      <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="transition-transform duration-300 text-lg ml-4">▼</span>
     </div>
-    <div *ngIf="!groupCollapsed[i]">
-      <ul class="space-y-4 mt-4">
-        <li *ngFor="let q of group.questionnaires" class="p-4 bg-white rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <span class="font-semibold text-gray-800">{{ q.title }}</span>
-            <span class="ml-2 text-xs text-gray-500">({{ q.activatedAt | date:'dd-MM-yyyy HH:mm' }})</span>
+
+    <!-- Questionnaires list -->
+    <div *ngIf="!groupCollapsed[group.groupId]" class="mt-3 sm:mt-4">
+      <ul class="space-y-3 sm:space-y-4">
+        <li
+          *ngFor="let q of group.questionnaires"
+          class="p-2 px-4 border border-primary_orange_1 rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div class="min-w-0">
+            <span class="block font-semibold text-gray-800 break-words">{{ q.title }}</span>
+            <span class="block sm:inline text-xs text-gray-500">{{ q.activatedAt | date:'dd-MM-yyyy HH:mm' }}</span>
           </div>
-          <div class="flex flex-col sm:flex-row sm:gap-6 mt-2 sm:mt-0">
-            <span>
-              <strong>Elev:</strong>
+          <div class="flex flex-col sm:flex-row sm:gap-6 gap-1">
+            <span class="text-sm">
+              <strong>{{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }} </strong>
               <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-extrabold': !q.studentCompletedAt}">
                 {{ q.student.fullName }}
               </span>
             </span>
-            <span>
-              <strong>Instruktør:</strong>
+            <span class="text-sm">
+              <strong>{{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }} </strong>
               <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
                 {{ q.teacher.fullName }}
               </span>
@@ -100,108 +130,20 @@
         </li>
       </ul>
     </div>
-  </div>
+  </button>
+</div>
 
-
+  <!-- Footer / pagination -->
   <div *ngIf="!isListCollapsed">
-  <!-- Display groups of questionnaires -->
-    <!-- <div *ngFor="let group of groups" class="mb-8 border border-gray-300 rounded-lg shadow p-4 bg-gray-50">
-    <h3 class="text-xl font-bold text-blue-700 mb-4">{{ group.name }}</h3>
-    <ul class="space-y-4">
-      <li *ngFor="let q of group.questionnaires" class="p-4 bg-white rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <span class="font-semibold text-gray-800">{{ q.title }}</span>
-          <span class="ml-2 text-xs text-gray-500">({{ q.activatedAt | date:'dd-MM-yyyy HH:mm' }})</span>
-        </div>
-        <div class="flex flex-col sm:flex-row sm:gap-6 mt-2 sm:mt-0">
-          <span>
-            <strong>Elev:</strong>
-            <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-extrabold': !q.studentCompletedAt}">
-              {{ q.student.fullName }}
-            </span>
-          </span>
-          <span>
-            <strong>Instruktør:</strong>
-            <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
-              {{ q.teacher.fullName }}
-            </span>
-          </span>
-        </div>
-      </li>
-    </ul>
-  </div>
-    <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
+    <div class="flex justify-center items-center min-h-[120px]" *ngIf="isLoading">
       <app-loading></app-loading>
-    </div> -->
-
-    <div *ngIf="errorMessage" class="text-center p-4">
-      <p class="text-red-500 font-semibold text-lg">{{ errorMessage }}</p>
     </div>
 
+    <div *ngIf="errorMessage" class="text-center p-4">
+      <p class="text-red-500 font-semibold text-base sm:text-lg">{{ errorMessage }}</p>
+    </div>
 
-    <!-- <ul class="space-y-6 mt-6" *ngIf="!isLoading && !errorMessage">
-      <li *ngFor="let questionnaire of activeQuestionnaires"
-        class="p-5 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_3fr_2fr] gap-4">
-
-            <div class="bg-white p-4 rounded-lg shadow-sm border">
-              <strong class="text-gray-800">ID:</strong>
-              <p class="text-sm text-gray-600">{{ questionnaire.id }}</p>
-            </div>
-
-            <div class="bg-white p-4 rounded-lg shadow-sm border">
-              <strong class="text-gray-800">Titel på spørgeskema:</strong>
-              <p class="text-sm text-gray-600">{{ questionnaire.title }}</p>
-            </div>
-
-            <div class="bg-white p-4 rounded-lg shadow-sm border">
-              <strong class="text-gray-800">Aktiveret:</strong>
-              <p class="text-sm text-gray-600">{{ questionnaire.activatedAt | date:'HH:mm' }}</p>
-            </div>
-          </div>
-
-          <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">elev:</strong>
-            <p class="text-sm text-gray-600">
-              {{ questionnaire.student.fullName }} ({{ questionnaire.student.userName }})
-            </p>
-          </div>
-
-          <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">instruktør:</strong>
-            <p class="text-sm text-gray-600">
-              {{ questionnaire.teacher.fullName }} ({{ questionnaire.teacher.userName }})
-            </p>
-          </div>
-
-          <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">elev færdig:</strong>
-            <p class="text-sm font-semibold"
-              [ngClass]="{'text-red-500': !questionnaire.studentCompletedAt, 'text-green-500': questionnaire.studentCompletedAt}">
-              {{ questionnaire.studentCompletedAt ? "Fuldført" : "Ikke fuldført" }}
-            </p>
-            <p *ngIf="questionnaire.studentCompletedAt" class="text-xs text-gray-500">
-              {{ questionnaire.studentCompletedAt | date:'HH:mm' }}
-            </p>
-          </div>
-
-          <div class="bg-white p-4 rounded-lg shadow-sm border">
-            <strong class="text-gray-800">instruktør færdig:</strong>
-            <p class="text-sm font-semibold"
-              [ngClass]="{'text-red-500': !questionnaire.teacherCompletedAt, 'text-green-500': questionnaire.teacherCompletedAt}">
-              {{ questionnaire.teacherCompletedAt ? "Fuldført" : "Ikke fuldført" }}
-            </p>
-            <p *ngIf="questionnaire.teacherCompletedAt" class="text-xs text-gray-500">
-              {{ questionnaire.teacherCompletedAt | date:'HH:mm' }}
-            </p>
-          </div>
-        </div>
-      </li>
-    </ul> -->
-    
-
-    <app-pagination 
+    <app-pagination
       *ngIf="!isLoading && !errorMessage"
       [currentPage]="currentPage"
       [totalPages]="totalPages"

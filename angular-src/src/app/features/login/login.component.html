@@ -1,5 +1,8 @@
 <!-- Animated Background with Floating Elements -->
 <div class="min-h-screen min-w-full overflow-hidden  flex items-center justify-center p-6 top-0 absolute">
+  <div class="absolute top-4 right-4 z-50 print:hidden">
+  <app-language-switcher></app-language-switcher>
+</div>
   <!-- Animated Background Orbs (now using brand colors) -->
   <div class="absolute inset-0 overflow-hidden">
     <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-primary_orange_1/30 to-primary_orange_light/30 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
@@ -21,7 +24,7 @@
     <div class="absolute -inset-1 bg-gradient-to-r from-primary_orange_1 to-primary_dark_blue rounded-3xl blur-lg opacity-75 animate-pulse " style="animation-duration: 4s;"></div>
 
     <!-- Glass Card -->
-    <div class="relative bg-white/80 backdrop-blur-2xl border-2 border-primary_orange_1 rounded-3xl shadow-2xl p-8 space-y-8 transform hover:scale-105 transition-all duration-500">
+    <div class="relative bg-primary_background_white/80 backdrop-blur-2xl border-2 border-primary_orange_1 rounded-3xl shadow-2xl p-8 space-y-8 transform hover:scale-105 transition-all duration-500">
 
       <!-- Animated Logo Icon -->
       <div class="text-center space-y-4">
@@ -31,8 +34,8 @@
           </svg>
         </div>
         <div>
-          <h2 class="text-4xl font-bold bg-gradient-to-r from-primary_orange_1  to-primary_dark_blue bg-clip-text text-transparent drop-shadow-lg">{{'LOGIN_WELCOME' | translate}}</h2>
-          <p class="text-primary_dark_blue/80 mt-2 text-sm">{{'LOGIN_SUBTITLE' | translate }}</p>
+          <h2 class="text-4xl font-bold bg-gradient-to-r from-primary_orange_1  to-primary_dark_blue bg-clip-text text-transparent drop-shadow-lg">{{'LOGIN.WELCOME' | translate}}</h2>
+          <p class="text-primary_dark_blue/80 mt-2 text-sm">{{'LOGIN.SUBTITLE' | translate }}</p>
         </div>
       </div>
 
@@ -51,7 +54,7 @@
             name="userName"
             [(ngModel)]="userName"
             placeholder="Enter username"
-            class="w-full pl-12 pr-4 py-4 bg-white/90 border-2 border-primary_orange_1 rounded-2xl text-primary_dark_blue placeholder-primary_orange_light/80 focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 transition-all duration-300 hover:bg-primary_orange_light/10"
+            class="w-full pl-12 pr-4 py-4 bg-primary_background_white/80 border-2 border-primary_orange_1 rounded-2xl text-primary_dark_blue placeholder-primary_orange_light/80 focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 transition-all duration-300 hover:bg-primary_orange_light/10"
             required
             #userNameInput="ngModel"
             [class.border-red-400]="userNameInput.invalid && userNameInput.touched"
@@ -64,7 +67,7 @@
           <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
           </svg>
-          {{'LOGIN_USERNAME_REQUIRED' | translate}}
+          {{'LOGIN.USERNAME_REQUIRED' | translate}}
         </div>
 
         <!-- Password Field with Enhanced Styling -->
@@ -79,7 +82,7 @@
             name="password"
             [(ngModel)]="password"
             placeholder="Enter password"
-            class="w-full pl-12 pr-4 py-4 bg-white/90 border-2 border-primary_orange_1 rounded-2xl text-primary_dark_blue placeholder-primary_orange_light/80 focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 transition-all duration-300 hover:bg-primary_orange_light/10"
+            class="w-full pl-12 pr-4 py-4 bg-primary_background_white/80 border-2 border-primary_orange_1 rounded-2xl text-primary_dark_blue placeholder-primary_orange_light/80 focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 transition-all duration-300 hover:bg-primary_orange_light/10"
             required
             #passwordInput="ngModel"
             [class.border-red-400]="passwordInput.invalid && passwordInput.touched"
@@ -92,22 +95,23 @@
           <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
           </svg>
-         {{'LOGIN_PASSWORD_REQUIRED' | translate}}
+         {{'LOGIN.PASSWORD_REQUIRED' | translate}}
         </div>
 
         <!-- Error Message with Animation -->
-        <div *ngIf="errorMessage" class="bg-red-500/10 backdrop-blur-sm border-2 border-red-400/30 text-red-600 px-4 py-3 rounded-2xl text-sm flex items-center animate-pulse">
+        <div *ngIf="errorKey" class="bg-red-500/10 backdrop-blur-sm border-2 border-red-400/30 text-red-600 px-4 py-3 rounded-2xl text-sm flex items-center animate-pulse"
+          role="alert" aria-live="polite">
           <svg class="w-5 h-5 mr-2 text-red-400" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
           </svg>
-          {{ errorMessage }}
+           {{ errorKey | translate }}
         </div>
 
         <!-- Enhanced Submit Button -->
         <button
           type="submit"
-          class="group relative w-full overflow-hidden bg-gradient-to-br from-primary_orange_1 to-primary_dark_blue text-white py-4 rounded-2xl font-semibold text-lg shadow-2xl hover:shadow-primary_orange_1/25 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none  "
-          [disabled]="isLoading"
+          class="group relative w-full overflow-hidden bg-gradient-to-br from-primary_orange_1 to-primary_dark_blue text-white py-4 rounded-2xl font-semibold text-lg shadow-2xl hover:shadow-primary_orange_1/25 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          [disabled]="isLoading || loginForm.invalid"
         >
           <!-- Button Background Animation -->
           <div class="absolute inset-0 bg-gradient-to-br from-primary_orange_1 to-primary_dark_blue opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -117,7 +121,7 @@
             <svg class="w-5 h-5 mr-2 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
             </svg>
-            {{'LOGIN_SUBMIT' | translate}}
+            {{'LOGIN.SUBMIT' | translate}}
           </span>
 
           <!-- Loading State -->
@@ -126,7 +130,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{'LOGIN_LOADING' | translate}}
+            {{'LOGIN.LOADING' | translate}}
           </span>
 
           <!-- Shimmer Effect -->

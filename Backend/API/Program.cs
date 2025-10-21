@@ -16,6 +16,7 @@ using Database.Interfaces;
 using API.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net;
+using API.Services.Authentication;
 
 const string settingsFile = "config.json";
 
@@ -44,14 +45,14 @@ SystemSettings systemSettings = ConfigurationBinderService.Bind<SystemSettings>(
 
 // Add services to the container.
 
-builder.Services.AddScoped<LdapService>();
+builder.Services.AddScoped<IAuthenticationBridge, ActiveDirectoryAuthenticationBridge>();
 builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<QuestionnaireTemplateService>();
 builder.Services.AddScoped<ActiveQuestionnaireService>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddSingleton<LdapSessionCacheService>();
+builder.Services.AddSingleton<CacheService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddAuthentication(cfg => {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -189,6 +190,7 @@ builder.Services.AddAuthorizationBuilder()
                       .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
                       .AddPolicy("TeacherOnly", policy => policy.RequireRole("teacher"))
                       .AddPolicy("StudentOnly", policy => policy.RequireRole("student"))
+                      .AddPolicy("AdminAndTeacherOnly", policy => policy.RequireRole("admin", "teacher"))
                       .AddPolicy("StudentAndTeacherOnly", policy => policy.RequireRole("student", "teacher"));
 
 
@@ -212,9 +214,15 @@ using (IServiceScope scope = app.Services.CreateScope())
             {
                 context.Database.Migrate();
             }
+            else if (!databaseCreator.Exists())
+            {
+                logger.LogInformation("Database does not exist, creating it...");
+                databaseCreator.Create();
+                context.Database.Migrate();
+            }
             else
             {
-                logger.LogInformation("Waiting for database to be created/migrated... ({attempt}/{max_attempts})", attempt + 1, max_attempts);
+                logger.LogWarning("Waiting for database to be created/migrated... ({attempt}/{max_attempts})", attempt + 1, max_attempts);
                 Thread.Sleep(TimeSpan.FromSeconds(30));
                 if (attempt == max_attempts - 1)
                 {

@@ -1,22 +1,40 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { QuestionComponent } from './question/question.component';
 import { AnswerService } from './services/answer.service';
 import { Answer, AnswerSubmission, QuestionnaireState } from './models/answer.model';
 import { LoadingComponent } from '../../shared/loading/loading.component';
+import { Role, User } from '../../shared/models/user.model';
+import { AuthService } from '../../core/services/auth.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { map } from 'rxjs';
 
+
+/**
+ * Questionnaire component.
+ *
+ * Presents and submits an active questionnaire for the current user.
+ *
+ * Handles:
+ * - Loading questionnaire by route id.
+ * - Submitting answers when all questions are completed.
+ */
 @Component({
   selector: 'app-answer-questionnaire',
   standalone: true,
-  imports: [CommonModule, QuestionComponent, LoadingComponent],
+  imports: [CommonModule, QuestionComponent, LoadingComponent, TranslateModule],
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.css'],
 })
-export class QuestionnaireComponent implements OnInit {
+export class QuestionnaireComponent {
   private answerService = inject(AnswerService);
+  private authService = inject(AuthService)
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+
+  readonly user = this.authService.user;
 
   state: QuestionnaireState = {
     template: {
@@ -36,16 +54,23 @@ export class QuestionnaireComponent implements OnInit {
   errorMessage: string | null = null;
 
   ngOnInit() {
-    this.route.paramMap.subscribe((params) => {
-      const questionnaireId = params.get('id');
-      if (questionnaireId) {
-        this.checkAndLoadQuestionnaire(questionnaireId);
-      } else {
-        console.error('No questionnaire ID found in route!');
-      }
-    });
-  }
+    const u = this.user(); 
+    if (!u) { this.router.navigate(['/'], { replaceUrl: true }); return; }
 
+  this.route.paramMap
+  .subscribe((pm) => {
+    const questionnaireId = pm.get('id');
+    if (questionnaireId) {
+      this.checkAndLoadQuestionnaire(questionnaireId);
+    } else {
+      console.error('No questionnaire ID found in route!');
+    }
+  });
+  }
+  /**
+ * Verifies whether the user already submitted the questionnaire;
+ * loads details if not, otherwise navigates home.
+ */
   private checkAndLoadQuestionnaire(id: string) {
     this.isLoading = true;
     // First, check if the user has already submitted the questionnaire
@@ -67,8 +92,10 @@ export class QuestionnaireComponent implements OnInit {
     });
   }
 
+  /** Loads questionnaire template data and updates progress. */
   private loadQuestionnaire(id: string) {
-    this.answerService.getActiveQuestionnaireById(id).subscribe({
+    this.answerService.getActiveQuestionnaireById(id)
+    .subscribe({
       next: (template) => {
         if (template) {
           this.state.template = template;
@@ -86,16 +113,19 @@ export class QuestionnaireComponent implements OnInit {
     });
   }
 
+  /** The question at the current index. */
   get currentQuestion() {
     return this.state.template.questions[this.state.currentQuestionIndex];
   }
 
+  /** The saved answer for the current question (if any). */
   get currentAnswer(): Answer | undefined {
     return this.state.answers.find(
       (a) => a.questionId === this.currentQuestion.id
     );
   }
 
+  /** True if every question has either an option selected or a non-empty custom answer. */
   get allQuestionsAnswered(): boolean {
     return this.state.template.questions.every((question) =>
       this.state.answers.some(
@@ -111,6 +141,7 @@ export class QuestionnaireComponent implements OnInit {
     return !!answer && (!!answer.optionId || !!answer.customAnswer?.trim());
   }
 
+  /** True if the current question has an answer (option or non-empty custom text). */
   onAnswerChange(answer: Answer): void {
     const existingIndex = this.state.answers.findIndex(
       (a) => a.questionId === answer.questionId
@@ -123,6 +154,7 @@ export class QuestionnaireComponent implements OnInit {
     this.updateProgress();
   }
 
+  /** Moves to the previous question and updates progress. */
   previousQuestion(): void {
     if (this.state.currentQuestionIndex > 0) {
       this.state.currentQuestionIndex--;
@@ -130,6 +162,7 @@ export class QuestionnaireComponent implements OnInit {
     }
   }
 
+  /** Moves to the next question and updates progress. */
   nextQuestion(): void {
     if (
       this.state.currentQuestionIndex <
@@ -140,6 +173,10 @@ export class QuestionnaireComponent implements OnInit {
     }
   }
 
+  /**
+ * Submits all answers when the questionnaire is complete.
+ * On success, marks as completed and navigates home.
+ */
   submitQuestionnaire(): void {
     if (this.allQuestionsAnswered) {
       const submission: AnswerSubmission = { answers: this.state.answers };
@@ -160,6 +197,7 @@ export class QuestionnaireComponent implements OnInit {
     }
   }
 
+  /** Recomputes progress percentage based on index and whether the current question is answered. */
   private updateProgress(): void {
     const currentQuestionAnswered = this.isAnswered ? 1 : 0;
     const totalQuestions = this.state.template.questions.length;
@@ -167,4 +205,30 @@ export class QuestionnaireComponent implements OnInit {
     const progressForAnswer = currentQuestionAnswered * (100 / totalQuestions);
     this.state.progress = Math.min(progressForCurrent + progressForAnswer, 100);
   }
+
+
+  /**
+ * Returns collaborator display text based on the viewer's role:
+ * - Student sees teacher, teacher sees student.
+ */
+getCollaboratorInfo(): string | null {
+  const user = this.user();
+  const role = user?.role;
+  const q = this.state.template;
+  const student = q?.student;
+  const teacher = q?.teacher;
+
+  if (!student || !teacher || !role) return null;
+
+  switch (role) {
+    case Role.Student:
+      return `${teacher.fullName} (${teacher.userName})`;
+    case Role.Teacher:
+      return `${student.fullName} (${student.userName})`;
+    case Role.Admin:
+      return `Student: ${student.fullName} (${student.userName}), Teacher: ${teacher.fullName} (${teacher.userName})`;
+    default:
+      return null;
+  }
+}
 }

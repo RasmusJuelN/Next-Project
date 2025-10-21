@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
-import { ActiveQuestionnaire, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
+import { ActiveQuestionnaire, QuestionnaireGroupKeysetPaginationResult, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { map, Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
@@ -69,7 +69,7 @@ export class ActiveService {
   
     if (queryCursor.trim() !== '') {
       params = params.set('QueryCursor', queryCursor);
-    }
+    } 
   
     if (studentSearch.trim() !== '') {
       params = params.set('Student', studentSearch);
@@ -82,6 +82,33 @@ export class ActiveService {
     return this.apiService.get<ResponseActiveQuestionnaireBase>(this.apiUrl, params);
   }
   
+  getQuestionnaireGroupsPaginated(
+  pageSize: number,
+  queryCursor: string = '',
+  searchTitle: string = '',
+  filterPendingStudent: boolean = false,
+  filterPendingTeacher: boolean = false
+) {
+  let params = new HttpParams().set('PageSize', pageSize.toString());
+
+  if (queryCursor) {
+    params = params.set('QueryCursor', queryCursor);
+  }
+
+  if (searchTitle) {
+    params = params.set('Title', searchTitle);
+  }
+if (filterPendingStudent) {
+    params = params.set('PendingStudent', 'true');
+  }
+  if (filterPendingTeacher) {
+    params = params.set('PendingTeacher', 'true');
+  }
+  return this.apiService.get<QuestionnaireGroupKeysetPaginationResult>(
+    `${this.apiUrl}/groups/paginated`,
+    params
+  );
+}
 
 
   createActiveQuestionnaire(aq: { studentIds: string[]; teacherIds: string[]; templateId: string }): Observable<ActiveQuestionnaire[]> {

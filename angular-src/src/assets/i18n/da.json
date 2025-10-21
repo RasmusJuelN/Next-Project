@@ -1,36 +1,18 @@
 {
-  "BUTTON_EN": "Engelsk",
-  "BUTTON_DA": "Dansk",
-  "GREETING": "Hej {{username}}!",
   "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer",
-  "ANSWER_QUESTIONNAIRE": "Et spørgeskema kan besvares",
-  "NAV_LOG_OUT": "Log ud",
-   "NAV_ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
-  "NAV_OVERVIEW": "Oversigt",
-  "NAV_TEMPLATES": "Skabeloner",
-   "LOGIN_WELCOME": "Velkommen",
-  "LOGIN_SUBTITLE": "Log ind for at besvare spørgeskemaer",
-  "LOGIN_USERNAME_PLACEHOLDER": "Indtast brugernavn",
-  "LOGIN_PASSWORD_PLACEHOLDER": "Indtast adgangskode",
-  "LOGIN_USERNAME_REQUIRED": "Brugernavn er påkrævet",
-  "LOGIN_PASSWORD_REQUIRED": "Adgangskode er påkrævet",
-  "LOGIN_ERROR_INVALID": "Ugyldigt brugernavn eller adgangskode.",
-  "LOGIN_ERROR_GENERAL": "Der opstod en fejl under login. Prøv igen.",
-  "LOGIN_SUBMIT": "Log ind",
-  "LOGIN_LOADING": "Logger ind...",
   "TMP_NEW_TITLE": "Ny skabelon",
   "TMP_NEW_DESC": "Beskrivelse af den nye skabelon",
   "TMP_NEW_QUESTION": "Standard spørgsmål",
 
-
   "TMP_TITLE_ADMINISTER_TEMPLATES": "Administrer Skabeloner",
+  "TMP_DATA_COMPARE_TITLE": "Sammenlign Data",
   "TMP_BUTTON_CREATE_NEW": "Opret Ny Skabelon",
   "TMP_SEARCH_BY_NAME": "Søg efter Navn",
   "TMP_SEARCH_BY_ID": "Søg efter ID",
   "TMP_SEARCH_PLACEHOLDER": "Søg i skabeloner...",
   "TMP_ITEMS_PER_PAGE": "Elementer pr. side:",
   "TMP_LOADING": "Indlæser...",
-  "TMP_BUTTON_EDIT": "Rediger", 
+  "TMP_BUTTON_EDIT": "Rediger",
   "TMP_BUTTON_DELETE": "Slet",
   "TMP_DELETE": "Slet",
   "TMP_DELETE_PERMANENT": "Slet Permanent",
@@ -47,7 +29,7 @@
   "TMP_DELETE_ERROR": "Fejl ved sletning af skabelon.",
   "TMP_UPDATE_ERROR": "Fejl ved opdatering af skabelon.",
 
-   "TMP_EDITOR_TITLE": "Skabelonredigering",
+  "TMP_EDITOR_TITLE": "Skabelonredigering",
   "TMP_TEMPLATE_TITLE": "Skabelon Titel",
   "TMP_TEMPLATE_DESCRIPTION": "Beskrivelse",
   "TMP_QUESTIONS": "Spørgsmål",
@@ -58,52 +40,182 @@
   "TMP_NEXT": "Næste",
   "TMP_PREVIOUS": "Forrige",
 
-
- "TMP_ACTIVE_SURVEYS": "Aktive spørgeskemaer",
- "TMP_SETUP_AT": "Opsat den:",
- "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Oversigt over aktive spørgeskemaer",
+  "TMP_ACTIVE_SURVEYS": "Aktive spørgeskemaer",
+  "TMP_SETUP_AT": "Opsat den:",
+  "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Oversigt over aktive spørgeskemaer",
   "TMP_SEARCH_BY_STUDENT_NAME": "Søg efter elevnavn",
   "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Søg efter aktivt spørgeskema-id",
   "TMP_SEARCHPLACEHOLDER": "Søg...",
-  "TMP_STUDENT_DONE": "Studenten er færdig",
-  "TMP_TEACHER_DONE": "Læreren er færdig",
+  "TMP_STUDENT_DONE": "Elev færdig",
+  "TMP_TEACHER_DONE": "Lærer færdig",
   "TMP_COPY_LINK": "Kopier link til besvarelse",
   "TMP_STUDENT_NAME": "Elevnavn:",
-  "TMP_STUDENT": "Elev",
-  "TMP_TEACHER": "Lærer",
+  "TMP_STUDENT": "Elev:",
+  "TMP_TEACHER": "Lærer:",
   "TMP_COMPLETED": "Færdig",
   "TMP_PENDING": "Ikke færdig",
   "TMP_ANSWER": "Svar",
   "TMP_VIEW_RESULTS": "Se resultater",
+  "TMP_TITLE_TEMPLATE_LIST": "Skabelonliste",
 
-
-
-  "COMMON.BUTTONS.VIEW": "Vis",
-  "COMMON.BUTTONS.COPY": "Kopiér",
-  "COMMON.BUTTONS.DELETE_PERMANENT": "Slet Permanent",
-  "COMMON.BUTTONS.CANCEL": "Annuller",
-  "COMMON.BUTTONS.CLOSE": "Luk",
   "TEMPLATES.DELETE.TITLE": "Bekræft Sletning",
   "TEMPLATES.DELETE.MSG": "Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data.",
-  "COMMON.GREETING": "Hej {{username}}!",
 
   "TMP_FINALIZE_TITLE": "Udgiv skabelon?",
   "TMP_FINALIZE_TEXT": "Når en skabelon udgives, bliver den skrivebeskyttet. <br/>Er du sikker på, at du vil udgive?",
   "TMP_FINALIZE_CONFIRM": "Udgiv",
-  "TMP_VIEW_MODE": "Template View",
-  "TMP_EDIT_MODE": "Template Editing",
-  "COMMON.BUTTONS.SHOW": "View",
-  "COMMON.BUTTONS.EDIT": "Edit",
+  "TMP_VIEW_MODE": "Skabelonvisning",
+  "TMP_EDIT_MODE": "Skabelonredigering",
 
+  "NAV" : {
+    "TOGGLE_MENU": "Åbn/luk menu",
+    "LOG_OUT": "Log ud",
+    "ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
+    "DATA_COMPARE": "Sammenlign Data",
+    "OVERVIEW": "Oversigt",
+    "TEMPLATES": "Skabeloner",
+    "HOME" : "Hjem"
+  },
+
+
+  "COMMON": {
+    "BUTTONS": {
+      "VIEW": "Vis",
+      "EDIT": "Rediger",
+      "COPY": "Kopiér",
+      "DELETE_PERMANENT": "Slet Permanent",
+      "CANCEL": "Annuller",
+      "CLOSE": "Luk",
+      "PREVIOUS" : "Forrige",
+      "NEXT" : "Næste",
+      "SUBMIT" : "send"
+    },
+    "GREETING": "Hej {{username}}!",
+    "ROLES": {
+      "STUDENT": "Elev",
+      "TEACHER": "Lærer",
+      "ADMIN": "Admin"
+    }
+  },
+
+
+  "LOGIN": {
+    "WELCOME": "Velkommen",
+    "SUBTITLE": "Log ind for at besvare spørgeskemaer",
+    "USERNAME_PLACEHOLDER": "Indtast brugernavn",
+    "PASSWORD_PLACEHOLDER": "Indtast adgangskode",
+    "USERNAME_REQUIRED": "Brugernavn er påkrævet",
+    "PASSWORD_REQUIRED": "Adgangskode er påkrævet",
+    "ERROR_INVALID": "Ugyldigt brugernavn eller adgangskode.",
+    "ERROR_GENERAL": "Der opstod en fejl under login. Prøv igen.",
+    "SUBMIT": "Log ind",
+    "LOADING": "Logger ind...",
+    "ERRORS": {
+      "INVALID": "Ugyldigt brugernavn eller adgangskode.",
+      "NETWORK": "Kunne ikke oprette forbindelse til serveren. Tjek din internetforbindelse.",
+      "SERVER": "Der opstod en serverfejl. Prøv igen senere.",
+      "GENERIC": "Der opstod en uventet fejl. Prøv igen.",
+      "BAD_REQUEST": "Ugyldig anmodning. Tjek din indtastning.",
+      "FORBIDDEN": "Adgang nægtet.",
+      "RATE_LIMITED": "For mange forsøg. Vent venligst før du prøver igen.",
+      "UNAVAILABLE": "Tjenesten er midlertidigt utilgængelig.",
+      "TIMEOUT": "Anmodningen fik timeout. Prøv igen.",
+      "REQUIRED_FIELDS": "Udfyld venligst alle påkrævede felter."
+    }
+  },
+
+  "HOME" : {
+    "ANSWER_QUESTIONNAIRE" :"Et spørgeskema kan besvares",
+    "NO_ACTIVE_QUESTIONNAIRE": "Der er ingen aktive spørgeskemaer"
+  },
+
+  "ACTIVE_LIST": {
+    "TITLE": "Administrer Aktive Spørgeskemaer",
+    "BUTTON_CREATE": "Tildel et Spørgeskema",
+    "SUBTITLE": "Aktive Spørgeskemaer",
+    "SEARCH_PLACEHOLDER": "Søg efter gruppe...",
+    "FILTER_STUDENT_PENDING": "Elev mangler svar",
+    "FILTER_TEACHER_PENDING": "Lærer mangler svar",
+    "ITEMS_PER_PAGE": "Elementer pr. side:",
+    "GROUP_STUDENT": "Elev",
+    "GROUP_TEACHER": "Lærer"
+  },
 
   "QUESTION_EDITOR": {
-  "TITLE": "Rediger Spørgsmål",
-  "LABEL_TITLE": "Titel:",
-  "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
-  "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
-  "OPTIONS": "Valgmuligheder",
-  "DELETE_OPTION": "Slet Valgmulighed",
-  "ADD_OPTION": "Tilføj Ny Valgmulighed",
-  "SAVE": "Gem Spørgsmål"
-}
+      "TITLE": "Rediger spørgsmål",
+      "LABEL_TITLE": "Titel:",
+      "PLACEHOLDER_TITLE": "Indtast spørgsmålets titel",
+      "ALLOW_CUSTOM": "Tillad at skrive dit eget svar",
+      "OPTIONS": "Valgmuligheder",
+      "DELETE_OPTION": "Slet valgmulighed",
+      "ADD_OPTION": "Tilføj ny valgmulighed",
+      "SAVE": "Gem spørgsmål"
+    },
+
+  "QUESTIONAIRE": {
+    "COLLABORATOR": "Samarbejdspartner",
+    "CUSTOM_ANSWER_ERROR": "Indtast dit svar for at fortsætte.",
+    "CUSTOM_ANSWER_CHARACTER_COUNT": "tegn"
+  },
+  "DATA_COMPARE" : {
+    "SEARCH_STUDENT_LABEL": "Søg efter elev eller gruppe:",
+    "SEARCH_STUDENT_PLACEHOLDER": "Indtast elev eller gruppe navn...",
+    "LOADING_STUDENTS": "Indlæser elever...",
+    "LOAD_MORE_STUDENTS": "Indlæs Flere Elever",
+    "SELECTED_STUDENTS": "Valgte Elever:",
+    "REMOVE": "Fjern",
+    "CLEAR_ALL": "Ryd Alle",
+    "SEARCH_TEMPLATE_LABEL": "Søg efter Skabelon:",
+    "SEARCH_TEMPLATE_PLACEHOLDER": "Indtast skabelontitel...",
+    "LOADING_TEMPLATES": "Indlæser skabeloner...",
+    "LOAD_MORE_TEMPLATES": "Indlæs Flere Skabeloner",
+    "SELECTED_TEMPLATES": "Valgte Skabeloner:",
+    "UPDATE_CHART": "Opdater Graf",
+    "PIE_CHART": "Pie",
+    "BAR_CHART": "Bar"
+  },
+  "LANG": {
+    "EN": "Engelsk",
+    "DA": "Dansk"
+  },
+  "PDF": {
+    "TITLE": "Matrixskema (Lærer / Elev)",
+    "META_NOTE": "Spørgsmål kan have 0-10 muligheder. Valgte viser et X. Hvis der er mulighed for eget svar , vises det under tabellen.",
+    "NO_OPTIONS_NOTE": "Ingen foruddefinerede muligheder — kig på feltet nedenfor.",
+    "TEACHER_ROW": "Lærer",
+    "STUDENT_ROW": "Elev",
+    "TEACHER_CUSTOM": "Lærer (eget svar):",
+    "STUDENT_CUSTOM": "Elev (eget svar):",
+    "TABLE_TEMPLATE": "Skabelon",
+    "TABLE_STUDENT": "Elev",
+    "TABLE_TEACHER": "Lærer",
+    "FOOTER_LEFT": "",
+    "PAGE": "Side"
+  },
+
+  "RESULT": {
+    "COMPRESSED_VIEW": "Komprimeret visning",
+    "FULL_VIEW": "Fuld visning",
+    "COMPRESSED_VIEW_SHORT": "Komprimeret",
+    "FULL_VIEW_SHORT": "Fuld",
+    "TOGGLE_VIEW_TOOLTIP": "Skift visningstilstand",
+    "OPEN_PDF": "Åbn PDF",
+    "OPEN_PDF_SHORT": "Åbn",
+    "OPEN_PDF_TOOLTIP": "Åbn PDF i ny fane",
+    "DOWNLOAD_PDF": "Download PDF",
+    "DOWNLOAD_PDF_SHORT": "Download",
+    "DOWNLOAD_PDF_TOOLTIP": "Download PDF",
+    "PRINT": "Udskriv",
+    "PRINT_SHORT": "Udskriv",
+    "PRINT_TOOLTIP": "Udskriv",
+    "TEMPLATE_TITLE": "Skabelon:",
+    "STUDENT_LABEL": "Elev",
+    "TEACHER_LABEL": "Lærer",
+    "COMPLETED_ON": "Fuldført den:",
+    "CUSTOM_ANSWER": "Brugerdefineret svar",
+    "CUSTOM_RESPONSES": "Brugerdefinerede svar:",
+    "NO_OPTIONS_AVAILABLE": "Ingen valgmuligheder tilgængelige for dette spørgsmål",
+    "SCROLL_HINT": "Scroll horisontalt for at se alle valgmuligheder →"
+  }
+
 }

@@ -1,111 +1,118 @@
 <!-- Template List Section -->
-<div class="flex flex-col items-center w-full min-h-full  p-4 sm:p-8">
-  <div class="flex flex-col max-w-5xl w-full bg-white shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10">
+<div class="flex flex-col items-center w-full min-h-full p-4 sm:p-8">
+  <div class="flex flex-col w-full max-w-5xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
+
     <ng-container *ngIf="!selectedTemplate; else editor">
-      <h2 class="text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">{{'TMP_TITLE_ADMINISTER_TEMPLATES'| translate}}</h2>
 
-      <!-- Search & Actions -->
-      <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
-        <button 
-          (click)="addTemplate()" 
-          class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-2 px-6 rounded-xl shadow transition-colors w-full sm:w-auto border-2 border-primary_orange_1 hover:border-primary_dark_blue">
-          <!-- {{'TMP_ADD_TEMPLATE' | translate}} TMP_BUTTON_CREATE_NEW -->
-              {{'TMP_BUTTON_CREATE_NEW' | translate}}
+      <!-- Title -->
+      <h2 class="text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">
+        {{ 'TMP_TITLE_ADMINISTER_TEMPLATES' | translate }}
+      </h2>
+
+      <!-- Actions -->
+      <div class="grid grid-cols-1 gap-4 w-full">
+        <button
+          (click)="addTemplate()"
+          class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors w-full sm:w-auto">
+          {{ 'TMP_BUTTON_CREATE_NEW' | translate }}
         </button>
+      </div>
 
-        <div class="flex w-full items-center gap-4">
-          <select
-            #searchType
-            (change)="onSearchTypeChange(searchType.value)"
-            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm min-w-[150px] bg-gray-50"
-          >
-            <option value="name" selected>{{'TMP_SEARCH_BY_NAME' | translate}}</option>
-            <option value="id">{{'TMP_SEARCH_BY_ID' | translate}}</option>
-          </select>
+      <!-- Template List Title -->
+      <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 flex items-center justify-between">
+        {{ 'TMP_TITLE_TEMPLATE_LIST' | translate }}
+      </h2>
 
-          <input
-            #search
-            type="text"
-            (input)="onSearchChange(search.value)"
-            placeholder="{{'TMP_SEARCH_PLACEHOLDER' | translate}}"
-            class="px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm flex-grow min-w-[200px] bg-gray-50"
-          />
-        </div>
+      <!-- Filters -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full mb-4">
 
-        <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
-          <label for="pageSize" class="text-primary_dark_blue font-medium">{{'TMP_ITEMS_PER_PAGE'| translate}}</label>
+        <!-- Search Type -->
+        <select
+          #searchType
+          (change)="onSearchTypeChange(searchType.value)"
+          class="w-full sm:w-auto min-w-0 border border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50">
+          <option value="name" selected>{{ 'TMP_SEARCH_BY_NAME' | translate }}</option>
+          <option value="id">{{ 'TMP_SEARCH_BY_ID' | translate }}</option>
+        </select>
+
+        <!-- Search Input -->
+        <input
+          #search
+          type="text"
+          (input)="onSearchChange(search.value)"
+          placeholder="{{ 'TMP_SEARCH_PLACEHOLDER' | translate }}"
+          class="w-full sm:w-64 px-4 py-2 border-primary_orange_1 rounded-lg focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80" />
+
+        <!-- Page Size Selector -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
+          <label for="pageSize" class="text-primary_dark_blue font-medium text-sm sm:text-base">
+            {{ 'TMP_ITEMS_PER_PAGE' | translate }}
+          </label>
           <select
             #pageSize
             id="pageSize"
             (change)="onPageSizeChange(pageSize.value)"
-            class="border-2 border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full sm:w-auto bg-gray-50"
-          >
-            <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
-              {{ size }}
-            </option>
+            class="w-full sm:w-auto border border-primary_orange_1 rounded-lg px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80 text-left">
+            <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">{{ size }}</option>
           </select>
         </div>
       </div>
 
-      <!-- Loading Indicator Inside Content -->
-      <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
-        <!--  -->
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="flex justify-center items-center min-h-[150px]">
         <app-loading></app-loading>
       </div>
 
       <!-- Error Message -->
       <div *ngIf="errorMessage" class="text-center p-4">
-        <p class="text-red-500 font-semibold text-lg">{{ errorMessage | translate}}</p>
+        <p class="text-red-500 font-semibold text-lg">{{ errorMessage | translate }}</p>
       </div>
 
       <!-- Template List -->
-      <ul class="space-y-4 mt-4" *ngIf="!isLoading && !errorMessage">
+      <ul *ngIf="!isLoading && !errorMessage" class="space-y-4 mt-4">
+
         <li
           *ngFor="let template of templateBases"
-          class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-primary_orange_light/10 transition-colors"
-        >
-          <!-- title + status badge -->
-          <span class="flex items-center gap-2 text-gray-800 font-medium">
+          class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover transition-colors">
+
+          <!-- Title + Status -->
+          <span class="w-full sm:w-auto flex items-center gap-2 text-gray-800 font-medium break-words">
             {{ template.title }}
             <span
               class="px-2 py-0.5 rounded text-xs font-semibold"
               [ngClass]="{
                 'bg-yellow-100 text-yellow-800': template.templateStatus === templateStatus.Draft,
-                'bg-green-100 text-green-800':  template.templateStatus === templateStatus.Finalized
-              }"
-            >
+                'bg-green-100 text-green-800': template.templateStatus === templateStatus.Finalized
+              }">
               {{ template.templateStatus | titlecase }}
             </span>
           </span>
 
-          <!-- action buttons -->
-          <div class="flex space-x-2 mt-2 sm:mt-0">
+          <!-- Actions -->
+          <div class="w-full sm:w-auto flex flex-wrap gap-2 sm:gap-2 mt-1 sm:mt-0 justify-end sm:justify-start">
             <button
-              class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl border-2 border-yellow-500 hover:bg-yellow-400 hover:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
               (click)="selectTemplate(template.id)"
-            >
-              {{ template.templateStatus == templateStatus.Draft ? 'Rediger' : 'COMMON.BUTTONS.VIEW'|translate }}
+              class="w-full sm:w-auto px-4 py-1 text-sm bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors">
+              {{ (template.templateStatus == templateStatus.Draft ? 'COMMON.BUTTONS.EDIT'  : 'COMMON.BUTTONS.VIEW') | translate }}
             </button>
 
             <button
-                (click)="showModal(TemplateModalType.Delete, template.id)"
-              class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl border-2 border-red-500 hover:bg-red-600 hover:border-primary_dark_blue focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
-            >
+              (click)="showModal(TemplateModalType.Delete, template.id)"
+              class="w-full sm:w-auto px-4 py-1 text-sm bg-red-500 text-white rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
               {{ 'TMP_BUTTON_DELETE' | translate }}
             </button>
 
             <button
-               (click)="showModal(TemplateModalType.Copy, template.id)"
-              class="px-3 py-1 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
-            >
-              {{'COMMON.BUTTONS.COPY'| translate}}
+              (click)="showModal(TemplateModalType.Copy, template.id)"
+              class="w-full sm:w-auto px-3 py-1 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600">
+              {{ 'COMMON.BUTTONS.COPY' | translate }}
             </button>
           </div>
         </li>
       </ul>
 
-      <!-- Pagination Component -->
-      <app-pagination 
+      <!-- Pagination -->
+      <app-pagination
         *ngIf="!isLoading && !errorMessage"
         [currentPage]="currentPage"
         [totalPages]="totalPages"
@@ -124,13 +131,16 @@
       </app-template-editor>
     </ng-template>
 
-<app-modal
-  [isOpen]="isModalOpen"
-  [title]="modalTitle"
-  [text]="modalText"
-  [confirmText]="confirmText"
-  [cancelText]="cancelText"
-  (confirm)="onModalConfirm()"
-  (cancel)="onModalCancel()">
-</app-modal>
+    <!-- Modal -->
+    <app-modal
+      [isOpen]="isModalOpen"
+      [title]="modalTitle"
+      [text]="modalText"
+      [confirmText]="confirmText"
+      [cancelText]="cancelText"
+      (confirm)="onModalConfirm()"
+      (cancel)="onModalCancel()">
+    </app-modal>
+
+  </div>
 </div>
