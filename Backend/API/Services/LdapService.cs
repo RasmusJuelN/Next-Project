@@ -15,10 +15,10 @@ public class LdapService
 {
     private readonly LDAPSettings _LDAPSettings;
     private readonly JWTSettings _JWTSettings;
-    private readonly LdapSessionCacheService _ldapSessionCache;
+    private readonly CacheService _ldapSessionCache;
     public LdapConnection connection = new();
 
-    public LdapService(IConfiguration configuration, LdapSessionCacheService ldapSessionCache)
+    public LdapService(IConfiguration configuration, CacheService ldapSessionCache)
     {
         _LDAPSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
         _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
@@ -240,7 +240,7 @@ public class LdapService
         SessionData? sessionData = null;
         if (sessionId is not null)
         {
-            sessionData = _ldapSessionCache.GetSession(sessionId);
+            sessionData = _ldapSessionCache.Get<SessionData>(sessionId);
             if (sessionData is null)
             {
                 throw new HttpResponseException(HttpStatusCode.Gone, "Session ID is no longer valid. Please restart the pagination.");
@@ -306,7 +306,7 @@ public class LdapService
             }
         }
 
-        _ldapSessionCache.StoreSession(sessionId, connection, cookie);
+        _ldapSessionCache.Set(sessionId, new SessionData { Connection = connection, Cookie = cookie });
 
         return (ldapUsers, sessionId, cookie is not null && cookie.Length > 0);
     }
@@ -347,9 +347,9 @@ public class LdapService
 
         foreach (PropertyInfo prop in typeof(LdapMappedEntity).GetProperties())
         {
-            foreach (LDAPMapping attr in prop.GetCustomAttributes<LDAPMapping>())
+            foreach (AuthenticationMapping attr in prop.GetCustomAttributes<AuthenticationMapping>())
             {
-                queryAttributes.Add(attr.Name);
+                queryAttributes.Add(attr.EntryName);
             }
         }
 
@@ -369,9 +369,9 @@ public class LdapService
 
         foreach (PropertyInfo prop in mappedLdapResult.GetType().GetProperties())
         {
-            foreach (LDAPMapping attr in prop.GetCustomAttributes<LDAPMapping>())
+            foreach (AuthenticationMapping attr in prop.GetCustomAttributes<AuthenticationMapping>())
             {
-                LdapAttribute ldapAttr = entry.GetAttribute(attr.Name);
+                LdapAttribute ldapAttr = entry.GetAttribute(attr.EntryName);
                 if (ldapAttr == null) continue;
 
                 if (prop.PropertyType == typeof(string))

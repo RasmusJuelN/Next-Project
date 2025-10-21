@@ -17,8 +17,8 @@ public record class GroupDistinguishedName
 // i try to add this to get all student from individual class group
 public class LdapUserDTO
 {
-    [LDAPMapping("cn")]
+    [AuthenticationMapping("cn")]
     public string Name { get; set; }
-    [LDAPMapping("memberOf")]
+    [AuthenticationMapping("memberOf")]
     public string ClassName { get; set; } = string.Empty;
 }
