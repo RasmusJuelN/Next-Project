@@ -1,10 +1,7 @@
-using System.Reflection;
+using Database.DTO.ApplicationLog;
 using Database.Interfaces;
-using Database.Models;
-using Logging.LogEvents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -19,11 +16,23 @@ namespace API.Controllers
     {
         private readonly IApplicationLogRepository _ApplicationLogsRepository = ApplicationLogsRepository;
 
+        /// <summary>
+        /// Retrieves application logs from the database based on the specified query parameters.
+        /// </summary>
+        /// <param name="logQuery">The query parameters to filter and paginate the application logs.</param>
+        /// <returns>
+        /// An <see cref="ActionResult{T}"/> containing a list of <see cref="ApplicationLog"/> objects
+        /// that match the specified query criteria.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires admin-level authorization with an access token.
+        /// The logs are retrieved asynchronously from the application logs table in the database.
+        /// </remarks>
         [HttpGet("DB")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<IActionResult> GetDatabaseLogs()
+        public async Task<ActionResult<List<ApplicationLog>>> GetDatabaseLogs([FromQuery] ApplicationLogQuery logQuery)
         {
-            throw new NotImplementedException();
+            return Ok(await _ApplicationLogsRepository.GetApplicationLogsAsync(logQuery));
         }
 
         /// <summary>
@@ -65,47 +74,9 @@ namespace API.Controllers
         /// <response code="403">If the user is not authorized (not an admin)</response>
         [HttpGet("db/events")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<EventId>> GetDatabaseLogEvents()
+        public async Task<ActionResult<List<EventId>>> GetDatabaseLogEvents()
         {
-            List<int> eventIDs = await _ApplicationLogsRepository.GetLogEventIDsAsync();
-
-            List<LogEventsBase> eventTypes = [];
-
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                try
-                {
-                    foreach (Type type in assembly.GetTypes())
-                    {
-                        if (type.IsSubclassOf(typeof(LogEventsBase)))
-                        {
-                            if (Activator.CreateInstance(type) is LogEventsBase instance)
-                            {
-                                eventTypes.Add(instance);
-                            }
-                        }
-                    }
-                }
-                catch (ReflectionTypeLoadException)
-                {
-                    // Ignore assemblies that cannot be loaded
-                }
-            }
-
-            List<EventId> eventIds = [];
-
-            foreach (LogEventsBase eventType in eventTypes)
-            {
-                FieldInfo[] fieldInfos = eventType.GetType().GetFields(BindingFlags.Public | BindingFlags.Static).Where(static field => field.FieldType == typeof(EventId)).ToArray();
-
-                foreach (FieldInfo fieldInfo in fieldInfos)
-                {
-                    EventId eventId = (EventId)fieldInfo.GetValue(null)!;
-                    eventIds.Add(eventId);
-                }
-            }
-
-            return Ok(eventIds.Where(e => eventIDs.Contains(e.Id)).ToList());
+            return await _ApplicationLogsRepository.GetLogEventsAsync();
         }
     }
 }
