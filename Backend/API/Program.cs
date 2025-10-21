@@ -88,6 +88,7 @@ builder.Services.AddScoped<IActiveQuestionnaireRepository, ActiveQuestionnaireRe
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITrackedRefreshTokenRepository, TrackedRefreshTokenRepository>();
 builder.Services.AddScoped<IApplicationLogRepository, ApplicationLogRepository>();
+builder.Services.AddScoped<LdapService>();
 
 builder.Services.AddControllers(options =>{
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));

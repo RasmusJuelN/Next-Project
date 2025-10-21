@@ -26,10 +26,12 @@ namespace API.Services;
 /// </list>
 /// It provides a unified interface for user operations while maintaining security boundaries.
 /// </remarks>
-public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork unitOfWork)
+public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork unitOfWork, LdapService ldapService)
 {
     private readonly IAuthenticationBridge _authenticationBridge = authenticationBridge;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly LdapService _ldapService = ldapService;
+
 
     /// <summary>
     /// Queries the LDAP directory for users with pagination support and role-based filtering.
