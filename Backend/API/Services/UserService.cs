@@ -138,19 +138,19 @@ public class UserService(LdapService ldapService, IUnitOfWork unitOfWork)
         return firstPart.StartsWith("CN=") ? firstPart.Substring(3) : firstPart;
     }
     // Fetch all students from all groups
-    //public List<LdapUserDTO> GetAllStudents()
-    //{
-    //    var allGroups = _ldapService.GetAllGroups(); // You'll implement this in LdapService
-    //    var allStudents = new List<LdapUserDTO>();
+    public List<LdapUserDTO> GetAllStudents()
+    {
+        var allGroups = _ldapService.GetAllGroups(); // You'll implement this in LdapService
+        var allStudents = new List<LdapUserDTO>();
 
-    //    foreach (var group in allGroups)
-    //    {
-    //        var students = _ldapService.GetStudentsInGroup(group);
-    //        allStudents.AddRange(students);
-    //    }
+        foreach (var group in allGroups)
+        {
+            var students = _ldapService.GetStudentsInGroup(group);
+            allStudents.AddRange(students);
+        }
 
-    //    return allStudents;
-    //}
+        return allStudents;
+    }
 
     //public List<string> GetAllClassNames()
     //{

@@ -131,7 +131,7 @@ namespace API.Controllers
         //    }
         //}
 
-       
+
 
         [HttpGet("Groups/{groupName}/StudentsGrouped")]
         public ActionResult<ClassStudentsDTO> GetStudentsGrouped(string groupName)
