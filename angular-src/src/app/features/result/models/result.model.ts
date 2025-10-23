@@ -23,4 +23,12 @@ export interface Answer {
   isStudentResponseCustom: boolean;
   teacherResponse: string;
   isTeacherResponseCustom: boolean;
+  options?: QuestionOption[];
+}
+
+export interface QuestionOption {
+  displayText: string;
+  optionValue: string;
+  isSelectedByStudent: boolean;
+  isSelectedByTeacher: boolean;
 }

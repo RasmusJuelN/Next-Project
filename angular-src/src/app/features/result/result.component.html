@@ -135,7 +135,7 @@
                   </td>
                   <td *ngFor="let option of options; let optionIndex = index" 
                       class="border border-primary_orange_1 p-2 text-center min-w-[120px] sm:min-w-[150px]">
-                    <span *ngIf="isOptionSelected(answer.studentResponse, answer.isStudentResponseCustom, option, optionIndex)" 
+                    <span *ngIf="isOptionSelected(answer.studentResponse, answer.isStudentResponseCustom, option, optionIndex, 'student')" 
                           class="font-bold text-lg text-primary_orange_1">X</span>
                   </td>
                 </tr>
@@ -146,7 +146,7 @@
                   </td>
                   <td *ngFor="let option of options; let optionIndex = index" 
                       class="border border-primary_orange_1 p-2 text-center min-w-[120px] sm:min-w-[150px]">
-                    <span *ngIf="isOptionSelected(answer.teacherResponse, answer.isTeacherResponseCustom, option, optionIndex)" 
+                    <span *ngIf="isOptionSelected(answer.teacherResponse, answer.isTeacherResponseCustom, option, optionIndex, 'teacher')" 
                           class="font-bold text-lg text-primary_orange_1">X</span>
                   </td>
                 </tr>

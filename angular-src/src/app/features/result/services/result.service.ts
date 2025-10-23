@@ -17,7 +17,7 @@ export class ResultService {
     return this.apiService.get<boolean>(`${this.apiUrl}/${id}/IsCompleted`);
   }
 
-  getTemplateByResultId(id: string): Observable<Template> {
+  private getTemplateByResultId(id: string): Observable<Template> {
     // Get the active questionnaire first, then extract template information
     return this.apiService.get<any>(`${this.apiUrl}/${id}`).pipe(
       map((activeQuestionnaire: any) => {
@@ -34,6 +34,45 @@ export class ResultService {
   }
 
   getResultById(id: string): Observable<Result> {
-    return this.apiService.get<Result>(`${this.apiUrl}/${id}/getresponse`);
+    // Fetch both result and template, then merge the template options into the result
+    return forkJoin({
+      result: this.apiService.get<Result>(`${this.apiUrl}/${id}/getresponse`),
+      template: this.getTemplateByResultId(id)
+    }).pipe(
+      map(({ result, template }) => {
+        // Populate QuestionOption[] for each answer from template
+        if (result && template) {
+          result.answers = result.answers.map(answer => {
+            const templateQuestion = template.questions.find(q => q.prompt === answer.question);
+            if (templateQuestion && templateQuestion.options) {
+              // Convert template options to QuestionOption[] and determine selection status
+              answer.options = templateQuestion.options.map((option, index) => ({
+                displayText: option.displayText,
+                optionValue: option.optionValue?.toString() || '',
+                isSelectedByStudent: this.isOptionSelectedByResponse(answer.studentResponse, answer.isStudentResponseCustom, option, index),
+                isSelectedByTeacher: this.isOptionSelectedByResponse(answer.teacherResponse, answer.isTeacherResponseCustom, option, index)
+              }));
+            }
+            return answer;
+          });
+        }
+        return result;
+      })
+    );
+  }
+
+  private isOptionSelectedByResponse(response: string, isCustom: boolean, option: any, index: number): boolean {
+    if (isCustom || !response) return false;
+    
+    // Try to match by option value, display text
+    if (response === option.displayText) return true;
+    if (response === option.optionValue?.toString()) return true;
+    if (response === (index + 1).toString()) return true; // Match 1-based index
+    if (response === index.toString()) return true; // Match 0-based index
+    
+    // Try exact text match (case insensitive)
+    if (response?.toLowerCase() === option.displayText?.toLowerCase()) return true;
+    
+    return false;
   }
 }
