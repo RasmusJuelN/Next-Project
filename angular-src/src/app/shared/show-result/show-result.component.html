@@ -29,7 +29,7 @@
         <span class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm">{{ translate.instant('RESULT.STUDENT_LABEL') }}</span>
         <span class="block text-gray-900 print:text-black font-medium text-sm break-words">{{ result.student.user.fullName }}</span>
         <span *ngIf="config.showCompletionDates" class="block text-xs text-gray-500 print:text-black break-words">
-          {{ translate.instant('RESULT.COMPLETED_ON') }} {{ result.student.completedAt | date:'short' }}
+          {{ translate.instant('RESULT.COMPLETED_ON') }} {{ result.student.completedAt | date:'dd-MM-yyyy HH:mm' }}
         </span>
       </div>
     
@@ -38,7 +38,7 @@
         <span class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm">{{ translate.instant('RESULT.TEACHER_LABEL') }}</span>
         <span class="block text-gray-900 print:text-black font-medium text-sm break-words">{{ result.teacher.user.fullName }}</span>
         <span *ngIf="config.showCompletionDates" class="block text-xs text-gray-500 print:text-black break-words">
-          {{ translate.instant('RESULT.COMPLETED_ON') }} {{ result.teacher.completedAt | date:'short' }}
+          {{ translate.instant('RESULT.COMPLETED_ON') }} {{ result.teacher.completedAt | date:'dd-MM-yyyy HH:mm' }}
         </span>
       </div>
     </div>

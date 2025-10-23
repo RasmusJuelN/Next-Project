@@ -80,10 +80,6 @@ export class ResultComponent implements OnInit {
     }
   }
 
-  printPage(): void {
-    window.print();
-  }
-
   toggleView(): void {
     this.isFullView = !this.isFullView;
   }
