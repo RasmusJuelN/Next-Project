@@ -9,12 +9,13 @@ import { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { TranslateService, TranslateModule } from "@ngx-translate/core";
+import { ShowResultComponent, ShowResultConfig } from "../../shared/show-result/show-result.component";
 
 @Component({
   selector: "app-result",
   standalone: true,
   providers: [ResultService, PdfGenerationService],
-  imports: [CommonModule, AgCharts, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, AgCharts, RouterModule, FormsModule, TranslateModule, ShowResultComponent],
   templateUrl: "./result.component.html",
   template: `
     <button (click)="updateChart('stacked')">Stacked</button>
@@ -36,6 +37,15 @@ export class ResultComponent implements OnInit {
   
   // Toggle between compressed and full view
   isFullView = false;
+
+  // Configuration for ShowResultComponent
+  resultConfig: ShowResultConfig = {
+    showTemplate: true,
+    showStudent: true,
+    showTeacher: true,
+    showCompletionDates: true,
+    useCardStyling: false // We handle card styling in the parent component
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -78,34 +88,7 @@ export class ResultComponent implements OnInit {
     this.isFullView = !this.isFullView;
   }
 
-  getTemplateQuestionOptions(questionPrompt: string): any[] {
-    if (!this.result) return [];
-    const answer = this.result.answers.find(a => a.question === questionPrompt);
-    return answer?.options?.slice(0, 15) || [];
-  }
 
-  isOptionSelected(response: string, isCustom: boolean, option: any, index: number, role?: 'student' | 'teacher'): boolean {
-    if (isCustom || !response) return false;
-    
-    // If the option has selection information and we know the role, use it directly
-    if (role === 'student' && option.isSelectedByStudent !== undefined) {
-      return option.isSelectedByStudent;
-    }
-    if (role === 'teacher' && option.isSelectedByTeacher !== undefined) {
-      return option.isSelectedByTeacher;
-    }
-    
-    // Fallback to text matching for backward compatibility
-    if (response === option.displayText) return true;
-    if (response === option.optionValue?.toString()) return true;
-    if (response === (index + 1).toString()) return true; // Match 1-based index
-    if (response === index.toString()) return true; // Match 0-based index
-    
-    // Try exact text match (case insensitive)
-    if (response?.toLowerCase() === option.displayText?.toLowerCase()) return true;
-    
-    return false;
-  }
 
   generatePdf(): void {
     if (this.result) {
