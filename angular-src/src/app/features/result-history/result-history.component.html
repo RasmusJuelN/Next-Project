@@ -1,0 +1,165 @@
+<div class="bg-primary_background_white/80 p-4 mb-4 sm:p-10 max-w-7xl mx-auto shadow-xl rounded-2xl border-2 border-primary_orange_1 print:bg-white print:shadow-none print:p-0 print:overflow-visible">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">{{ 'RESULT_HISTORY.TITLE' | translate }}</h1>
+    <button 
+      (click)="onBackToList()"
+      class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+      {{ 'COMMON.BACK' | translate }}
+    </button>
+  </div>
+
+  <!-- Search Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Student Search -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">
+        {{ 'RESULT_HISTORY.SELECT_STUDENT' | translate }}
+      </label>
+      <div class="relative" #studentSearchArea>
+        <input
+         #searchStudentInput
+          type="text"
+          [value]="student.searchInput"
+          (input)="onInputChange('student', searchStudentInput.value)"
+          (focus)="showStudentResults = true"
+          placeholder="{{ 'RESULT_HISTORY.SEARCH_STUDENTS' | translate }}"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        
+        <!-- Selected Student -->
+        <div *ngIf="student.selected.length > 0" class="mt-2">
+          <div class="flex items-center justify-between bg-blue-50 p-2 rounded-lg">
+            <span class="text-sm font-medium">{{ student.selected[0].fullName }}</span>
+            <button 
+              (click)="clearSelected('student')"
+              class="text-red-500 hover:text-red-700">
+              ×
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Results -->
+        <div *ngIf="showStudentResults && student.searchResults.length > 0" 
+             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          <div *ngFor="let user of student.searchResults" 
+               (click)="select('student', user)"
+               class="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0">
+            <div class="font-medium">{{ user.fullName }}</div>
+            <div class="text-sm text-gray-500">{{ user.userName }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Template Search -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">
+        {{ 'RESULT_HISTORY.SELECT_QUESTIONNAIRE' | translate }}
+      </label>
+      <div class="relative" #templateSearchArea>
+        <input
+            #searchTemplateInput
+          type="text"
+          [value]="template.searchInput"
+          (input)="onInputChange('template', searchTemplateInput.value)"
+          (focus)="showTemplateResults = true"
+          placeholder="{{ 'RESULT_HISTORY.SEARCH_QUESTIONNAIRES' | translate }}"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        
+        <!-- Selected Template -->
+        <div *ngIf="template.selected.length > 0" class="mt-2">
+          <div class="flex items-center justify-between bg-green-50 p-2 rounded-lg">
+            <span class="text-sm font-medium">{{ template.selected[0].title }}</span>
+            <button 
+              (click)="clearSelected('template')"
+              class="text-red-500 hover:text-red-700">
+              ×
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Results -->
+        <div *ngIf="showTemplateResults && template.searchResults.length > 0" 
+             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          <div *ngFor="let tmpl of template.searchResults" 
+               (click)="select('template', tmpl)"
+               class="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0">
+            <div class="font-medium">{{ tmpl.title }}</div>
+            <div class="text-sm text-gray-500">{{ tmpl.title }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    <span class="ml-2 text-gray-600">{{ 'COMMON.LOADING' | translate }}</span>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-6">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Results Section -->
+  <div *ngIf="studentResults.length > 0 && !isLoading" class="space-y-6">
+    <!-- Navigation Header -->
+    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+      <div class="flex items-center space-x-4">
+        <button 
+          (click)="prevResult()"
+          [disabled]="currentResultIndex === 0"
+          class="px-3 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors">
+          ← {{ 'COMMON.BUTTONS.PREVIOUS' | translate }}
+        </button>
+        
+        <span class="text-sm font-medium text-gray-700">
+          {{ currentResultIndex + 1 }} {{ 'COMMON.OF' | translate }} {{ studentResults.length }}
+        </span>
+        
+        <button 
+          (click)="nextResult()"
+          [disabled]="currentResultIndex === studentResults.length - 1"
+          class="px-3 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors">
+          {{ 'COMMON.BUTTONS.NEXT' | translate }} →
+        </button>
+      </div>
+
+      <!-- Result Info -->
+      <div class="text-right">
+        <div class="text-sm font-medium text-gray-700">
+          {{ getCurrentResultInfo()?.completedDate | date:'medium' }}
+        </div>
+        <div class="text-xs text-gray-500">
+          {{ getCurrentResultInfo()?.templateTitle }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Display -->
+    <app-show-result 
+    [result]="getCurrentResult()"
+    [isFullView]="true"
+    [config]="resultConfig">
+    </app-show-result>
+
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="studentResults.length === 0 && !isLoading && student.selected.length > 0 && template.selected.length > 0" 
+       class="text-center py-12">
+    <div class="text-gray-500 text-lg mb-2">{{ 'RESULT_HISTORY.NO_RESULTS' | translate }}</div>
+    <div class="text-gray-400 text-sm">{{ 'RESULT_HISTORY.NO_RESULTS_DESC' | translate }}</div>
+  </div>
+
+  <!-- Instructions -->
+  <div *ngIf="studentResults.length === 0 && !isLoading && (student.selected.length === 0 || template.selected.length === 0)" 
+       class="text-center py-12">
+    <div class="text-gray-500 text-lg mb-2">{{ 'RESULT_HISTORY.INSTRUCTIONS' | translate }}</div>
+    <div class="text-gray-400 text-sm">{{ 'RESULT_HISTORY.INSTRUCTIONS_DESC' | translate }}</div>
+  </div>
+</div>

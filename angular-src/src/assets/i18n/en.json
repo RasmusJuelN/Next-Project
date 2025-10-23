@@ -85,7 +85,10 @@
       "STUDENT": "Student",
       "TEACHER": "Teacher",
       "ADMIN": "Admin"
-    }
+    },
+    "LOADING": "Loading...",
+    "BACK": "Back",
+    "OF": "of"
   },
 
   "LOGIN": {
@@ -117,6 +120,7 @@
     "LOG_OUT": "Log out",
     "ACTIVE_QUESTIONNAIRES": "Active Questionnaires",
     "DATA_COMPARE": "Data Compare",
+    "RESULT_HISTORY": "Result History",
     "OVERVIEW": "Overview",
     "TEMPLATES": "Templates",
     "HOME": "Home"
@@ -214,5 +218,17 @@
     "CUSTOM_RESPONSES": "Custom responses:",
     "NO_OPTIONS_AVAILABLE": "No options available for this question",
     "SCROLL_HINT": "Scroll horizontally to see all options →"
+  },
+
+  "RESULT_HISTORY": {
+    "TITLE": "Student Result History",
+    "SELECT_STUDENT": "Select Student",
+    "SELECT_QUESTIONNAIRE": "Select Questionnaire",
+    "SEARCH_STUDENTS": "Search students...",
+    "SEARCH_QUESTIONNAIRES": "Search questionnaires...",
+    "NO_RESULTS": "No results found",
+    "NO_RESULTS_DESC": "No results found for the selected student and questionnaire combination.",
+    "INSTRUCTIONS": "Select a student and questionnaire to view results",
+    "INSTRUCTIONS_DESC": "Use the search fields above to find and select a student and questionnaire template to view the historical results."
   }
 }
