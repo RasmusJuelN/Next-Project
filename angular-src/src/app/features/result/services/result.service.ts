@@ -34,6 +34,11 @@ export class ResultService {
   }
 
   getResultById(id: string): Observable<Result> {
+    return this.apiService.get<Result>(`${this.apiUrl}/${id}/getresponse`);
+
+    
+    /**
+     * 
     // Fetch both result and template, then merge the template options into the result
     return forkJoin({
       result: this.apiService.get<Result>(`${this.apiUrl}/${id}/getresponse`),
@@ -59,6 +64,7 @@ export class ResultService {
         return result;
       })
     );
+     */
   }
 
   private isOptionSelectedByResponse(response: string, isCustom: boolean, option: any, index: number): boolean {

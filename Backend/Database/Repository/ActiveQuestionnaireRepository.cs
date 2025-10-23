@@ -340,10 +340,12 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Question)
+            .ThenInclude(q => q.Options)
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Option)
             .Include(a => a.TeacherAnswers)
             .ThenInclude(a => a.Question)
+            .ThenInclude(q => q.Options)
             .Include(a => a.TeacherAnswers)
             .ThenInclude(a => a.Option)
             .Include(a => a.Student)
