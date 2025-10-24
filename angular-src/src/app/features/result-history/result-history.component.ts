@@ -1,41 +1,32 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Component, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import { ActiveService } from '../active-questionnaire-manager/services/active.service';
 import { User, Role } from '../../shared/models/user.model';
 import { TemplateBase } from '../active-questionnaire-manager/models/active.models';
-import { SearchEntity } from '../active-questionnaire-manager/models/searchEntity.model';
 import { ShowResultComponent, ShowResultConfig } from '../../shared/show-result/show-result.component';
 import { Result } from '../result/models/result.model';
-import { ResultService } from '../result/services/result.service';
 import { ResultHistoryService } from './services/result-history.service';
 
-interface UserSearchEntity {
-  selected: User[];
-  searchInput: string;
-  searchResults: User[];
-  page: number;
-  totalPages: number;
-  isLoading: boolean;
-  errorMessage: string | null;
-  searchSubject: Subject<string>;
-  sessionId?: string;
+
+enum SearchEnum 
+{
+  Student = 'student',
+  Template = 'template'
+}
+
+interface SearchState<T> {
+  selected: T | null;
+  query: string;
+  results: T[];
+  loading: boolean;
+  error: string | null;
+  cursor?: string;      // reuse for sessionId/queryCursor
   hasMore?: boolean;
+  input$: Subject<string>;
 }
 
-interface TemplateSearchEntity extends SearchEntity<TemplateBase> {
-  queryCursor?: string;
-}
-
-interface StudentResult {
-  result: Result;
-  completedDate: string;
-  templateTitle: string;
-}
-
-type SearchType = "student" | "template";
 
 @Component({
   selector: 'app-result-history',
@@ -44,29 +35,34 @@ type SearchType = "student" | "template";
   templateUrl: './result-history.component.html',
   styleUrls: ['./result-history.component.css']
 })
-export class ResultHistoryComponent implements OnInit, OnDestroy {
-  // Search references for click-outside logic
-  @ViewChild("studentSearchArea", { static: false })
-  studentSearchArea!: ElementRef;
-  @ViewChild("templateSearchArea", { static: false })
-  templateSearchArea!: ElementRef;
-
-  // Injected services
-  private activeService = inject(ActiveService);
-  private resultService = inject(ResultService);
+export class ResultHistoryComponent implements OnInit {
   private resultHistoryService = inject(ResultHistoryService);
 
-  // Controls visibility of search results dropdowns
-  public showStudentResults = false;
-  public showTemplateResults = false;
+  public searchEnum = SearchEnum;
+  public student = this.createSearchState<User>();
+  public template = this.createSearchState<TemplateBase>();
 
-  // Current results state
-  public studentResults: StudentResult[] = [];
+  public showDropdown = { [SearchEnum.Student]: false, [SearchEnum.Template]: false };
+
+  public results: Result[] = [];
   public currentResultIndex = 0;
   public isLoading = false;
   public errorMessage: string | null = null;
 
-  // Show result component configuration
+  /** Utility to create consistent search state */
+  private createSearchState<T>(): SearchState<T> {
+    return {
+      selected: null,
+      query: '',
+      results: [],
+      loading: false,
+      error: null,
+      cursor: undefined,
+      hasMore: false,
+      input$: new Subject<string>()
+    };
+  }
+
   public resultConfig: ShowResultConfig = {
     showTemplate: true,
     showStudent: true,
@@ -76,405 +72,212 @@ export class ResultHistoryComponent implements OnInit, OnDestroy {
     showActions: false
   };
 
-  /**
-   * State for student search and selection
-   */
-  public student: UserSearchEntity = {
-    selected: [],
-    searchInput: "",
-    searchResults: [],
-    page: 1,
-    totalPages: 1,
-    isLoading: false,
-    errorMessage: null,
-    searchSubject: new Subject<string>(),
-    sessionId: undefined,
-    hasMore: false,
-  };
-
-  /**
-   * State for template search and selection
-   */
-  public template: TemplateSearchEntity = {
-    selected: [],
-    searchInput: "",
-    searchResults: [],
-    page: 1,
-    totalPages: 1,
-    isLoading: false,
-    errorMessage: null,
-    searchSubject: new Subject<string>(),
-    queryCursor: undefined,
-  };
-
-  // Number of results per search
   searchAmount = 10;
 
-  // Emits event to parent when returning to list view
   @Output() backToListEvent = new EventEmitter<void>();
 
-  /**
-   * Handles click events outside of search areas to close dropdowns
-   */
-  private handleDocumentClick = (event: MouseEvent) => {
-    const studentArea = this.studentSearchArea?.nativeElement;
-    const templateArea = this.templateSearchArea?.nativeElement;
-    if (studentArea && !studentArea.contains(event.target as Node)) {
-      this.showStudentResults = false;
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const el = event.target as HTMLElement;
+    for (const key in this.showDropdown) {
+      this.showDropdown[key as SearchEnum] = !!el.closest(`[data-search="${key}"]`);
     }
-    if (templateArea && !templateArea.contains(event.target as Node)) {
-      this.showTemplateResults = false;
-    }
-  };
+  }
+
+  private getState<T>(type: SearchEnum): SearchState<T> {
+    return type === SearchEnum.Student ? (this.student as any) : (this.template as any);
+  }
 
   ngOnInit(): void {
-    // Debounced search for students
-    this.student.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((term) => {
-        this.fetch("student", term);
-      });
-
-    // Debounced search for templates
-    this.template.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((term) => {
-        this.fetch("template", term);
-      });
-
-    document.addEventListener("click", this.handleDocumentClick, true);
-
-    // Load mock data for demonstration
+    this.setupSearch(this.student, SearchEnum.Student);
+    this.setupSearch(this.template, SearchEnum.Template);
     this.loadMockData();
   }
-
-  ngOnDestroy(): void {
-    document.removeEventListener("click", this.handleDocumentClick, true);
+  private setupSearch<T>(state: SearchState<T>, type: SearchEnum): void {
+    state.input$.pipe(debounceTime(300), distinctUntilChanged()).subscribe((term) => this.fetch(type, term));
   }
-
-  /**
-   * Returns the state object for the given entity type
-   */
-  private getState(entity: SearchType): SearchEntity<any> {
-    if (entity === "student") {
-      return this.student;
-    } else if (entity === "template") {
-      return this.template;
-    }
-    throw new Error(`Unknown entity: ${entity}`);
-  }
-
-  /**
-   * Fetches search results for students or templates
-   */
-  private fetch(entity: SearchType, term: string): void {
-    const state = this.getState(entity);
-    
+  private fetch(entity: SearchEnum, term: string): void {
+    const state = entity === SearchEnum.Student ? this.student : this.template;
     if (!term.trim()) return;
 
-    state.page = 1;
-    state.searchResults = [];
-    
-    if (entity !== "template") {
-      (state as UserSearchEntity).sessionId = undefined;
-    } else {
-      (state as TemplateSearchEntity).queryCursor = undefined;
-    }
-    
-    state.isLoading = true;
-    state.errorMessage = null;
+    state.loading = true;
+    state.error = null;
+    state.results = [];
 
-    if (entity === "template") {
-      const templateState = state as TemplateSearchEntity;
-      this.activeService
-        .searchTemplates(term, templateState.queryCursor)
-        .subscribe({
-          next: (response) => {
-            templateState.searchResults = response.templateBases;
-            templateState.totalPages = 1;
-            state.isLoading = false;
-          },
-          error: () => {
-            state.errorMessage = "Failed to load templates.";
-            state.isLoading = false;
-          },
-        });
+    if (entity === SearchEnum.Template) {
+      this.resultHistoryService.searchTemplates(term, state.cursor).subscribe({
+        next: (response) => {
+          state.results = response.templateBases;
+          state.loading = false;
+        },
+        error: () => {
+          state.error = 'Failed to load templates.';
+          state.loading = false;
+        }
+      });
     } else {
-      const userState = state as UserSearchEntity;
-      this.activeService
-        .searchUsers(term, "student", this.searchAmount, userState.sessionId)
-        .subscribe({
-          next: (response) => {
-            userState.searchResults = response.userBases || [];
-            userState.sessionId = response.sessionId;
-            userState.hasMore = false;
-            state.isLoading = false;
-          },
-          error: () => {
-            state.errorMessage = "Failed to load students.";
-            state.isLoading = false;
-          },
-        });
+      this.resultHistoryService.searchUsers(term, 'student', this.searchAmount, state.cursor).subscribe({
+        next: (response) => {
+          state.results = response.userBases || [];
+          state.cursor = response.sessionId;
+          state.loading = false;
+        },
+        error: () => {
+          state.error = 'Failed to load students.';
+          state.loading = false;
+        }
+      });
     }
   }
 
-  /**
-   * Selects or deselects a user/template from the search results
-   */
-  select(entity: SearchType, item: any): void {
-    const state = this.getState(entity);
-    if (!Array.isArray(state.selected)) {
-      state.selected = [];
-    }
+  select(type: SearchEnum, item: any): void {
+    const state = this.getState(type);
+    state.selected = item;
+    state.query = '';
+    this.showDropdown[type] = false;
 
-    const idx = state.selected.findIndex((u: any) => u.id === item.id);
-    if (idx === -1) {
-      state.selected.push(item);
-      // Only keep the last selected item
-      state.selected = state.selected.slice(-1);
-    } else {
-      state.selected.splice(idx, 1);
-    }
-
-    state.searchInput = "";
-
-    if (entity === "student") {
-      this.showStudentResults = false;
-    } else {
-      this.showTemplateResults = false;
-    }
-
-    // Fetch results when both student and template are selected
-    if (this.student.selected.length > 0 && this.template.selected.length > 0) {
-      this.fetchStudentResults();
-    }
+    if (this.student.selected && this.template.selected) this.fetchStudentResults();
   }
-
-  /**
-   * Clears all selected users/templates
-   */
-  clearSelected(entity: SearchType): void {
-    const state = this.getState(entity);
-    state.selected = [];
-    this.studentResults = [];
+  clearSelected(type: SearchEnum): void {
+    this.getState(type).selected = null;
+    this.results = [];
     this.currentResultIndex = 0;
   }
 
-  /**
-   * Handles input change for search fields and triggers search
-   */
-  onInputChange(entity: SearchType, value: string): void {
-    const state = this.getState(entity);
-    state.searchInput = value;
-    state.searchSubject.next(value);
-
-    if (entity === "student") {
-      this.showStudentResults = true;
-    } else {
-      this.showTemplateResults = true;
-    }
+  onInputChange(type: SearchEnum, value: string): void {
+    const state = this.getState(type);
+    state.query = value;
+    state.input$.next(value);
+    this.showDropdown[type] = true;
   }
-
-  /**
-   * Emits event to parent to go back to list view
-   */
   onBackToList(): void {
     this.backToListEvent.emit();
   }
 
-  /**
-   * Fetches student results for the selected student and template combination
-   */
   fetchStudentResults(): void {
-    if (this.student.selected.length === 0 || this.template.selected.length === 0) {
-      return;
-    }
-
-    const studentId = this.student.selected[0].id;
-    const templateId = this.template.selected[0].id;
+    if (!this.student.selected || !this.template.selected) return;
 
     this.isLoading = true;
     this.errorMessage = null;
 
-    // TODO: Replace with actual API call to get student results by templateId and studentId
-    // For now, simulate the API call
     setTimeout(() => {
-      this.loadMockDataForSelection(studentId, templateId);
+      this.loadMockDataForSelection();
       this.isLoading = false;
-    }, 1000);
+    }, 800);
   }
+  
+  nextResult() { if (this.currentResultIndex < this.results.length - 1) this.currentResultIndex++; }
+  prevResult() { if (this.currentResultIndex > 0) this.currentResultIndex--; }
+  getCurrentResult(): Result | null { return this.results[this.currentResultIndex] ?? null; }
 
-  /**
-   * Navigate to next result
-   */
-  nextResult(): void {
-    if (this.currentResultIndex < this.studentResults.length - 1) {
-      this.currentResultIndex++;
-    }
-  }
-
-  /**
-   * Navigate to previous result
-   */
-  prevResult(): void {
-    if (this.currentResultIndex > 0) {
-      this.currentResultIndex--;
-    }
-  }
-
-  /**
-   * Get the currently displayed result
-   */
-  getCurrentResult(): Result | null {
-    if (this.studentResults.length === 0) return null;
-    return this.studentResults[this.currentResultIndex]?.result || null;
-  }
-
-  /**
-   * Get the current result metadata
-   */
-  getCurrentResultInfo(): StudentResult | null {
-    if (this.studentResults.length === 0) return null;
-    return this.studentResults[this.currentResultIndex] || null;
-  }
-
-  /**
-   * Load mock data for demonstration
-   */
+  // -----------------------
+  // Mock data helpers
+  // -----------------------
   private loadMockData(): void {
-    // Mock student results for demonstration
-    this.studentResults = [
-      {
-        result: this.createMockResult("2024-01-15", "First Assessment"),
-        completedDate: "2024-01-15",
-        templateTitle: "Math Skills Assessment"
-      },
-      {
-        result: this.createMockResult("2024-03-20", "Second Assessment"),
-        completedDate: "2024-03-20", 
-        templateTitle: "Math Skills Assessment"
-      },
-      {
-        result: this.createMockResult("2024-06-10", "Third Assessment"),
-        completedDate: "2024-06-10",
-        templateTitle: "Math Skills Assessment"
-      }
+    this.results = [
+      this.createMockResult('2024-01-15', 'Math Skills Assessment • First Assessment'),
+      this.createMockResult('2024-03-20', 'Math Skills Assessment • Second Assessment'),
+      this.createMockResult('2024-06-10', 'Math Skills Assessment • Third Assessment')
     ];
   }
 
-  /**
-   * Load mock data based on selection (simulates API call)
-   */
-  private loadMockDataForSelection(studentId: string, templateId: string): void {
-    // Simulate different results based on selection
-    this.studentResults = [
-      {
-        result: this.createMockResult("2024-02-01", "Initial Assessment"),
-        completedDate: "2024-02-01",
-        templateTitle: this.template.selected[0]?.title || "Selected Template"
-      },
-      {
-        result: this.createMockResult("2024-04-15", "Mid-term Assessment"), 
-        completedDate: "2024-04-15",
-        templateTitle: this.template.selected[0]?.title || "Selected Template"
-      },
-      {
-        result: this.createMockResult("2024-07-20", "Final Assessment"),
-        completedDate: "2024-07-20",
-        templateTitle: this.template.selected[0]?.title || "Selected Template"
-      }
+  private loadMockDataForSelection(): void {
+    const title = this.template.selected?.title || 'Selected Template';
+    this.results = [
+      this.createMockResult('2024-02-01', `${title} • Initial Assessment`),
+      this.createMockResult('2024-04-15', `${title} • Mid-term Assessment`),
+      this.createMockResult('2024-07-20', `${title} • Final Assessment`)
     ];
     this.currentResultIndex = 0;
   }
 
-  /**
-   * Create a mock result for demonstration
-   */
-  private createMockResult(date: string, sessionName: string): Result {
-    // Create different responses based on the date to show progression
+  private createMockResult(date: string, sessionTitle: string): Result {
     const isEarly = new Date(date) < new Date('2024-03-01');
     const isMid = new Date(date) >= new Date('2024-03-01') && new Date(date) < new Date('2024-06-01');
     const isLate = new Date(date) >= new Date('2024-06-01');
 
-    // Different responses to show progression over time
-    let firstQuestionStudent = "Fair";
-    let firstQuestionTeacher = "Good";
-    let firstQuestionStudentIndex = 2; // Fair
-    let firstQuestionTeacherIndex = 3; // Good
+    let firstQuestionStudent = 'Fair';
+    let firstQuestionTeacher = 'Good';
+    let firstQuestionStudentIndex = 2;
+    let firstQuestionTeacherIndex = 3;
 
-    let secondQuestionStudent = "Poor";
-    let secondQuestionTeacher = "Fair";
-    let secondQuestionStudentIndex = 1; // Poor
-    let secondQuestionTeacherIndex = 2; // Fair
+    let secondQuestionStudent = 'Poor';
+    let secondQuestionTeacher = 'Fair';
+    let secondQuestionStudentIndex = 1;
+    let secondQuestionTeacherIndex = 2;
 
-    let customStudentResponse = "I find math challenging but I'm trying my best. Sometimes I get confused with word problems.";
-    let customTeacherResponse = "The student is making effort but needs more support with problem-solving strategies and confidence building.";
+    let customStudentResponse =
+      "I find math challenging but I'm trying my best. Sometimes I get confused with word problems.";
+    let customTeacherResponse =
+      'The student is making effort but needs more support with problem-solving strategies and confidence building.';
 
     if (isMid) {
-      // Mid assessment - showing improvement
-      firstQuestionStudent = "Good";
-      firstQuestionTeacher = "Good";
-      firstQuestionStudentIndex = 3; // Good
-      firstQuestionTeacherIndex = 3; // Good
+      firstQuestionStudent = 'Good';
+      firstQuestionTeacher = 'Good';
+      firstQuestionStudentIndex = 3;
+      firstQuestionTeacherIndex = 3;
 
-      secondQuestionStudent = "Fair";
-      secondQuestionTeacher = "Good";
-      secondQuestionStudentIndex = 2; // Fair
-      secondQuestionTeacherIndex = 3; // Good
+      secondQuestionStudent = 'Fair';
+      secondQuestionTeacher = 'Good';
+      secondQuestionStudentIndex = 2;
+      secondQuestionTeacherIndex = 3;
 
-      customStudentResponse = "I'm getting better at understanding math concepts. The extra practice with real-world examples is really helping me.";
-      customTeacherResponse = "Notable improvement in conceptual understanding. The student responds well to practical applications and is gaining confidence.";
+      customStudentResponse =
+        "I'm getting better at understanding math concepts. The extra practice with real-world examples is really helping me.";
+      customTeacherResponse =
+        'Notable improvement in conceptual understanding. The student responds well to practical applications and is gaining confidence.';
     } else if (isLate) {
-      // Late assessment - showing significant improvement
-      firstQuestionStudent = "Excellent";
-      firstQuestionTeacher = "Excellent";
-      firstQuestionStudentIndex = 4; // Excellent
-      firstQuestionTeacherIndex = 4; // Excellent
+      firstQuestionStudent = 'Excellent';
+      firstQuestionTeacher = 'Excellent';
+      firstQuestionStudentIndex = 4;
+      firstQuestionTeacherIndex = 4;
 
-      secondQuestionStudent = "Good";
-      secondQuestionTeacher = "Excellent";
-      secondQuestionStudentIndex = 3; // Good
-      secondQuestionTeacherIndex = 4; // Excellent
+      secondQuestionStudent = 'Good';
+      secondQuestionTeacher = 'Excellent';
+      secondQuestionStudentIndex = 3;
+      secondQuestionTeacherIndex = 4;
 
-      customStudentResponse = "Math has become much more enjoyable! I love solving complex problems now and I can see how it applies to real life. Group discussions really help me think differently.";
-      customTeacherResponse = "Excellent progress! The student has developed strong analytical skills and shows genuine enthusiasm for mathematical problem-solving. Peer collaboration has significantly enhanced their learning.";
+      customStudentResponse =
+        'Math has become much more enjoyable! I love solving complex problems now and I can see how it applies to real life. Group discussions really help me think differently.';
+      customTeacherResponse =
+        'Excellent progress! The student has developed strong analytical skills and shows genuine enthusiasm for mathematical problem-solving. Peer collaboration has significantly enhanced their learning.';
     }
 
     return {
       id: `mock-${date}`,
-      title: `${sessionName} - ${date}`,
+      title: `${sessionTitle} (${date})`,
       description: `Assessment completed on ${date}`,
       student: {
         user: {
-          id: "student-1",
-          fullName: "John Doe", 
-          userName: "john.doe",
+          id: 'student-1',
+          fullName: 'John Doe',
+          userName: 'john.doe',
           role: Role.Student
         },
         completedAt: new Date(date)
       },
       teacher: {
         user: {
-          id: "teacher-1",
-          fullName: "Jane Smith",
-          userName: "jane.smith",
+          id: 'teacher-1',
+          fullName: 'Jane Smith',
+          userName: 'jane.smith',
           role: Role.Teacher
         },
         completedAt: new Date(date)
       },
       answers: [
         {
-          question: "How well does the student understand basic arithmetic?",
+          question: 'How well does the student understand basic arithmetic?',
           studentResponse: firstQuestionStudent,
           isStudentResponseCustom: false,
-          teacherResponse: firstQuestionTeacher, 
+          teacherResponse: firstQuestionTeacher,
           isTeacherResponseCustom: false,
           options: [
-            { displayText: "Poor", optionValue: "1", isSelectedByStudent: firstQuestionStudentIndex === 1, isSelectedByTeacher: firstQuestionTeacherIndex === 1 },
-            { displayText: "Fair", optionValue: "2", isSelectedByStudent: firstQuestionStudentIndex === 2, isSelectedByTeacher: firstQuestionTeacherIndex === 2 },
-            { displayText: "Good", optionValue: "3", isSelectedByStudent: firstQuestionStudentIndex === 3, isSelectedByTeacher: firstQuestionTeacherIndex === 3 },
-            { displayText: "Excellent", optionValue: "4", isSelectedByStudent: firstQuestionStudentIndex === 4, isSelectedByTeacher: firstQuestionTeacherIndex === 4 },
-            { displayText: "Outstanding", optionValue: "5", isSelectedByStudent: firstQuestionStudentIndex === 5, isSelectedByTeacher: firstQuestionTeacherIndex === 5 }
+            { displayText: 'Poor', optionValue: '1', isSelectedByStudent: firstQuestionStudentIndex === 1, isSelectedByTeacher: firstQuestionTeacherIndex === 1 },
+            { displayText: 'Fair', optionValue: '2', isSelectedByStudent: firstQuestionStudentIndex === 2, isSelectedByTeacher: firstQuestionTeacherIndex === 2 },
+            { displayText: 'Good', optionValue: '3', isSelectedByStudent: firstQuestionStudentIndex === 3, isSelectedByTeacher: firstQuestionTeacherIndex === 3 },
+            { displayText: 'Excellent', optionValue: '4', isSelectedByStudent: firstQuestionStudentIndex === 4, isSelectedByTeacher: firstQuestionTeacherIndex === 4 },
+            { displayText: 'Outstanding', optionValue: '5', isSelectedByStudent: firstQuestionStudentIndex === 5, isSelectedByTeacher: firstQuestionTeacherIndex === 5 }
           ]
         },
         {
@@ -484,43 +287,43 @@ export class ResultHistoryComponent implements OnInit, OnDestroy {
           teacherResponse: secondQuestionTeacher,
           isTeacherResponseCustom: false,
           options: [
-            { displayText: "Poor", optionValue: "1", isSelectedByStudent: secondQuestionStudentIndex === 1, isSelectedByTeacher: secondQuestionTeacherIndex === 1 },
-            { displayText: "Fair", optionValue: "2", isSelectedByStudent: secondQuestionStudentIndex === 2, isSelectedByTeacher: secondQuestionTeacherIndex === 2 },
-            { displayText: "Good", optionValue: "3", isSelectedByStudent: secondQuestionStudentIndex === 3, isSelectedByTeacher: secondQuestionTeacherIndex === 3 },
-            { displayText: "Excellent", optionValue: "4", isSelectedByStudent: secondQuestionStudentIndex === 4, isSelectedByTeacher: secondQuestionTeacherIndex === 4 },
-            { displayText: "Outstanding", optionValue: "5", isSelectedByStudent: secondQuestionStudentIndex === 5, isSelectedByTeacher: secondQuestionTeacherIndex === 5 }
+            { displayText: 'Poor', optionValue: '1', isSelectedByStudent: secondQuestionStudentIndex === 1, isSelectedByTeacher: secondQuestionTeacherIndex === 1 },
+            { displayText: 'Fair', optionValue: '2', isSelectedByStudent: secondQuestionStudentIndex === 2, isSelectedByTeacher: secondQuestionTeacherIndex === 2 },
+            { displayText: 'Good', optionValue: '3', isSelectedByStudent: secondQuestionStudentIndex === 3, isSelectedByTeacher: secondQuestionTeacherIndex === 3 },
+            { displayText: 'Excellent', optionValue: '4', isSelectedByStudent: secondQuestionStudentIndex === 4, isSelectedByTeacher: secondQuestionTeacherIndex === 4 },
+            { displayText: 'Outstanding', optionValue: '5', isSelectedByStudent: secondQuestionStudentIndex === 5, isSelectedByTeacher: secondQuestionTeacherIndex === 5 }
           ]
         },
         {
-          question: "What motivates the student most in learning?",
+          question: 'What motivates the student most in learning?',
           studentResponse: customStudentResponse,
           isStudentResponseCustom: true,
           teacherResponse: customTeacherResponse,
           isTeacherResponseCustom: true,
           options: [
-            { displayText: "Grades and recognition", optionValue: "1", isSelectedByStudent: false, isSelectedByTeacher: false },
-            { displayText: "Understanding concepts", optionValue: "2", isSelectedByStudent: false, isSelectedByTeacher: false },
-            { displayText: "Practical applications", optionValue: "3", isSelectedByStudent: false, isSelectedByTeacher: false },
-            { displayText: "Peer interaction", optionValue: "4", isSelectedByStudent: false, isSelectedByTeacher: false },
-            { displayText: "Other (please specify)", optionValue: "5", isSelectedByStudent: false, isSelectedByTeacher: false }
+            { displayText: 'Grades and recognition', optionValue: '1', isSelectedByStudent: false, isSelectedByTeacher: false },
+            { displayText: 'Understanding concepts', optionValue: '2', isSelectedByStudent: false, isSelectedByTeacher: false },
+            { displayText: 'Practical applications', optionValue: '3', isSelectedByStudent: false, isSelectedByTeacher: false },
+            { displayText: 'Peer interaction', optionValue: '4', isSelectedByStudent: false, isSelectedByTeacher: false },
+            { displayText: 'Other (please specify)', optionValue: '5', isSelectedByStudent: false, isSelectedByTeacher: false }
           ]
         },
         {
-          question: "How does the student respond to collaborative learning activities?",
-          studentResponse: isEarly ? "Peer interaction" : isMid ? "Practical applications" : "Understanding concepts",
+          question: 'How does the student respond to collaborative learning activities?',
+          studentResponse: isEarly ? 'Peer interaction' : isMid ? 'Practical applications' : 'Understanding concepts',
           isStudentResponseCustom: false,
-          teacherResponse: isEarly 
-            ? "The student initially struggles with group dynamics and tends to be passive in collaborative settings. They need encouragement to share ideas and participate actively."
-            : isMid 
-            ? "Growing comfort with collaborative work. The student is beginning to engage more actively and shows improved communication skills during group activities."
-            : "Excellent collaborative skills! The student has become a natural facilitator in group work, helping peers understand concepts while deepening their own learning through teaching others.",
+          teacherResponse: isEarly
+            ? 'The student initially struggles with group dynamics and tends to be passive in collaborative settings. They need encouragement to share ideas and participate actively.'
+            : isMid
+            ? 'Growing comfort with collaborative work. The student is beginning to engage more actively and shows improved communication skills during group activities.'
+            : 'Excellent collaborative skills! The student has become a natural facilitator in group work, helping peers understand concepts while deepening their own learning through teaching others.',
           isTeacherResponseCustom: true,
           options: [
-            { displayText: "Prefers individual work", optionValue: "1", isSelectedByStudent: false, isSelectedByTeacher: false },
-            { displayText: "Peer interaction", optionValue: "2", isSelectedByStudent: isEarly, isSelectedByTeacher: false },
-            { displayText: "Practical applications", optionValue: "3", isSelectedByStudent: isMid, isSelectedByTeacher: false },
-            { displayText: "Understanding concepts", optionValue: "4", isSelectedByStudent: isLate, isSelectedByTeacher: false },
-            { displayText: "Mixed results", optionValue: "5", isSelectedByStudent: false, isSelectedByTeacher: false }
+            { displayText: 'Prefers individual work', optionValue: '1', isSelectedByStudent: false, isSelectedByTeacher: false },
+            { displayText: 'Peer interaction', optionValue: '2', isSelectedByStudent: isEarly, isSelectedByTeacher: false },
+            { displayText: 'Practical applications', optionValue: '3', isSelectedByStudent: isMid, isSelectedByTeacher: false },
+            { displayText: 'Understanding concepts', optionValue: '4', isSelectedByStudent: isLate, isSelectedByTeacher: false },
+            { displayText: 'Mixed results', optionValue: '5', isSelectedByStudent: false, isSelectedByTeacher: false }
           ]
         }
       ]

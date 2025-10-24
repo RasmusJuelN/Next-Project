@@ -3,13 +3,15 @@ import { Observable, of } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { environment } from '../../../../environments/environment';
 import { Result } from '../../result/models/result.model';
+import { TemplateBase, TemplateStatus } from '../../../shared/models/template.model';
+import { Role, User } from '../../../shared/models/user.model';
+import { HttpParams } from '@angular/common/http';
+import { TemplateBaseResponse, UserPaginationResult } from '../models/result-history.model';
 
-export interface StudentResultHistory {
+export interface StudentResultHistory{
   results: Result[];
-  studentId: string;
-  templateId: string;
-  studentName: string;
-  templateTitle: string;
+  student: User
+  template: TemplateBase
 }
 
 @Injectable({
@@ -32,10 +34,20 @@ export class ResultHistoryService {
     // For now, return mock data
     return of({
       results: [],
-      studentId,
-      templateId,
-      studentName: 'Mock Student',
-      templateTitle: 'Mock Template'
+      student: {
+        id: studentId,
+        userName: 'mock.student',
+        fullName: 'Mock Student',
+        role: Role.Student
+      },
+      template: {
+        id: templateId,
+        title: 'Mock Template',
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        isLocked: false,
+        templateStatus: TemplateStatus.Finalized
+      }
     });
   }
 
@@ -59,5 +71,46 @@ export class ResultHistoryService {
    */
   getResultById(resultId: string): Observable<Result> {
     return this.apiService.get<Result>(`${this.apiUrl}/${resultId}/getresponse`);
+  }
+
+
+
+  // REAL
+  searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
+    let params = new HttpParams()
+      .set('title', term)
+      .set('pageSize', 5)
+      .set('templateStatus', 'Finalized');
+
+    if (queryCursor) {
+      params = params.set('queryCursor', queryCursor);
+    }
+
+      return this.apiService.get<TemplateBaseResponse>(`${environment.apiUrl}/questionnaire-template/`, params);
+    }
+
+  searchUsers(
+    term: string,
+    role: 'student' | 'teacher',
+    pageSize: number,
+    sessionId?: string
+  ): Observable<UserPaginationResult> {
+    // Convert the role string to match the C# enum (e.g., 'student' -> 'Student')
+    const formattedRole = role.charAt(0).toUpperCase() + role.slice(1);
+  
+    let params = new HttpParams()
+      .set('User', term)       // Matches the C# record property name
+      .set('Role', formattedRole)
+      .set('PageSize', pageSize.toString());
+  
+    if (sessionId) {
+      params = params.set('SessionId', sessionId);
+    }
+  
+    // Updated endpoint matching the API controller route
+    return this.apiService.get<UserPaginationResult>(
+      `${environment.apiUrl}/User`,
+      params
+    );
   }
 }
