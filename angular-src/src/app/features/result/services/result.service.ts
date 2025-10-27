@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { environment } from '../../../../environments/environment';
 import { Observable, forkJoin, map } from 'rxjs';
-import { Result } from '../models/result.model';
+import { Result } from '../../../shared/models/result.model';
 import { Template } from '../../../shared/models/template.model';
 
 @Injectable({

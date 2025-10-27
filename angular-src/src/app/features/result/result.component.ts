@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ResultService } from "./services/result.service";
 import { PdfGenerationService } from "./services/pdf-generation.service";
-import { Result } from "./models/result.model";
+import { Result } from "../../shared/models/result.model";
 import { CommonModule } from "@angular/common";
 import { AgCharts } from "ag-charts-angular";
 import { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";

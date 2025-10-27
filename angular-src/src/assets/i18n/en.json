@@ -229,6 +229,8 @@
     "NO_RESULTS": "No results found",
     "NO_RESULTS_DESC": "No results found for the selected student and questionnaire combination.",
     "INSTRUCTIONS": "Select a student and questionnaire to view results",
-    "INSTRUCTIONS_DESC": "Use the search fields above to find and select a student and questionnaire template to view the historical results."
+    "INSTRUCTIONS_DESC": "Use the search fields above to find and select a student and questionnaire template to view the historical results.",
+    "FULL_VIEW": "Full View",
+    "COMPACT_VIEW": "Compact View"
   }
 }

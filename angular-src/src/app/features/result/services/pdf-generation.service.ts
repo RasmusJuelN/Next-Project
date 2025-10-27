@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Result } from '../models/result.model';
+import { Result } from '../../../shared/models/result.model';
 import { TranslateService } from '@ngx-translate/core';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 

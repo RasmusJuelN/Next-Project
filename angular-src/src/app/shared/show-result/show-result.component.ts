@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Result } from '../../features/result/models/result.model';
+import { Result } from '../models/result.model';
 
 export interface ShowResultConfig {
   showTemplate?: boolean;

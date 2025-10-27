@@ -2,17 +2,191 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { environment } from '../../../../environments/environment';
-import { Result } from '../../result/models/result.model';
-import { TemplateBase, TemplateStatus } from '../../../shared/models/template.model';
+import { Result } from '../../../shared/models/result.model';
+import { Template, TemplateBase, TemplateStatus } from '../../../shared/models/template.model';
 import { Role, User } from '../../../shared/models/user.model';
 import { HttpParams } from '@angular/common/http';
-import { TemplateBaseResponse, UserPaginationResult } from '../models/result-history.model';
+import { Attempt, AttemptAnswer, StudentResultHistory, TemplateBaseResponse, UserPaginationResult } from '../models/result-history.model';
 
-export interface StudentResultHistory {
-  results: Result[];
-  student: User;
-  template: TemplateBase;
+// Mock template with stable IDs for questions/options
+const mockTemplate: Template = {
+  id: 'template-123',
+  title: 'Math Skills Assessment',
+  description: 'Evaluation of numeracy skills, problem solving, and classroom engagement.',
+  templateStatus: TemplateStatus.Finalized,
+  createdAt: '2025-01-10T09:00:00Z',
+  lastUpdated: '2025-02-01T12:00:00Z',
+  isLocked: true,
+  questions: [
+    {
+      id: 1,
+      prompt: 'How well does the student understand basic arithmetic?',
+      allowCustom: false,
+      options: [
+        { id: 10, optionValue: 1, displayText: 'Poor' },
+        { id: 11, optionValue: 2, displayText: 'Fair' },
+        { id: 12, optionValue: 3, displayText: 'Good' },
+        { id: 13, optionValue: 4, displayText: 'Excellent' },
+        { id: 14, optionValue: 5, displayText: 'Outstanding' }
+      ]
+    },
+    {
+      id: 2,
+      prompt: "Student's problem-solving skills in mathematics",
+      allowCustom: false,
+      options: [
+        { id: 20, optionValue: 1, displayText: 'Poor' },
+        { id: 21, optionValue: 2, displayText: 'Fair' },
+        { id: 22, optionValue: 3, displayText: 'Good' },
+        { id: 23, optionValue: 4, displayText: 'Excellent' },
+        { id: 24, optionValue: 5, displayText: 'Outstanding' }
+      ]
+    },
+    {
+      id: 3,
+      prompt: 'What motivates the student most in learning?',
+      allowCustom: true,
+      options: [
+        { id: 30, optionValue: 1, displayText: 'Grades and recognition' },
+        { id: 31, optionValue: 2, displayText: 'Understanding concepts' },
+        { id: 32, optionValue: 3, displayText: 'Practical applications' },
+        { id: 33, optionValue: 4, displayText: 'Peer interaction' },
+        { id: 34, optionValue: 5, displayText: 'Other (please specify)' }
+      ]
+    },
+    {
+      id: 4,
+      prompt: 'How does the student respond to collaborative learning activities?',
+      allowCustom: true,
+      options: [
+        { id: 40, optionValue: 1, displayText: 'Prefers individual work' },
+        { id: 41, optionValue: 2, displayText: 'Peer interaction' },
+        { id: 42, optionValue: 3, displayText: 'Practical applications' },
+        { id: 43, optionValue: 4, displayText: 'Understanding concepts' },
+        { id: 44, optionValue: 5, displayText: 'Mixed results' }
+      ]
+    }
+  ]
+};
+
+// Shared mock users
+const mockStudent: User = {
+  id: 'student-1',
+  fullName: 'John Doe',
+  userName: 'john.doe',
+  role: Role.Student
+};
+
+const mockTeacher: User = {
+  id: 'teacher-1',
+  fullName: 'Jane Smith',
+  userName: 'jane.smith',
+  role: Role.Teacher
+};
+
+// Helper: build answers for a single attempt
+function buildAttemptAnswers(
+  variant: 'early' | 'late'
+): AttemptAnswer[] {
+  // variant lets us simulate improvement over time
+
+  return [
+    // Q1: basic arithmetic understanding
+    {
+      questionId: '1',
+      studentResponse: variant === 'early' ? 'Fair' : 'Excellent',
+      isStudentResponseCustom: false,
+      selectedOptionIdsByStudent: [
+        variant === 'early' ? 11 /* Fair */ : 13 /* Excellent */
+      ],
+
+      teacherResponse: variant === 'early' ? 'Good' : 'Excellent',
+      isTeacherResponseCustom: false,
+      selectedOptionIdsByTeacher: [
+        variant === 'early' ? 12 /* Good */ : 13 /* Excellent */
+      ]
+    },
+
+    // Q2: problem-solving skills
+    {
+      questionId: '2',
+      studentResponse: variant === 'early' ? 'Fair' : 'Good',
+      isStudentResponseCustom: false,
+      selectedOptionIdsByStudent: [
+        variant === 'early' ? 21 /* Fair */ : 22 /* Good */
+      ],
+
+      teacherResponse: variant === 'early' ? 'Good' : 'Excellent',
+      isTeacherResponseCustom: false,
+      selectedOptionIdsByTeacher: [
+        variant === 'early' ? 22 /* Good */ : 23 /* Excellent */
+      ]
+    },
+
+    // Q3: motivation (custom allowed)
+    {
+      questionId: '3',
+      studentResponse:
+        variant === 'early'
+          ? "I find math challenging but I'm trying my best."
+          : 'Math has become much more enjoyable!',
+      isStudentResponseCustom: true,
+      selectedOptionIdsByStudent: [
+        // student didn't explicitly pick from predefined in early,
+        // but in late, let's say they clicked "Understanding concepts"
+        ...(variant === 'late' ? [31] : [])
+      ],
+
+      teacherResponse:
+        variant === 'early'
+          ? 'Needs support with problem-solving strategies.'
+          : 'Excellent progress with analytical skills.',
+      isTeacherResponseCustom: true,
+      selectedOptionIdsByTeacher: undefined // teacher feedback is narrative here
+    },
+
+    // Q4: collaboration
+    {
+      questionId: '4',
+      studentResponse:
+        variant === 'early'
+          ? 'Peer interaction'
+          : 'Understanding concepts',
+      isStudentResponseCustom: false,
+      selectedOptionIdsByStudent: [
+        variant === 'early' ? 41 /* Peer interaction */ : 43 /* Understanding concepts */
+      ],
+
+      teacherResponse:
+        variant === 'early'
+          ? 'Initially struggles with group work and needs encouragement.'
+          : 'Excellent collaborator who helps peers and leads group discussions.',
+      isTeacherResponseCustom: true,
+      selectedOptionIdsByTeacher: undefined
+    }
+  ];
 }
+
+// Build two attempts: one older and one newer
+const mockAttempts: Attempt[] = [
+  {
+    studentCompletedAt: new Date('2025-02-12T10:15:00Z'),
+    teacherCompletedAt: new Date('2025-02-12T11:00:00Z'),
+    answers: buildAttemptAnswers('early')
+  },
+  {
+    studentCompletedAt: new Date('2025-05-28T09:40:00Z'),
+    teacherCompletedAt: new Date('2025-05-28T10:10:00Z'),
+    answers: buildAttemptAnswers('late')
+  }
+];
+
+const mockStudentResultHistory: StudentResultHistory = {
+  student: mockStudent,
+  teacher: mockTeacher,
+  template: mockTemplate,
+  attempts: mockAttempts
+};
 
 @Injectable({
   providedIn: 'root'
@@ -27,49 +201,14 @@ export class ResultHistoryService {
    * @param templateId - The ID of the questionnaire template
    * @returns Observable of StudentResultHistory
    */
-  getStudentResultHistory(studentId: string, templateId: string): Observable<StudentResultHistory> {
-    // TODO: Replace with actual API call when backend endpoint is ready
-    // return this.apiService.get<StudentResultHistory>(`${this.apiUrl}/student-history/${studentId}/template/${templateId}`);
+  getStudentResultHistory(
+    studentId: string,
+    templateId: string
+  ): Observable<StudentResultHistory> {
+    // In a real impl you'd fetch results[] + template and transform,
+    // but for now we just return the mock.
 
-    const templateTitle = `Mock Template ${templateId.slice(0, 4)}`;
-    const mockResults = [
-      this.createMockResult('2024-02-01', `${templateTitle} • Initial Assessment`),
-      this.createMockResult('2024-04-15', `${templateTitle} • Mid-term Assessment`),
-      this.createMockResult('2024-07-20', `${templateTitle} • Final Assessment`)
-    ];
-
-    const student: User = {
-      id: studentId,
-      userName: 'mock.student',
-      fullName: 'Mock Student',
-      role: Role.Student
-    };
-
-    const template: TemplateBase = {
-      id: templateId,
-      title: templateTitle,
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      isLocked: false,
-      templateStatus: TemplateStatus.Finalized
-    };
-
-    return of({ results: mockResults, student, template });
-  }
-
-  /**
-   * Get all results for a specific student across all templates
-   */
-  getAllStudentResults(studentId: string): Observable<Result[]> {
-    // TODO: Replace with API call when backend endpoint is ready
-    return of([]);
-  }
-
-  /**
-   * Get result by ID
-   */
-  getResultById(resultId: string): Observable<Result> {
-    return this.apiService.get<Result>(`${this.apiUrl}/${resultId}/getresponse`);
+    return of(mockStudentResultHistory);
   }
 
   // -------------------
@@ -106,113 +245,5 @@ export class ResultHistoryService {
     if (sessionId) params = params.set('SessionId', sessionId);
 
     return this.apiService.get<UserPaginationResult>(`${environment.apiUrl}/User`, params);
-  }
-
-  // -------------------
-  // MOCK DATA BUILDER
-  // -------------------
-  private createMockResult(date: string, title: string): Result {
-    const baseDate = new Date(date);
-    const stage = baseDate < new Date('2024-03-01') ? 'early' : baseDate < new Date('2024-06-01') ? 'mid' : 'late';
-    const pick = (early: any, mid: any, late: any) =>
-      stage === 'early' ? early : stage === 'mid' ? mid : late;
-
-    const student = {
-      user: {
-        id: 'student-1',
-        fullName: 'John Doe',
-        userName: 'john.doe',
-        role: Role.Student
-      },
-      completedAt: baseDate
-    };
-
-    const teacher = {
-      user: {
-        id: 'teacher-1',
-        fullName: 'Jane Smith',
-        userName: 'jane.smith',
-        role: Role.Teacher
-      },
-      completedAt: baseDate
-    };
-
-    return {
-      id: `mock-${date}`,
-      title: `${title} (${date})`,
-      description: `Assessment completed on ${date}`,
-      student,
-      teacher,
-      answers: [
-        {
-          question: 'How well does the student understand basic arithmetic?',
-          studentResponse: pick('Fair', 'Good', 'Excellent'),
-          isStudentResponseCustom: false,
-          teacherResponse: pick('Good', 'Good', 'Excellent'),
-          isTeacherResponseCustom: false,
-          options: ['Poor', 'Fair', 'Good', 'Excellent', 'Outstanding'].map((opt, i) => ({
-            displayText: opt,
-            optionValue: (i + 1).toString(),
-            isSelectedByStudent: opt === pick('Fair', 'Good', 'Excellent'),
-            isSelectedByTeacher: opt === pick('Good', 'Good', 'Excellent')
-          }))
-        },
-        {
-          question: "Student's problem-solving skills in mathematics",
-          studentResponse: pick('Poor', 'Fair', 'Good'),
-          isStudentResponseCustom: false,
-          teacherResponse: pick('Fair', 'Good', 'Excellent'),
-          isTeacherResponseCustom: false,
-          options: ['Poor', 'Fair', 'Good', 'Excellent', 'Outstanding'].map((opt, i) => ({
-            displayText: opt,
-            optionValue: (i + 1).toString(),
-            isSelectedByStudent: opt === pick('Poor', 'Fair', 'Good'),
-            isSelectedByTeacher: opt === pick('Fair', 'Good', 'Excellent')
-          }))
-        },
-        {
-          question: 'What motivates the student most in learning?',
-          studentResponse: pick(
-            "I find math challenging but I'm trying my best.",
-            "I'm getting better at understanding math concepts.",
-            'Math has become much more enjoyable!'
-          ),
-          isStudentResponseCustom: true,
-          teacherResponse: pick(
-            'Needs support with problem-solving strategies.',
-            'Shows improvement with practical examples.',
-            'Excellent progress with analytical skills.'
-          ),
-          isTeacherResponseCustom: true,
-          options: ['Grades and recognition', 'Understanding concepts', 'Practical applications', 'Peer interaction', 'Other (please specify)'].map(
-            (opt, i) => ({
-              displayText: opt,
-              optionValue: (i + 1).toString(),
-              isSelectedByStudent: false,
-              isSelectedByTeacher: false
-            })
-          )
-        },
-        {
-          question: 'How does the student respond to collaborative learning activities?',
-          studentResponse: pick('Peer interaction', 'Practical applications', 'Understanding concepts'),
-          isStudentResponseCustom: false,
-          teacherResponse: pick(
-            'Initially struggles with group work and needs encouragement.',
-            'Shows growing comfort and better communication in groups.',
-            'Excellent collaborator who helps peers and leads group discussions.'
-          ),
-          isTeacherResponseCustom: true,
-          options: ['Prefers individual work', 'Peer interaction', 'Practical applications', 'Understanding concepts', 'Mixed results'].map(
-            (opt, i) => ({
-              displayText: opt,
-              optionValue: (i + 1).toString(),
-              isSelectedByStudent: opt === pick('Peer interaction', 'Practical applications', 'Understanding concepts'),
-              isSelectedByTeacher: false
-            })
-          )
-        }
-      ]
-    };
   }
 }
