@@ -4,7 +4,7 @@ namespace Settings.Models;
 
 public class RootSettings : Base, IRootSettings
 {
-    public override string Key { get; } = "Settings";
+    public override string Key { get; } = "";
 
     public DatabaseSettings Database { get; set; } = new();
     public JWTSettings JWT { get; set; } = new();

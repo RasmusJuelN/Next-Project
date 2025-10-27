@@ -1,3 +1,6 @@
+using API.DTO.Responses.Settings;
+using API.DTO.Responses.Settings.SettingsSchema;
+using API.Services;
 using Database.DTO.ApplicationLog;
 using Database.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -15,9 +18,10 @@ namespace API.Controllers
     /// </remarks>
     [Route("api/[controller]")]
     [ApiController]
-    public class SystemController(IApplicationLogRepository ApplicationLogsRepository) : ControllerBase
+    public class SystemController(IApplicationLogRepository ApplicationLogsRepository, SystemControllerService systemControllerService) : ControllerBase
     {
         private readonly IApplicationLogRepository _ApplicationLogsRepository = ApplicationLogsRepository;
+        private readonly SystemControllerService _SystemControllerService = systemControllerService;
 
         /// <summary>
         /// Health check endpoint that responds to HEAD requests to verify the API is running.
@@ -95,6 +99,20 @@ namespace API.Controllers
         public async Task<ActionResult<List<EventId>>> GetDatabaseLogEvents()
         {
             return await _ApplicationLogsRepository.GetLogEventsAsync();
+        }
+
+        [HttpGet("settings")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<SettingsFetchResponse>> GetSettings()
+        {
+            return await _SystemControllerService.GetSettings();
+        }
+
+        [HttpGet("settings/schema")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<SettingsSchema>> GetSettingsSchema()
+        {
+            return await _SystemControllerService.GetSettingsSchema();
         }
     }
 }

@@ -46,6 +46,7 @@ SystemSettings systemSettings = ConfigurationBinderService.Bind<SystemSettings>(
 
 // Add services to the container.
 
+builder.Services.AddScoped<SystemControllerService>();
 builder.Services.AddScoped<IAuthenticationBridge, ActiveDirectoryAuthenticationBridge>();
 builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
