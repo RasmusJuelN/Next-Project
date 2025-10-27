@@ -365,6 +365,7 @@ namespace API.Controllers
                 return Ok(await _questionnaireService.GetFullResponseAsync(id));
             }
         }
+
         [HttpGet("responseHistory")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
         public async Task<ActionResult<StudentResultHistory>> GetResponseHistory([FromQuery] Guid studentId, [FromQuery] Guid templateId)
