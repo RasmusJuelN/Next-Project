@@ -170,11 +170,13 @@ function buildAttemptAnswers(
 // Build two attempts: one older and one newer
 const mockAnswersInfo: AnswerInfo[] = [
   {
+    activeQuestionnaireId: 'aq-001',
     studentCompletedAt: new Date('2025-02-12T10:15:00Z'),
     teacherCompletedAt: new Date('2025-02-12T11:00:00Z'),
     answers: buildAttemptAnswers('early')
   },
   {
+    activeQuestionnaireId: 'aq-002',
     studentCompletedAt: new Date('2025-05-28T09:40:00Z'),
     teacherCompletedAt: new Date('2025-05-28T10:10:00Z'),
     answers: buildAttemptAnswers('late')

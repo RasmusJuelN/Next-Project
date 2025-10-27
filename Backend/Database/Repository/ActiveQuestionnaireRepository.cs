@@ -562,17 +562,17 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         
         return new StudentResultHistory
         {
-            Student = new Database.DTO.User.UserBase
+            Student = new DTO.User.UserBase
             {
                 UserName = firstQuestionnaire.Student!.UserName,
                 FullName = firstQuestionnaire.Student.FullName
             },
-            Teacher = new Database.DTO.User.UserBase
+            Teacher = new DTO.User.UserBase
             {
                 UserName = firstQuestionnaire.Teacher!.UserName,
                 FullName = firstQuestionnaire.Teacher.FullName
             },
-            Template = new Database.DTO.QuestionnaireTemplate.QuestionnaireTemplate
+            Template = new QuestionnaireTemplate
             {
                 Id = firstQuestionnaire.QuestionnaireTemplate!.Id,
                 Title = firstQuestionnaire.QuestionnaireTemplate.Title,
@@ -580,12 +580,12 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
                 CreatedAt = firstQuestionnaire.QuestionnaireTemplate.CreatedAt,
                 LastUpdated = firstQuestionnaire.QuestionnaireTemplate.LastUpated,
                 IsLocked = firstQuestionnaire.QuestionnaireTemplate.IsLocked,
-                Questions = firstQuestionnaire.QuestionnaireTemplate.Questions.Select(q => new Database.DTO.QuestionnaireTemplate.QuestionnaireTemplateQuestion
+                Questions = firstQuestionnaire.QuestionnaireTemplate.Questions.Select(q => new QuestionnaireTemplateQuestion
                 {
                     Id = q.Id,
                     Prompt = q.Prompt,
                     AllowCustom = q.AllowCustom,
-                    Options = q.Options.Select(o => new Database.DTO.QuestionnaireTemplate.QuestionnaireTemplateOption
+                    Options = q.Options.Select(o => new QuestionnaireTemplateOption
                     {
                         Id = o.Id,
                         DisplayText = o.DisplayText,
@@ -595,8 +595,10 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             },
             AnswersInfo = questionnaires.Select(aq => new AnswerInfo
             {
-                StudentCompletedAt = aq.StudentCompletedAt,
-                TeacherCompletedAt = aq.TeacherCompletedAt,
+                activeQuestionnaireId = aq.Id,
+                StudentCompletedAt = aq.StudentCompletedAt!,
+                TeacherCompletedAt = aq.TeacherCompletedAt!,
+
                 Answers = aq.QuestionnaireTemplate!.Questions.Select(q =>
                 {
                     var studentAnswer = aq.StudentAnswers.FirstOrDefault(sa => sa.QuestionFK == q.Id);

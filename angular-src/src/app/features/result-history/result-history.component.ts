@@ -350,7 +350,7 @@ export class ResultHistoryComponent implements OnInit {
 
     // 5. wrap up as a Result
     return {
-      id: 'synthetic-from-history',
+      id: answerInfo.activeQuestionnaireId,
       title: template.title,
       description: template.description ?? null,
       student: {

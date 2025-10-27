@@ -22,6 +22,7 @@ import { User } from "../../../shared/models/user.model";
   }
 
   export interface AnswerInfo {
+    activeQuestionnaireId: string;
     studentCompletedAt?: Date;
     teacherCompletedAt?: Date;
     answers: AnswerDetails[];
