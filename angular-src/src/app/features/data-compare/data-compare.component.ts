@@ -121,7 +121,17 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   /**
    * State for template search and selection
    */
-
+  public template: TemplateSearchEntity = {
+    selected: [],
+    searchInput: "",
+    searchResults: [],
+    page: 1,
+    totalPages: 1,
+    isLoading: false,
+    errorMessage: null,
+    searchSubject: new Subject<string>(),
+    queryCursor: undefined,
+  };
 
   // Number of results per search
   searchAmount = 10;

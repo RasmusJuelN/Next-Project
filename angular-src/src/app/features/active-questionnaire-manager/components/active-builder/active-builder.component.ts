@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -36,6 +36,9 @@ export class ActiveBuilderComponent implements OnInit {
   public studentError: string = '';
   public teacherError: string = '';
   public templateError: string = '';
+  public showStudentResults = false;
+  public showTeacherResults = false;
+  public showTemplateResults = false;
 
   public student: UserSearchEntity<User> = {
     selected: [],
@@ -75,10 +78,34 @@ export class ActiveBuilderComponent implements OnInit {
     queryCursor: undefined
   };
 
+    @ViewChild("studentSearchArea", { static: false })
+    studentSearchArea!: ElementRef;
+    @ViewChild("teacherSearchArea", { static: false })
+    teacherSearchArea!: ElementRef;
+    @ViewChild("templateSearchArea", { static: false })
+    templateSearchArea!: ElementRef;
+
   // Set the page size (10 results per search)
   searchAmount = 10;
 
   @Output() backToListEvent = new EventEmitter<void>();
+
+
+private handleDocumentClick = (event: MouseEvent) => {
+  const studentArea = this.studentSearchArea?.nativeElement;
+  const teacherArea  = this.teacherSearchArea?.nativeElement;
+  const templateArea = this.templateSearchArea?.nativeElement;
+
+  if (studentArea && !studentArea.contains(event.target as Node)) {
+    this.showStudentResults = false;
+  }
+  if (teacherArea && !teacherArea.contains(event.target as Node)) {
+    this.showTeacherResults = false;
+  }
+  if (templateArea && !templateArea.contains(event.target as Node)) {
+    this.showTemplateResults = false;
+  }
+};
 
   ngOnInit(): void {
     // Subscribe to debounced search subjects.
@@ -99,8 +126,13 @@ export class ActiveBuilderComponent implements OnInit {
       .subscribe((term) => {
         this.fetch('template', term);
       });
+
+  document.addEventListener("mousedown", this.handleDocumentClick, true);
   }
 
+  ngOnDestroy(): void {
+  document.removeEventListener("mousedown", this.handleDocumentClick, true);
+  }
   // Returns the proper state based on the entity.
   private getState(entity: SearchType): SearchEntity<any> {
     if (entity === 'student') {
@@ -163,6 +195,8 @@ export class ActiveBuilderComponent implements OnInit {
       });
     }
   }
+
+
 
   onInputChange(entity: SearchType, value: string): void {
     const state = this.getState(entity);
