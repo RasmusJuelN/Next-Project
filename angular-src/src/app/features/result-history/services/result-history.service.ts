@@ -6,7 +6,7 @@ import { Result } from '../../../shared/models/result.model';
 import { Template, TemplateBase, TemplateStatus } from '../../../shared/models/template.model';
 import { Role, User } from '../../../shared/models/user.model';
 import { HttpParams } from '@angular/common/http';
-import { Attempt, AttemptAnswer, StudentResultHistory, TemplateBaseResponse, UserPaginationResult } from '../models/result-history.model';
+import { Attempt, AttemptAnswer, StudentResultHistory, TemplateBaseResponse, UserPaginationResult, AnswerInfo, AnswerDetails } from '../models/result-history.model';
 
 // Mock template with stable IDs for questions/options
 const mockTemplate: Template = {
@@ -87,7 +87,7 @@ const mockTeacher: User = {
 // Helper: build answers for a single attempt
 function buildAttemptAnswers(
   variant: 'early' | 'late'
-): AttemptAnswer[] {
+): AnswerDetails[] {
   // variant lets us simulate improvement over time
 
   return [
@@ -168,7 +168,7 @@ function buildAttemptAnswers(
 }
 
 // Build two attempts: one older and one newer
-const mockAttempts: Attempt[] = [
+const mockAnswersInfo: AnswerInfo[] = [
   {
     studentCompletedAt: new Date('2025-02-12T10:15:00Z'),
     teacherCompletedAt: new Date('2025-02-12T11:00:00Z'),
@@ -185,7 +185,7 @@ const mockStudentResultHistory: StudentResultHistory = {
   student: mockStudent,
   teacher: mockTeacher,
   template: mockTemplate,
-  attempts: mockAttempts
+  answersInfo: mockAnswersInfo
 };
 
 @Injectable({
@@ -205,10 +205,14 @@ export class ResultHistoryService {
     studentId: string,
     templateId: string
   ): Observable<StudentResultHistory> {
-    // In a real impl you'd fetch results[] + template and transform,
-    // but for now we just return the mock.
+    const params = new HttpParams()
+      .set('studentId', studentId)
+      .set('templateId', templateId);
 
-    return of(mockStudentResultHistory);
+    return this.apiService.get<StudentResultHistory>(
+      `${this.apiUrl}/responseHistory`,
+      params
+    );
   }
 
   // -------------------

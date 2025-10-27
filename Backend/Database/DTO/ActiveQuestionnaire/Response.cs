@@ -1,4 +1,5 @@
 using Database.DTO.User;
+using Database.DTO.QuestionnaireTemplate;
 
 namespace Database.DTO.ActiveQuestionnaire;
 
@@ -160,3 +161,32 @@ public record FullAnswer : TeacherAnswer
     /// </summary>
     public List<QuestionOption>? Options { get; set; }
 };
+
+
+
+
+    public class StudentResultHistory
+    {
+        public required UserBase Student { get; set; }
+        public required UserBase Teacher { get; set; }
+        public required QuestionnaireTemplate.QuestionnaireTemplate Template { get; set; }
+        public required List<AnswerInfo> AnswersInfo { get; set; }
+    }
+
+    public class AnswerInfo
+    {
+        public required DateTime? StudentCompletedAt { get; set; }
+        public required DateTime? TeacherCompletedAt { get; set; }
+        public required List<AnswerDetails> Answers { get; set; }
+    }
+
+    public class AnswerDetails
+    {
+        public required string QuestionId { get; set; }
+        public required string? StudentResponse { get; set; }
+        public required bool? IsStudentResponseCustom { get; set; }
+        public required List<int>? SelectedOptionIdsByStudent { get; set; }
+        public required string? TeacherResponse { get; set; }
+        public required bool? IsTeacherResponseCustom { get; set; }
+        public required List<int>? SelectedOptionIdsByTeacher { get; set; }
+    }

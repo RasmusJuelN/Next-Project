@@ -18,20 +18,37 @@ import { User } from "../../../shared/models/user.model";
     student: User;
     teacher: User;
     template: Template;
-    attempts: Attempt[];
+    answersInfo: AnswerInfo[];
   }
+
+  export interface AnswerInfo {
+    studentCompletedAt?: Date;
+    teacherCompletedAt?: Date;
+    answers: AnswerDetails[];
+  }
+
+  export interface AnswerDetails {
+    questionId: string;
+    studentResponse?: string;
+    isStudentResponseCustom?: boolean;
+    selectedOptionIdsByStudent?: number[];
+    teacherResponse?: string;
+    isTeacherResponseCustom?: boolean;
+    selectedOptionIdsByTeacher?: number[];
+  }
+
+  // Keep the old interfaces for backward compatibility with existing mock data
   export interface Attempt {
     studentCompletedAt?: Date;
     teacherCompletedAt?: Date;
     answers: AttemptAnswer[];
   }
+
   export interface AttemptAnswer {
     questionId: string;
-  
     studentResponse?: string;
     isStudentResponseCustom?: boolean;
     selectedOptionIdsByStudent?: number[];
-  
     teacherResponse?: string;
     isTeacherResponseCustom?: boolean;
     selectedOptionIdsByTeacher?: number[];

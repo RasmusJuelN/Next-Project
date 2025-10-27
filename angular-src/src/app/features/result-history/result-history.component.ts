@@ -18,7 +18,7 @@ import {
   Result
 } from '../../shared/models/result.model';
 import { ResultHistoryService } from './services/result-history.service';
-import { Attempt, StudentResultHistory } from './models/result-history.model';
+import { Attempt, StudentResultHistory, AnswerInfo } from './models/result-history.model';
 
 enum SearchEnum {
   Student = 'student',
@@ -202,7 +202,7 @@ export class ResultHistoryComponent implements OnInit {
   // ---- timeline navigation ----
   nextAttempt() {
     if (!this.history) return;
-    if (this.currentAttemptIndex < this.history.attempts.length - 1) {
+    if (this.currentAttemptIndex < this.history.answersInfo.length - 1) {
       this.currentAttemptIndex++;
     }
   }
@@ -215,22 +215,22 @@ export class ResultHistoryComponent implements OnInit {
   }
 
   // ---- accessors / helpers for template ----
-  getCurrentAttempt(): Attempt | null {
+  getCurrentAttempt(): AnswerInfo | null {
     if (!this.history) return null;
-    return this.history.attempts[this.currentAttemptIndex] ?? null;
+    return this.history.answersInfo[this.currentAttemptIndex] ?? null;
   }
 
   canShowAttempts(): boolean {
     return (
       !this.isLoading &&
       !!this.history &&
-      Array.isArray(this.history.attempts) &&
-      this.history.attempts.length > 0
+      Array.isArray(this.history.answersInfo) &&
+      this.history.answersInfo.length > 0
     );
   }
 
-  getAttempts(): Attempt[] {
-    return this.history?.attempts ?? [];
+  getAttempts(): AnswerInfo[] {
+    return this.history?.answersInfo ?? [];
   }
 
   getTemplateTitle(): string {
@@ -267,29 +267,29 @@ export class ResultHistoryComponent implements OnInit {
 
   /**
    * Expose a Result-shaped object for <app-show-result>
-   * based on the currently selected Attempt.
+   * based on the currently selected AnswerInfo.
    */
   getCurrentResultLikeResult(): Result | null {
-    const attempt = this.getCurrentAttempt();
-    if (!attempt) return null;
-    return this.attemptToResult(attempt);
+    const answerInfo = this.getCurrentAttempt();
+    if (!answerInfo) return null;
+    return this.attemptToResult(answerInfo);
   }
 
   /**
-   * Convert a single Attempt into a synthetic Result
+   * Convert a single AnswerInfo into a synthetic Result
    * so <app-show-result> can render it with zero changes.
    */
-  private attemptToResult(attempt: Attempt): Result | null {
+  private attemptToResult(answerInfo: AnswerInfo): Result | null {
     if (!this.history) return null;
 
     const template = this.history.template;
     const studentUser = this.history.student;
     const teacherUser = this.history.teacher;
 
-    const answers = attempt.answers.map((ans): Answer => {
+    const answers = answerInfo.answers.map((answerDetail): Answer => {
       // 1. find this question in the template
       const qMeta = template.questions.find(
-        (q) => String(q.id) === String(ans.questionId)
+        (q) => String(q.id) === String(answerDetail.questionId)
       );
 
       const questionPrompt = qMeta?.prompt ?? '(unknown question)';
@@ -298,9 +298,9 @@ export class ResultHistoryComponent implements OnInit {
       const options: QuestionOption[] | undefined = qMeta
         ? qMeta.options.map((opt) => {
             const isSelectedByStudent =
-              ans.selectedOptionIdsByStudent?.includes(opt.id) ?? false;
+              answerDetail.selectedOptionIdsByStudent?.includes(opt.id) ?? false;
             const isSelectedByTeacher =
-              ans.selectedOptionIdsByTeacher?.includes(opt.id) ?? false;
+              answerDetail.selectedOptionIdsByTeacher?.includes(opt.id) ?? false;
 
             return {
               displayText: opt.displayText,
@@ -311,31 +311,50 @@ export class ResultHistoryComponent implements OnInit {
           })
         : undefined;
 
-      // 3. return this answer in Result.Answer shape
+      // 3. Determine the actual response text for student and teacher
+      const studentResponse = answerDetail.isStudentResponseCustom && answerDetail.studentResponse
+        ? answerDetail.studentResponse
+        : this.getSelectedOptionText(answerDetail.selectedOptionIdsByStudent, qMeta?.options);
+
+      const teacherResponse = answerDetail.isTeacherResponseCustom && answerDetail.teacherResponse
+        ? answerDetail.teacherResponse
+        : this.getSelectedOptionText(answerDetail.selectedOptionIdsByTeacher, qMeta?.options);
+
+      // 4. return this answer in Result.Answer shape
       return {
         question: questionPrompt,
-        studentResponse: ans.studentResponse ?? '',
-        isStudentResponseCustom: !!ans.isStudentResponseCustom,
-        teacherResponse: ans.teacherResponse ?? '',
-        isTeacherResponseCustom: !!ans.isTeacherResponseCustom,
+        studentResponse: studentResponse ?? '',
+        isStudentResponseCustom: !!answerDetail.isStudentResponseCustom,
+        teacherResponse: teacherResponse ?? '',
+        isTeacherResponseCustom: !!answerDetail.isTeacherResponseCustom,
         options
       };
     });
 
-    // 4. wrap up as a Result
+    // 5. wrap up as a Result
     return {
       id: 'synthetic-from-history',
       title: template.title,
       description: template.description ?? null,
       student: {
         user: studentUser,
-        completedAt: attempt.studentCompletedAt ?? new Date(0)
+        completedAt: answerInfo.studentCompletedAt ? new Date(answerInfo.studentCompletedAt) : new Date(0)
       },
       teacher: {
         user: teacherUser,
-        completedAt: attempt.teacherCompletedAt ?? new Date(0)
+        completedAt: answerInfo.teacherCompletedAt ? new Date(answerInfo.teacherCompletedAt) : new Date(0)
       },
       answers
     };
+  }
+
+  /**
+   * Helper method to get the display text for selected option IDs
+   */
+  private getSelectedOptionText(selectedOptionIds: number[] | null | undefined, options: any[] | undefined): string | null {
+    if (!selectedOptionIds?.length || !options?.length) return null;
+    
+    const selectedOption = options.find(opt => selectedOptionIds.includes(opt.id));
+    return selectedOption?.displayText ?? null;
   }
 }
