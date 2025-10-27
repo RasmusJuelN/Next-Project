@@ -156,49 +156,43 @@
     </div>
   </div>
 
-  <!-- action buttons + view toggle row -->
-  <div class="flex flex-wrap justify-center sm:justify-end gap-2">
-
-    <!-- Download PDF -->
-    <button
-      *ngIf="hasResult()"
-      type="button"
-      (click)="downloadPdf()"
-      class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium
-             border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors">
-      ⬇️
-      <span class="ml-1">{{ 'RESULT_HISTORY.DOWNLOAD_PDF' | translate }}</span>
-    </button>
+  <!-- action buttons + view toggle -->
+  <div class="flex flex-wrap justify-center sm:justify-end gap-2 w-full sm:w-auto">
 
     <!-- Open PDF -->
     <button
       *ngIf="hasResult()"
-      type="button"
       (click)="openPdf()"
-      class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium
-             border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors">
-      📄
-      <span class="ml-1">{{ 'RESULT_HISTORY.OPEN_PDF' | translate }}</span>
+      class="bg-primary_orange_1 text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_orange_light 
+             flex-1 sm:flex-none transition font-medium shadow-sm"
+    >
+      <span class="hidden sm:inline">{{ 'RESULT_HISTORY.OPEN_PDF' | translate }}</span>
+      <span class="sm:hidden">{{ 'RESULT_HISTORY.OPEN_PDF_SHORT' | translate }}</span>
     </button>
 
-    <!-- toggle compact/full -->
+    <!-- Download PDF -->
     <button
-      type="button"
-      (click)="isFullView = !isFullView"
-      class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium
-             border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors">
-      <ng-container *ngIf="!isFullView">
-        <span class="mr-1">📄</span>
-        <span>{{ 'RESULT_HISTORY.COMPACT_VIEW' | translate }}</span>
-      </ng-container>
-      <ng-container *ngIf="isFullView">
-        <span class="mr-1">🔍</span>
-        <span>{{ 'RESULT_HISTORY.FULL_VIEW' | translate }}</span>
-      </ng-container>
+      *ngIf="hasResult()"
+      (click)="downloadPdf()"
+      class="bg-blue-900 text-white px-3 py-2 text-sm rounded-xl hover:bg-blue-700 
+             flex-1 sm:flex-none transition font-medium shadow-sm"
+    >
+      <span class="hidden sm:inline">{{ 'RESULT_HISTORY.DOWNLOAD_PDF' | translate }}</span>
+      <span class="sm:hidden">{{ 'RESULT_HISTORY.DOWNLOAD_PDF_SHORT' | translate }}</span>
     </button>
 
+    <!-- Toggle Compact / Full View -->
+      <button
+        (click)="isFullView = !isFullView"
+        class="bg-primary_dark_blue text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_dark_light hover:text-white flex-1 sm:flex-none min-w-0 transition"
+      >
+        <span class="hidden sm:inline">{{ isFullView ? translate.instant('RESULT_HISTORY.COMPACT_VIEW') : translate.instant('RESULT_HISTORY.FULL_VIEW') }}</span>
+        <span class="sm:hidden">{{ isFullView ? translate.instant('RESULT_HISTORY.COMPACT_VIEW_SHORT') : translate.instant('RESULT_HISTORY.FULL_VIEW_SHORT') }}</span>
+      </button>
+      
   </div>
 </div>
+
 
 
     </div>

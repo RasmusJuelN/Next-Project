@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 import { User } from '../../shared/models/user.model';
@@ -39,7 +39,7 @@ interface SearchState<T> {
 @Component({
   selector: 'app-result-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ShowResultComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, ShowResultComponent, TranslateModule],
   templateUrl: './result-history.component.html',
   styleUrls: ['./result-history.component.css']
 })
@@ -47,6 +47,8 @@ export class ResultHistoryComponent implements OnInit {
   private resultHistoryService = inject(ResultHistoryService);
   private pdfGenerationService = inject(PdfGenerationService);
 
+  public translate = inject(TranslateService)
+  
   public searchEnum = SearchEnum;
   public student = this.createSearchState<User>();
   public template = this.createSearchState<TemplateBase>();
