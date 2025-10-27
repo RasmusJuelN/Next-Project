@@ -231,6 +231,8 @@
     "INSTRUCTIONS": "Select a student and questionnaire to view results",
     "INSTRUCTIONS_DESC": "Use the search fields above to find and select a student and questionnaire template to view the historical results.",
     "FULL_VIEW": "Full View",
-    "COMPACT_VIEW": "Compact View"
+    "COMPACT_VIEW": "Compact View",
+    "OPEN_PDF": "Open PDF",
+    "DOWNLOAD_PDF": "Download PDF"
   }
 }

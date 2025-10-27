@@ -141,39 +141,65 @@
         </div>
       </div>
 
-      <!-- right side: info + compress toggle -->
-      <div class="w-full sm:w-auto flex flex-col items-center sm:items-end text-center sm:text-right">
+<!-- right side: info + actions -->
+<div class="w-full sm:w-auto flex flex-col items-center sm:items-end text-center sm:text-right gap-3">
 
-        <!-- date + template -->
-        <div class="text-sm sm:text-base font-medium text-gray-700" *ngIf="getCurrentAttempt() as attempt">
-          <div>
-            <span *ngIf="attempt.studentCompletedAt">
-              {{ attempt.studentCompletedAt | date:'medium' }}
-            </span>
-          </div>
-          <div class="text-xs text-gray-500 sm:text-xs mt-1">
-            {{ getTemplateTitle() }}
-          </div>
-        </div>
+  <!-- meta info -->
+  <div class="text-sm sm:text-base font-medium text-gray-700" *ngIf="getCurrentAttempt() as attempt">
+    <div>
+      <span *ngIf="attempt.studentCompletedAt">
+        {{ attempt.studentCompletedAt | date:'medium' }}
+      </span>
+    </div>
+    <div class="text-xs text-gray-500 sm:text-xs mt-1">
+      {{ getTemplateTitle() }}
+    </div>
+  </div>
 
-        <!-- compress toggle -->
-        <button
-          type="button"
-          (click)="isFullView = !isFullView"
-          class="mt-3 inline-flex items-center px-3 py-1 rounded-md text-xs font-medium border
-                 border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors"
-        >
-          <ng-container *ngIf="!isFullView">
-            <span class="mr-1">📄</span>
-            <span>{{ 'RESULT_HISTORY.COMPACT_VIEW' | translate }}</span>
-          </ng-container>
-          <ng-container *ngIf="isFullView">
-            <span class="mr-1">🔍</span>
-            <span>{{ 'RESULT_HISTORY.FULL_VIEW' | translate }}</span>
-          </ng-container>
-        </button>
+  <!-- action buttons + view toggle row -->
+  <div class="flex flex-wrap justify-center sm:justify-end gap-2">
 
-      </div>
+    <!-- Download PDF -->
+    <button
+      *ngIf="hasResult()"
+      type="button"
+      (click)="downloadPdf()"
+      class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium
+             border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors">
+      ⬇️
+      <span class="ml-1">{{ 'RESULT_HISTORY.DOWNLOAD_PDF' | translate }}</span>
+    </button>
+
+    <!-- Open PDF -->
+    <button
+      *ngIf="hasResult()"
+      type="button"
+      (click)="openPdf()"
+      class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium
+             border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors">
+      📄
+      <span class="ml-1">{{ 'RESULT_HISTORY.OPEN_PDF' | translate }}</span>
+    </button>
+
+    <!-- toggle compact/full -->
+    <button
+      type="button"
+      (click)="isFullView = !isFullView"
+      class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium
+             border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors">
+      <ng-container *ngIf="!isFullView">
+        <span class="mr-1">📄</span>
+        <span>{{ 'RESULT_HISTORY.COMPACT_VIEW' | translate }}</span>
+      </ng-container>
+      <ng-container *ngIf="isFullView">
+        <span class="mr-1">🔍</span>
+        <span>{{ 'RESULT_HISTORY.FULL_VIEW' | translate }}</span>
+      </ng-container>
+    </button>
+
+  </div>
+</div>
+
 
     </div>
 

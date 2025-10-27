@@ -19,6 +19,7 @@ import {
 } from '../../shared/models/result.model';
 import { ResultHistoryService } from './services/result-history.service';
 import { Attempt, StudentResultHistory, AnswerInfo } from './models/result-history.model';
+import { PdfGenerationService } from '../result/services/pdf-generation.service';
 
 enum SearchEnum {
   Student = 'student',
@@ -44,6 +45,7 @@ interface SearchState<T> {
 })
 export class ResultHistoryComponent implements OnInit {
   private resultHistoryService = inject(ResultHistoryService);
+  private pdfGenerationService = inject(PdfGenerationService);
 
   public searchEnum = SearchEnum;
   public student = this.createSearchState<User>();
@@ -99,6 +101,19 @@ export class ResultHistoryComponent implements OnInit {
   ngOnInit(): void {
     this.setupSearch(this.student, SearchEnum.Student);
     this.setupSearch(this.template, SearchEnum.Template);
+  }
+
+  downloadPdf(): void {
+    const result = this.getCurrentResultLikeResult();
+    if (!result) return;
+    // assume service takes the current result and triggers browser download
+    this.pdfGenerationService.generatePdf(result);
+  }
+
+  openPdf(): void {
+    const result = this.getCurrentResultLikeResult();
+    if (!result) return;
+    this.pdfGenerationService.openPdf(result);
   }
 
   private setupSearch<T>(state: SearchState<T>, type: SearchEnum): void {
@@ -356,5 +371,9 @@ export class ResultHistoryComponent implements OnInit {
     
     const selectedOption = options.find(opt => selectedOptionIds.includes(opt.id));
     return selectedOption?.displayText ?? null;
+  }
+
+  public hasResult(): boolean {
+    return !!this.getCurrentResultLikeResult();
   }
 }
