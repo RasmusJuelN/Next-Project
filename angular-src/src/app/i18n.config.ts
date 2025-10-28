@@ -10,9 +10,6 @@ export interface I18nLanguageConfig {
   default?: boolean;
 }
 
-export const DEFAULT_LANGUAGE: Lang = Lang.DA;
-
-
 export const SUPPORTED_LANGUAGES: I18nLanguageConfig[] = [
   {
     code: Lang.EN,
@@ -26,4 +23,6 @@ export const SUPPORTED_LANGUAGES: I18nLanguageConfig[] = [
     default: true,
   },
 ];
+
 export const SUPPORTED_CODES = SUPPORTED_LANGUAGES.map(l => l.code) as string[];
+export const DEFAULT_LANGUAGE: Lang = Lang.DA;
