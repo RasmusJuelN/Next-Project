@@ -38,7 +38,7 @@ export class DataCompareService {
   getAnonymisedResponses(templateId: string, userId?: string, groupId?: string) {
     let url = `${environment.apiUrl}/active-questionnaire/getanonymisedresponses?QuestionnaireId=${templateId}`;
     if (userId) {
-      url += `&UserId=${userId}`;
+      url += `&Users=${userId}`;
     }
     if (groupId) {
       url += `&Groups=${groupId}`;
