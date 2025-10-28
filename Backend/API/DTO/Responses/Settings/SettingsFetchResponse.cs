@@ -1,3 +1,4 @@
+using Serilog;
 using Settings.Interfaces;
 
 namespace API.DTO.Responses.Settings;
@@ -33,6 +34,11 @@ public record class FileLoggerSettingsFetchResponse : IFileLoggerSettings
     public required bool IsEnabled { get; set; }
     public required Dictionary<string, LogLevel> LogLevel { get; set; }
     public required string Path { get; set; }
+    public required RollingInterval RollingInterval { get; set; }
+    public required bool RollOnFileSizeLimit { get; set; }
+    public required int FileSizeLimitBytes { get; set; }
+    public required int RetainedFileCountLimit { get; set; }
+    public required bool Shared { get; set; }
 }
 
 public record class JWTSettingsFetchResponse : IJWTSettings

@@ -1,3 +1,4 @@
+using API.DTO.Requests.Settings;
 using API.DTO.Responses.Settings;
 using API.DTO.Responses.Settings.SettingsSchema;
 using API.Services;
@@ -126,7 +127,7 @@ namespace API.Controllers
 
         [HttpPut("settings/update")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<IActionResult> UpdateSettings([FromForm] RootSettings settings)
+        public async Task<IActionResult> UpdateSettings([FromBody] UpdateSettingsRequest settings)
         {
             bool result = await _SystemControllerService.UpdateSettings(settings);
 
@@ -138,11 +139,18 @@ namespace API.Controllers
             return Ok();
         }
 
-        [HttpGet("settings/patch")]
+        [HttpPatch("settings/patch")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<IActionResult> PatchSettings()
+        public async Task<IActionResult> PatchSettings([FromBody] PatchSettingsRequest settings)
         {
-            throw new NotImplementedException();
+            bool result = await _SystemControllerService.PatchSettings(settings);
+
+            if (result == false)
+            {
+                return BadRequest("Failed to patch settings.");
+            }
+
+            return Ok();
         }
     }
 }

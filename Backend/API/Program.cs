@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using API.Utils;
 using Microsoft.OpenApi.Models;
 using Logging.Extensions;
-using Settings.Default;
 using Database.Repository;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -14,10 +13,10 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Reflection;
 using Database.Interfaces;
 using API.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using API.Services.Authentication;
 using System.Text.Json.Serialization;
+using Serilog;
 
 const string settingsFile = "config.json";
 
@@ -35,17 +34,29 @@ builder.Configuration.AddJsonFile(settingsFile, optional: false, reloadOnChange:
 builder.Logging.ClearProviders();
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();
-builder.Logging.AddFileLogger(configure => builder.Configuration.GetSection("Loggings:FileLogger").Get<DefaultFileLogger>());
-builder.Logging.AddDBLogger(configure => builder.Configuration.GetSection("Loggings:DBLogger").Get<DefaultDBLogger>());
+builder.Logging.AddDBLogger(configure => builder.Configuration.GetSection("Logging:DBLogger"));
 
 // TODO: Check if config version is lower than default, and if it is, "upgrade" the config with any new settings
 
 DatabaseSettings databaseSettings = ConfigurationBinderService.Bind<DatabaseSettings>(builder.Configuration);
 JWTSettings jWTSettings = ConfigurationBinderService.Bind<JWTSettings>(builder.Configuration);
 SystemSettings systemSettings = ConfigurationBinderService.Bind<SystemSettings>(builder.Configuration);
+LoggerSettings loggerSettings = ConfigurationBinderService.Bind<LoggerSettings>(builder.Configuration);
+
+Serilog.ILogger seriLogger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration)
+        .WriteTo.File(
+            path: loggerSettings.FileLogger.Path,
+            rollingInterval: loggerSettings.FileLogger.RollingInterval,
+            rollOnFileSizeLimit: loggerSettings.FileLogger.RollOnFileSizeLimit,
+            fileSizeLimitBytes: loggerSettings.FileLogger.FileSizeLimitBytes,
+            retainedFileCountLimit: loggerSettings.FileLogger.RetainedFileCountLimit,
+            shared: loggerSettings.FileLogger.Shared,
+            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
+        ).CreateLogger();
+
+builder.Logging.AddSerilog(seriLogger);
 
 // Add services to the container.
-
 builder.Services.AddScoped<SystemControllerService>();
 builder.Services.AddScoped<IAuthenticationBridge, ActiveDirectoryAuthenticationBridge>();
 builder.Services.AddScoped<JsonSerializerService>();

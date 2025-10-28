@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using API.DTO.Requests.Settings;
 using API.DTO.Responses.Settings;
 using API.DTO.Responses.Settings.SettingsSchema;
 using API.DTO.Responses.Settings.SettingsSchema.Bases;
@@ -8,11 +10,21 @@ using Settings.Models;
 
 namespace API.Services;
 
-public class SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger)
+public class SystemControllerService
 {
-    private readonly RootSettings _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
-    private readonly DefaultSettings _DefaultSettings = new();
-    private readonly ILogger<SystemControllerService> _Logger = logger;
+    public SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger)
+    {
+        _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
+        _DefaultSettings = new();
+        _Logger = logger;
+        _SerializerOptions = CreateSerializer();
+    }
+    
+    private readonly RootSettings _RootSettings;
+    private readonly DefaultSettings _DefaultSettings;
+    private readonly ILogger<SystemControllerService> _Logger;
+    private readonly JsonSerializerOptions _SerializerOptions;
+
     public async Task<SettingsFetchResponse> GetSettings()
     {
         return new SettingsFetchResponse()
@@ -52,7 +64,12 @@ public class SystemControllerService(IConfiguration configuration, ILogger<Syste
                 {
                     IsEnabled = _RootSettings.Logging.FileLogger.IsEnabled,
                     LogLevel = _RootSettings.Logging.FileLogger.LogLevel,
-                    Path = _RootSettings.Logging.FileLogger.Path
+                    Path = _RootSettings.Logging.FileLogger.Path,
+                    RollingInterval = _RootSettings.Logging.FileLogger.RollingInterval,
+                    RollOnFileSizeLimit = _RootSettings.Logging.FileLogger.RollOnFileSizeLimit,
+                    FileSizeLimitBytes = _RootSettings.Logging.FileLogger.FileSizeLimitBytes,
+                    RetainedFileCountLimit = _RootSettings.Logging.FileLogger.RetainedFileCountLimit,
+                    Shared = _RootSettings.Logging.FileLogger.Shared
                 },
                 DBLogger = new DBLoggerSettingsFetchResponse()
                 {
@@ -268,18 +285,13 @@ public class SystemControllerService(IConfiguration configuration, ILogger<Syste
         };
     }
 
-    public async Task<bool> UpdateSettings(RootSettings rootSettings)
+    public async Task<bool> UpdateSettings(UpdateSettingsRequest rootSettings)
     {
         try
         {
             string configPath = Path.Combine("config.json");
 
-            JsonSerializerOptions serializerOptions = new()
-            {
-                WriteIndented = true,
-            };
-
-            string jsonString = JsonSerializer.Serialize(rootSettings, serializerOptions);
+            string jsonString = JsonSerializer.Serialize(rootSettings, _SerializerOptions);
             await File.WriteAllTextAsync(configPath, jsonString);
 
             return true;
@@ -290,6 +302,96 @@ public class SystemControllerService(IConfiguration configuration, ILogger<Syste
             _Logger.LogError(ex, "Failed to update settings: {Message}", ex.Message);
             return false;
         }
+    }
+
+    public async Task<bool> PatchSettings(PatchSettingsRequest rootSettings)
+    {
+        try
+        {
+            PatchSettingsRequest mergedSettings = PatchSettings(_RootSettings, rootSettings);
+
+            string configPath = Path.Combine("config.json");
+
+            string jsonString = JsonSerializer.Serialize(mergedSettings, _SerializerOptions);
+            await File.WriteAllTextAsync(configPath, jsonString);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _Logger.LogError(ex, "Failed to patch settings: {Message}", ex.Message);
+            return false;
+        }
+    }
+
+    private static JsonSerializerOptions CreateSerializer()
+    {
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+        };
+        options.Converters.Add(new JsonStringEnumConverter());
+        return options;
+    }
+
+    private static PatchSettingsRequest PatchSettings(RootSettings current, PatchSettingsRequest updates)
+    {
+        var result = new PatchSettingsRequest
+        {
+            Database = new DatabasePatchRequest
+            {
+                ConnectionString = updates.Database?.ConnectionString ?? current.Database.ConnectionString
+            },
+            JWT = new JWTPatchRequest
+            {
+                AccessTokenSecret = updates.JWT?.AccessTokenSecret ?? current.JWT.AccessTokenSecret,
+                RefreshTokenSecret = updates.JWT?.RefreshTokenSecret ?? current.JWT.RefreshTokenSecret,
+                TokenTTLMinutes = updates.JWT?.TokenTTLMinutes ?? current.JWT.TokenTTLMinutes,
+                RenewTokenTTLDays = updates.JWT?.RenewTokenTTLDays ?? current.JWT.RenewTokenTTLDays,
+                Roles = updates.JWT?.Roles ?? current.JWT.Roles,
+                Issuer = updates.JWT?.Issuer ?? current.JWT.Issuer,
+                Audience = updates.JWT?.Audience ?? current.JWT.Audience
+            },
+            LDAP = new LDAPPatchRequest
+            {
+                Host = updates.LDAP?.Host ?? current.LDAP.Host,
+                Port = updates.LDAP?.Port ?? current.LDAP.Port,
+                FQDN = updates.LDAP?.FQDN ?? current.LDAP.FQDN,
+                BaseDN = updates.LDAP?.BaseDN ?? current.LDAP.BaseDN,
+                SA = updates.LDAP?.SA ?? current.LDAP.SA,
+                SAPassword = updates.LDAP?.SAPassword ?? current.LDAP.SAPassword
+            },
+            Logging = new LoggerPatchRequest
+            {
+                LogLevel = updates.Logging?.LogLevel ?? current.Logging.LogLevel,
+                Console = new ConsoleLoggerPatchRequest
+                {
+                    IsEnabled = updates.Logging?.Console?.IsEnabled ?? current.Logging.Console.IsEnabled,
+                    LogLevel = updates.Logging?.Console?.LogLevel ?? current.Logging.Console.LogLevel
+                },
+                FileLogger = new FileLoggerPatchRequest
+                {
+                    IsEnabled = updates.Logging?.FileLogger?.IsEnabled ?? current.Logging.FileLogger.IsEnabled,
+                    LogLevel = updates.Logging?.FileLogger?.LogLevel ?? current.Logging.FileLogger.LogLevel,
+                    Path = updates.Logging?.FileLogger?.Path ?? current.Logging.FileLogger.Path
+                },
+                DBLogger = new DBLoggerPatchRequest
+                {
+                    IsEnabled = updates.Logging?.DBLogger?.IsEnabled ?? current.Logging.DBLogger.IsEnabled,
+                    LogLevel = updates.Logging?.DBLogger?.LogLevel ?? current.Logging.DBLogger.LogLevel
+                }
+            },
+            System = new SystemPatchRequest
+            {
+                ListenIP = updates.System?.ListenIP ?? current.System.ListenIP,
+                HttpPort = updates.System?.HttpPort ?? current.System.HttpPort,
+                HttpsPort = updates.System?.HttpsPort ?? current.System.HttpsPort,
+                UseSSL = updates.System?.UseSSL ?? current.System.UseSSL,
+                PfxCertificatePath = updates.System?.PfxCertificatePath ?? current.System.PfxCertificatePath
+            }
+        };
+
+        return result;
     }
 
     private static string GetSchemaType(object value)
