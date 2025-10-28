@@ -5,6 +5,7 @@ using API.DTO.Requests.Settings;
 using API.DTO.Responses.Settings;
 using API.DTO.Responses.Settings.SettingsSchema;
 using API.DTO.Responses.Settings.SettingsSchema.Bases;
+using Microsoft.AspNetCore.Mvc;
 using Settings.Default;
 using Settings.Models;
 
@@ -25,6 +26,43 @@ public class SystemControllerService
     private readonly ILogger<SystemControllerService> _Logger;
     private readonly JsonSerializerOptions _SerializerOptions;
 
+    public async Task<FileResult> GetLogFile(string filename)
+    {
+        var logFilePath = Path.Combine(Path.GetDirectoryName(_RootSettings.Logging.FileLogger.Path)!, filename);
+
+        if (!File.Exists(logFilePath))
+        {
+            throw new FileNotFoundException("Log file not found.", logFilePath);
+        }
+
+        var fileBytes = await File.ReadAllBytesAsync(logFilePath);
+        var contentType = "text/plain";
+
+        return new FileContentResult(fileBytes, contentType)
+        {
+            FileDownloadName = filename
+        };
+    }
+
+    public List<string> GetLogFileNames()
+    {
+        var logDirectory = Path.GetDirectoryName(_RootSettings.Logging.FileLogger.Path);
+
+        if (logDirectory == null || !Directory.Exists(logDirectory))
+        {
+            throw new DirectoryNotFoundException("Log directory not found.");
+        }
+
+        var logFiles = Directory.GetFiles(logDirectory);
+        return logFiles.Select(Path.GetFileName).Where(name => !string.IsNullOrEmpty(name)).ToList()!;
+    }
+
+    /// <summary>
+    /// Retrieves the current system settings configuration.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="SettingsFetchResponse"/> containing all system configuration settings.
+    /// </returns>
     public async Task<SettingsFetchResponse> GetSettings()
     {
         return new SettingsFetchResponse()

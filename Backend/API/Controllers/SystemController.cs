@@ -101,28 +101,42 @@ namespace API.Controllers
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<List<EventId>>> GetDatabaseLogEvents()
         {
-            return await _ApplicationLogsRepository.GetLogEventsAsync();
+            return Ok(await _ApplicationLogsRepository.GetLogEventsAsync());
+        }
+
+        [HttpGet("logs/file/{filename}")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<FileResult> GetLogFile(string filename)
+        {
+            return await _SystemControllerService.GetLogFile(filename);
+        }
+
+        [HttpGet("logs/file/list")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<List<string>>> GetLogFileNames()
+        {
+            return Ok(_SystemControllerService.GetLogFileNames());
         }
 
         [HttpGet("settings")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<SettingsFetchResponse>> GetSettings()
         {
-            return await _SystemControllerService.GetSettings();
+            return Ok(await _SystemControllerService.GetSettings());
         }
 
         [HttpGet("settings/schema")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<SettingsSchema>> GetSettingsSchema()
         {
-            return await _SystemControllerService.GetSettingsSchema();
+            return Ok(await _SystemControllerService.GetSettingsSchema());
         }
 
         [HttpGet("settings/default")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<DefaultSettings>> GetDefaultSettings()
         {
-            return new DefaultSettings();
+            return Ok(new DefaultSettings());
         }
 
         [HttpPut("settings/update")]
