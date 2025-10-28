@@ -14,8 +14,8 @@
 
   <!-- Menu -->
   <ul *ngIf="showDropdown" role="listbox" class="absolute z-50 mt-2
-           left-0 sm:left-auto sm:right-0  <!-- left align on mobile, right on desktop -->
-           w-full sm:w-44                 <!-- full width on mobile -->
+           left-0 sm:left-auto sm:right-0
+           w-full sm:w-44
            origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none border-2 border-primary_orange_1">
 
     <li *ngFor="let opt of i18n.options()" role="option" [attr.aria-selected]="i18n.currentLang() === opt.code">
