@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using API.DTO.Responses.Settings;
 using API.DTO.Responses.Settings.SettingsSchema;
 using API.DTO.Responses.Settings.SettingsSchema.Bases;
@@ -7,10 +8,11 @@ using Settings.Models;
 
 namespace API.Services;
 
-public class SystemControllerService(IConfiguration configuration)
+public class SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger)
 {
-    private RootSettings _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
-    private DefaultSettings _DefaultSettings = new();
+    private readonly RootSettings _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
+    private readonly DefaultSettings _DefaultSettings = new();
+    private readonly ILogger<SystemControllerService> _Logger = logger;
     public async Task<SettingsFetchResponse> GetSettings()
     {
         return new SettingsFetchResponse()
@@ -264,6 +266,30 @@ public class SystemControllerService(IConfiguration configuration)
                 }
             }
         };
+    }
+
+    public async Task<bool> UpdateSettings(RootSettings rootSettings)
+    {
+        try
+        {
+            string configPath = Path.Combine("config.json");
+
+            JsonSerializerOptions serializerOptions = new()
+            {
+                WriteIndented = true,
+            };
+
+            string jsonString = JsonSerializer.Serialize(rootSettings, serializerOptions);
+            await File.WriteAllTextAsync(configPath, jsonString);
+
+            return true;
+
+        }
+        catch (Exception ex)
+        {
+            _Logger.LogError(ex, "Failed to update settings: {Message}", ex.Message);
+            return false;
+        }
     }
 
     private static string GetSchemaType(object value)

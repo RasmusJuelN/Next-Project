@@ -5,6 +5,8 @@ using Database.DTO.ApplicationLog;
 using Database.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Settings.Default;
+using Settings.Models;
 
 namespace API.Controllers
 {
@@ -113,6 +115,34 @@ namespace API.Controllers
         public async Task<ActionResult<SettingsSchema>> GetSettingsSchema()
         {
             return await _SystemControllerService.GetSettingsSchema();
+        }
+
+        [HttpGet("settings/default")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<DefaultSettings>> GetDefaultSettings()
+        {
+            return new DefaultSettings();
+        }
+
+        [HttpPut("settings/update")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<IActionResult> UpdateSettings([FromForm] RootSettings settings)
+        {
+            bool result = await _SystemControllerService.UpdateSettings(settings);
+
+            if (result == false)
+            {
+                return BadRequest("Failed to update settings.");
+            }
+
+            return Ok();
+        }
+
+        [HttpGet("settings/patch")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<IActionResult> PatchSettings()
+        {
+            throw new NotImplementedException();
         }
     }
 }
