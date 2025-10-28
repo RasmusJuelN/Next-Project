@@ -88,6 +88,22 @@ public class SystemControllerService
         };
     }
 
+    /// <summary>
+    /// Retrieves the settings schema definition for the application configuration.
+    /// This method builds a comprehensive schema that describes all available settings,
+    /// their types, requirements, descriptions, and default values across different
+    /// configuration sections including Database, JWT, LDAP, Logging, and System settings.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="SettingsSchema"/> object containing the complete configuration schema
+    /// with metadata for each setting including whether it's required, its data type,
+    /// description, and default value where applicable.
+    /// </returns>
+    /// <remarks>
+    /// The schema is dynamically generated using reflection to analyze the properties
+    /// of the settings classes and their attributes. This ensures the schema remains
+    /// synchronized with the actual settings model definitions.
+    /// </remarks>
     public async Task<SettingsSchema> GetSettingsSchema()
     {
         return new SettingsSchema()
@@ -285,6 +301,19 @@ public class SystemControllerService
         };
     }
 
+    /// <summary>
+    /// Updates the application settings by serializing the provided settings object to a JSON configuration file.
+    /// </summary>
+    /// <param name="rootSettings">The settings object containing the updated configuration values to be persisted.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a boolean value:
+    /// <c>true</c> if the settings were successfully updated and saved to the configuration file;
+    /// <c>false</c> if an error occurred during the update process.
+    /// </returns>
+    /// <remarks>
+    /// This method writes the serialized settings to a "config.json" file in the application's root directory.
+    /// Any exceptions that occur during the serialization or file writing process are logged and the method returns false.
+    /// </remarks>
     public async Task<bool> UpdateSettings(UpdateSettingsRequest rootSettings)
     {
         try
@@ -304,6 +333,19 @@ public class SystemControllerService
         }
     }
 
+    /// <summary>
+    /// Asynchronously patches the system settings by merging the provided settings with existing root settings
+    /// and persisting the merged configuration to a JSON file.
+    /// </summary>
+    /// <param name="rootSettings">The patch settings request containing the settings to be merged with existing configuration.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a boolean value:
+    /// true if the settings were successfully patched and saved; otherwise, false if an error occurred.
+    /// </returns>
+    /// <remarks>
+    /// This method merges the provided settings with the current root settings, serializes the result to JSON,
+    /// and writes it to the "config.json" file. Any exceptions during the process are logged and the method returns false.
+    /// </remarks>
     public async Task<bool> PatchSettings(PatchSettingsRequest rootSettings)
     {
         try
