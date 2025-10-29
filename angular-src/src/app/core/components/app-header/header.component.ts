@@ -96,6 +96,7 @@ export class HeaderComponent {
         route: "/show-active-questionnaires",
       },
       { name: "NAV.DATA_COMPARE", route: "/data-compare" },
+      { name: "NAV.RESULT_HISTORY", route: "/result-history" },
     ],
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },

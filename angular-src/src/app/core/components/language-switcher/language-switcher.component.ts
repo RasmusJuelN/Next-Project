@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { I18nService, Lang } from '../../services/I18n.service';
+import { I18nService } from '../../services/I18n.service';
+import { Lang } from '../../../i18n.config';
 
 
 @Component({
