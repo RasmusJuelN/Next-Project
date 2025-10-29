@@ -67,10 +67,16 @@
         </div>
       </li>
     </ul>
-    <div class="text-center mt-6" *ngIf="!readonly">                 <!-- NEW -->
-    <button (click)="addOption()" class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1">
+    <div class="text-center mt-6" *ngIf="!readonly">
+    <button
+      (click)="addOption()"
+      class="px-6 py-2 font-bold rounded-xl focus:ring-2
+            bg-primary_orange_1 text-white hover:bg-primary_orange_light focus:ring-primary_orange_1
+            disabled:bg-gray-400 disabled:text-gray-200 disabled:cursor-not-allowed"
+      [disabled]="overOptionCount()">
       {{ 'QUESTION_EDITOR.ADD_OPTION' | translate }}
     </button>
+
     </div>
   </div>
 
