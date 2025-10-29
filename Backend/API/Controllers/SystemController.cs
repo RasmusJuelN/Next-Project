@@ -7,7 +7,6 @@ using Database.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Settings.Default;
-using Settings.Models;
 
 namespace API.Controllers
 {
@@ -393,6 +392,20 @@ namespace API.Controllers
             if (result == false)
             {
                 return BadRequest("Failed to import settings.");
+            }
+
+            return Ok();
+        }
+
+        [HttpPut("stop")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<IActionResult> StopServer()
+        {
+            bool result = await _SystemControllerService.StopServer();
+
+            if (result == false)
+            {
+                return BadRequest("Failed to stop application.");
             }
 
             return Ok();

@@ -13,18 +13,34 @@ namespace API.Services;
 
 public class SystemControllerService
 {
-    public SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger)
+    public SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger, IHostApplicationLifetime hostApplicationLifetime)
     {
         _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
         _DefaultSettings = new();
         _Logger = logger;
         _SerializerOptions = CreateSerializer();
+        _HostApplicationLifetime = hostApplicationLifetime;
     }
     
     private readonly RootSettings _RootSettings;
     private readonly DefaultSettings _DefaultSettings;
     private readonly ILogger<SystemControllerService> _Logger;
     private readonly JsonSerializerOptions _SerializerOptions;
+    private readonly IHostApplicationLifetime _HostApplicationLifetime;
+
+    public async Task<bool> StopServer()
+    {
+        try
+        {
+            _HostApplicationLifetime.StopApplication();
+            return true;
+        }
+        catch (Exception e)
+        {
+            _Logger.LogError(e, "Failed to stop application: {Message}", e.Message);
+            return false;
+        }
+    }
 
     public async Task<FileResult> ExportSettings()
     {
