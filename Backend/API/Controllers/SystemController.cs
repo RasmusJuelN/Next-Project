@@ -122,9 +122,20 @@ namespace API.Controllers
         /// <response code="404">If the specified log file does not exist</response>
         [HttpGet("logs/file/{filename}")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<FileResult> GetLogFile(string filename)
+        [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK, "application/txt")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetLogFile(string filename)
         {
-            return await _SystemControllerService.GetLogFile(filename);
+            try
+            {
+                return await _SystemControllerService.GetLogFile(filename);
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         /// <summary>
