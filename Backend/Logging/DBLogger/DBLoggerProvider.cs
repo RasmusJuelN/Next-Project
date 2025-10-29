@@ -83,6 +83,10 @@ public sealed class DBLoggerProvider : ILoggerProvider
         {
             // Ignore, the while loop will exit
         }
+        catch (ObjectDisposedException)
+        {
+            // Doing shutdown the logger may try to log something after the service provider has already been disposed of
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
