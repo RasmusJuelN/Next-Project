@@ -347,6 +347,41 @@ public class SystemControllerService
                         Required = IsPropertyRequired(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.Path))!),
                         Type = GetSchemaType(_RootSettings.Logging.FileLogger.Path),
                         Description = GetPropertyDescription(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.Path))!)
+                    },
+                    RollingInterval = new RollingIntervalSchema()
+                    {
+                        Required = IsPropertyRequired(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RollingInterval))!),
+                        Type = GetSchemaType(_RootSettings.Logging.FileLogger.RollingInterval),
+                        Description = GetPropertyDescription(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RollingInterval))!),
+                        DefaultValue = GetDefaultValue(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RollingInterval))!, _DefaultSettings.Logging.FileLogger)
+                    },
+                    RollOnFileSizeLimit = new RollOnFileSizeLimitSchema()
+                    {
+                        Required = IsPropertyRequired(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RollOnFileSizeLimit))!),
+                        Type = GetSchemaType(_RootSettings.Logging.FileLogger.RollOnFileSizeLimit),
+                        Description = GetPropertyDescription(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RollOnFileSizeLimit))!),
+                        DefaultValue = GetDefaultValue(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RollOnFileSizeLimit))!, _DefaultSettings.Logging.FileLogger)
+                    },
+                    FileSizeLimitBytes = new FileSizeLimitBytesSchema()
+                    {
+                        Required = IsPropertyRequired(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.FileSizeLimitBytes))!),
+                        Type = GetSchemaType(_RootSettings.Logging.FileLogger.FileSizeLimitBytes),
+                        Description = GetPropertyDescription(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.FileSizeLimitBytes))!),
+                        DefaultValue = GetDefaultValue(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.FileSizeLimitBytes))!, _DefaultSettings.Logging.FileLogger)
+                    },
+                    RetainedFileCountLimit = new RetainedFileCountLimitSchema()
+                    {
+                        Required = IsPropertyRequired(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RetainedFileCountLimit))!),
+                        Type = GetSchemaType(_RootSettings.Logging.FileLogger.RetainedFileCountLimit),
+                        Description = GetPropertyDescription(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RetainedFileCountLimit))!),
+                        DefaultValue = GetDefaultValue(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.RetainedFileCountLimit))!, _DefaultSettings.Logging.FileLogger)
+                    },
+                    Shared = new SharedSchema()
+                    {
+                        Required = IsPropertyRequired(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.Shared))!),
+                        Type = GetSchemaType(_RootSettings.Logging.FileLogger.Shared),
+                        Description = GetPropertyDescription(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.Shared))!),
+                        DefaultValue = GetDefaultValue(typeof(FileLoggerSettings).GetProperty(nameof(_RootSettings.Logging.FileLogger.Shared))!, _DefaultSettings.Logging.FileLogger)
                     }
                 },
                 DBLogger = new DBLoggerSettingsSchema()
