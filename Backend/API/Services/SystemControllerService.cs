@@ -11,22 +11,13 @@ using Settings.Models;
 
 namespace API.Services;
 
-public class SystemControllerService
+public class SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger, IHostApplicationLifetime hostApplicationLifetime)
 {
-    public SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger, IHostApplicationLifetime hostApplicationLifetime)
-    {
-        _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
-        _DefaultSettings = new();
-        _Logger = logger;
-        _SerializerOptions = CreateSerializer();
-        _HostApplicationLifetime = hostApplicationLifetime;
-    }
-    
-    private readonly RootSettings _RootSettings;
-    private readonly DefaultSettings _DefaultSettings;
-    private readonly ILogger<SystemControllerService> _Logger;
-    private readonly JsonSerializerOptions _SerializerOptions;
-    private readonly IHostApplicationLifetime _HostApplicationLifetime;
+    private readonly RootSettings _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
+    private readonly DefaultSettings _DefaultSettings = new();
+    private readonly ILogger<SystemControllerService> _Logger = logger;
+    private readonly JsonSerializerOptions _SerializerOptions = CreateSerializer();
+    private readonly IHostApplicationLifetime _HostApplicationLifetime = hostApplicationLifetime;
 
     public async Task<bool> StopServer()
     {
