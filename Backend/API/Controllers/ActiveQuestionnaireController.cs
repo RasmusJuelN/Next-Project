@@ -366,6 +366,32 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("responseHistory")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<StudentResultHistory>> GetResponseHistory([FromQuery] Guid studentId, [FromQuery] Guid templateId)
+        {
+            Guid teacherId;
+            try
+            {
+                teacherId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error parsing teacher ID from claims: {Message}", e.Message);
+                return Unauthorized();
+            }
+
+            StudentResultHistory responseHistory = await _questionnaireService.GetResponseHistoryAsync(studentId, teacherId, templateId);
+
+            if (responseHistory == null)
+            {
+                _logger.LogWarning("No response history found for teacher {TeacherId}, student {StudentId}, and template {TemplateId}", teacherId, studentId, templateId);
+                return NotFound();
+            }
+
+            return Ok(responseHistory);
+        }
+
         /// <summary>
         /// Checks if the authenticated user has already answered a specific questionnaire.
         /// </summary>

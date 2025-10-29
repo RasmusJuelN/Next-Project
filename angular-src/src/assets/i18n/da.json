@@ -72,6 +72,7 @@
     "LOG_OUT": "Log ud",
     "ACTIVE_QUESTIONNAIRES": "Aktive spørgeskemaer",
     "DATA_COMPARE": "Sammenlign Data",
+    "RESULT_HISTORY": "Resultat Historik",
     "OVERVIEW": "Oversigt",
     "TEMPLATES": "Skabeloner",
     "HOME" : "Hjem"
@@ -95,7 +96,10 @@
       "STUDENT": "Elev",
       "TEACHER": "Lærer",
       "ADMIN": "Admin"
-    }
+    },
+    "LOADING": "Indlæser...",
+    "BACK": "Tilbage",
+    "OF": "af"
   },
 
 
@@ -216,6 +220,22 @@
     "CUSTOM_RESPONSES": "Brugerdefinerede svar:",
     "NO_OPTIONS_AVAILABLE": "Ingen valgmuligheder tilgængelige for dette spørgsmål",
     "SCROLL_HINT": "Scroll horisontalt for at se alle valgmuligheder →"
+  },
+
+  "RESULT_HISTORY": {
+    "TITLE": "Elev Resultat Historik",
+    "SELECT_STUDENT": "Vælg Elev",
+    "SELECT_QUESTIONNAIRE": "Vælg Spørgeskema",
+    "SEARCH_STUDENTS": "Søg elever...",
+    "SEARCH_QUESTIONNAIRES": "Søg spørgeskemaer...",
+    "NO_RESULTS": "Ingen resultater fundet",
+    "NO_RESULTS_DESC": "Ingen resultater fundet for den valgte elev og spørgeskema kombination.",
+    "INSTRUCTIONS": "Vælg en elev og et spørgeskema for at se resultater",
+    "INSTRUCTIONS_DESC": "Brug søgefelterne ovenfor til at finde og vælge en elev og en spørgeskema skabelon for at se de historiske resultater.",
+    "FULL_VIEW": "Fuld visning",
+    "COMPACT_VIEW": "Komprimeret visning",
+    "OPEN_PDF": "Åbn PDF",
+    "DOWNLOAD_PDF": "Download PDF"
   }
 
 }
