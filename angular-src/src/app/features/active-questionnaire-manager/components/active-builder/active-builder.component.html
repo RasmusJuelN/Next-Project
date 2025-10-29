@@ -14,7 +14,7 @@
   <ng-container *ngIf="isAnonymousMode">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
       <!-- Search for Student -->
-      <div class="flex flex-col w-full" #studentSearchArea>
+  <div class="flex flex-col w-full relative" #studentSearchArea>
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter deltagere (navn, hold e.l.):</label>
         <input type="text" placeholder="Indtast navn på elever..." [(ngModel)]="student.searchInput"
           (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
@@ -31,8 +31,8 @@
           {{ student.errorMessage }}
         </div>
 
-        <!-- Search Results & Load More -->
-        <div *ngIf="student.searchResults.length > 0 && showStudentResults" class="mt-2 bg-white shadow-md rounded-lg p-2">
+  <!-- Search Results & Load More -->
+  <div *ngIf="student.searchResults.length > 0 && showStudentResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
           <ul class="space-y-1">
             <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
               class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
@@ -49,7 +49,7 @@
 
         <!-- Selected Students List -->
         <div *ngIf="student.selected.length > 0"
-          class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
+          class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
           <strong>Valgte Elever:</strong>
           <ul class="mt-1 space-y-1">
             <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
@@ -64,7 +64,7 @@
       </div>
 
       <!-- Search for Template -->
-      <div class="flex flex-col w-full" #templateSearchArea>
+  <div class="flex flex-col w-full relative" #templateSearchArea>
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter Skabelon:</label>
         <input type="text" placeholder="Indtast skabelontitel..." [(ngModel)]="template.searchInput"
           (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
@@ -81,8 +81,8 @@
           {{ template.errorMessage }}
         </div>
 
-        <!-- Search Results & Load More -->
-        <div *ngIf="template.searchResults.length > 0 && showTemplateResults" class="mt-2 bg-white shadow-md rounded-lg p-2">
+  <!-- Search Results & Load More -->
+  <div *ngIf="template.searchResults.length > 0 && showTemplateResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
           <ul class="space-y-1">
             <li *ngFor="let temp of template.searchResults" (click)="select('template', temp)"
               class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
@@ -139,7 +139,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
       <!-- Search for Student -->
-      <div class="flex flex-col w-full" #studentSearchArea>
+  <div class="flex flex-col w-full relative" #studentSearchArea>
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">Søg efter Elev:</label>
         <input type="text" placeholder="Indtast navn på elever..." [(ngModel)]="student.searchInput"
           (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
@@ -158,8 +158,8 @@
           {{ student.errorMessage }}
         </div>
 
-        <!-- Search Results & Load More -->
-        <div *ngIf="student.searchResults.length > 0 && showStudentResults" class="mt-2 bg-white shadow-md rounded-lg p-2">
+  <!-- Search Results & Load More -->
+  <div *ngIf="student.searchResults.length > 0 && showStudentResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
           <ul class="space-y-1">
             <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
               class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
@@ -191,7 +191,7 @@
       </div>
 
       <!-- Search for Teacher -->
-      <div class="flex flex-col w-full" #teacherSearchArea>
+  <div class="flex flex-col w-full relative" #teacherSearchArea>
         <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">Søg efter Instruktør:</label>
         <input type="text" placeholder="Indtast navn på instruktører..." [(ngModel)]="teacher.searchInput"
           (input)="onInputChange('teacher', teacherSearch.value)" (focus)="showTeacherResults = true"
@@ -209,8 +209,8 @@
           {{ teacher.errorMessage }}
         </div>
 
-        <!-- Search Results & Load More -->
-        <div *ngIf="teacher.searchResults.length > 0 && showTeacherResults" class="mt-2 bg-white shadow-md rounded-lg p-2">
+  <!-- Search Results & Load More -->
+  <div *ngIf="teacher.searchResults.length > 0 && showTeacherResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
           <ul class="space-y-1">
             <li *ngFor="let teach of teacher.searchResults" (click)="select('teacher', teach)"
               class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
@@ -245,7 +245,7 @@
     </div>
 
     <!-- Search for Template -->
-    <div class="flex flex-col w-full mt-4" #templateSearchArea>
+  <div class="flex flex-col w-full mt-4 relative" #templateSearchArea>
       <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">Søg efter Skabelon:</label>
       <input type="text" placeholder="Indtast skabelontitel..." [(ngModel)]="template.searchInput"
         (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
@@ -263,8 +263,8 @@
         {{ template.errorMessage }}
       </div>
 
-      <!-- Search Results & Load More -->
-      <div *ngIf="template.searchResults.length > 0 && showTemplateResults" class="mt-2 bg-white shadow-md rounded-lg p-2">
+  <!-- Search Results & Load More -->
+  <div *ngIf="template.searchResults.length > 0 && showTemplateResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
         <ul class="space-y-1">
           <li *ngFor="let temp of template.searchResults" (click)="select('template', temp)"
             class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">

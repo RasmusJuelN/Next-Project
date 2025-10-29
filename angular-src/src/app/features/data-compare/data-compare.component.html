@@ -15,7 +15,7 @@
         <!-- Search areas for students and templates -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
             <!-- Template search area -->
-            <div class="flex flex-col w-full mt-4 sm:mt-0" #templateSearchArea>
+            <div class="flex flex-col w-full mt-4 sm:mt-0 relative" #templateSearchArea>
                 <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'DATA_COMPARE.SEARCH_TEMPLATE_LABEL' |
                     translate }}</label>
                 <!-- Template search input -->
@@ -34,9 +34,9 @@
                     {{ template.errorMessage }}
                 </div>
 
-                <!-- Template search results and load more button -->
+                <!-- Template search results and load more button (between input and selected list, not absolute) -->
                 <div *ngIf="template.searchResults.length > 0 && showTemplateResults"
-                    class="mt-2 bg-white shadow-md rounded-lg p-2">
+                    class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
                     <ul class="space-y-1">
                         <li *ngFor="let temp of template.searchResults" (click)="select('template', temp)"
                             class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
@@ -71,7 +71,7 @@
 
 
             <!-- Student search area -->
-            <div class="flex flex-col w-full" #studentSearchArea>
+            <div class="flex flex-col w-full relative" #studentSearchArea>
                 <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'DATA_COMPARE.SEARCH_STUDENT_LABEL' | translate
                     }}</label>
                 <!-- Student search input -->
@@ -90,19 +90,17 @@
                     {{ student.errorMessage }}
                 </div>
 
-                <!-- Student search results and load more button -->
+                <!-- Student search results and load more button (between input and selected list, not absolute) -->
                 <div *ngIf="student.searchResults.length > 0 && showStudentResults"
-                    class="mt-2 bg-white shadow-md rounded-lg p-2">
+                    class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
                     <ul class="space-y-1">
                         <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
                             class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
                             <ng-container *ngIf="stud.type === 'user'; else groupResult">
-                                <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName
-                                        }})</span></span>
+                                <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName }})</span></span>
                             </ng-container>
                             <ng-template #groupResult>
-                                <span class="font-semibold text-primary_dark_blue">{{ stud.type === 'group' ? stud.name
-                                    : '' }}</span>
+                                <span class="font-semibold text-primary_dark_blue">{{ stud.type === 'group' ? stud.name : '' }}</span>
                                 <span class="ml-2 text-xs text-gray-500">[Gruppe]</span>
                             </ng-template>
                         </li>
