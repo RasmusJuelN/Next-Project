@@ -26,6 +26,17 @@ public class SystemControllerService
     private readonly ILogger<SystemControllerService> _Logger;
     private readonly JsonSerializerOptions _SerializerOptions;
 
+    /// <summary>
+    /// Retrieves a log file from the logging directory and returns it as a downloadable file.
+    /// </summary>
+    /// <param name="filename">The name of the log file to retrieve.</param>
+    /// <returns>A <see cref="FileResult"/> containing the log file content as a downloadable file with plain text content type.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the specified log file does not exist in the logging directory.</exception>
+    /// <remarks>
+    /// The method constructs the full file path by combining the logging directory path from configuration 
+    /// with the provided filename. The returned file will have a content type of "text/plain" and will be 
+    /// named according to the original filename parameter.
+    /// </remarks>
     public async Task<FileResult> GetLogFile(string filename)
     {
         var logFilePath = Path.Combine(Path.GetDirectoryName(_RootSettings.Logging.FileLogger.Path)!, filename);
@@ -44,6 +55,15 @@ public class SystemControllerService
         };
     }
 
+    /// <summary>
+    /// Retrieves a list of log file names from the configured log directory.
+    /// </summary>
+    /// <returns>
+    /// A list of strings containing the names of all files found in the log directory.
+    /// </returns>
+    /// <exception cref="DirectoryNotFoundException">
+    /// Thrown when the log directory path is null or the directory does not exist.
+    /// </exception>
     public List<string> GetLogFileNames()
     {
         var logDirectory = Path.GetDirectoryName(_RootSettings.Logging.FileLogger.Path);
