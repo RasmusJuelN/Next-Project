@@ -26,6 +26,48 @@ public class SystemControllerService
     private readonly ILogger<SystemControllerService> _Logger;
     private readonly JsonSerializerOptions _SerializerOptions;
 
+    public async Task<FileResult> ExportSettings()
+    {
+        string jsonString = JsonSerializer.Serialize(_RootSettings, _SerializerOptions);
+        var fileBytes = System.Text.Encoding.UTF8.GetBytes(jsonString);
+        var contentType = "application/json";
+        var currentDate = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+        var fileName = $"settings_export_{currentDate}.json";
+
+        return new FileContentResult(fileBytes, contentType)
+        {
+            FileDownloadName = fileName
+        };
+    }
+
+    public async Task<bool> ImportSettings(IFormFile file)
+    {
+        try
+        {
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream);
+            string jsonString = await reader.ReadToEndAsync();
+
+            var importedSettings = JsonSerializer.Deserialize<UpdateSettingsRequest>(jsonString, _SerializerOptions);
+            if (importedSettings == null)
+            {
+                _Logger.LogError("Imported settings are null.");
+                return false;
+            }
+
+            string configPath = Path.Combine("config.json");
+            string serializedSettings = JsonSerializer.Serialize(importedSettings, _SerializerOptions);
+            await File.WriteAllTextAsync(configPath, serializedSettings);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _Logger.LogError(ex, "Failed to import settings: {Message}", ex.Message);
+            return false;
+        }
+    }
+
     /// <summary>
     /// Retrieves a log file from the logging directory and returns it as a downloadable file.
     /// </summary>

@@ -339,5 +339,63 @@ namespace API.Controllers
 
             return Ok();
         }
+
+        /// <summary>
+        /// Exports the current system configuration settings as a downloadable JSON file.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="FileResult"/> containing the exported settings in JSON format.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint allows administrators to export the entire current configuration
+        /// of the application as a JSON file. The exported file can be used for:
+        /// - Backing up current settings
+        /// - Migrating configuration to another instance
+        /// - Auditing and versioning configuration changes
+        /// - Sharing configuration with support or development teams
+        /// </remarks>
+        /// <response code="200">Returns the exported settings file</response>
+        /// <response code="401">If the user is not authenticated</response>
+        /// <response code="403">If the user is not authorized (not an admin)
+        /// </response> 
+        [HttpGet("settings/export")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK, "application/json")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<FileResult> ExportSettings()
+        {
+            return await _SystemControllerService.ExportSettings();
+        }
+
+        /// <summary>
+        /// Imports system configuration settings from an uploaded JSON file.
+        /// </summary>
+        /// <param name="file">
+        /// The JSON file containing the configuration settings to import.
+        /// </param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> indicating the success or failure of the import
+        /// operation. Returns HTTP 200 (OK) on successful import, or HTTP 400 (Bad Request)
+        /// if the import fails.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint allows administrators to import configuration settings from a JSON file.
+        /// The settings are overwritten as is, and no validations are performed on the file beforehand.
+        /// </remarks>
+        [HttpPut("settings/import")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<IActionResult> ImportSettings(IFormFile file)
+        {
+            bool result = await _SystemControllerService.ImportSettings(file);
+
+            if (result == false)
+            {
+                return BadRequest("Failed to import settings.");
+            }
+
+            return Ok();
+        }
     }
 }
