@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Mock data
+mocked_user_data.json
+
 # Custom config file
 config.json
 

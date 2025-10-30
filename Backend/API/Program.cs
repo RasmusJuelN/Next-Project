@@ -57,8 +57,22 @@ Serilog.ILogger seriLogger = new LoggerConfiguration().ReadFrom.Configuration(bu
 builder.Logging.AddSerilog(seriLogger);
 
 // Add services to the container.
+
+if (builder.Configuration.GetSection("Mock")["UseMockedAuthentication"] == "True")
+{
+    if (!File.Exists("mocked_user_data.json"))
+    {
+        MockUserDataGenerator.GenerateMockUsers();
+    }
+    
+    builder.Services.AddScoped<IAuthenticationBridge, MockedAuthenticationBridge>();
+}
+else
+{
+    builder.Services.AddScoped<IAuthenticationBridge, ActiveDirectoryAuthenticationBridge>();
+}
+
 builder.Services.AddScoped<SystemControllerService>();
-builder.Services.AddScoped<IAuthenticationBridge, ActiveDirectoryAuthenticationBridge>();
 builder.Services.AddScoped<JsonSerializerService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
