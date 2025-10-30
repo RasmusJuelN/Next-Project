@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Database.DTO.QuestionnaireTemplate;
 using Database.Enums;
 using Database.Extensions;
@@ -52,6 +53,9 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
         foreach (QuestionnaireQuestionUpdate updatedQuestion in updatedTemplate.Questions)
         {
+            if (updatedQuestion.Options.Count > 10)
+                throw new Exception("A question can have at most 10 options.");
+                 
             QuestionnaireQuestionModel? existingQuestion = existingTemplate.Questions.SingleOrDefault(q => q.Id == updatedQuestion.Id);
 
             if (existingQuestion is not null)
