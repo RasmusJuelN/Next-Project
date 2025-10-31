@@ -381,7 +381,7 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            StudentResultHistory responseHistory = await _questionnaireService.GetResponseHistoryAsync(studentId, teacherId, templateId);
+            StudentResultHistory? responseHistory = await _questionnaireService.GetResponseHistoryAsync(studentId, teacherId, templateId);
 
             if (responseHistory == null)
             {
