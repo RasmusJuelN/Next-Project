@@ -1,4 +1,3 @@
-using System.Text;
 using API.DTO.User;
 using API.Interfaces;
 using Novell.Directory.Ldap;
