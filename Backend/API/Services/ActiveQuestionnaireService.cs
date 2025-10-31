@@ -1,5 +1,5 @@
 using System.Net;
-using API.DTO.LDAP;
+using API.DTO.User;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
 using API.Exceptions;

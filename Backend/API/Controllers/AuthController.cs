@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using API.DTO.LDAP;
+using API.DTO.User;
 using API.DTO.Requests.Auth;
 using API.DTO.Responses.Auth;
 using API.Exceptions;
@@ -125,7 +125,7 @@ namespace API.Controllers
                 try
                 {
                     // Converts ldap role to an internal role
-                    userRole = _JWTSettings.Roles.First(x => ldapUser.MemberOf.Contains(x.Value)).Key;
+                    userRole = _JWTSettings.Roles.First(x => ldapUser.MemberOf.Any(y => y.Contains(x.Value, StringComparison.OrdinalIgnoreCase))).Key;
                 }
                 catch (Exception e)
                 {

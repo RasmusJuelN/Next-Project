@@ -1,4 +1,4 @@
-namespace API.DTO.LDAP;
+namespace API.DTO.User;
 
 /// <summary>
 /// Represents basic user information extended with the users ID.
