@@ -1,3 +1,5 @@
+using API.Attributes;
+
 namespace Database.DTO.QuestionnaireTemplate;
 
 /// <summary>
@@ -61,6 +63,7 @@ public record class QuestionnaireQuestionAdd
     /// A list of <see cref="QuestionnaireOptionAdd"/> objects representing the available
     /// answer choices. Defaults to an empty list if not specified.
     /// </value>
+    [MaxQuestionOptions]
     public List<QuestionnaireOptionAdd> Options { get; set; } = [];
 }
 

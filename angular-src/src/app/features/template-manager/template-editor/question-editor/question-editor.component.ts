@@ -33,12 +33,17 @@ export class QuestionEditorComponent {
   @Output() cancel = new EventEmitter<void>();
 
   validationErrors: string[] = [];
+  questionOptionsMaxCount: number = 10;
 
   /** Reference to error message container for scrolling into view. */
   @ViewChild('errorContainer') errorContainer!: ElementRef;
 
   addOption(): void {
     if (this.readonly) { return; }
+    // if over 10 options then do not add more
+    if (this.question.options.length >= this.questionOptionsMaxCount) {
+      return;
+    }
     const newOption: Option = {
       id: -1 * (this.question.options.length + 1),
       displayText: 'New Option',
@@ -73,6 +78,11 @@ export class QuestionEditorComponent {
     if (!this.question.allowCustom && (!this.question.options || this.question.options.length === 0)) {
       this.validationErrors.push('The question must allow a custom answer or have at least one option.');
     }
+
+    // If question options are over 10 in length then add a validation error
+    if (this.question.options.length > this.questionOptionsMaxCount) {
+      this.validationErrors.push(`The question cannot have more than ${this.questionOptionsMaxCount} options.`);
+    }
   
     // 3. Ensure options have non-empty labels
     const hasEmptyLabel = this.question.options.some(option => option.displayText.trim() === '');
@@ -101,5 +111,10 @@ export class QuestionEditorComponent {
   // Emit cancel event
   onCancel(): void {
     this.cancel.emit();
+  }
+
+  // Helper functions
+  overOptionCount(): boolean {
+    return this.question.options.length >= this.questionOptionsMaxCount;
   }
 }

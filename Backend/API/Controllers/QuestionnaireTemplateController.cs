@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using API.DTO.Requests.QuestionnaireTemplate;
 using API.DTO.Responses.QuestionnaireTemplate;
 using API.Exceptions;
@@ -155,6 +156,10 @@ namespace API.Controllers
             catch (SQLException.ItemNotFound)
             {
                 return NotFound();
+            }
+            catch (SQLException.NotValidated)
+            {
+                return BadRequest("Validation failed for the update request.");
             }
 
             return Ok(updatedTemplate);

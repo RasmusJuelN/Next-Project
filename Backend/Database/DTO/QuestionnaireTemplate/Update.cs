@@ -1,3 +1,5 @@
+using API.Attributes;
+
 namespace Database.DTO.QuestionnaireTemplate;
 
 /// <summary>
@@ -25,6 +27,8 @@ public record class QuestionnaireOptionUpdate : QuestionnaireOptionAdd
 public record class QuestionnaireQuestionUpdate : QuestionnaireQuestionAdd
 {
     public int? Id { get; set; } = null;
+    
+    [MaxQuestionOptions]
     new public List<QuestionnaireOptionUpdate> Options { get; set; } = [];
 }
 
