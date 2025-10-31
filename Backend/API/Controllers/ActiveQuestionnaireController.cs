@@ -150,7 +150,7 @@ namespace API.Controllers
         /// Retrieves all questionnaire groups including their active questionnaires and participants.
         /// </summary>
         /// <returns>
-        /// An <see cref="ActionResult{List{QuestionnaireGroupResult}}"/> containing all questionnaire groups,
+        /// An <see cref="List{QuestionnaireGroupResult}"/> containing all questionnaire groups,
         /// or an error response if an exception occurs.
         /// </returns>
         /// <remarks>
