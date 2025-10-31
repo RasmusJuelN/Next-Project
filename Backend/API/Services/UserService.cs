@@ -50,7 +50,7 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
     /// <exception cref="ArgumentException">Thrown when request parameters are invalid.</exception>
     public UserQueryPaginationResult QueryLDAPUsersWithPagination(UserQueryPagination request)
     {
-        (List<BasicUserInfoWithObjectGuid> ldapUsers, string sessionId, bool hasMore) = _authenticationBridge.SearchUserPagination<BasicUserInfoWithObjectGuid>(request.User, request.Role.ToString(), request.PageSize, request.SessionId);
+        (List<BasicUserInfoWithUserID> ldapUsers, string sessionId, bool hasMore) = _authenticationBridge.SearchUserPagination<BasicUserInfoWithUserID>(request.User, request.Role.ToString(), request.PageSize, request.SessionId);
 
         return new()
         {

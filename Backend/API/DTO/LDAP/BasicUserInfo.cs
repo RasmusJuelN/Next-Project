@@ -1,28 +1,22 @@
-using API.Attributes;
-using Novell.Directory.Ldap;
-
 namespace API.DTO.LDAP;
 
 /// <summary>
-/// Represents basic user information retrieved from LDAP.
+/// Represents basic user information retrieved from user storage.
 /// </summary>
 public record class BasicUserInfo
 {
     /// <summary>
-    /// Gets or sets the LDAP attribute for the user's account name (sAMAccountName).
+    /// Gets or sets the username of the user.
     /// </summary>
-    [AuthenticationMapping("sAMAccountName")]
-    public LdapAttribute Username { get; set; } = new LdapAttribute("sAMAccountName");
+    public string Username { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the LDAP attribute for the user's display name (name).
+    /// Gets or sets the full name of the user.
     /// </summary>
-    [AuthenticationMapping("name")]
-    public LdapAttribute Name { get; set; } = new LdapAttribute("name");
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the LDAP attribute for the user's group memberships (memberOf).
+    /// Gets or sets the groups the user is a member of.
     /// </summary>
-    [AuthenticationMapping("memberOf")]
-    public LdapAttribute MemberOf { get; set; } = new LdapAttribute("memberOf");
+    public List<string> MemberOf { get; set; } = [];
 }

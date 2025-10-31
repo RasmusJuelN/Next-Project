@@ -227,8 +227,8 @@ public class ActiveDirectoryAuthenticationBridge(
             userRole = matchedRole.Value.Value;
             _Logger.LogDebug("Mapped internal role to LDAP role: {LdapRole}", userRole);
             
-            GroupDistinguishedName? group = SearchGroup<GroupDistinguishedName>(userRole) ?? throw new HttpResponseException(HttpStatusCode.NotFound, $"Group '{userRole}' not found.");
-            searchFilter = $"(&{searchFilter}(memberOf={group.DistinguishedName.StringValue}))";
+            BasicGroupInfo? group = SearchGroup<BasicGroupInfo>(userRole) ?? throw new HttpResponseException(HttpStatusCode.NotFound, $"Group '{userRole}' not found.");
+            searchFilter = $"(&{searchFilter}(memberOf={group.GroupName}))";
             _Logger.LogDebug("Final search filter with role: {SearchFilter}", searchFilter);
         }
 

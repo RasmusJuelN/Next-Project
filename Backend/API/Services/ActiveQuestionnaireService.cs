@@ -574,13 +574,13 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     private UserAdd GenerateStudent(Guid id)
     {
         BasicUserInfo? ldapStudent = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Student not found in LDAP.");
-        string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.StringValue.Contains(x.Value)).Key;
+        string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.Contains(x.Value)).Key;
 
         return new()
         {
             Guid = id,
-            UserName = ldapStudent.Username.StringValue,
-            FullName = ldapStudent.Name.StringValue,
+            UserName = ldapStudent.Username,
+            FullName = ldapStudent.Name,
             PrimaryRole = (UserRoles)Enum.Parse(typeof(UserRoles), studentRole, true),
             Permissions = (UserPermissions)Enum.Parse(typeof(UserPermissions), studentRole, true)
         };
@@ -607,13 +607,13 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     private UserAdd GenerateTeacher(Guid id)
     {
         BasicUserInfo? ldapTeacher = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Teacher not found in LDAP.");
-        string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.StringValue.Contains(x.Value)).Key;
+        string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.Contains(x.Value)).Key;
 
         return new()
         {
             Guid = id,
-            UserName = ldapTeacher.Username.StringValue,
-            FullName = ldapTeacher.Name.StringValue,
+            UserName = ldapTeacher.Username,
+            FullName = ldapTeacher.Name,
             PrimaryRole = (UserRoles)Enum.Parse(typeof(UserRoles), teacherRole, true),
             Permissions = (UserPermissions)Enum.Parse(typeof(UserPermissions), teacherRole, true)
         };
