@@ -178,7 +178,6 @@ export class ResultComponent implements OnInit {
       next: (templateData: Template) => {
         if (templateData) {
           this.template = templateData;
-          console.log('Template loaded successfully for PDF generation');
         } else {
           console.warn('Template data is empty, PDF generation will use fallback template');
         }

@@ -44,6 +44,7 @@ public record class ActiveQuestionnaireTeacherBase : ActiveQuestionnaireUserSpec
     public required UserBase Teacher { get; set; }
     public required DateTime? StudentCompletedAt { get; set; }
     public required DateTime? TeacherCompletedAt { get; set; }
+    public string? GroupName { get; set; }
 }
 
 /// <summary>
