@@ -5,6 +5,18 @@ using Settings.Models;
 
 namespace API.Services.Authentication;
 
+/// <summary>
+/// Provides a mocked implementation of the authentication bridge for testing and development purposes.
+/// This class simulates authentication using a local JSON file containing user data.
+/// </summary>
+/// <param name="cacheService">The cache service used for session management during pagination operations.</param>
+/// <param name="configuration">The application configuration containing settings for fallback authentication.</param>
+/// <remarks>
+/// This implementation reads user data from a JSON file located at "./mocked_user_data.json" and provides
+/// authentication, user search, group search, and pagination functionality without requiring existing user storage.
+/// The class automatically authenticates using service account credentials when performing search operations
+/// if not already authenticated.
+/// </remarks>
 public class MockedAuthenticationBridge(CacheService cacheService, IConfiguration configuration) : BaseAuthenticationBridge(new MockFieldMappingProvider())
 {
     private readonly CacheService _CacheService = cacheService;
