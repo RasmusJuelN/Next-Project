@@ -1,4 +1,5 @@
 using System.Text.Json;
+using API.Mock;
 using Database.Enums;
 
 namespace API.Utils;
@@ -41,8 +42,8 @@ public class MockUserDataGenerator
                 
                 users.Add(new MockedUser
                 {
-                    objectGUID = Guid.NewGuid(),
-                    Name = $"{firstName} {lastName}",
+                    Id = Guid.NewGuid(),
+                    FullName = $"{firstName} {lastName}",
                     Username = username,
                     Role = role,
                     Password = GeneratePassword()
@@ -107,13 +108,4 @@ public class MockUserDataGenerator
         // Shuffle the characters to ensure randomness
         return new string([.. passwordChars.OrderBy(x => random.Next())]);
     }
-}
-
-public class MockedUser
-{
-    public required Guid objectGUID { get; set; }
-    public required string Username { get; set; }
-    public required string Name { get; set; }
-    public required UserRoles Role { get; set; }
-    public required string Password { get; set; }
 }

@@ -1,19 +1,18 @@
 using System.Reflection;
-using API.Attributes;
-using API.DTO.Responses.Auth;
-using API.Interfaces;
-using API.Utils;
-using Database.Enums;
+using API.FieldMappers;
+using API.Mock;
+using Settings.Models;
 
 namespace API.Services.Authentication;
 
-public class MockedAuthenticationBridge(CacheService cacheService) : IAuthenticationBridge
+public class MockedAuthenticationBridge(CacheService cacheService, IConfiguration configuration) : BaseAuthenticationBridge(new MockFieldMappingProvider())
 {
     private readonly CacheService _CacheService = cacheService;
     private readonly string _MockUserdataFile = "./mocked_user_data.json";
     private bool _Authenticated;
+    private readonly LDAPSettings _LdapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
 
-    public void Authenticate(string username, string password)
+    public override void Authenticate(string username, string password)
     {
         var users = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile));
         if (users != null && users.Count != 0 && users.Any(u => u.Username == username && u.Password == password))
@@ -26,12 +25,9 @@ public class MockedAuthenticationBridge(CacheService cacheService) : IAuthentica
         }
     }
 
-    public TUser? SearchUser<TUser>(string username) where TUser : new()
+    public override TUser? SearchUser<TUser>(string username) where TUser : default
     {
-        if (!_Authenticated)
-        {
-            throw new UnauthorizedAccessException("Authentication required before searching for users.");
-        }
+        EnsureAuthentication();
 
         List<MockedUser> mockedUsers = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile)) ?? [];
         MockedUser? mockedUser = mockedUsers.SingleOrDefault(u => u.Username == username);
@@ -41,17 +37,14 @@ public class MockedAuthenticationBridge(CacheService cacheService) : IAuthentica
             return default;
         }
 
-        var user = MapEntry<TUser>(mockedUser);
+        var user = MapToModel<TUser>(ConvertMockEntryToDictionary(mockedUser));
 
         return user;
     }
 
-    public TGroup? SearchGroup<TGroup>(string groupName) where TGroup : new()
+    public override TGroup? SearchGroup<TGroup>(string groupName) where TGroup : default
     {
-        if (!_Authenticated)
-        {
-            throw new UnauthorizedAccessException("Authentication required before searching for users.");
-        }
+        EnsureAuthentication();
 
         List<MockedUser> mockedUsers = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile)) ?? [];
         string? group = mockedUsers.Where(u => u.Role.ToString().Contains(groupName)).Select(u => u.Role.ToString()).SingleOrDefault();
@@ -61,42 +54,34 @@ public class MockedAuthenticationBridge(CacheService cacheService) : IAuthentica
             return default;
         }
 
-        return (TGroup)(object)group;
+        var groupObj = MapToModel<TGroup>(new Dictionary<string, object>
+        {
+            { "Role", group }
+        });
+
+        return groupObj;
     }
 
-    public TEntity? SearchId<TEntity>(string id) where TEntity : new()
+    public override TEntity? SearchId<TEntity>(string id) where TEntity : default
     {
-        if (!_Authenticated)
-        {
-            throw new UnauthorizedAccessException("Authentication required before searching for users.");
-        }
+        EnsureAuthentication();
 
         List<MockedUser> mockedUsers = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile)) ?? [];
-        MockedUser? mockedUser = mockedUsers.SingleOrDefault(u => u.objectGUID == Guid.Parse(id));
+        MockedUser? mockedUser = mockedUsers.SingleOrDefault(u => u.Id == Guid.Parse(id));
 
         if (mockedUser == null)
         {
             return default;
         }
 
-        JWTUser jwtUser = new()
-        {
-            Guid = mockedUser.objectGUID,
-            Username = mockedUser.Username,
-            Name = mockedUser.Name,
-            Role = mockedUser.Role.ToString(),
-            Permissions = (int)mockedUser.Role
-        };
+        var user = MapToModel<TEntity>(ConvertMockEntryToDictionary(mockedUser));
 
-        return (TEntity)(object)jwtUser;
+        return user;
     }
 
-    public (List<TMockUser>, string, bool) SearchUserPagination<TMockUser>(string username, string? userRole, int pageSize, string? sessionId) where TMockUser : new()
+    public override (List<TMockUser>, string, bool) SearchUserPagination<TMockUser>(string username, string? userRole, int pageSize, string? sessionId) where TMockUser : default
     {
-        if (!_Authenticated)
-        {
-            throw new UnauthorizedAccessException("Authentication required before searching for users.");
-        }
+        EnsureAuthentication();
 
         List<MockedUser> mockedUsers = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile)) ?? [];
 
@@ -128,18 +113,20 @@ public class MockedAuthenticationBridge(CacheService cacheService) : IAuthentica
                 CurrentIndex = 0
             };
         }
-        
-        List<TMockUser> pagedUsers = [.. sessionData.FilteredUsers
-                .Skip(sessionData.CurrentIndex)
-                .Take(pageSize)
-                .Select(u => (TMockUser)(object)new JWTUser
-                {
-                    Guid = u.objectGUID,
-                    Username = u.Username,
-                    Name = u.Name,
-                    Role = u.Role.ToString(),
-                    Permissions = (int)u.Role
-                })];
+
+        List<TMockUser> pagedUsers = [];
+
+        for (int i = 0; i < pageSize; i++)
+        {
+            if (sessionData.CurrentIndex + i >= sessionData.FilteredUsers.Count)
+            {
+                break;
+            }
+
+            MockedUser currentUser = sessionData.FilteredUsers[sessionData.CurrentIndex + i];
+            TMockUser mappedUser = MapToModel<TMockUser>(ConvertMockEntryToDictionary(currentUser));
+            pagedUsers.Add(mappedUser);
+        }
 
         sessionData.CurrentIndex += pagedUsers.Count;
         bool hasMore = sessionData.CurrentIndex < sessionData.FilteredUsers.Count;
@@ -149,36 +136,29 @@ public class MockedAuthenticationBridge(CacheService cacheService) : IAuthentica
         return (pagedUsers, sessionId, hasMore);
     }
 
-    public MappedEntity MapEntry<MappedEntity>(object entry) where MappedEntity : new()
-    {
-        if (entry is not MockedUser mockedUserEntry)
-        {
-            throw new ArgumentException("The provided entry must be of type MockedUser.");
-        }
-        
-        MappedEntity mappedEntity = new();
-
-        foreach (PropertyInfo prop in typeof(MappedEntity).GetProperties())
-        {
-            foreach (AuthenticationMapping attr in prop.GetCustomAttributes<AuthenticationMapping>())
-            {
-                prop.SetValue(mappedEntity, mockedUserEntry.GetType().GetProperty(attr.EntryName)?.GetValue(mockedUserEntry));
-            }
-        }
-
-        return mappedEntity;
-    }
-
-    public void Dispose()
+    public override void Dispose()
     {
         // No resources to dispose
     }
 
-    public bool IsConnected() => _Authenticated;
-}
+    public override bool IsConnected() => _Authenticated;
 
-public class MockSessionData
-{
-    public List<MockedUser> FilteredUsers { get; set; } = [];
-    public int CurrentIndex { get; set; } = 0;
+    private static Dictionary<string, object> ConvertMockEntryToDictionary(MockedUser entry)
+    {
+        var dict = new Dictionary<string, object>();
+        foreach (PropertyInfo prop in typeof(MockedUser).GetProperties())
+        {
+            dict[prop.Name] = prop.GetValue(entry) ?? "";
+        }
+        return dict;
+    }
+
+
+    private void EnsureAuthentication()
+    {
+        if (!_Authenticated)
+        {
+            Authenticate(_LdapSettings.SA, _LdapSettings.SAPassword);
+        }
+    }
 }

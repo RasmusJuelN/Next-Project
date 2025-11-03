@@ -59,12 +59,7 @@ builder.Logging.AddSerilog(seriLogger);
 // Add services to the container.
 
 if (builder.Configuration.GetSection("Mock")["UseMockedAuthentication"] == "True")
-{
-    if (!File.Exists("mocked_user_data.json"))
-    {
-        MockUserDataGenerator.GenerateMockUsers();
-    }
-    
+{   
     builder.Services.AddScoped<IAuthenticationBridge, MockedAuthenticationBridge>();
 }
 else
