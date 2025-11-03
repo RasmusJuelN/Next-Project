@@ -1,4 +1,4 @@
-import { User } from "../../../shared/models/user.model";
+import { User } from "./user.model";
 
 
 
@@ -23,4 +23,12 @@ export interface Answer {
   isStudentResponseCustom: boolean;
   teacherResponse: string;
   isTeacherResponseCustom: boolean;
+  options?: QuestionOption[];
+}
+
+export interface QuestionOption {
+  displayText: string;
+  optionValue: string;
+  isSelectedByStudent: boolean;
+  isSelectedByTeacher: boolean;
 }

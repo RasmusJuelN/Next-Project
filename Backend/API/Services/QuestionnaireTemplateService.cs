@@ -132,10 +132,17 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
     /// <exception cref="InvalidOperationException">Thrown when the template cannot be updated due to business rules.</exception>
     public async Task<QuestionnaireTemplate> UpdateTemplate(Guid id, QuestionnaireTemplateUpdate updateRequest)
     {
-        QuestionnaireTemplate updatedTemplate = await _unitOfWork.QuestionnaireTemplate.Update(id, updateRequest);
-        await _unitOfWork.SaveChangesAsync();
-
-        return updatedTemplate;
+        try
+        {
+            var updated = await _unitOfWork.QuestionnaireTemplate.Update(id, updateRequest);
+            await _unitOfWork.SaveChangesAsync();
+            return updated;
+        }
+        catch (Exception ex)
+        {
+            // do NOT call SaveChanges
+            throw new SQLException.NotValidated(ex.Message, ex);
+        }
     }
 
     /// <summary>

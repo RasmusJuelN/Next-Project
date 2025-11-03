@@ -20,6 +20,14 @@ public sealed class DBLogger(
         DefaultDBLogger config = getCurrentConfig();
         if (!config.IsEnabled) return false;
         
+        // Prevent circular logging by excluding most Entity Framework logs
+        // Allow only migrations to be logged to avoid losing important schema changes
+        if (_categoryName.StartsWith("Microsoft.EntityFrameworkCore") && 
+            !_categoryName.StartsWith("Microsoft.EntityFrameworkCore.Migrations"))
+        {
+            return false;
+        }
+        
         // Check if the category name is in the LogLevel dictionary
         // i.e. if the category name is "API", check if "API" is in the dictionary
         if (config.LogLevel.TryGetValue(_categoryName, out LogLevel minLogLevel))
@@ -55,6 +63,7 @@ public sealed class DBLogger(
             Message = message,
             LogLevel = logLevel,
             EventId = eventId.Id,
+            EventDescription = eventId.Name ?? string.Empty,
             Category = _categoryName,
             Exception = exception?.ToString() ?? string.Empty
         };
