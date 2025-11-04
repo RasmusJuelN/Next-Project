@@ -103,6 +103,8 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         };
 
         await _genericRepository.AddAsync(activeQuestionnaire);
+        // Persist the newly added ActiveQuestionnaire to the database
+        //await _context.SaveChangesAsync();
 
         return activeQuestionnaire.ToDto();
     }
