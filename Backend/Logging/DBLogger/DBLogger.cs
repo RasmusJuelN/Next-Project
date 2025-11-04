@@ -1,14 +1,14 @@
 using System.Collections.Concurrent;
 using Database.DTO.ApplicationLog;
 using Microsoft.Extensions.Logging;
-using Settings.Default;
+using Settings.Models;
 
 namespace Logging.DBLogger;
 
 public sealed class DBLogger(
     string categoryName,
     BlockingCollection<ApplicationLog> logQueue,
-    Func<DefaultDBLogger> getCurrentConfig) : ILogger
+    Func<DBLoggerSettings> getCurrentConfig) : ILogger
 {
     private readonly string _categoryName = categoryName;
     private readonly BlockingCollection<ApplicationLog> _logQueue = logQueue;
@@ -17,7 +17,7 @@ public sealed class DBLogger(
 
     public bool IsEnabled(LogLevel logLevel)
     {
-        DefaultDBLogger config = getCurrentConfig();
+        DBLoggerSettings config = getCurrentConfig();
         if (!config.IsEnabled) return false;
         
         // Prevent circular logging by excluding most Entity Framework logs

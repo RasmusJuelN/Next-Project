@@ -107,7 +107,7 @@ The `SettingsHelper` class manages application settings files, including creatio
 public class SettingsHelper(string settingsFile)
 {
     private readonly string _settingsFile = settingsFile;
-    private DefaultSettings _defaultSettings = new();
+    private RootSettings _defaultSettings = new();
     private JsonSerializerService _serializer = new();
 }
 ```

@@ -5,6 +5,8 @@ namespace API.DTO.Requests.Settings;
 
 public class UpdateSettingsRequest
 {
+    public int Version { get; set; }
+
     public required DatabaseUpdateRequest Database { get; set; }
     public required JWTUpdateRequest JWT { get; set; }
     public required LDAPUpdateRequest LDAP { get; set; }

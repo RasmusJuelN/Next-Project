@@ -28,6 +28,10 @@ if (!settingsHelper.SettingsExists())
 {
     settingsHelper.CreateDefault();
 }
+else
+{
+    settingsHelper.CheckSettingsVersion();
+}
 
 builder.Configuration.AddJsonFile(settingsFile, optional: false, reloadOnChange: true);
 

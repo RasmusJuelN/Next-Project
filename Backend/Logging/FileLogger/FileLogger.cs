@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Logging;
-using Settings.Default;
+using Settings.Models;
 
 namespace Logging.FileLogger;
 
 public sealed class FileLogger(
     string categoryName,
     StreamWriter writer,
-    Func<DefaultFileLogger> getCurrentConfig) : ILogger
+    Func<FileLoggerSettings> getCurrentConfig) : ILogger
 {
     private readonly string _categoryName = categoryName;
     private readonly StreamWriter _writer = writer;
@@ -15,7 +15,7 @@ public sealed class FileLogger(
 
     public bool IsEnabled(LogLevel logLevel)
     {
-        DefaultFileLogger config = getCurrentConfig();
+        FileLoggerSettings config = getCurrentConfig();
         if (!config.IsEnabled) return false;
         
         // Check if the category name is in the LogLevel dictionary

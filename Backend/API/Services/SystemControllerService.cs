@@ -1,22 +1,21 @@
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using API.DTO.Requests.Settings;
 using API.DTO.Responses.Settings;
 using API.DTO.Responses.Settings.SettingsSchema;
 using API.DTO.Responses.Settings.SettingsSchema.Bases;
 using Microsoft.AspNetCore.Mvc;
-using Settings.Default;
 using Settings.Models;
+using API.Utils;
 
 namespace API.Services;
 
 public class SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger, IHostApplicationLifetime hostApplicationLifetime)
 {
     private readonly RootSettings _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
-    private readonly DefaultSettings _DefaultSettings = new();
+    private readonly RootSettings _DefaultSettings = new();
     private readonly ILogger<SystemControllerService> _Logger = logger;
-    private readonly JsonSerializerOptions _SerializerOptions = CreateSerializer();
+    private readonly JsonSerializerOptions _SerializerOptions = JsonSerializerUtility.ConfigureJsonSerializerSettings();
     private readonly IHostApplicationLifetime _HostApplicationLifetime = hostApplicationLifetime;
 
     public async Task<bool> StopServer()
@@ -62,7 +61,7 @@ public class SystemControllerService(IConfiguration configuration, ILogger<Syste
                 return false;
             }
 
-            string configPath = Path.Combine("config.json");
+            string configPath = "config.json";
             string serializedSettings = JsonSerializer.Serialize(importedSettings, _SerializerOptions);
             await File.WriteAllTextAsync(configPath, serializedSettings);
 
@@ -460,7 +459,8 @@ public class SystemControllerService(IConfiguration configuration, ILogger<Syste
     {
         try
         {
-            string configPath = Path.Combine("config.json");
+            rootSettings.Version = _RootSettings.Version;
+            string configPath = "config.json";
 
             string jsonString = JsonSerializer.Serialize(rootSettings, _SerializerOptions);
             await File.WriteAllTextAsync(configPath, jsonString);
@@ -494,7 +494,7 @@ public class SystemControllerService(IConfiguration configuration, ILogger<Syste
         {
             PatchSettingsRequest mergedSettings = PatchSettings(_RootSettings, rootSettings);
 
-            string configPath = Path.Combine("config.json");
+            string configPath = "config.json";
 
             string jsonString = JsonSerializer.Serialize(mergedSettings, _SerializerOptions);
             await File.WriteAllTextAsync(configPath, jsonString);
@@ -508,20 +508,11 @@ public class SystemControllerService(IConfiguration configuration, ILogger<Syste
         }
     }
 
-    private static JsonSerializerOptions CreateSerializer()
-    {
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-        };
-        options.Converters.Add(new JsonStringEnumConverter());
-        return options;
-    }
-
     private static PatchSettingsRequest PatchSettings(RootSettings current, PatchSettingsRequest updates)
     {
         var result = new PatchSettingsRequest
         {
+            Version = current.Version,
             Database = new DatabasePatchRequest
             {
                 ConnectionString = updates.Database?.ConnectionString ?? current.Database.ConnectionString
