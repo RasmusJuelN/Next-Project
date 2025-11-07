@@ -105,6 +105,7 @@
     "ERROR_GENERAL": "An error occurred during login. Please try again.",
     "SUBMIT": "Sign In",
     "LOADING": "Signing In...",
+    "CAPS_LOCK_WARNING": "Caps Lock is on",
     "ERRORS": {
       "INVALID": "Invalid username or password.",
       "NETWORK": "Could not connect to the server. Check your internet connection.",
