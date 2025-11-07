@@ -6,7 +6,7 @@ using Database.DTO.ApplicationLog;
 using Database.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Settings.Default;
+using Settings.Models;
 
 namespace API.Controllers
 {
@@ -215,7 +215,7 @@ namespace API.Controllers
         /// Retrieves the default configuration values for all system settings.
         /// </summary>
         /// <returns>
-        /// An <see cref="ActionResult{T}"/> containing a <see cref="DefaultSettings"/> object
+        /// An <see cref="ActionResult{T}"/> containing a <see cref="RootSettings"/> object
         /// with the default values for all configuration sections including Database, JWT,
         /// LDAP, Logging, and System settings.
         /// </returns>
@@ -236,9 +236,9 @@ namespace API.Controllers
         /// <response code="403">If the user is not authorized (not an admin)</response>
         [HttpGet("settings/default")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<DefaultSettings>> GetDefaultSettings()
+        public async Task<ActionResult<RootSettings>> GetDefaultSettings()
         {
-            return Ok(new DefaultSettings());
+            return Ok(new RootSettings());
         }
 
         /// <summary>

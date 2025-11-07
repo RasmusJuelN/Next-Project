@@ -5,7 +5,7 @@ using Database.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Settings.Default;
+using Settings.Models;
 
 namespace Logging.DBLogger;
 
@@ -14,7 +14,7 @@ namespace Logging.DBLogger;
 public sealed class DBLoggerProvider : ILoggerProvider
 {
     private readonly IDisposable? _onChangeToken;
-    private DefaultDBLogger _currentConfig;
+    private DBLoggerSettings _currentConfig;
     private readonly ConcurrentDictionary<string, DBLogger> _loggers =
         new(StringComparer.OrdinalIgnoreCase);
     private readonly BlockingCollection<ApplicationLog> _logQueue = new( new ConcurrentQueue<ApplicationLog>(), 1000);
@@ -22,7 +22,7 @@ public sealed class DBLoggerProvider : ILoggerProvider
     private readonly Task _outputTask;
     private readonly IServiceProvider _serviceProvider;
 
-    public DBLoggerProvider(IOptionsMonitor<DefaultDBLogger> config, IServiceProvider serviceProvider)
+    public DBLoggerProvider(IOptionsMonitor<DBLoggerSettings> config, IServiceProvider serviceProvider)
     {
         _currentConfig = config.CurrentValue;
         _onChangeToken = config.OnChange(updatedConfig => _currentConfig = updatedConfig);
@@ -33,7 +33,7 @@ public sealed class DBLoggerProvider : ILoggerProvider
     public ILogger CreateLogger(string categoryName) =>
         _loggers.GetOrAdd(categoryName, name => new DBLogger(name, _logQueue, GetCurrentConfig));
 
-    private DefaultDBLogger GetCurrentConfig() => _currentConfig;
+    private DBLoggerSettings GetCurrentConfig() => _currentConfig;
 
     public void Dispose()
     {

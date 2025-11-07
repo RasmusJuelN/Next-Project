@@ -1,17 +1,19 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using Settings.Interfaces;
 
 namespace Settings.Models;
 
 public class LDAPSettings : Base, ILDAPSettings
 {
+    [JsonIgnore]
     public override string Key { get; } = "LDAP";
 
     [Description("The LDAP server host address. Can be an IP address or domain name.")]
     public string Host { get; set; } = string.Empty;
 
     [Description("The LDAP server port number.")]
-    public int Port { get; set; } = 0;
+    public int Port { get; set; } = 389;
 
     [Description("The Fully Qualified Domain Name for the LDAP server.")]
     public string FQDN { get; set; } = string.Empty;

@@ -4,6 +4,8 @@ namespace API.DTO.Requests.Settings;
 
 public class PatchSettingsRequest
 {
+    public int Version { get; set; }
+    
     public DatabasePatchRequest? Database { get; set; }
     public JWTPatchRequest? JWT { get; set; }
     public LDAPPatchRequest? LDAP { get; set; }
