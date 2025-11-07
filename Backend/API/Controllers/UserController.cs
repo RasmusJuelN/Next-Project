@@ -281,9 +281,9 @@ namespace API.Controllers
         /// </remarks>
         [HttpGet("Teacher/Students/Search")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
-        [ProducesResponseType(typeof(List<Database.DTO.User.FullUser>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<API.DTO.Responses.User.LdapUserBase>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<List<Database.DTO.User.FullUser>>> SearchStudentsRelatedToTeacher([FromQuery] string studentUsernameQuery)
+        public async Task<ActionResult<List<API.DTO.Responses.User.LdapUserBase>>> SearchStudentsRelatedToTeacher([FromQuery] string studentUsernameQuery)
         {
             Guid teacherId;
             try

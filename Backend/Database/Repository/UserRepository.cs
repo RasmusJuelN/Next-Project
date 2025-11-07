@@ -170,19 +170,20 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
     {
         if (teacherId == Guid.Empty)
             throw new ArgumentException("Teacher ID cannot be empty", nameof(teacherId));
-            
+
         if (string.IsNullOrWhiteSpace(studentUsernameQuery))
             throw new ArgumentException("Student username query cannot be null or empty", nameof(studentUsernameQuery));
 
         // Find students that have active questionnaires with this teacher and match the username query
         var students = await _context.ActiveQuestionnaires
-            .Where(aq => aq.Teacher != null && aq.Teacher.Guid == teacherId && 
+            .Where(aq => aq.Teacher != null && aq.Teacher.Guid == teacherId &&
                         aq.Student != null && aq.Student.UserName.Contains(studentUsernameQuery))
             .Select(aq => aq.Student!)
             .Distinct()
             .ToListAsync();
 
         return students.Select(s => s.ToDto()).ToList();
+    }
     
     public Task<int?> GetIdByGuidAsync(Guid guid)
     {

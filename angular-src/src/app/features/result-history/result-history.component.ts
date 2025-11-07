@@ -12,14 +12,6 @@ import {
   ShowResultConfig
 } from '../../shared/show-result/show-result.component';
 
-// Interface for backend FullUser response
-interface BackendUser {
-  guid: string;
-  userName: string;
-  fullName: string;
-  primaryRole: string;
-  permissions: number;
-}
 
 import {
   Answer,
@@ -98,18 +90,6 @@ export class ResultHistoryComponent implements OnInit {
     };
   }
 
-  /**
-   * Converts backend FullUser to shared User interface
-   */
-  private convertBackendUserToUser(backendUser: BackendUser): User {
-    return {
-      id: backendUser.guid,
-      userName: backendUser.userName,
-      fullName: backendUser.fullName,
-      role: backendUser.primaryRole.toLowerCase() as any // Convert to Role enum
-    };
-  }
-
   /** Close dropdowns when clicking outside */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -145,32 +125,35 @@ export class ResultHistoryComponent implements OnInit {
       .subscribe((term) => this.fetch(type, term));
   }
 
-  private fetch(type: SearchEnum, term: string): void {
-    const state = this.getState(type);
-    if (!term.trim()) return;
+private fetch(type: SearchEnum, term: string): void {
+  const state = this.getState(type);
+  if (!term.trim()) return;
 
-    state.loading = true;
-    state.error = null;
-    state.results = [];
+  state.loading = true;
+  state.error = null;
+  state.results = [];
 
-    const handleError = (msg: string) => {
-      state.error = msg;
-      state.loading = false;
-    };
+  const handleError = (msg: string) => {
+    state.error = msg;
+    state.loading = false;
+  };
 
-    // Only handle student search now - templates are loaded automatically when student is selected
-    if (type === SearchEnum.Student) {
-      this.resultHistoryService.searchStudentsRelatedToTeacher(term).subscribe({
-        next: (res: any) => {
-          // Convert backend users to shared User interface
-          const backendUsers: BackendUser[] = res.userBases || [];
-          state.results = backendUsers.map(user => this.convertBackendUserToUser(user));
-          state.loading = false;
-        },
-        error: () => handleError(`Failed to load related ${type}s.`)
-      });
-    }
+  if (type === SearchEnum.Student) {
+    this.resultHistoryService.searchStudentsRelatedToTeacher(term).subscribe({
+      next: (users: User[]) => {
+        state.results = users.map(user => ({
+          id: user.id,
+          userName: user.userName,
+          fullName: user.fullName,
+          role: 'student' as const
+        }));
+        state.loading = false;
+      },
+      error: () => handleError(`Failed to load related ${type}s.`)
+    });
   }
+}
+
 
   select(type: SearchEnum, item: any): void {
     const state = this.getState(type);

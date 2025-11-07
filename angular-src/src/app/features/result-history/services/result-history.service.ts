@@ -9,6 +9,8 @@ import { Role, User } from '../../../shared/models/user.model';
 import { HttpParams } from '@angular/common/http';
 import { Attempt, AttemptAnswer, StudentResultHistory, TemplateBaseResponse, UserPaginationResult, AnswerInfo, AnswerDetails } from '../models/result-history.model';
 
+
+
 // Mock template with stable IDs for questions/options
 const mockTemplate: Template = {
   id: 'template-123',
@@ -227,14 +229,13 @@ export class ResultHistoryService {
    * Uses the new teacher-specific endpoint that only returns students
    * the teacher has worked with through active questionnaires.
    */
-  searchStudentsRelatedToTeacher(studentUsernameQuery: string): Observable<{ userBases: any[] }> {
+  searchStudentsRelatedToTeacher(studentUsernameQuery: string): Observable<User[]> {
     const params = new HttpParams().set('studentUsernameQuery', studentUsernameQuery);
 
-    return this.apiService.get<any[]>(`${environment.apiUrl}/user/teacher/students/search`, params)
-      .pipe(
-        // Transform to match expected format
-        map((users: any[]) => ({ userBases: users }))
-      );
+    return this.apiService.get<User[]>(
+      `${environment.apiUrl}/user/teacher/students/search`,
+      params
+    );
   }
 
   /**
