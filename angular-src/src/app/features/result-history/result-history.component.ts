@@ -12,6 +12,7 @@ import {
   ShowResultConfig
 } from '../../shared/show-result/show-result.component';
 
+
 import {
   Answer,
   QuestionOption,
@@ -124,40 +125,35 @@ export class ResultHistoryComponent implements OnInit {
       .subscribe((term) => this.fetch(type, term));
   }
 
-  private fetch(type: SearchEnum, term: string): void {
-    const state = this.getState(type);
-    if (!term.trim()) return;
+private fetch(type: SearchEnum, term: string): void {
+  const state = this.getState(type);
+  if (!term.trim()) return;
 
-    state.loading = true;
-    state.error = null;
-    state.results = [];
+  state.loading = true;
+  state.error = null;
+  state.results = [];
 
-    const handleError = (msg: string) => {
-      state.error = msg;
-      state.loading = false;
-    };
+  const handleError = (msg: string) => {
+    state.error = msg;
+    state.loading = false;
+  };
 
-    if (type === SearchEnum.Template) {
-      this.resultHistoryService.searchTemplates(term, state.cursor).subscribe({
-        next: (res: any) => {
-          state.results = res.templateBases;
-          state.loading = false;
-        },
-        error: () => handleError(`Failed to load ${type}s.`)
-      });
-    } else {
-      this.resultHistoryService
-        .searchUsers(term, 'student', 10, state.cursor)
-        .subscribe({
-          next: (res: any) => {
-            state.results = res.userBases || [];
-            state.cursor = res.sessionId;
-            state.loading = false;
-          },
-          error: () => handleError(`Failed to load ${type}s.`)
-        });
-    }
+  if (type === SearchEnum.Student) {
+    this.resultHistoryService.searchStudentsRelatedToTeacher(term).subscribe({
+      next: (users: User[]) => {
+        state.results = users.map(user => ({
+          id: user.id,
+          userName: user.userName,
+          fullName: user.fullName,
+          role: 'student' as const
+        }));
+        state.loading = false;
+      },
+      error: () => handleError(`Failed to load related ${type}s.`)
+    });
   }
+}
+
 
   select(type: SearchEnum, item: any): void {
     const state = this.getState(type);
@@ -165,15 +161,54 @@ export class ResultHistoryComponent implements OnInit {
     state.query = '';
     this.showDropdown[type] = false;
 
+    // If selecting a student, clear template selection and load available templates
+    if (type === SearchEnum.Student) {
+      this.clearSelected(SearchEnum.Template);
+      this.loadAvailableTemplates();
+    }
+
     if (this.student.selected && this.template.selected) {
       this.fetchStudentResultsV2();
     }
   }
 
   clearSelected(type: SearchEnum): void {
-    this.getState(type).selected = null;
+    const state = this.getState(type);
+    state.selected = null;
+    state.results = [];
+    state.query = '';
     this.history = null;
     this.currentAttemptIndex = 0;
+
+    if (type === SearchEnum.Template && this.student.selected) {
+      this.loadAvailableTemplates();
+    }
+  }
+
+  /**
+   * Load available templates for the selected student.
+   * This shows templates where both the teacher and student have completed responses.
+   */
+  loadAvailableTemplates(): void {
+    if (!this.student.selected) return;
+
+    this.template.loading = true;
+    this.template.error = null;
+
+    this.resultHistoryService.getTemplateBasesAnsweredByStudent(this.student.selected.id).subscribe({
+      next: (res: any) => {
+        this.template.results = res.templateBases || [];
+        this.template.loading = false;
+        
+        if (this.template.results.length === 0) {
+          this.template.error = 'No shared questionnaire completions found with this student.';
+        }
+      },
+      error: () => {
+        this.template.error = 'Failed to load available templates.';
+        this.template.loading = false;
+      }
+    });
   }
 
   onInputChange(type: SearchEnum, value: string): void {

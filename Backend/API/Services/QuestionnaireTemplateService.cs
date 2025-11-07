@@ -201,4 +201,19 @@ public async Task<QuestionnaireTemplate> FinalizeTemplate(Guid id)
     await _unitOfWork.SaveChangesAsync();
     return finalized;
 }
+
+    /// <summary>
+    /// Gets questionnaire template bases that have been answered by both a specific student and teacher.
+    /// </summary>
+    /// <param name="studentId">The ID of the student user.</param>
+    /// <param name="teacherId">The ID of the teacher user.</param>
+    /// <returns>A list of questionnaire template bases where both users have completed responses.</returns>
+    /// <remarks>
+    /// This method finds all active questionnaires where both the student and teacher have submitted
+    /// completed responses, returning the base template information for result history views.
+    /// </remarks>
+    public async Task<List<QuestionnaireTemplateBase>> GetTemplateBasesAnsweredByStudentAsync(Guid studentId, Guid teacherId)
+    {
+        return await _unitOfWork.QuestionnaireTemplate.GetTemplateBasesAnsweredByStudentAsync(studentId, teacherId);
+    }
 }

@@ -261,9 +261,42 @@ namespace API.Controllers
                 return Unauthorized();   
             }
 
-            List<ActiveQuestionnaireBase> activeQuestionnaireBases = await _userService.GetPendingActiveQuestionnaires(userId);
+        List<ActiveQuestionnaireBase> activeQuestionnaireBases = await _userService.GetPendingActiveQuestionnaires(userId);
 
-            return Ok(activeQuestionnaireBases.Select(a => a.ToActiveQuestionnaireTeacherDTO()).ToList());
+        return Ok(activeQuestionnaireBases.Select(a => a.ToActiveQuestionnaireTeacherDTO()).ToList());
+    }
+
+        /// <summary>
+        /// Searches for students related to the current teacher user based on a username query.
+        /// This endpoint allows teachers to find students they are associated with through active questionnaires.
+        /// </summary>
+        /// <param name="studentUsernameQuery">The partial or full username to search for among related students.</param>
+        /// <returns>A list of user base information for students related to the teacher.</returns>
+        /// <response code="200">Returns the list of students related to the teacher matching the search query.</response>
+        /// <response code="401">Unauthorized - Invalid or missing access token.</response>
+        /// <response code="403">Forbidden - User does not have teacher privileges.</response>
+        /// <remarks>
+        /// This endpoint searches through students who are connected to the teacher through active questionnaires,
+        /// filtering results based on the provided username query. Useful for result history and student management.
+        /// </remarks>
+        [HttpGet("Teacher/Students/Search")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        [ProducesResponseType(typeof(List<API.DTO.Responses.User.LdapUserBase>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<List<API.DTO.Responses.User.LdapUserBase>>> SearchStudentsRelatedToTeacher([FromQuery] string studentUsernameQuery)
+        {
+            Guid teacherId;
+            try
+            {
+                teacherId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+
+            var students = await _userService.SearchStudentsRelatedToTeacherAsync(teacherId, studentUsernameQuery);
+            return Ok(students);
         }
     }
 }

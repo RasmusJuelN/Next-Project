@@ -305,4 +305,39 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
         return existing.ToDto();
     }
+
+    /// <summary>
+    /// Retrieves questionnaire template bases that both a specific student and teacher have answered.
+    /// </summary>
+    /// <param name="studentId">The unique identifier (GUID) of the student.</param>
+    /// <param name="teacherId">The unique identifier (GUID) of the teacher.</param>
+    /// <returns>A list of QuestionnaireTemplateBase DTOs representing templates where both participants have completed their responses.</returns>
+    /// <exception cref="ArgumentException">Thrown when studentId or teacherId is empty.</exception>
+    /// <remarks>
+    /// This method finds all questionnaire templates for which both the specified student and teacher have completed
+    /// their portions of active questionnaires. Only templates with completed responses from both participants are included.
+    /// Returns lightweight template base DTOs for efficient display and further processing.
+    /// Useful for result history and tracking shared questionnaire completion between student-teacher pairs.
+    /// Results are ordered by the most recent completion date for better user experience.
+    /// </remarks>
+    public async Task<List<QuestionnaireTemplateBase>> GetTemplateBasesAnsweredByStudentAsync(Guid studentId, Guid teacherId)
+    {
+        if (studentId == Guid.Empty)
+            throw new ArgumentException("Student ID cannot be empty", nameof(studentId));
+            
+        if (teacherId == Guid.Empty)
+            throw new ArgumentException("Teacher ID cannot be empty", nameof(teacherId));
+
+        // Find all templates for which both the student and teacher have completed their active questionnaires
+        var templates = await _context.ActiveQuestionnaires
+            .Where(aq => aq.Student != null && aq.Student.Guid == studentId && 
+                        aq.Teacher != null && aq.Teacher.Guid == teacherId &&
+                        aq.StudentCompletedAt.HasValue && aq.TeacherCompletedAt.HasValue)
+            .Select(aq => aq.QuestionnaireTemplate!)
+            .Distinct()
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+
+        return templates.Select(t => t.ToBaseDto()).ToList();
+    }
 }

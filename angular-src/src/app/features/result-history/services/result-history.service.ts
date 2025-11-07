@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from '../../../core/services/api.service';
 import { environment } from '../../../../environments/environment';
 import { Result } from '../../../shared/models/result.model';
@@ -7,6 +8,8 @@ import { Template, TemplateBase, TemplateStatus } from '../../../shared/models/t
 import { Role, User } from '../../../shared/models/user.model';
 import { HttpParams } from '@angular/common/http';
 import { Attempt, AttemptAnswer, StudentResultHistory, TemplateBaseResponse, UserPaginationResult, AnswerInfo, AnswerDetails } from '../models/result-history.model';
+
+
 
 // Mock template with stable IDs for questions/options
 const mockTemplate: Template = {
@@ -221,6 +224,33 @@ export class ResultHistoryService {
   // SEARCH HELPERS
   // -------------------
 
+  /**
+   * Search for students related to the current teacher user.
+   * Uses the new teacher-specific endpoint that only returns students
+   * the teacher has worked with through active questionnaires.
+   */
+  searchStudentsRelatedToTeacher(studentUsernameQuery: string): Observable<User[]> {
+    const params = new HttpParams().set('studentUsernameQuery', studentUsernameQuery);
+
+    return this.apiService.get<User[]>(
+      `${environment.apiUrl}/user/teacher/students/search`,
+      params
+    );
+  }
+
+  /**
+   * Get questionnaire template bases that both the teacher and specified student have completed.
+   * Uses the new teacher-specific endpoint that filters templates to shared completions only.
+   */
+  getTemplateBasesAnsweredByStudent(studentId: string): Observable<{ templateBases: TemplateBase[] }> {
+    return this.apiService.get<TemplateBase[]>(`${environment.apiUrl}/questionnaire-template/answeredbystudent/${studentId}`)
+      .pipe(
+        // Transform to match expected format
+        map((templates: TemplateBase[]) => ({ templateBases: templates }))
+      );
+  }
+
+  // Legacy search methods (kept for backward compatibility if needed elsewhere)
   searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
     let params = new HttpParams()
       .set('title', term)

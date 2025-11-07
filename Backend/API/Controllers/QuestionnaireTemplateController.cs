@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using API.DTO.Requests.QuestionnaireTemplate;
 using API.DTO.Responses.QuestionnaireTemplate;
 using API.Exceptions;
@@ -248,6 +249,39 @@ namespace API.Controllers
             }
             // Optional: if your service throws when already finalized or locked, map to 409:
             // catch (BusinessException.AlreadyFinalized) { return Conflict("Template already finalized."); }
+        }
+
+        /// <summary>
+        /// Gets questionnaire template bases that have been answered by both a specific student and the current teacher.
+        /// This endpoint allows teachers to view shared questionnaire history with individual students.
+        /// </summary>
+        /// <param name="studentId">The ID of the student user to check shared completion with.</param>
+        /// <returns>A list of questionnaire template bases where both the teacher and student have completed responses.</returns>
+        /// <response code="200">Returns the list of questionnaire template bases answered by both users.</response>
+        /// <response code="401">Unauthorized - Invalid or missing access token.</response>
+        /// <response code="403">Forbidden - User does not have teacher privileges.</response>
+        /// <remarks>
+        /// This endpoint filters questionnaire templates to show only those where both the current teacher
+        /// and the specified student have submitted completed responses, useful for result history comparisons.
+        /// </remarks>
+        [HttpGet("AnsweredByStudent/{studentId}")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        [ProducesResponseType(typeof(List<Database.DTO.QuestionnaireTemplate.QuestionnaireTemplateBase>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<List<Database.DTO.QuestionnaireTemplate.QuestionnaireTemplateBase>>> GetTemplateBasesAnsweredByStudent(Guid studentId)
+        {
+            Guid teacherId;
+            try
+            {
+                teacherId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+
+            var templates = await _questionnaireTemplateService.GetTemplateBasesAnsweredByStudentAsync(studentId, teacherId);
+            return Ok(templates);
         }
     }
 }
