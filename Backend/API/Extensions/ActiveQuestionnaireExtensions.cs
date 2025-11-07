@@ -55,6 +55,7 @@ public static class ActiveQuestionnaireExtensions
         return new()
         {
             Id = activeQuestionnaire.Id,
+            GroupName = activeQuestionnaire.GroupName,
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,

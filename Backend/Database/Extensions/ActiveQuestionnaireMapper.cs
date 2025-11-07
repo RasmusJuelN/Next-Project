@@ -27,6 +27,8 @@ public static class ActiveQuestionnaireMapper
         return new()
         {
             Id = activeQuestionnaire.Id,
+            GroupId = activeQuestionnaire.GroupId,
+            TemplateId = activeQuestionnaire.QuestionnaireTemplateFK,
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
@@ -55,6 +57,7 @@ public static class ActiveQuestionnaireMapper
         return new()
         {
             Id = activeQuestionnaire.Id,
+            GroupId = activeQuestionnaire.GroupId,
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
@@ -124,4 +127,5 @@ public static class ActiveQuestionnaireMapper
             })]
         };
     }
+
 }

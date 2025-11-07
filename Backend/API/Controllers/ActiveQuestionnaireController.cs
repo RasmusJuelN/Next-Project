@@ -537,5 +537,21 @@ namespace API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpGet("{id:guid}/completedStudentsByGroup")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<IActionResult> GetCompletedStudentsByGroup(Guid id)
+        {
+            try
+            {
+                var students = await _questionnaireService.GetCompletedStudentsByGroup(id);
+                return Ok(students);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to fetch completed students", error = ex.Message });
+            }
+        }
     }
+
 }

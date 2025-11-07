@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ResultService } from "./services/result.service";
 import { PdfGenerationService } from "./services/pdf-generation.service";
 import { Result } from "../../shared/models/result.model";
@@ -10,6 +10,8 @@ import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { TranslateService, TranslateModule } from "@ngx-translate/core";
 import { ShowResultComponent, ShowResultConfig } from "../../shared/show-result/show-result.component";
+import { Subject, takeUntil } from "rxjs";
+
 
 @Component({
   selector: "app-result",
@@ -27,7 +29,7 @@ import { ShowResultComponent, ShowResultConfig } from "../../shared/show-result/
   `,
   styleUrls: ["./result.component.css"],
 })
-export class ResultComponent implements OnInit {
+export class ResultComponent implements OnInit, OnDestroy{
   result: Result | null = null;
   isLoading = true;
   errorMessage: string | null = null;
@@ -38,6 +40,10 @@ export class ResultComponent implements OnInit {
   // Toggle between compressed and full view
   isFullView = false;
 
+  completedStudents: Array<{ id: string; student: { fullName: string; userName?: string } }> = [];
+  selectedCompletionId: string | null = null;
+  private destroy$ = new Subject<void>();
+
   // Configuration for ShowResultComponent
   resultConfig: ShowResultConfig = {
     showTemplate: true,
@@ -47,37 +53,53 @@ export class ResultComponent implements OnInit {
     useCardStyling: false // We handle card styling in the parent component
   };
 
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private resultService: ResultService,
     private pdfGenerationService: PdfGenerationService,
-    public translate: TranslateService
+    public translate: TranslateService,
+
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get("id");
-    if (id) {
-      // Tjek om resultatet kan tilgås inden det hentes
-      this.resultService.canGetResult(id).subscribe({
-        next: (canGet: boolean) => {
-          if (canGet) {
-            this.fetchResult(id);
-          } else {
-            this.errorMessage =
-              "Resultatet er ikke tilgængeligt eller ikke fuldført.";
-            this.isLoading = false;
-          }
-        },
-        error: (err: any) => {
-          console.error(err);
-          this.errorMessage = "Fejl ved kontrol af resultatadgang.";
+    // Subscribe to route parameter changes
+    this.route.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.isLoading = true;
+          this.errorMessage = null;
+          this.result = null;
+          
+          // Check if result can be accessed before fetching
+          this.resultService.canGetResult(id).subscribe({
+            next: (canGet: boolean) => {
+              if (canGet) {
+                this.fetchResult(id);
+              } else {
+                this.errorMessage = "Resultatet er ikke tilgængeligt eller ikke fuldført.";
+                this.isLoading = false;
+              }
+            },
+            error: (err: any) => {
+              console.error(err);
+              this.errorMessage = "Fejl ved kontrol af resultatadgang.";
+              this.isLoading = false;
+            },
+          });
+        } else {
+          this.errorMessage = "Ugyldigt resultat-ID.";
           this.isLoading = false;
-        },
+        }
       });
-    } else {
-      this.errorMessage = "Ugyldigt resultat-ID.";
-      this.isLoading = false;
-    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   toggleView(): void {
@@ -119,21 +141,44 @@ export class ResultComponent implements OnInit {
       next: (data: Result) => {
         if (data) {
           this.result = data;
+          this.selectedCompletionId = id;
           this.updateChart(this.chartType, data);
+          this.loadCompletedStudents(id); // Load dropdown data
           this.isLoading = false;
         } else {
-          this.errorMessage = "Resultat ikke fundet.";
+          this.errorMessage = 'Resultat ikke fundet.';
           this.isLoading = false;
         }
       },
       error: (err: any) => {
         console.error(err);
-        this.errorMessage = "Resultat ikke fundet.";
+        this.errorMessage = 'Resultat ikke fundet.';
         this.isLoading = false;
       },
     });
   }
 
+  private loadCompletedStudents(activeQuestionnaireId: string): void {
+    this.resultService.getCompletedStudentsByGroup(activeQuestionnaireId).subscribe({
+      next: (students) => {
+        this.completedStudents = students ?? [];
+      },
+      error: (err) => {
+        console.error('Failed to load completed students:', err);
+        this.completedStudents = [];
+      }
+    });
+  }
+  onStudentSelect(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const newId = selectElement.value;
+    if (newId ) {
+      this.isLoading = true;
+      this.router.navigate(['/results', newId]);
+      
+    }
+  }
+  
 
 
   updateChart(type: "stacked" | "donut", dataOverride?: Result): void {

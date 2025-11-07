@@ -151,4 +151,12 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
     {
         await _genericRepository.AddAsync(teacher.ToTeacherModel());
     }
+
+    public Task<int?> GetIdByGuidAsync(Guid guid)
+    {
+        return _context.Set<TeacherModel>()
+            .Where(t => t.Guid == guid)
+            .Select(t => (int?)t.Id)
+            .FirstOrDefaultAsync();
+    }
 }
