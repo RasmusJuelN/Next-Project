@@ -638,6 +638,17 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         return await _unitOfWork.ActiveQuestionnaire.GetResponseHistoryAsync(studentId, teacherId, templateId);
     }
 
+    public async Task<IEnumerable<CompletedStudentDto>> GetCompletedStudentsByGroup(Guid activeQuestionnaireId)
+    {
+        var questionnaires = await _unitOfWork.ActiveQuestionnaire
+            .GetCompletedQuestionnairesByGroupAsync(activeQuestionnaireId);
+
+        return questionnaires.Select(q => new CompletedStudentDto
+        {
+            Id = q.Id,
+            Student = q.Student ?? new UserBase { UserName = "", FullName = "" }
+        });
+    }
 
 }
 // Add the missing CreatedAt property to the QuestionnaireGroupResult class

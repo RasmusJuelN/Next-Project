@@ -7,6 +7,9 @@ using API.Extensions;
 using API.Interfaces;
 using Database.DTO.ActiveQuestionnaire;
 using Database.DTO.User;
+using Database.Enums;
+using Database.Extensions;
+using System.Collections.Generic;
 
 namespace API.Services;
 
@@ -155,7 +158,7 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
             userId: userId,
             onlyStudentCompleted: request.FilterStudentCompleted,
             onlyTeacherCompleted: request.FilterTeacherCompleted);
-        
+
         ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;
 
         string? queryCursor = null;
@@ -169,6 +172,65 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
             ActiveQuestionnaireBases = [.. activeQuestionnaireBases.Select(a => a.ToActiveQuestionnaireTeacherDTO())],
             QueryCursor = queryCursor,
             TotalCount = totalCount
+        };
+    }
+
+
+    public async Task<QuestionnaireGroupKeysetPaginationResult> FetchActiveQuestionnaireGroupsForTeacherPaginated(QuestionnaireGroupKeysetPaginationRequest request, Guid teacherGuid)
+    {
+        DateTime? cursorCreatedAt = null;
+        Guid? cursorId = null;
+        if (!string.IsNullOrEmpty(request.QueryCursor))
+        {
+            var parts = request.QueryCursor.Split('_');
+            cursorCreatedAt = DateTime.Parse(parts[0]);
+            cursorId = Guid.Parse(parts[1]);
+        }
+       
+        int? teacherFk = await _unitOfWork.User.GetIdByGuidAsync(teacherGuid);
+        if (!teacherFk.HasValue)
+        {
+            return new QuestionnaireGroupKeysetPaginationResult
+            {
+                Groups = new List<QuestionnaireGroupResult>(),
+                QueryCursor = null,
+                TotalCount = 0
+            };
+        }
+        
+        var (groups, totalCount) = await _unitOfWork.QuestionnaireGroup.PaginationQueryWithKeyset(
+            request.PageSize,
+            QuestionnaireGroupOrderingOptions.CreatedAtDesc,
+            cursorId,
+            cursorCreatedAt,
+            request.Title,
+            groupId: request.GroupId,
+            pendingStudent: request.PendingStudent,
+            pendingTeacher: request.PendingTeacher,
+            teacherFK: teacherFk 
+        );
+
+        // Map models -> DTOs
+        var resultGroups = groups.Select(g => new QuestionnaireGroupResult
+        {
+            GroupId = g.GroupId,
+            Name = g.Name,
+            TemplateId = g.TemplateId,
+            Questionnaires = g.Questionnaires
+            .Select(q =>
+                q.ToBaseDto()             
+                 .ToActiveQuestionnaireAdminDTO()             
+            )
+            .ToList()
+        }).ToList();
+
+        string? nextCursor = groups.Count > 0 ? $"{groups.Last().CreatedAt:O}_{groups.Last().GroupId}" : null;
+
+        return new QuestionnaireGroupKeysetPaginationResult
+        {
+            Groups = resultGroups,
+            QueryCursor = nextCursor,
+            TotalCount = totalCount // total number of groups
         };
     }
 

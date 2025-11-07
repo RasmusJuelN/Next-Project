@@ -201,6 +201,25 @@ namespace API.Controllers
             return Ok(await _userService.GetActiveQuestionnairesForTeacher(request, userId));
         }
 
+        [HttpGet("Teacher/ActiveQuestionnaires/Grouped")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        [ProducesResponseType(typeof(QuestionnaireGroupKeysetPaginationResult), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireGroupKeysetPaginationResult>> GetActiveQuestionnaireGroupsForTeacherPaginated([FromQuery] QuestionnaireGroupKeysetPaginationRequest request)
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            var result = await _userService.FetchActiveQuestionnaireGroupsForTeacherPaginated(request, userId);
+            return Ok(result);
+        }
+
         /// <summary>
         /// Retrieves all pending active questionnaires managed by the authenticated teacher.
         /// This endpoint provides teachers with a focused view of questionnaires requiring attention,

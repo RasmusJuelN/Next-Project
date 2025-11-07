@@ -46,7 +46,7 @@ namespace Database.Interfaces
         /// Uses a primary key lookup for efficient retrieval.
         /// </remarks>
         Task<QuestionnaireGroupModel> GetByIdAsync(Guid groupId);
-
+        Task<List<QuestionnaireGroupModel>> GetByIdsAsync(IEnumerable<Guid> ids);
         /// <summary>
         /// Retrieves a paginated list of questionnaire groups using keyset pagination with
         /// optional filtering, ordering, and cursor-based continuation.
@@ -78,7 +78,8 @@ namespace Database.Interfaces
             string? titleQuery = null,
             Guid? groupId = null,
             bool? pendingStudent = false,
-            bool? pendingTeacher = false);
+            bool? pendingTeacher = false,
+            int? teacherFK = null);
 
 
     }

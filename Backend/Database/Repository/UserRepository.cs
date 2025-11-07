@@ -183,5 +183,12 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
             .ToListAsync();
 
         return students.Select(s => s.ToDto()).ToList();
+    
+    public Task<int?> GetIdByGuidAsync(Guid guid)
+    {
+        return _context.Set<TeacherModel>()
+            .Where(t => t.Guid == guid)
+            .Select(t => (int?)t.Id)
+            .FirstOrDefaultAsync();
     }
 }

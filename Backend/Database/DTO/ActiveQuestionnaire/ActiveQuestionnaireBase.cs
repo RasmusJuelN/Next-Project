@@ -21,6 +21,9 @@ namespace Database.DTO.ActiveQuestionnaire;
 public record class ActiveQuestionnaireBase
 {
     public required Guid Id { get; set; }
+    public required Guid GroupId { get; set; }
+    public Guid TemplateId { get; set; }
+    public string? GroupName { get; set; }
     public required string Title { get; set; }
     public string? Description { get; set; }
     public required DateTime ActivatedAt { get; set; }

@@ -112,4 +112,6 @@ public interface IUserRepository
     /// for efficient display and selection purposes with complete user information including Guid.
     /// </remarks>
     Task<List<FullUser>> SearchStudentsRelatedToTeacherAsync(Guid teacherId, string studentUsernameQuery);
+    
+    Task<int?> GetIdByGuidAsync(Guid guid);
 }

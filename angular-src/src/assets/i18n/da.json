@@ -28,6 +28,7 @@
   "TMP_FAIL_LOAD_DETAIL": "Indlæsning af skabelondetaljer mislykkedes.",
   "TMP_DELETE_ERROR": "Fejl ved sletning af skabelon.",
   "TMP_UPDATE_ERROR": "Fejl ved opdatering af skabelon.",
+  "TMP_NO_ACTIVE_QUESTIONNAIRES": "Der er ingen aktive spørgeskemaer",
 
   "TMP_EDITOR_TITLE": "Skabelonredigering",
   "TMP_TEMPLATE_TITLE": "Skabelon Titel",
@@ -57,6 +58,8 @@
   "TMP_ANSWER": "Svar",
   "TMP_VIEW_RESULTS": "Se resultater",
   "TMP_TITLE_TEMPLATE_LIST": "Skabelonliste",
+  "FILTER_STUDENT_PENDING": "Elev mangler",
+  "FILTER_TEACHER_PENDING": "Lærer mangler",
 
   "TEMPLATES.DELETE.TITLE": "Bekræft Sletning",
   "TEMPLATES.DELETE.MSG": "Er du sikker på, at du vil slette denne skabelon? Denne handling vil slette relaterede data.",
@@ -219,7 +222,8 @@
     "CUSTOM_ANSWER": "Brugerdefineret svar",
     "CUSTOM_RESPONSES": "Brugerdefinerede svar:",
     "NO_OPTIONS_AVAILABLE": "Ingen valgmuligheder tilgængelige for dette spørgsmål",
-    "SCROLL_HINT": "Scroll horisontalt for at se alle valgmuligheder →"
+    "SCROLL_HINT": "Scroll horisontalt for at se alle valgmuligheder →",
+    "DROPDOWN_SELECT_STUDENT": "Vælg Elev"
   },
 
   "RESULT_HISTORY": {
@@ -247,5 +251,4 @@
     "OPEN_PDF_SHORT": "Åbn",
     "DOWNLOAD_PDF_SHORT": "Download"
   }
-
 }
