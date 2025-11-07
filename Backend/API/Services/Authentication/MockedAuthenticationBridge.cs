@@ -1,7 +1,8 @@
 using System.Reflection;
+using System.Text.Json;
 using API.FieldMappers;
 using API.Mock;
-using Settings.Models;
+using Database.Enums;
 
 namespace API.Services.Authentication;
 
@@ -17,17 +18,20 @@ namespace API.Services.Authentication;
 /// The class automatically authenticates using service account credentials when performing search operations
 /// if not already authenticated.
 /// </remarks>
-public class MockedAuthenticationBridge(CacheService cacheService, IConfiguration configuration) : BaseAuthenticationBridge(new MockFieldMappingProvider())
+public class MockedAuthenticationBridge(CacheService cacheService) : BaseAuthenticationBridge(new MockFieldMappingProvider())
 {
     private readonly CacheService _CacheService = cacheService;
-    private readonly string _MockUserdataFile = "./mocked_user_data.json";
     private bool _Authenticated;
-    private readonly LDAPSettings _LdapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
+    private readonly List<MockedUser> _MockedUsers = JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText("./mocked_user_data.json")) ?? throw new InvalidOperationException("Mocked user data file is missing or invalid.");
 
     public override void Authenticate(string username, string password)
     {
-        var users = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile));
-        if (users != null && users.Count != 0 && users.Any(u => u.Username == username && u.Password == password))
+        if (UsernameIsRole(username))
+        {
+            username = ConvertRoleToUsername(username);
+        }
+
+        if (_MockedUsers.Count != 0 && _MockedUsers.Any(u => u.Username == username && u.Password == password))
         {
             _Authenticated = true;
         }
@@ -41,8 +45,12 @@ public class MockedAuthenticationBridge(CacheService cacheService, IConfiguratio
     {
         EnsureAuthentication();
 
-        List<MockedUser> mockedUsers = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile)) ?? [];
-        MockedUser? mockedUser = mockedUsers.SingleOrDefault(u => u.Username == username);
+        if (UsernameIsRole(username))
+        {
+            username = ConvertRoleToUsername(username);
+        }
+
+        MockedUser? mockedUser = _MockedUsers.SingleOrDefault(u => u.Username == username);
 
         if (mockedUser == null)
         {
@@ -58,8 +66,7 @@ public class MockedAuthenticationBridge(CacheService cacheService, IConfiguratio
     {
         EnsureAuthentication();
 
-        List<MockedUser> mockedUsers = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile)) ?? [];
-        string? group = mockedUsers.Where(u => u.Role.ToString().Contains(groupName)).Select(u => u.Role.ToString()).SingleOrDefault();
+        string? group = _MockedUsers.Where(u => u.Role.ToString().Contains(groupName)).Select(u => u.Role.ToString()).SingleOrDefault();
 
         if (group == null)
         {
@@ -78,8 +85,7 @@ public class MockedAuthenticationBridge(CacheService cacheService, IConfiguratio
     {
         EnsureAuthentication();
 
-        List<MockedUser> mockedUsers = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile)) ?? [];
-        MockedUser? mockedUser = mockedUsers.SingleOrDefault(u => u.Id == Guid.Parse(id));
+        MockedUser? mockedUser = _MockedUsers.SingleOrDefault(u => u.Id == Guid.Parse(id));
 
         if (mockedUser == null)
         {
@@ -95,9 +101,8 @@ public class MockedAuthenticationBridge(CacheService cacheService, IConfiguratio
     {
         EnsureAuthentication();
 
-        List<MockedUser> mockedUsers = System.Text.Json.JsonSerializer.Deserialize<List<MockedUser>>(File.ReadAllText(_MockUserdataFile)) ?? [];
 
-        IEnumerable<MockedUser> filteredUsers = mockedUsers.Where(u => u.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
+        IEnumerable<MockedUser> filteredUsers = _MockedUsers.Where(u => u.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrEmpty(userRole))
         {
@@ -170,7 +175,56 @@ public class MockedAuthenticationBridge(CacheService cacheService, IConfiguratio
     {
         if (!_Authenticated)
         {
-            Authenticate(_LdapSettings.SA, _LdapSettings.SAPassword);
+            // No need for actual credentials in mocked authentication
+            _Authenticated = true;
         }
+    }
+
+    private string ConvertRoleToUsername(string role)
+    {
+        UserRoles? userRole = role.ToLower() switch
+        {
+            var r when r.StartsWith(UserRoles.Admin.ToString(), StringComparison.CurrentCultureIgnoreCase) => UserRoles.Admin,
+            var r when r.StartsWith(UserRoles.Student.ToString(), StringComparison.CurrentCultureIgnoreCase) => UserRoles.Student,
+            var r when r.StartsWith(UserRoles.Teacher.ToString(), StringComparison.CurrentCultureIgnoreCase) => UserRoles.Teacher,
+            _ => null
+        };
+
+        if (userRole is not null)
+        {
+            IEnumerable<MockedUser> query = _MockedUsers.Where(u => u.Role == userRole);
+            if (UsernameEndsWithNumber(role, out int number))
+            {
+                // admin and admin1 should return the first admin user, admin2 the second, and so on
+                query = query.Skip(number - 1);
+            }
+            return query.Select(u => u.Username).FirstOrDefault() ?? throw new InvalidOperationException("No user found for the specified role.");
+        }
+
+        throw new InvalidOperationException("Invalid role specified.");
+    }
+
+    private static bool UsernameIsRole(string username)
+    {
+        return username.Contains(UserRoles.Admin.ToString(), StringComparison.InvariantCultureIgnoreCase) ||
+               username.Contains(UserRoles.Student.ToString(), StringComparison.InvariantCultureIgnoreCase) ||
+               username.Contains(UserRoles.Teacher.ToString(), StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    private static bool UsernameEndsWithNumber(string username, out int number)
+    {
+        number = 0;
+        for (int i = username.Length - 1; i >= 0; i--)
+        {
+            if (char.IsDigit(username[i]))
+            {
+                number += (username[i] - '0') * (int)Math.Pow(10, username.Length - 1 - i);
+            }
+            else
+            {
+                break;
+            }
+        }
+        return number > 0;
     }
 }
