@@ -98,4 +98,6 @@ public interface IUserRepository
     /// The GUID should typically come from an external identity provider like Active Directory.
     /// </remarks>
     Task AddTeacherAsync(UserAdd teacher);
+
+    Task<int?> GetIdByGuidAsync(Guid guid);
 }

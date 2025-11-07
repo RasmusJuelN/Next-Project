@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ActiveQuestionnaireResponse } from '../models/dashboard.model';
+import { ActiveQuestionnaireResponse, QuestionnaireGroupResponse } from '../models/dashboard.model';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
@@ -64,5 +64,25 @@ export class TeacherService {
       params
     );
   }
-  
+
+  getQuestionnaireGroups(
+  pageSize: number,
+  queryCursor: string | null,
+  searchTitle: string,
+  filterPendingStudent: boolean,
+  filterPendingTeacher: boolean
+): Observable<QuestionnaireGroupResponse> {
+  let params = new HttpParams().set('pageSize', pageSize.toString());
+  if (queryCursor) params = params.set('queryCursor', queryCursor);
+  if (searchTitle) params = params.set('title', searchTitle);
+  if (filterPendingStudent) params = params.set('pendingStudent', 'true');
+  if (filterPendingTeacher) params = params.set('pendingTeacher', 'true');
+
+  return this.apiService.get<QuestionnaireGroupResponse>(
+    `${this.apiUrl}/activequestionnaires/grouped`,
+    params
+  );
+}
+
+
 }

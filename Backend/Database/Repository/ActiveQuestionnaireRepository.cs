@@ -617,5 +617,31 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
                 }).ToList()
             }).ToList()
         };
+
+
+    }
+
+    /// <summary>
+    /// Gets all completed active questionnaires in the same group
+    /// </summary>
+    public async Task<List<ActiveQuestionnaireBase>> GetCompletedQuestionnairesByGroupAsync(Guid activeQuestionnaireId)
+    {
+        var sourceQuestionnaire = await _context.Set<ActiveQuestionnaireModel>()
+            .Where(aq => aq.Id == activeQuestionnaireId)
+            .Select(aq => new { aq.GroupId })
+            .FirstOrDefaultAsync();
+
+        if (sourceQuestionnaire == null)
+            return new List<ActiveQuestionnaireBase>();
+
+        var completedQuestionnaires = await _context.Set<ActiveQuestionnaireModel>()
+            .Where(aq => aq.GroupId == sourceQuestionnaire.GroupId
+                      && aq.StudentCompletedAt != null
+                      && aq.TeacherCompletedAt != null)
+            .Include(aq => aq.Student)
+            .Include(aq => aq.Teacher)
+            .ToListAsync();
+
+        return completedQuestionnaires.Select(aq => aq.ToBaseDto()).ToList();
     }
 }

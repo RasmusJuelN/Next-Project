@@ -104,7 +104,7 @@ export class ActiveListComponent implements OnInit {
       nextCursor,
       this.searchTitle,
       this.filterPendingStudent,
-      this.filterPendingTeacher  // NEW
+      this.filterPendingTeacher 
     )
     .subscribe({
       next: (res) => {

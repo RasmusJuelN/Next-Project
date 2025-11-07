@@ -64,6 +64,12 @@ namespace Database.Repository
         {
             return await _context.Set<QuestionnaireGroupModel>().FindAsync(groupId);
         }
+        public async Task<List<QuestionnaireGroupModel>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _context.Set<QuestionnaireGroupModel>()
+                .Where(g => ids.Contains(g.GroupId))
+                .ToListAsync();
+        }
 
         /// <summary>
         /// Retrieves all questionnaire groups with their related questionnaires,
@@ -112,65 +118,81 @@ namespace Database.Repository
         /// and group ID as continuation markers, avoiding performance issues with large offsets.
         /// Related templates, students, and teachers are eagerly loaded for immediate use.
         /// </remarks>
-        public async Task<(List<QuestionnaireGroupModel>, int)> PaginationQueryWithKeyset(
-            int amount,
-            QuestionnaireGroupOrderingOptions sortOrder,
-            Guid? cursorIdPosition = null,
-            DateTime? cursorCreatedAtPosition = null,
-            string? titleQuery = null,
-            Guid? groupId = null,
-            bool? pendingStudent = false,
-            bool? pendingTeacher = false)
-        {
-            IQueryable<QuestionnaireGroupModel> query = _genericRepository.GetAsQueryable();
+public async Task<(List<QuestionnaireGroupModel>, int)> PaginationQueryWithKeyset(
+    int amount,
+    QuestionnaireGroupOrderingOptions sortOrder,
+    Guid? cursorIdPosition = null,
+    DateTime? cursorCreatedAtPosition = null,
+    string? titleQuery = null,
+    Guid? groupId = null,
+    bool? pendingStudent = false,
+    bool? pendingTeacher = false,
+    int? teacherId = null)
+{
+    IQueryable<QuestionnaireGroupModel> query = _genericRepository.GetAsQueryable();
 
-            query = sortOrder.ApplyQueryOrdering(query);
+    query = sortOrder.ApplyQueryOrdering(query);
 
-            if (!string.IsNullOrEmpty(titleQuery))
-            {
-                query = query.Where(g => g.Name.Contains(titleQuery));
-            }
+    if (!string.IsNullOrEmpty(titleQuery))
+    {
+        query = query.Where(g => g.Name.Contains(titleQuery));
+    }
 
-            if (groupId is not null)
-            {
-                query = query.Where(g => g.GroupId == groupId);
-            }
+    if (groupId is not null)
+    {
+        query = query.Where(g => g.GroupId == groupId);
+    }
 
-            if (pendingStudent == true)
-            query = query.Where(g => g.Questionnaires.Any(q => !q.StudentCompletedAt.HasValue));
+    if (pendingStudent == true)
+        query = query.Where(g => g.Questionnaires.Any(q => !q.StudentCompletedAt.HasValue));
             
-            if (pendingTeacher == true)
-            query = query.Where(g => g.Questionnaires.Any(q => !q.TeacherCompletedAt.HasValue));
+    if (pendingTeacher == true)
+        query = query.Where(g => g.Questionnaires.Any(q => !q.TeacherCompletedAt.HasValue));
 
-            int totalCount = await query.CountAsync();
+    if (teacherId.HasValue)
+    {
+        query = query.Where(g => g.Questionnaires.Any(q => q.TeacherFK == teacherId.Value));
+    }
 
-            if (cursorIdPosition is not null && cursorCreatedAtPosition is not null)
-            {
-                if (sortOrder == QuestionnaireGroupOrderingOptions.CreatedAtAsc)
-                {
-                    query = query.Where(g =>
-                        g.CreatedAt > cursorCreatedAtPosition
-                        || (g.CreatedAt == cursorCreatedAtPosition && g.GroupId > cursorIdPosition));
-                }
-                else
-                {
-                    query = query.Where(g =>
-                        g.CreatedAt < cursorCreatedAtPosition
-                        || (g.CreatedAt == cursorCreatedAtPosition && g.GroupId < cursorIdPosition));
-                }
-            }
+    int totalCount = await query.CountAsync();
 
-            List<QuestionnaireGroupModel> groupEntities = await query
-                .Include(g => g.Template)
-                .Include(g => g.Questionnaires)
-                    .ThenInclude(q => q.Student)
-                .Include(g => g.Questionnaires)
-                    .ThenInclude(q => q.Teacher)
-                .Take(amount)
-                .ToListAsync();
-
-            return (groupEntities, totalCount);
+    if (cursorIdPosition is not null && cursorCreatedAtPosition is not null)
+    {
+        if (sortOrder == QuestionnaireGroupOrderingOptions.CreatedAtAsc)
+        {
+            query = query.Where(g =>
+                g.CreatedAt > cursorCreatedAtPosition
+                || (g.CreatedAt == cursorCreatedAtPosition && g.GroupId > cursorIdPosition));
         }
+        else
+        {
+            query = query.Where(g =>
+                g.CreatedAt < cursorCreatedAtPosition
+                || (g.CreatedAt == cursorCreatedAtPosition && g.GroupId < cursorIdPosition));
+        }
+    }
+
+    List<QuestionnaireGroupModel> groupEntities = await query
+        .Include(g => g.Template)
+        .Include(g => g.Questionnaires)
+            .ThenInclude(q => q.Student)
+        .Include(g => g.Questionnaires)
+            .ThenInclude(q => q.Teacher)
+        .Take(amount)
+        .ToListAsync();
+
+    if (teacherId.HasValue)
+    {
+        foreach (var grp in groupEntities)
+        {
+            grp.Questionnaires = grp.Questionnaires
+                .Where(q => q.TeacherFK == teacherId.Value)
+                .ToList();
+        }
+    }
+
+    return (groupEntities, totalCount);
+}
 
 
 
