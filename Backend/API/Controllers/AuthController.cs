@@ -149,7 +149,7 @@ namespace API.Controllers
                 JWTUser jWTUser = new()
                 {
                     Guid = userGuid,
-                    Username = userLogin.Username,
+                    Username = ldapUser.Username,
                     Name = ldapUser.Name,
                     Role = userRole,
                     Permissions = (int)permissions
