@@ -2,7 +2,7 @@
 
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">{{ 'RESULT_HISTORY.TITLE' | translate }}</h1>
+    <h1 class="text-2xl font-bold text-primary_dark_blue">{{ 'RESULT_HISTORY.TITLE' | translate }}</h1>
   </div>
 
   <!-- Search Section -->
@@ -10,7 +10,7 @@
 
     <!-- Student Search -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">
+      <label class="block text-sm font-medium text-primary_dark_blue">
         {{ 'RESULT_HISTORY.SELECT_STUDENT' | translate }}
       </label>
       <div class="relative" data-search="student">
@@ -20,27 +20,27 @@
           (input)="onInputChange(searchEnum.Student, $any($event.target).value)"
           (focus)="showDropdown[searchEnum.Student] = true"
           placeholder="{{ 'RESULT_HISTORY.SEARCH_STUDENTS' | translate }}"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full px-3 py-2 border border-primary_orange_1/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 transition-colors duration-150"
         />
         
         <!-- Selected Student Chip -->
         <div *ngIf="student.selected" class="mt-2">
-          <div class="flex items-center justify-between bg-blue-50 p-2 rounded-lg">
-            <span class="text-sm font-medium">{{ student.selected.fullName }}</span>
+          <div class="flex items-center justify-between bg-primary_orange_light/20 border border-primary_orange_1 p-2 rounded-lg">
+            <span class="text-sm font-medium text-primary_dark_blue">{{ student.selected.fullName }}</span>
             <button 
               (click)="clearSelected(searchEnum.Student)"
-              class="text-red-500 hover:text-red-700">×</button>
+              class="text-red-500 hover:text-red-700 ml-2">×</button>
           </div>
         </div>
 
         <!-- Dropdown Results -->
         <div *ngIf="showDropdown[searchEnum.Student] && student.results.length"
-             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+             class="absolute z-10 w-full mt-1 bg-primary_background_white border border-primary_orange_1 rounded-lg shadow-lg max-h-60 overflow-y-auto">
           <div *ngFor="let user of student.results" 
                (click)="select(searchEnum.Student, user)"
-               class="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0">
-            <div class="font-medium">{{ user.fullName }}</div>
-            <div class="text-sm text-gray-500">{{ user.userName }}</div>
+               class="px-3 py-2 hover:bg-primary_orange_light/10 cursor-pointer border-b border-primary_orange_1/20 last:border-b-0 transition-colors duration-150">
+            <div class="font-medium text-primary_dark_blue">{{ user.fullName }}</div>
+            <div class="text-sm text-gray-600">{{ user.userName }}</div>
           </div>
         </div>
       </div>
@@ -48,13 +48,13 @@
 
     <!-- Template Search -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">
+      <label class="block text-sm font-medium text-primary_dark_blue">
         {{ 'RESULT_HISTORY.SELECT_QUESTIONNAIRE' | translate }}
       </label>
       
       <!-- Helper text when no student selected -->
-      <div *ngIf="!student.selected" class="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-        <span class="font-medium">{{ 'RESULT_HISTORY.SELECT_STUDENT_FIRST' | translate }}</span>
+      <div *ngIf="!student.selected" class="text-sm text-gray-600 bg-secondary_background_gray/50 border border-primary_orange_1/30 p-3 rounded-lg">
+        <span class="font-medium text-primary_dark_blue">{{ 'RESULT_HISTORY.SELECT_STUDENT_FIRST' | translate }}</span>
         <br>{{ 'RESULT_HISTORY.SELECT_STUDENT_FIRST_DESC' | translate }}
       </div>
 
@@ -62,42 +62,42 @@
       <div *ngIf="student.selected" class="relative" data-search="template">
         
         <!-- Available templates info -->
-        <div *ngIf="template.results.length > 0" class="text-sm text-blue-600 bg-blue-50 p-2 rounded-lg mb-2">
-          {{ template.results.length }} shared questionnaire(s) available with {{ student.selected.fullName }}
+        <div *ngIf="template.results.length > 0" class="text-sm text-primary_dark_blue bg-primary_orange_light/20 border border-primary_orange_1 p-2 rounded-lg mb-2">
+          <span class="font-medium">{{ template.results.length }}</span> {{ 'RESULT_HISTORY.SHARED_QUESTIONNAIRES_AVAILABLE' | translate }} <span class="font-medium">{{ student.selected.fullName }}</span>
         </div>
         
         <!-- No shared templates message -->
-        <div *ngIf="template.error" class="text-sm text-orange-600 bg-orange-50 p-2 rounded-lg mb-2">
+        <div *ngIf="template.error" class="text-sm text-orange-700 bg-orange-50 border border-orange-200 p-2 rounded-lg mb-2">
           {{ template.error }}
         </div>
 
         <!-- Template loading -->
-        <div *ngIf="template.loading" class="text-sm text-gray-500 bg-gray-50 p-2 rounded-lg mb-2 flex items-center">
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-2"></div>
-          Loading shared questionnaires...
+        <div *ngIf="template.loading" class="text-sm text-gray-600 bg-secondary_background_gray/50 border border-primary_orange_1/30 p-2 rounded-lg mb-2 flex items-center">
+          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary_orange_1 mr-2"></div>
+          {{ 'RESULT_HISTORY.LOADING_SHARED_QUESTIONNAIRES' | translate }}
         </div>
 
         <!-- Selected Template Chip -->
         <div *ngIf="template.selected" class="mt-2">
-          <div class="flex items-center justify-between bg-green-50 p-2 rounded-lg">
+          <div class="flex items-center justify-between bg-primary_orange_1 text-white p-2 rounded-lg">
             <span class="text-sm font-medium">{{ template.selected.title }}</span>
             <button 
               (click)="clearSelected(searchEnum.Template)"
-              class="text-red-500 hover:text-red-700">×</button>
+              class="text-white/80 hover:text-white ml-2">×</button>
           </div>
         </div>
 
         <!-- Available Templates List -->
         <div *ngIf="!template.selected && template.results.length > 0" 
-             class="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg">
-          <div class="p-2 bg-gray-50 text-sm font-medium text-gray-700 border-b">
-            Select a shared questionnaire:
+             class="space-y-2 max-h-60 overflow-y-auto border border-primary_orange_1 rounded-lg bg-primary_background_white">
+          <div class="p-2 bg-primary_orange_light/20 text-sm font-medium text-primary_dark_blue border-b border-primary_orange_1/30">
+            {{ 'RESULT_HISTORY.SELECT_SHARED_QUESTIONNAIRE' | translate }}
           </div>
           <div *ngFor="let tmpl of template.results" 
                (click)="select(searchEnum.Template, tmpl)"
-               class="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0">
-            <div class="font-medium">{{ tmpl.title }}</div>
-            <div class="text-sm text-gray-500">Shared completion with {{ student.selected.fullName }}</div>
+               class="px-3 py-2 hover:bg-primary_orange_light/10 cursor-pointer border-b border-primary_orange_1/20 last:border-b-0 transition-colors duration-150">
+            <div class="font-medium text-primary_dark_blue">{{ tmpl.title }}</div>
+            <div class="text-sm text-gray-600">{{ 'RESULT_HISTORY.SHARED_COMPLETION_WITH' | translate }} {{ student.selected.fullName }}</div>
           </div>
         </div>
       </div>
@@ -106,8 +106,8 @@
 
   <!-- Loading -->
   <div *ngIf="isLoading" class="flex justify-center items-center py-8">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-    <span class="ml-2 text-gray-600">{{ 'COMMON.LOADING' | translate }}</span>
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary_orange_1"></div>
+    <span class="ml-2 text-primary_dark_blue">{{ 'COMMON.LOADING' | translate }}</span>
   </div>
 
   <!-- Error -->
@@ -205,8 +205,8 @@
         (click)="isFullView = !isFullView"
         class="bg-primary_dark_blue text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_dark_light hover:text-white flex-1 sm:flex-none min-w-0 transition"
       >
-        <span class="hidden sm:inline">{{ isFullView ? translate.instant('RESULT_HISTORY.COMPACT_VIEW') : translate.instant('RESULT_HISTORY.FULL_VIEW') }}</span>
-        <span class="sm:hidden">{{ isFullView ? translate.instant('RESULT_HISTORY.COMPACT_VIEW_SHORT') : translate.instant('RESULT_HISTORY.FULL_VIEW_SHORT') }}</span>
+        <span class="hidden sm:inline">{{ isFullView ? ('RESULT_HISTORY.COMPACT_VIEW' | translate) : ('RESULT_HISTORY.FULL_VIEW' | translate) }}</span>
+        <span class="sm:hidden">{{ isFullView ? ('RESULT_HISTORY.COMPACT_VIEW_SHORT' | translate) : ('RESULT_HISTORY.FULL_VIEW_SHORT' | translate) }}</span>
       </button>
       
   </div>

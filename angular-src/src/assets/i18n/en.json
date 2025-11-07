@@ -230,9 +230,19 @@
     "NO_RESULTS_DESC": "No results found for the selected student and questionnaire combination.",
     "INSTRUCTIONS": "Select a student and questionnaire to view results",
     "INSTRUCTIONS_DESC": "Use the search fields above to find and select a student and questionnaire template to view the historical results.",
+    "SELECT_STUDENT_FIRST": "Please select a student first",
+    "SELECT_STUDENT_FIRST_DESC": "You need to select a student before you can choose a questionnaire template.",
+    "SHARED_QUESTIONNAIRES_AVAILABLE": "shared questionnaire(s) available with",
+    "LOADING_SHARED_QUESTIONNAIRES": "Loading shared questionnaires...",
+    "SELECT_SHARED_QUESTIONNAIRE": "Select a shared questionnaire:",
+    "SHARED_COMPLETION_WITH": "Shared completion with",
     "FULL_VIEW": "Full View",
     "COMPACT_VIEW": "Compact View",
+    "FULL_VIEW_SHORT": "Full",
+    "COMPACT_VIEW_SHORT": "Compact",
     "OPEN_PDF": "Open PDF",
-    "DOWNLOAD_PDF": "Download PDF"
+    "DOWNLOAD_PDF": "Download PDF",
+    "OPEN_PDF_SHORT": "Open",
+    "DOWNLOAD_PDF_SHORT": "Download"
   }
 }

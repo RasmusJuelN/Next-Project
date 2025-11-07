@@ -196,6 +196,10 @@ export class ResultHistoryComponent implements OnInit {
     state.query = '';
     this.history = null;
     this.currentAttemptIndex = 0;
+
+    if (type === SearchEnum.Template && this.student.selected) {
+      this.loadAvailableTemplates();
+    }
   }
 
   /**

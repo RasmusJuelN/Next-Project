@@ -232,10 +232,20 @@
     "NO_RESULTS_DESC": "Ingen resultater fundet for den valgte elev og spørgeskema kombination.",
     "INSTRUCTIONS": "Vælg en elev og et spørgeskema for at se resultater",
     "INSTRUCTIONS_DESC": "Brug søgefelterne ovenfor til at finde og vælge en elev og en spørgeskema skabelon for at se de historiske resultater.",
+    "SELECT_STUDENT_FIRST": "Vælg venligst en elev først",
+    "SELECT_STUDENT_FIRST_DESC": "Du skal vælge en elev, før du kan vælge en spørgeskema skabelon.",
+    "SHARED_QUESTIONNAIRES_AVAILABLE": "delte spørgeskema(er) tilgængelige med",
+    "LOADING_SHARED_QUESTIONNAIRES": "Indlæser delte spørgeskemaer...",
+    "SELECT_SHARED_QUESTIONNAIRE": "Vælg et delt spørgeskema:",
+    "SHARED_COMPLETION_WITH": "Delt færdiggørelse med",
     "FULL_VIEW": "Fuld visning",
     "COMPACT_VIEW": "Komprimeret visning",
+    "FULL_VIEW_SHORT": "Fuld",
+    "COMPACT_VIEW_SHORT": "Kompakt",
     "OPEN_PDF": "Åbn PDF",
-    "DOWNLOAD_PDF": "Download PDF"
+    "DOWNLOAD_PDF": "Download PDF",
+    "OPEN_PDF_SHORT": "Åbn",
+    "DOWNLOAD_PDF_SHORT": "Download"
   }
 
 }
