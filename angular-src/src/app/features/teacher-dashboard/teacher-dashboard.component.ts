@@ -53,8 +53,7 @@ export class TeacherDashboardComponent implements OnInit {
   filterTeacherCompleted = false;
 
   // Data to display
-  displayedQuestionnaires: ActiveQuestionnaireBase[] = [];
-
+  // displayedQuestionnaires: ActiveQuestionnaireBase[] = [];
   displayedGroups: {
     groupId: string;
     groupName: string; 

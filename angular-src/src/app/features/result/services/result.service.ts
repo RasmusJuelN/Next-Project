@@ -67,6 +67,12 @@ export class ResultService {
      */
   }
 
+  getCompletedStudentsByGroup(activeQuestionnaireId: string) {
+    return this.apiService.get<Array<{ id: string; student: { fullName: string; userName?: string } }>>(
+      `${this.apiUrl}/${activeQuestionnaireId}/completedStudentsByGroup`
+    );
+  }
+
   private isOptionSelectedByResponse(response: string, isCustom: boolean, option: any, index: number): boolean {
     if (isCustom || !response) return false;
     

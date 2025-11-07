@@ -35,7 +35,7 @@
             [(ngModel)]="filterStudentCompleted"
             (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">{{'TMP_STUDENT_DONE'| translate}}</span>
+          <span class="text-sm">{{'FILTER_STUDENT_PENDING'| translate}}</span>
         </label>
         <label class="flex items-center gap-2 text-primary_dark_blue">
           <input
@@ -43,7 +43,7 @@
             [(ngModel)]="filterTeacherCompleted"
             (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">{{'TMP_TEACHER_DONE'| translate}}</span>
+          <span class="text-sm">{{'FILTER_TEACHER_PENDING'| translate}}</span>
         </label>
       </div>
 
@@ -149,6 +149,13 @@
 
                 <div class="flex gap-2 items-center mt-3 sm:mt-0">
                   <button
+                    *ngIf="!q.studentCompletedAt"
+                    (click)="copyAnswersUrl(q.id)"
+                    class="ml-2 cursor-pointer text-sm text-primary_orange_1 font-normal hover:text-primary_orange_light underline underline-offset-2 transition"
+                  >
+                    {{'TMP_COPY_LINK' | translate}}
+                  </button>
+                  <button
                     *ngIf="!q.teacherCompletedAt"
                     [routerLink]="['/answer', q.id]"
                     class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
@@ -163,13 +170,7 @@
                     {{ 'TMP_VIEW_RESULTS' | translate }}
                   </button>
 
-                  <button
-                    *ngIf="!q.teacherCompletedAt || !q.studentCompletedAt"
-                    (click)="copyAnswersUrl(q.id)"
-                    class="ml-2 cursor-pointer text-primary_orange_1 font-medium hover:text-primary_orange_light underline underline-offset-2 transition"
-                  >
-                    {{'TMP_COPY_LINK' | translate}}
-                  </button>
+                  
                 </div>
               </li>
             </ul>

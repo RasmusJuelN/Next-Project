@@ -229,10 +229,9 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
         {
             Groups = resultGroups,
             QueryCursor = nextCursor,
-            TotalCount = totalCount // number of groups
+            TotalCount = totalCount // total number of groups
         };
     }
-    // ...existing code...
 
     /// <summary>
     /// Retrieves a list of active questionnaires that are pending completion by the specified user.

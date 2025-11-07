@@ -103,3 +103,9 @@ public record class ActiveQuestionnaireAdminFull : ActiveQuestionnaireAdminBase
 {
     public required List<QuestionnaireTemplateQuestion> Questions { get; set; }
 }
+
+public record class CompletedStudentDto
+{
+    public required Guid Id { get; set; }
+    public required UserBase Student { get; set; }
+}

@@ -37,7 +37,24 @@
         <span class="hidden sm:inline">{{ translate.instant('RESULT.DOWNLOAD_PDF') }}</span>
         <span class="sm:hidden">{{ translate.instant('RESULT.DOWNLOAD_PDF_SHORT') }}</span>
       </button>
+      <!-- Student Selection Dropdown -->
+  
     </div>
+    
+  </div>
+  <div class=" flex items-center gap-3 float-end">
+    <label for="student-select" class="text-sm font-medium text-gray-700">
+      {{ 'RESULT.DROPDOWN_SELECT_STUDENT' | translate }}:
+    </label>
+    <select 
+      id="student-select"
+      [(ngModel)]="selectedCompletionId"
+      (change)="onStudentSelect($event)"
+      class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+      <option *ngFor="let student of completedStudents" [value]="student.id">
+        {{ student.student.fullName }}{{ student.student.userName ? ' (' + student.student.userName + ')' : '' }}
+      </option>
+    </select>
   </div>
 
   <!-- Use the reusable ShowResultComponent without its own container -->
@@ -51,8 +68,8 @@
 
 
 <!-- Chart Section (if present) -->
-<div class="flex justify-center mt-8 w-full max-w-7xl mx-auto" *ngIf="chartOptions">
+<!-- <div class="flex justify-center mt-8 w-full max-w-7xl mx-auto" *ngIf="chartOptions">
   <div class="flex justify-center">
     <ag-charts class="w-[1000px] h-[500px]" [options]="chartOptions"></ag-charts>
   </div>
-</div>
+</div> -->
