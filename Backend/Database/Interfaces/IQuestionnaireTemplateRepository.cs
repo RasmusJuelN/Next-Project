@@ -104,4 +104,18 @@ public interface IQuestionnaireTemplateRepository
         TemplateStatus? templateStatus);
         Task<QuestionnaireTemplate> FinalizeAsync(Guid id);
 
+    /// <summary>
+    /// Retrieves questionnaire template bases that both a specific student and teacher have answered.
+    /// </summary>
+    /// <param name="studentId">The unique identifier (GUID) of the student.</param>
+    /// <param name="teacherId">The unique identifier (GUID) of the teacher.</param>
+    /// <returns>A list of QuestionnaireTemplateBase DTOs representing templates where both participants have completed their responses.</returns>
+    /// <remarks>
+    /// This method finds all questionnaire templates for which both the specified student and teacher have completed
+    /// their portions of active questionnaires. Only templates with completed responses from both participants are included.
+    /// Returns lightweight template base DTOs for efficient display and further processing.
+    /// Useful for result history and tracking shared questionnaire completion between student-teacher pairs.
+    /// </remarks>
+    Task<List<QuestionnaireTemplateBase>> GetTemplateBasesAnsweredByStudentAsync(Guid studentId, Guid teacherId);
+
 }

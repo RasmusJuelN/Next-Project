@@ -51,16 +51,32 @@
       <label class="block text-sm font-medium text-gray-700">
         {{ 'RESULT_HISTORY.SELECT_QUESTIONNAIRE' | translate }}
       </label>
-      <div class="relative" data-search="template">
-        <input
-          type="text"
-          [value]="template.query"
-          (input)="onInputChange(searchEnum.Template, $any($event.target).value)"
-          (focus)="showDropdown[searchEnum.Template] = true"
-          placeholder="{{ 'RESULT_HISTORY.SEARCH_QUESTIONNAIRES' | translate }}"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      
+      <!-- Helper text when no student selected -->
+      <div *ngIf="!student.selected" class="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+        <span class="font-medium">{{ 'RESULT_HISTORY.SELECT_STUDENT_FIRST' | translate }}</span>
+        <br>{{ 'RESULT_HISTORY.SELECT_STUDENT_FIRST_DESC' | translate }}
+      </div>
+
+      <!-- Template selection when student is selected -->
+      <div *ngIf="student.selected" class="relative" data-search="template">
         
+        <!-- Available templates info -->
+        <div *ngIf="template.results.length > 0" class="text-sm text-blue-600 bg-blue-50 p-2 rounded-lg mb-2">
+          {{ template.results.length }} shared questionnaire(s) available with {{ student.selected.fullName }}
+        </div>
+        
+        <!-- No shared templates message -->
+        <div *ngIf="template.error" class="text-sm text-orange-600 bg-orange-50 p-2 rounded-lg mb-2">
+          {{ template.error }}
+        </div>
+
+        <!-- Template loading -->
+        <div *ngIf="template.loading" class="text-sm text-gray-500 bg-gray-50 p-2 rounded-lg mb-2 flex items-center">
+          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-2"></div>
+          Loading shared questionnaires...
+        </div>
+
         <!-- Selected Template Chip -->
         <div *ngIf="template.selected" class="mt-2">
           <div class="flex items-center justify-between bg-green-50 p-2 rounded-lg">
@@ -71,14 +87,17 @@
           </div>
         </div>
 
-        <!-- Dropdown Results -->
-        <div *ngIf="showDropdown[searchEnum.Template] && template.results.length"
-             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <!-- Available Templates List -->
+        <div *ngIf="!template.selected && template.results.length > 0" 
+             class="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg">
+          <div class="p-2 bg-gray-50 text-sm font-medium text-gray-700 border-b">
+            Select a shared questionnaire:
+          </div>
           <div *ngFor="let tmpl of template.results" 
                (click)="select(searchEnum.Template, tmpl)"
                class="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0">
             <div class="font-medium">{{ tmpl.title }}</div>
-            <div class="text-sm text-gray-500">{{ tmpl.title }}</div>
+            <div class="text-sm text-gray-500">Shared completion with {{ student.selected.fullName }}</div>
           </div>
         </div>
       </div>

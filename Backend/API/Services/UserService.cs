@@ -6,6 +6,7 @@ using API.DTO.Responses.User;
 using API.Extensions;
 using API.Interfaces;
 using Database.DTO.ActiveQuestionnaire;
+using Database.DTO.User;
 
 namespace API.Services;
 
@@ -187,5 +188,22 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
     public async Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid userId)
     {
         return await _unitOfWork.ActiveQuestionnaire.GetPendingActiveQuestionnaires(userId);
+    }
+
+    /// <summary>
+    /// Searches for students related to a specific teacher by student username.
+    /// </summary>
+    /// <param name="teacherId">The unique identifier of the teacher.</param>
+    /// <param name="studentUsernameQuery">The student username or partial username to search for.</param>
+    /// <returns>A list of UserBase DTOs representing students related to the teacher that match the username query.</returns>
+    /// <remarks>
+    /// This method finds students who have active questionnaires assigned to the specified teacher
+    /// and whose username contains the search query. This ensures that teachers can only search
+    /// for students they are working with through questionnaires.
+    /// </remarks>
+    /// <exception cref="ArgumentException">Thrown when teacherId is invalid or studentUsernameQuery is null/empty.</exception>
+    public async Task<List<FullUser>> SearchStudentsRelatedToTeacherAsync(Guid teacherId, string studentUsernameQuery)
+    {
+        return await _unitOfWork.User.SearchStudentsRelatedToTeacherAsync(teacherId, studentUsernameQuery);
     }
 }
