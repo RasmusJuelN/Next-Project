@@ -5,6 +5,7 @@ using API.DTO.Responses.ActiveQuestionnaire;
 using API.DTO.Responses.User;
 using API.Exceptions;
 using API.Extensions;
+using API.Interfaces;
 using API.Services;
 using Database.DTO.ActiveQuestionnaire;
 using Microsoft.AspNetCore.Authorization;
@@ -19,9 +20,9 @@ namespace API.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController(UserService userService) : ControllerBase
+    public class UserController(IUserService userService) : ControllerBase
     {
-        private readonly UserService _userService = userService;
+        private readonly IUserService _userService = userService;
 
         /// <summary>
         /// Retrieves a paginated list of users from the LDAP directory with optional filtering.

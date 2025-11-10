@@ -117,7 +117,7 @@ namespace UnitTests.Services
                 CreatedAt = DateTime.UtcNow,
                 LastUpdated = DateTime.UtcNow,
                 IsLocked = false,
-                Questions = new List<QuestionnaireTemplateQuestion>()
+                Questions =  new List<QuestionnaireTemplateQuestion>()
             };
 
             var finalizedTemplate = template with { TemplateStatus = TemplateStatus.Finalized };

@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
 using API.Exceptions;
+using API.Interfaces;
 using API.Services;
 using Database.DTO.ActiveQuestionnaire;
 using Microsoft.AspNetCore.Authorization;
@@ -33,10 +34,10 @@ namespace API.Controllers
     [ApiController]
     public class ActiveQuestionnaireController : ControllerBase
     {
-        private readonly ActiveQuestionnaireService _questionnaireService;
+        private readonly IActiveQuestionnaireService _questionnaireService;
         private readonly ILogger _logger;
 
-        public ActiveQuestionnaireController(ActiveQuestionnaireService questionnaireService, ILoggerFactory loggerFactory)
+        public ActiveQuestionnaireController(IActiveQuestionnaireService questionnaireService, ILoggerFactory loggerFactory)
         {
             _questionnaireService = questionnaireService;
             _logger = loggerFactory.CreateLogger(GetType());

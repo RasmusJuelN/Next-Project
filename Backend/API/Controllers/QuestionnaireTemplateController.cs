@@ -1,6 +1,7 @@
 using API.DTO.Requests.QuestionnaireTemplate;
 using API.DTO.Responses.QuestionnaireTemplate;
 using API.Exceptions;
+using API.Interfaces;
 using API.Services;
 using Database.DTO.QuestionnaireTemplate;
 using Microsoft.AspNetCore.Authorization;
@@ -26,9 +27,9 @@ namespace API.Controllers
     [ApiController]
     public class QuestionnaireTemplateController : ControllerBase
     {
-        private readonly QuestionnaireTemplateService _questionnaireTemplateService;
+        private readonly IQuestionnaireTemplateService _questionnaireTemplateService;
 
-        public QuestionnaireTemplateController(QuestionnaireTemplateService questionnaireTemplateService)
+        public QuestionnaireTemplateController(IQuestionnaireTemplateService questionnaireTemplateService)
         {
             _questionnaireTemplateService = questionnaireTemplateService;
         }

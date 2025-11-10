@@ -22,9 +22,17 @@ namespace API.Services;
 /// </list>
 /// All operations are performed through the Unit of Work pattern to ensure transactional consistency.
 /// </remarks>
-public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
+//public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
+//{
+//    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+public class QuestionnaireTemplateService : IQuestionnaireTemplateService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public QuestionnaireTemplateService(IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+    }
 
 
     /// <summary>
