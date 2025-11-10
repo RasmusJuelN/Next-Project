@@ -3,3 +3,9 @@
 <ag-charts [options]="options"></ag-charts>
 
 </div>
+
+<div class="controls">
+  <button (click)="prevQuestion()" [disabled]="currentQuestionIndex === 0">◀ Forrige</button>
+  <span>Spørgsmål {{ currentQuestionIndex + 1 }} / {{ totalQuestions }}</span>
+  <button (click)="nextQuestion()" [disabled]="currentQuestionIndex === totalQuestions - 1">Næste ▶</button>
+</div>

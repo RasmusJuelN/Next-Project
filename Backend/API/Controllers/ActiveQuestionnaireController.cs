@@ -483,6 +483,27 @@ namespace API.Controllers
             return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid));
         }
 
+        [HttpGet("{studentid},{teacherid},{templateid}/getResponsesFromTeacherAndStudentAndTemplateWithDate")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<List<FullResponse>>> GetResponsesFromTeacherAndStudentAndTemplateWithDateAsync(Guid studentid, Guid teacherid, Guid templateid)
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
+                return Unauthorized();
+            }
+
+            List<FullResponse> response = await _questionnaireService.GetResponsesFromTeacherAndStudentAndTemplateWithDateAsync(studentid, teacherid, templateid);
+
+            return Ok(await _questionnaireService.GetResponsesFromTeacherAndStudentAndTemplateWithDateAsync(studentid,teacherid, templateid));
+        }
+
+
 
         /// <summary>
         /// Retrieves anonymised survey responses for a specific questionnaire.

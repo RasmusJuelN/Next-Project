@@ -46,10 +46,16 @@ export class DataCompareService {
     return this.apiService.get<any>(url);
   }
 
-  getQuestionaireDataByID(templateId:string)
+  getQuestionaireDataByID(activeQuestionnaireId:string)
   {
-    let url = `${environment.apiUrl}/active-questionnaire/${templateId}`;
+    let url = `${environment.apiUrl}/active-questionnaire/${activeQuestionnaireId}`;
     return this.apiService.get<any>(url);
   }
-}
 
+  getResponsesByID(studentId:string, teacherId:string, templateId:string)
+  {
+    let url = `${environment.apiUrl}/active-questionnaire/${studentId},${teacherId},${templateId}/getresponsesfromteacherandstudentandtemplatewithdate`;
+    return this.apiService.get<any>(url);
+
+  }
+}
