@@ -105,7 +105,7 @@ namespace API.Controllers
         /// This endpoint requires admin authorization and uses access token authentication.
         /// </remarks>
         [HttpGet("{id}")]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminAndTeacherOnly")]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]

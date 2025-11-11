@@ -14,6 +14,7 @@ export class DataCompareService {
    * Base API URL for active questionnaire endpoints
    */
   public apiUrl = `${environment.apiUrl}/active-questionnaire`;
+  public apiUrlTemplate = `${environment.apiUrl}/questionnaire-template`;
 
   /**
    * Injected API service for HTTP requests
@@ -52,10 +53,19 @@ export class DataCompareService {
     return this.apiService.get<any>(url);
   }
 
+  getQuestionareOptiontsByID(templateId:string)
+  {
+    let apiUrlTemplate = `${environment.apiUrl}/questionnaire-template/${templateId}`;
+    return this.apiService.get<any>(apiUrlTemplate);
+  }
+
   getResponsesByID(studentId:string, teacherId:string, templateId:string)
   {
     let url = `${environment.apiUrl}/active-questionnaire/${studentId},${teacherId},${templateId}/getresponsesfromteacherandstudentandtemplatewithdate`;
     return this.apiService.get<any>(url);
 
   }
+
+
+
 }

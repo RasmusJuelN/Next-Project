@@ -1,11 +1,10 @@
 <p>data-compare-overtime works!</p>
 <div class=" flex justify-center mt-8 w-full">
 <ag-charts [options]="options"></ag-charts>
-
-</div>
-
 <div class="controls">
   <button (click)="prevQuestion()" [disabled]="currentQuestionIndex === 0">◀ Forrige</button>
   <span>Spørgsmål {{ currentQuestionIndex + 1 }} / {{ totalQuestions }}</span>
   <button (click)="nextQuestion()" [disabled]="currentQuestionIndex === totalQuestions - 1">Næste ▶</button>
 </div>
+</div>
+
