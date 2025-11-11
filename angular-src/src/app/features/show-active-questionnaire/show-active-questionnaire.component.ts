@@ -9,11 +9,10 @@ import { Role } from '../../shared/models/user.model';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-show-active-questionnaire',
-  standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
-  templateUrl: './show-active-questionnaire.component.html',
-  styleUrls: ['./show-active-questionnaire.component.css']
+    selector: 'app-show-active-questionnaire',
+    imports: [CommonModule, RouterLink, TranslateModule],
+    templateUrl: './show-active-questionnaire.component.html',
+    styleUrls: ['./show-active-questionnaire.component.css']
 })
 export class ShowActiveQuestionnaireComponent {
   showActiveService = inject(ShowActiveService);

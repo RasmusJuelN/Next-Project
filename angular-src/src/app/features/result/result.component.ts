@@ -14,12 +14,11 @@ import { Subject, takeUntil } from "rxjs";
 
 
 @Component({
-  selector: "app-result",
-  standalone: true,
-  providers: [ResultService, PdfGenerationService],
-  imports: [CommonModule, AgCharts, RouterModule, FormsModule, TranslateModule, ShowResultComponent],
-  templateUrl: "./result.component.html",
-  template: `
+    selector: "app-result",
+    providers: [ResultService, PdfGenerationService],
+    imports: [CommonModule, AgCharts, RouterModule, FormsModule, TranslateModule, ShowResultComponent],
+    templateUrl: "./result.component.html",
+    template: `
     <button (click)="updateChart('stacked')">Stacked</button>
     <button (click)="updateChart('donut')">Donut</button>
     <ag-charts-angular
@@ -27,7 +26,7 @@ import { Subject, takeUntil } from "rxjs";
       [options]="chartOptions"
     ></ag-charts-angular>
   `,
-  styleUrls: ["./result.component.css"],
+    styleUrls: ["./result.component.css"]
 })
 export class ResultComponent implements OnInit, OnDestroy{
   result: Result | null = null;

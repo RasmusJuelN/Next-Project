@@ -25,11 +25,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
  * ```
  */
 @Component({
-  selector: 'app-modal',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './modal.component.html',
-  styleUrl: './modal.component.css'
+    selector: 'app-modal',
+    imports: [CommonModule],
+    templateUrl: './modal.component.html',
+    styleUrl: './modal.component.css'
 })
 export class ModalComponent {
   /** Modal title displayed at the top. */

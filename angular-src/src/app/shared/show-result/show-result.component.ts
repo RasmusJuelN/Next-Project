@@ -15,11 +15,10 @@ export interface ShowResultConfig {
 }
 
 @Component({
-  selector: 'app-show-result',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  templateUrl: './show-result.component.html',
-  styleUrl: './show-result.component.css'
+    selector: 'app-show-result',
+    imports: [CommonModule, TranslateModule],
+    templateUrl: './show-result.component.html',
+    styleUrl: './show-result.component.css'
 })
 export class ShowResultComponent {
   @Input() result: Result | null = null;

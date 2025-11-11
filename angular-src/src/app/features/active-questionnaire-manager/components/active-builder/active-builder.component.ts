@@ -22,11 +22,10 @@ interface TemplateSearchEntity extends SearchEntity<TemplateBase> {
 type SearchType = 'student' | 'teacher' | 'template';
 
 @Component({
-  selector: 'app-active-questionnaire-builder',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ActiveAnonymousBuilderComponent],
-  templateUrl: './active-builder.component.html',
-  styleUrls: ['./active-builder.component.css']
+    selector: 'app-active-questionnaire-builder',
+    imports: [CommonModule, FormsModule, ActiveAnonymousBuilderComponent],
+    templateUrl: './active-builder.component.html',
+    styleUrls: ['./active-builder.component.css']
 })
 export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);

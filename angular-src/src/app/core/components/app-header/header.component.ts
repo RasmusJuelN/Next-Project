@@ -21,18 +21,17 @@ import { LanguageSwitcherComponent } from "../language-switcher/language-switche
  * - Supporting multi-language navigation labels via `@ngx-translate/core`.
  */
 @Component({
-  selector: "app-header",
-  standalone: true,
-  imports: [
-    RouterLink,
-    RouterLinkActive,
-    CommonModule,
-    MenuSvgComponent,
-    TranslateModule,
-    LanguageSwitcherComponent,
-  ],
-  templateUrl: "./header.component.html",
-  styleUrls: ["./header.component.css"],
+    selector: "app-header",
+    imports: [
+        RouterLink,
+        RouterLinkActive,
+        CommonModule,
+        MenuSvgComponent,
+        TranslateModule,
+        LanguageSwitcherComponent,
+    ],
+    templateUrl: "./header.component.html",
+    styleUrls: ["./header.component.css"]
 })
 export class HeaderComponent {
   /**

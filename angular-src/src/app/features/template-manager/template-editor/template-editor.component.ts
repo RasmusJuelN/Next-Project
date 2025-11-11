@@ -19,11 +19,10 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
  * - Switching to readonly mode if the template is finalized.
  */
 @Component({
-  selector: 'app-template-editor',
-  standalone: true,
-  imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent, TranslateModule],
-  templateUrl: './template-editor.component.html',
-  styleUrl: './template-editor.component.css'
+    selector: 'app-template-editor',
+    imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent, TranslateModule],
+    templateUrl: './template-editor.component.html',
+    styleUrl: './template-editor.component.css'
 })
 export class TemplateEditorComponent {
   /** Template being edited. */

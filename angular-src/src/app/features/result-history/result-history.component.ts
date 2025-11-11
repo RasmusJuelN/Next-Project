@@ -38,11 +38,10 @@ interface SearchState<T> {
 }
 
 @Component({
-  selector: 'app-result-history',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ShowResultComponent, TranslateModule],
-  templateUrl: './result-history.component.html',
-  styleUrls: ['./result-history.component.css']
+    selector: 'app-result-history',
+    imports: [CommonModule, FormsModule, TranslateModule, ShowResultComponent, TranslateModule],
+    templateUrl: './result-history.component.html',
+    styleUrls: ['./result-history.component.css']
 })
 export class ResultHistoryComponent implements OnInit {
   private resultHistoryService = inject(ResultHistoryService);
