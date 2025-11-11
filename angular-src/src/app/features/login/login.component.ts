@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { LoginErrorCode } from '../home/models/login.model';
 import { LanguageSwitcherComponent } from '../../core/components/language-switcher/language-switcher.component';
+import { TrackCapsDirective } from '../../shared/directives/caps-lock';
 
 
 const ERROR_I18N: Record<LoginErrorCode, string> = {
@@ -25,7 +26,7 @@ const ERROR_I18N: Record<LoginErrorCode, string> = {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule, LanguageSwitcherComponent],
+  imports: [FormsModule, CommonModule, TranslateModule, LanguageSwitcherComponent, TrackCapsDirective],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
@@ -43,6 +44,7 @@ export class LoginComponent {
   errorKey: string | null = null;
 
   isLoading = false;
+  capsLockOn = false;
 
   login() {
     if (this.isLoading) return;
@@ -68,5 +70,9 @@ export class LoginComponent {
       return;
     }
     this.login();
+  }
+
+  onCapsLockChange(capsLockOn: boolean) {
+    this.capsLockOn = capsLockOn;
   }
 }

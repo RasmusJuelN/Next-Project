@@ -117,6 +117,7 @@
     "ERROR_GENERAL": "Der opstod en fejl under login. Prøv igen.",
     "SUBMIT": "Log ind",
     "LOADING": "Logger ind...",
+    "CAPS_LOCK_WARNING": "Caps Lock er aktiveret",
     "ERRORS": {
       "INVALID": "Ugyldigt brugernavn eller adgangskode.",
       "NETWORK": "Kunne ikke oprette forbindelse til serveren. Tjek din internetforbindelse.",
