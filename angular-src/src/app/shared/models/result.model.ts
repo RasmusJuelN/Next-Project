@@ -31,4 +31,5 @@ export interface QuestionOption {
   optionValue: string;
   isSelectedByStudent: boolean;
   isSelectedByTeacher: boolean;
+  sortOrder: number;
 }

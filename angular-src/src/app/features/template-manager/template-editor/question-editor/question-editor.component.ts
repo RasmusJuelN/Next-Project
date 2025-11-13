@@ -5,6 +5,7 @@ import {
   Input,
   Output,
   ViewChild,
+  OnChanges,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
@@ -35,7 +36,7 @@ import {
   templateUrl: "./question-editor.component.html",
   styleUrls: ["./question-editor.component.css"],
 })
-export class QuestionEditorComponent {
+export class QuestionEditorComponent implements OnChanges {
   @Input() question!: Question;
 
   /** If true, disables all editing actions. */
@@ -46,6 +47,13 @@ export class QuestionEditorComponent {
 
   validationErrors: string[] = [];
   questionOptionsMaxCount: number = 10;
+
+  ngOnChanges() {
+    // Ensure options are sorted by sortOrder when question changes
+    if (this.question && this.question.options) {
+      this.question.options.sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+  }
 
   /** Reference to error message container for scrolling into view. */
   @ViewChild("errorContainer") errorContainer!: ElementRef;
@@ -62,6 +70,7 @@ export class QuestionEditorComponent {
       id: -1 * (this.question.options.length + 1),
       displayText: "New Option",
       optionValue: 0,
+      sortOrder: this.question.options.length, // Set sort order to be at the end
     };
     this.question.options.push(newOption);
   }
@@ -73,6 +82,11 @@ export class QuestionEditorComponent {
     this.question.options = this.question.options.filter(
       (option) => option.id !== optionId
     );
+
+    // Re-index sortOrder for remaining options
+    this.question.options.forEach((option, index) => {
+      option.sortOrder = index;
+    });
   }
 
   /**
@@ -156,5 +170,10 @@ export class QuestionEditorComponent {
       event.previousIndex,
       event.currentIndex
     );
+
+    // Update sortOrder for all options to match the new array order
+    this.question.options.forEach((option, index) => {
+      option.sortOrder = index;
+    });
   }
 }

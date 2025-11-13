@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { Question, Template, TemplateStatus } from '../../../shared/models/template.model';
 import { CommonModule } from '@angular/common';
@@ -27,7 +27,7 @@ import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-
   templateUrl: './template-editor.component.html',
   styleUrl: './template-editor.component.css'
 })
-export class TemplateEditorComponent {
+export class TemplateEditorComponent implements OnChanges {
   /** Template being edited. */
   @Input() template!: Template;
 
@@ -52,6 +52,23 @@ export class TemplateEditorComponent {
 
   ngOnChanges() {
     this.readonly = this.template.templateStatus === TemplateStatus.Finalized;
+    
+    // Ensure questions and options are sorted by sortOrder when template changes
+    if (this.template && this.template.questions) {
+      this.sortTemplateData();
+    }
+  }
+
+  /** Sorts questions and options by their sortOrder values. */
+  private sortTemplateData() {
+    if (this.template.questions) {
+      this.template.questions.sort((a, b) => a.sortOrder - b.sortOrder);
+      this.template.questions.forEach(question => {
+        if (question.options) {
+          question.options.sort((a, b) => a.sortOrder - b.sortOrder);
+        }
+      });
+    }
   }
 
   // Method to emit the saveTemplate event with the updated template
@@ -69,6 +86,7 @@ export class TemplateEditorComponent {
       id: -1 * (this.template.questions.length + 1), // Unique negative ID
       prompt: 'New Question',
       allowCustom: true,
+      sortOrder: this.template.questions.length, // Set sort order to be at the end
       options: [],
     };
   
@@ -113,16 +131,25 @@ export class TemplateEditorComponent {
 
   deleteQuestion(question: Question): void {
     this.template.questions = this.template.questions.filter(q => q.id !== question.id);
+
+    // Re-index sortOrder for remaining questions
+    this.template.questions.forEach((q, index) => {
+      q.sortOrder = index;
+    });
   }
 
   /**
    * Handle drop event from Angular CDK drag-and-drop.
-   * Reorders the `template.questions` array locally and emits `saveTemplate`
-   * so the parent can persist the new order if desired.
+   * Reorders the `template.questions` array locally and updates sort orders.
    */
   drop(event: CdkDragDrop<Question[]>) {
     // Update the array order in-place
     moveItemInArray(this.template.questions, event.previousIndex, event.currentIndex);
+
+    // Update sortOrder for all questions to match the new array order
+    this.template.questions.forEach((question, index) => {
+      question.sortOrder = index;
+    });
 
     // Mark that order changed but do NOT auto-emit saveTemplate here.
     // Emitting saveTemplate caused the parent to treat this as a full save

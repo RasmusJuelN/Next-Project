@@ -580,16 +580,18 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
                 CreatedAt = firstQuestionnaire.QuestionnaireTemplate.CreatedAt,
                 LastUpdated = firstQuestionnaire.QuestionnaireTemplate.LastUpated,
                 IsLocked = firstQuestionnaire.QuestionnaireTemplate.IsLocked,
-                Questions = firstQuestionnaire.QuestionnaireTemplate.Questions.Select(q => new QuestionnaireTemplateQuestion
+                Questions = firstQuestionnaire.QuestionnaireTemplate.Questions.OrderBy(q => q.SortOrder).Select(q => new QuestionnaireTemplateQuestion
                 {
                     Id = q.Id,
                     Prompt = q.Prompt,
                     AllowCustom = q.AllowCustom,
-                    Options = q.Options.Select(o => new QuestionnaireTemplateOption
+                    SortOrder = q.SortOrder,
+                    Options = q.Options.OrderBy(o => o.SortOrder).Select(o => new QuestionnaireTemplateOption
                     {
                         Id = o.Id,
                         DisplayText = o.DisplayText,
-                        OptionValue = o.OptionValue
+                        OptionValue = o.OptionValue,
+                        SortOrder = o.SortOrder
                     }).ToList()
                 }).ToList()
             },

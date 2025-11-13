@@ -358,7 +358,8 @@ private fetch(type: SearchEnum, term: string): void {
               displayText: opt.displayText,
               optionValue: String(opt.optionValue ?? opt.id), // legacy safe
               isSelectedByStudent,
-              isSelectedByTeacher
+              isSelectedByTeacher,
+              sortOrder: opt.sortOrder
             };
           })
         : undefined;
