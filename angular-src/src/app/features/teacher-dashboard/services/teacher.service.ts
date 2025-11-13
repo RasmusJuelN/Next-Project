@@ -27,9 +27,9 @@ export class TeacherService {
   /**
    * Retrieves active questionnaires for the teacher.
    *
+   * @param pageNumber Current page number (1-based)
    * @param searchTerm Text to search (student name or questionnaire id).
    * @param searchType Field to search: 'name' | 'id'.
-   * @param queryCursor Cursor for the next page (null for first page).
    * @param pageSize Number of items per page.
    * @param filterStudentCompleted If true, only include those where student is done.
    * @param filterTeacherCompleted If true, only include those where teacher is done.
@@ -66,14 +66,15 @@ export class TeacherService {
   }
 
   getQuestionnaireGroups(
+  pageNumber: number,
   pageSize: number,
-  queryCursor: string | null,
   searchTitle: string,
   filterPendingStudent: boolean,
   filterPendingTeacher: boolean
 ): Observable<QuestionnaireGroupResponse> {
-  let params = new HttpParams().set('pageSize', pageSize.toString());
-  if (queryCursor) params = params.set('queryCursor', queryCursor);
+  let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
   if (searchTitle) params = params.set('title', searchTitle);
   if (filterPendingStudent) params = params.set('pendingStudent', 'true');
   if (filterPendingTeacher) params = params.set('pendingTeacher', 'true');

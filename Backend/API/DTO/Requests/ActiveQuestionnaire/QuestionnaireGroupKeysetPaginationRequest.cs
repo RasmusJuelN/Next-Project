@@ -12,6 +12,14 @@ namespace API.DTO.Requests.ActiveQuestionnaire
     /// </remarks>
     public record class QuestionnaireGroupKeysetPaginationRequest
     {
+
+        /// <summary>
+        /// Gets or sets the page number to retrieve (1-based indexing).
+        /// </summary>
+        /// <remarks>
+        /// Defaults to 1 if not specified.
+        /// </remarks>
+        public int PageNumber { get; set; } = 1;
         /// <summary>
         /// Gets or sets the maximum number of groups to return per page.
         /// </summary>

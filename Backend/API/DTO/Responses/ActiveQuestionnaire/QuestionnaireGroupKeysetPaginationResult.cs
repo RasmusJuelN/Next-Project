@@ -13,7 +13,8 @@ namespace API.DTO.Responses.ActiveQuestionnaire
     public record class QuestionnaireGroupKeysetPaginationResult
     {
         public required List<QuestionnaireGroupResult> Groups { get; set; }
-        public string? QueryCursor { get; set; }
+        public int CurrentPage { get; set; }
+        public int TotalPages { get; set; }
         public int TotalCount { get; set; }
     }
 }
