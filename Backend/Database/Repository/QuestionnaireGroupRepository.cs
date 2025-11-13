@@ -118,81 +118,68 @@ namespace Database.Repository
         /// and group ID as continuation markers, avoiding performance issues with large offsets.
         /// Related templates, students, and teachers are eagerly loaded for immediate use.
         /// </remarks>
-public async Task<(List<QuestionnaireGroupModel>, int)> PaginationQueryWithKeyset(
-    int amount,
-    QuestionnaireGroupOrderingOptions sortOrder,
-    Guid? cursorIdPosition = null,
-    DateTime? cursorCreatedAtPosition = null,
-    string? titleQuery = null,
-    Guid? groupId = null,
-    bool? pendingStudent = false,
-    bool? pendingTeacher = false,
-    int? teacherId = null)
-{
-    IQueryable<QuestionnaireGroupModel> query = _genericRepository.GetAsQueryable();
-
-    query = sortOrder.ApplyQueryOrdering(query);
-
-    if (!string.IsNullOrEmpty(titleQuery))
-    {
-        query = query.Where(g => g.Name.Contains(titleQuery));
-    }
-
-    if (groupId is not null)
-    {
-        query = query.Where(g => g.GroupId == groupId);
-    }
-
-    if (pendingStudent == true)
-        query = query.Where(g => g.Questionnaires.Any(q => !q.StudentCompletedAt.HasValue));
-            
-    if (pendingTeacher == true)
-        query = query.Where(g => g.Questionnaires.Any(q => !q.TeacherCompletedAt.HasValue));
-
-    if (teacherId.HasValue)
-    {
-        query = query.Where(g => g.Questionnaires.Any(q => q.TeacherFK == teacherId.Value));
-    }
-
-    int totalCount = await query.CountAsync();
-
-    if (cursorIdPosition is not null && cursorCreatedAtPosition is not null)
-    {
-        if (sortOrder == QuestionnaireGroupOrderingOptions.CreatedAtAsc)
+        public async Task<(List<QuestionnaireGroupModel>, int)> PaginationQueryWithKeyset(
+            int amount,
+                    QuestionnaireGroupOrderingOptions sortOrder,
+                    string? titleQuery = null,
+                    Guid? groupId = null,
+                    bool? pendingStudent = false,
+                    bool? pendingTeacher = false,
+                    int? teacherFK = null,
+                    int? pageNumber = 1)
         {
-            query = query.Where(g =>
-                g.CreatedAt > cursorCreatedAtPosition
-                || (g.CreatedAt == cursorCreatedAtPosition && g.GroupId > cursorIdPosition));
-        }
-        else
-        {
-            query = query.Where(g =>
-                g.CreatedAt < cursorCreatedAtPosition
-                || (g.CreatedAt == cursorCreatedAtPosition && g.GroupId < cursorIdPosition));
-        }
-    }
+            IQueryable<QuestionnaireGroupModel> query = _genericRepository.GetAsQueryable();
 
-    List<QuestionnaireGroupModel> groupEntities = await query
+            query = sortOrder.ApplyQueryOrdering(query);
+
+            if (!string.IsNullOrEmpty(titleQuery))
+            {
+                query = query.Where(g => g.Name.Contains(titleQuery));
+            }
+
+            if (groupId is not null)
+            {
+                query = query.Where(g => g.GroupId == groupId);
+            }
+
+            if (pendingStudent == true)
+                query = query.Where(g => g.Questionnaires.Any(q => !q.StudentCompletedAt.HasValue));
+
+            if (pendingTeacher == true)
+                query = query.Where(g => g.Questionnaires.Any(q => !q.TeacherCompletedAt.HasValue));
+
+            if (teacherFK.HasValue)
+            {
+                query = query.Where(g => g.Questionnaires.Any(q => q.TeacherFK == teacherFK.Value));
+            }
+
+            int totalCount = await query.CountAsync();
+
+
+            // Offset-based pagination
+            int skip = (pageNumber.Value - 1) * amount;
+            query = query.Skip(skip).Take(amount);
+
+            List<QuestionnaireGroupModel> groupEntities = await query
         .Include(g => g.Template)
         .Include(g => g.Questionnaires)
             .ThenInclude(q => q.Student)
         .Include(g => g.Questionnaires)
             .ThenInclude(q => q.Teacher)
-        .Take(amount)
         .ToListAsync();
 
-    if (teacherId.HasValue)
-    {
-        foreach (var grp in groupEntities)
-        {
-            grp.Questionnaires = grp.Questionnaires
-                .Where(q => q.TeacherFK == teacherId.Value)
-                .ToList();
-        }
-    }
+            if (teacherFK.HasValue)
+            {
+                foreach (var grp in groupEntities)
+                {
+                    grp.Questionnaires = grp.Questionnaires
+                        .Where(q => q.TeacherFK == teacherFK.Value)
+                        .ToList();
+                }
+            }
 
-    return (groupEntities, totalCount);
-}
+            return (groupEntities, totalCount);
+        }
 
 
 

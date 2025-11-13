@@ -65,7 +65,8 @@ export interface QuestionnaireBase {
 // Response DTO for keyset pagination
 export interface QuestionnaireGroupKeysetPaginationResult {
   groups: QuestionnaireGroupResult[];
-  queryCursor?: string;
+  currentPage: number;  
+  totalPages: number;    
   totalCount: number;
 }
 

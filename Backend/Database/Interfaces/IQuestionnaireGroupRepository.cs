@@ -73,13 +73,12 @@ namespace Database.Interfaces
         Task<(List<QuestionnaireGroupModel>, int)> PaginationQueryWithKeyset(
             int amount,
             QuestionnaireGroupOrderingOptions sortOrder,
-            Guid? cursorIdPosition = null,
-            DateTime? cursorCreatedAtPosition = null,
             string? titleQuery = null,
             Guid? groupId = null,
             bool? pendingStudent = false,
             bool? pendingTeacher = false,
-            int? teacherFK = null);
+            int? teacherFK = null,
+            int? pageNumber = null);
 
 
     }

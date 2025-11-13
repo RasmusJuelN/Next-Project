@@ -178,37 +178,30 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
 
     public async Task<QuestionnaireGroupKeysetPaginationResult> FetchActiveQuestionnaireGroupsForTeacherPaginated(QuestionnaireGroupKeysetPaginationRequest request, Guid teacherGuid)
     {
-        DateTime? cursorCreatedAt = null;
-        Guid? cursorId = null;
-        if (!string.IsNullOrEmpty(request.QueryCursor))
-        {
-            var parts = request.QueryCursor.Split('_');
-            cursorCreatedAt = DateTime.Parse(parts[0]);
-            cursorId = Guid.Parse(parts[1]);
-        }
-       
+
         int? teacherFk = await _unitOfWork.User.GetIdByGuidAsync(teacherGuid);
         if (!teacherFk.HasValue)
         {
             return new QuestionnaireGroupKeysetPaginationResult
             {
                 Groups = new List<QuestionnaireGroupResult>(),
-                QueryCursor = null,
-                TotalCount = 0
+                CurrentPage = request.PageNumber,
+                TotalCount = 0,
+                TotalPages = 0
             };
         }
-        
+
+
         var (groups, totalCount) = await _unitOfWork.QuestionnaireGroup.PaginationQueryWithKeyset(
-            request.PageSize,
-            QuestionnaireGroupOrderingOptions.CreatedAtDesc,
-            cursorId,
-            cursorCreatedAt,
-            request.Title,
-            groupId: request.GroupId,
-            pendingStudent: request.PendingStudent,
-            pendingTeacher: request.PendingTeacher,
-            teacherFK: teacherFk 
-        );
+        request.PageSize,
+        QuestionnaireGroupOrderingOptions.CreatedAtDesc,
+        request.Title,
+        groupId: request.GroupId,
+        pendingStudent: request.PendingStudent,
+        pendingTeacher: request.PendingTeacher,
+        teacherFK: teacherFk,
+        pageNumber: request.PageNumber
+    );
 
         // Map models -> DTOs
         var resultGroups = groups.Select(g => new QuestionnaireGroupResult
@@ -217,20 +210,21 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
             Name = g.Name,
             TemplateId = g.TemplateId,
             Questionnaires = g.Questionnaires
-            .Select(q =>
+                .Select(q =>
                 q.ToBaseDto()             
                  .ToActiveQuestionnaireAdminDTO()             
             )
-            .ToList()
+                .ToList()
         }).ToList();
 
-        string? nextCursor = groups.Count > 0 ? $"{groups.Last().CreatedAt:O}_{groups.Last().GroupId}" : null;
+        int totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
 
         return new QuestionnaireGroupKeysetPaginationResult
         {
             Groups = resultGroups,
-            QueryCursor = nextCursor,
-            TotalCount = totalCount // total number of groups
+            CurrentPage = request.PageNumber,
+            TotalCount = totalCount,
+            TotalPages = totalPages
         };
     }
 
