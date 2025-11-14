@@ -233,6 +233,7 @@ onFinalizeTemplate(tmpl: Template): void {
           prompt: this.translate.instant('TMP_NEW_QUESTION'), //Default Question
           allowCustom: true,
           options: [],
+          sortOrder: 0
         },
       ],
     };
@@ -441,9 +442,11 @@ private deepCopyAsNewTemplate(template: Template): Template {
   clone.questions = clone.questions.map((q, qIndex) => ({
     ...q,
     id: -1 * (qIndex + 1), // new negative ID
+    sortOrder: qIndex,
     options: q.options.map((o, oIndex) => ({
       ...o,
-      id: -1 * (oIndex + 1) // new negative ID
+      id: -1 * (oIndex + 1),// new negative ID
+      sortOrder: oIndex
     }))
   }));
 
