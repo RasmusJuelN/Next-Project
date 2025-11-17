@@ -11,7 +11,6 @@ import { Attempt, AttemptAnswer, StudentResultHistory, TemplateBaseResponse, Use
 
 
 
-// Mock template with stable IDs for questions/options
 const mockTemplate: Template = {
   id: 'template-123',
   title: 'Math Skills Assessment',
@@ -23,54 +22,59 @@ const mockTemplate: Template = {
   questions: [
     {
       id: 1,
+      sortOrder: 0,
       prompt: 'How well does the student understand basic arithmetic?',
       allowCustom: false,
       options: [
-        { id: 10, optionValue: 1, displayText: 'Poor' },
-        { id: 11, optionValue: 2, displayText: 'Fair' },
-        { id: 12, optionValue: 3, displayText: 'Good' },
-        { id: 13, optionValue: 4, displayText: 'Excellent' },
-        { id: 14, optionValue: 5, displayText: 'Outstanding' }
+        { id: 10, sortOrder: 0, optionValue: 1, displayText: 'Poor' },
+        { id: 11, sortOrder: 1, optionValue: 2, displayText: 'Fair' },
+        { id: 12, sortOrder: 2, optionValue: 3, displayText: 'Good' },
+        { id: 13, sortOrder: 3, optionValue: 4, displayText: 'Excellent' },
+        { id: 14, sortOrder: 4, optionValue: 5, displayText: 'Outstanding' }
       ]
     },
     {
       id: 2,
+      sortOrder: 1,
       prompt: "Student's problem-solving skills in mathematics",
       allowCustom: false,
       options: [
-        { id: 20, optionValue: 1, displayText: 'Poor' },
-        { id: 21, optionValue: 2, displayText: 'Fair' },
-        { id: 22, optionValue: 3, displayText: 'Good' },
-        { id: 23, optionValue: 4, displayText: 'Excellent' },
-        { id: 24, optionValue: 5, displayText: 'Outstanding' }
+        { id: 20, sortOrder: 0, optionValue: 1, displayText: 'Poor' },
+        { id: 21, sortOrder: 1, optionValue: 2, displayText: 'Fair' },
+        { id: 22, sortOrder: 2, optionValue: 3, displayText: 'Good' },
+        { id: 23, sortOrder: 3, optionValue: 4, displayText: 'Excellent' },
+        { id: 24, sortOrder: 4, optionValue: 5, displayText: 'Outstanding' }
       ]
     },
     {
       id: 3,
+      sortOrder: 2,
       prompt: 'What motivates the student most in learning?',
       allowCustom: true,
       options: [
-        { id: 30, optionValue: 1, displayText: 'Grades and recognition' },
-        { id: 31, optionValue: 2, displayText: 'Understanding concepts' },
-        { id: 32, optionValue: 3, displayText: 'Practical applications' },
-        { id: 33, optionValue: 4, displayText: 'Peer interaction' },
-        { id: 34, optionValue: 5, displayText: 'Other (please specify)' }
+        { id: 30, sortOrder: 0, optionValue: 1, displayText: 'Grades and recognition' },
+        { id: 31, sortOrder: 1, optionValue: 2, displayText: 'Understanding concepts' },
+        { id: 32, sortOrder: 2, optionValue: 3, displayText: 'Practical applications' },
+        { id: 33, sortOrder: 3, optionValue: 4, displayText: 'Peer interaction' },
+        { id: 34, sortOrder: 4, optionValue: 5, displayText: 'Other (please specify)' }
       ]
     },
     {
       id: 4,
+      sortOrder: 3,
       prompt: 'How does the student respond to collaborative learning activities?',
       allowCustom: true,
       options: [
-        { id: 40, optionValue: 1, displayText: 'Prefers individual work' },
-        { id: 41, optionValue: 2, displayText: 'Peer interaction' },
-        { id: 42, optionValue: 3, displayText: 'Practical applications' },
-        { id: 43, optionValue: 4, displayText: 'Understanding concepts' },
-        { id: 44, optionValue: 5, displayText: 'Mixed results' }
+        { id: 40, sortOrder: 0, optionValue: 1, displayText: 'Prefers individual work' },
+        { id: 41, sortOrder: 1, optionValue: 2, displayText: 'Peer interaction' },
+        { id: 42, sortOrder: 2, optionValue: 3, displayText: 'Practical applications' },
+        { id: 43, sortOrder: 3, optionValue: 4, displayText: 'Understanding concepts' },
+        { id: 44, sortOrder: 4, optionValue: 5, displayText: 'Mixed results' }
       ]
     }
   ]
 };
+
 
 // Shared mock users
 const mockStudent: User = {

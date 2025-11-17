@@ -63,6 +63,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
                 // Update existing question and check its options
                 existingQuestion.Prompt = updatedQuestion.Prompt;
                 existingQuestion.AllowCustom = updatedQuestion.AllowCustom;
+                existingQuestion.SortOrder = updatedQuestion.SortOrder;
 
                 HashSet<int> updatedOptionIds = [.. updatedQuestion.Options.Where(o => o.Id is not null).Select(o => o.Id!.Value)];
                 IEnumerable<QuestionnaireOptionModel> oldOptions = existingQuestion.Options.Where(e => !updatedOptionIds.Contains(e.Id));
@@ -81,6 +82,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
                         // Update existing option
                         existingOption.OptionValue = updatedOption.OptionValue;
                         existingOption.DisplayText = updatedOption.DisplayText;
+                        existingOption.SortOrder = updatedOption.SortOrder;
                     }
                     else
                     {
@@ -133,6 +135,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
                 existingQuestion.Prompt = patchedQuestion.Prompt ?? existingQuestion.Prompt;
                 existingQuestion.AllowCustom = patchedQuestion.AllowCustom ?? existingQuestion.AllowCustom;
+                existingQuestion.SortOrder = patchedQuestion.SortOrder ?? existingQuestion.SortOrder;
 
                 if (patchedQuestion.Options is not null && patchedQuestion.Options.Count != 0)
                 {
@@ -145,6 +148,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
                         existingOption.OptionValue = patchedOption.OptionValue ?? existingOption.OptionValue;
                         existingOption.DisplayText = patchedOption.DisplayText ?? existingOption.DisplayText;
+                        existingOption.SortOrder = patchedOption.SortOrder ?? existingOption.SortOrder;
                     }
                 }
             }

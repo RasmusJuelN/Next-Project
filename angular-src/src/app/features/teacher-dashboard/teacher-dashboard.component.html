@@ -1,5 +1,5 @@
-<div class="flex flex-col items-center w-full ">
-  <div class="flex flex-col bg-primary_background_white/80 shadow-xl rounded-2xl border-2 border-primary_orange_1 sm:p-10 sm:max-w-[1100px] mx-auto">
+<div class="flex flex-col items-center w-full min-h-full p-4 sm:p-8">
+  <div class="flex flex-col w-full max-w-5xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
     <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center">
       <!-- Overview over active questionnaires. -->
        {{ 'TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES' | translate }}
@@ -9,14 +9,14 @@
     <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
       <!-- Search & Filters -->
       <div class="flex flex-col sm:flex-row w-full gap-3">
-        <select
+        <!-- <select
           #searchSelect
           (change)="onSearchTypeChange(searchSelect.value)"
           class="w-full sm:w-auto min-w-0 border border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50"
         >
           <option value="name" selected>{{'TMP_SEARCH_BY_STUDENT_NAME'| translate}}</option> 
           <option value="id">{{'TMP_SEARCH_BY_QUESTIONNAIRE_ID'| translate}}</option>
-        </select>
+        </select> -->
 
         <input
           #searchInput

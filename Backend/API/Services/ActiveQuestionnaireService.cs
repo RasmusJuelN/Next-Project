@@ -174,26 +174,18 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     /// </remarks>
     public async Task<QuestionnaireGroupKeysetPaginationResult> FetchQuestionnaireGroupsWithKeysetPagination(QuestionnaireGroupKeysetPaginationRequest request)
     {
-        DateTime? cursorCreatedAt = null;
-        Guid? cursorId = null;
-
-        if (!string.IsNullOrEmpty(request.QueryCursor))
-        {
-            cursorCreatedAt = DateTime.Parse(request.QueryCursor.Split('_')[0]);
-            cursorId = Guid.Parse(request.QueryCursor.Split('_')[1]);
-        }
 
         (List<QuestionnaireGroupModel> groups, int totalCount) = await _unitOfWork.QuestionnaireGroup
             .PaginationQueryWithKeyset(
-                request.PageSize,
-                request.Order,
-                cursorId,
-                cursorCreatedAt,
-                request.Title,
-                request.GroupId,
-                request.PendingStudent,
-                request.PendingTeacher
-            );
+            request.PageSize,
+            request.Order,
+            titleQuery: request.Title,
+            groupId: request.GroupId,
+            pendingStudent: request.PendingStudent,
+            pendingTeacher: request.PendingTeacher,
+            teacherFK: null,
+            pageNumber: request.PageNumber
+        );
 
         var results = groups.Select(group => new QuestionnaireGroupResult
         {
@@ -221,18 +213,13 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             }).ToList()
         }).ToList();
 
-        QuestionnaireGroupModel? lastGroup = groups.Count > 0 ? groups.Last() : null;
-
-        string? queryCursor = null;
-        if (lastGroup is not null)
-        {
-            queryCursor = $"{lastGroup.CreatedAt:O}_{lastGroup.GroupId}";
-        }
+        int totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
 
         return new QuestionnaireGroupKeysetPaginationResult
         {
             Groups = results,
-            QueryCursor = queryCursor,
+            CurrentPage = request.PageNumber,  // Return the requested page number
+            TotalPages = totalPages,
             TotalCount = totalCount
         };
     }

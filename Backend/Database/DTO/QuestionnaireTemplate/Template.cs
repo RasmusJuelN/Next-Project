@@ -17,12 +17,14 @@ public record class QuestionnaireTemplate : QuestionnaireTemplateBase
 /// <param name="Id">The unique identifier for the question.</param>
 /// <param name="Prompt">The text of the question to be displayed to users.</param>
 /// <param name="AllowCustom">Indicates whether users can provide custom answers beyond the predefined options.</param>
+/// <param name="SortOrder">The sort order for displaying this question.</param>
 /// <param name="Options">The list of predefined answer options available for this question.</param>
 public record class QuestionnaireTemplateQuestion
 {
     public required int Id { get; set; }
     public required string Prompt { get; set; }
     public required bool AllowCustom { get; set; }
+    public required int SortOrder { get; set; }
     public required List<QuestionnaireTemplateOption> Options { get; set; }
 }
 
@@ -32,9 +34,11 @@ public record class QuestionnaireTemplateQuestion
 /// <param name="Id">The unique identifier for the option.</param>
 /// <param name="OptionValue">The integer value associated with the option, typically used for scoring or identification.</param>
 /// <param name="DisplayText">The text that will be displayed to users for this option.</param>
+/// <param name="SortOrder">The sort order for displaying this option.</param>
 public record class QuestionnaireTemplateOption
 {
     public required int Id { get; set; }
     public required int OptionValue { get; set; }
     public required string DisplayText { get; set; }
+    public required int SortOrder { get; set; }
 }

@@ -45,7 +45,7 @@ export class TeacherDashboardComponent implements OnInit {
   totalPages: number = 1;
 
   // Cache cursors by page number; page 1 starts with a null cursor.
-  cachedCursors: { [pageNumber: number]: string | null } = { 1: null };
+  // cachedCursors: { [pageNumber: number]: string | null } = { 1: null };
 
   // Filters
   filterStudentCompleted = false;
@@ -65,45 +65,37 @@ export class TeacherDashboardComponent implements OnInit {
   errorMessage: string | null = null;
 
   ngOnInit(): void {
-     // Debounce search input to reduce API calls.
-     this.searchSubject
+    this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((term) => {
         this.searchTerm = term;
-        this.currentPage = 1;
-        this.cachedCursors = { 1: null };
+        this.currentPage = 1; // Reset to first page on search
         this.updateDisplay();
       });
 
-   // Initial load.
     this.updateDisplay();
   }
 
- /**
-   * Loads questionnaires using current search, filters, and pagination.
-   * Updates displayed items, total counts, total pages, and next-page cursor cache.
-   */
-    private updateDisplay(): void {
+  private updateDisplay(): void {
     this.isLoading = true;
     this.errorMessage = null;
-
-    // Get the cursor for the current page (or null for first page).
-    const queryCursor = this.cachedCursors[this.currentPage] ?? null;
-
+    console.log('🔵 Frontend sending:', { currentPage: this.currentPage, pageSize: this.pageSize });
     this.teacherService
       .getQuestionnaireGroups(
+        
+        this.currentPage,      // Pass page number directly
         this.pageSize,
-        queryCursor,
         this.searchTerm,
         this.filterStudentCompleted,
         this.filterTeacherCompleted
       )
       .subscribe({
         next: (res) => {
-          const groups = (res as any).groups ?? (res as any).Groups ?? [];
+          console.log('🟢 Backend returned:', { currentPage: res.currentPage, totalPages: res.totalPages, totalCount: res.totalCount });
+          const groups = res.groups ?? [];
           this.displayedGroups = groups.map((g: any) => ({
-            groupId: g.groupId ?? g.groupId ?? g.groupId,
-            groupName: g.groupName ?? g.name ?? g.Name,
+            groupId: g.groupId,
+            groupName: g.groupName ?? g.name ?? g.Name ?? 'Ungrouped',
             templateId: g.templateId ?? g.TemplateId ?? null,
             questionnaires: (g.questionnaires ?? []).map((q: any) => ({
               id: q.id,
@@ -118,16 +110,15 @@ export class TeacherDashboardComponent implements OnInit {
             }))
           }));
 
-          // initialize collapse state for new groups (collapsed by default)
+          // Initialize collapse state
           this.displayedGroups.forEach(g => {
             if (this.groupCollapsed[g.groupId] === undefined) {
               this.groupCollapsed[g.groupId] = true;
             }
           });
 
-          this.totalItems = (res as any).totalCount ?? (res as any).totalItems ?? 0;
-          this.totalPages = Math.max(1, Math.ceil(this.totalItems / this.pageSize));
-          this.cachedCursors[this.currentPage + 1] = (res as any).queryCursor ?? (res as any).QueryCursor ?? null;
+          this.totalItems = res.totalCount ?? 0;
+          this.totalPages = res.totalPages ?? Math.ceil(this.totalItems / this.pageSize);
 
           this.isLoading = false;
         },
@@ -138,64 +129,45 @@ export class TeacherDashboardComponent implements OnInit {
       });
   }
 
-  /** Emits a new search term into the debounced search stream. */
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
   }
 
-  /** Changes the search type ('name' | 'id'), resets pagination, and reloads data. */
-  onSearchTypeChange(newType: string): void {
-    this.searchType = newType as 'name' | 'id';
-    this.currentPage = 1;
-    this.cachedCursors = { 1: null };
-    this.updateDisplay();
-  }
-  
-  /** Toggles completion filters for active questionnaire, resets pagination, and reloads data. */
   onCompletionFilterChange(): void {
     this.currentPage = 1;
-    this.cachedCursors = { 1: null };
-    this.updateDisplay();
-  }
-  
-  /** Updates page size, resets pagination, and reloads data. */
-  onPageSizeChange(newSize: string): void {
-    this.pageSize = parseInt(newSize, 10);
-    this.currentPage = 1;
-    this.cachedCursors = { 1: null };
     this.updateDisplay();
   }
 
-  /** Returns true if the provided size equals the current page size. */
+  onPageSizeChange(newSize: string): void {
+    this.pageSize = parseInt(newSize, 10);
+    this.currentPage = 1;
+    this.updateDisplay();
+  }
+
   isSelectedPageSize(size: number): boolean {
     return size === this.pageSize;
   }
 
-  /** Moves to the given page and reloads data. */
   onPageChange(event: PageChangeEvent): void {
-    this.currentPage = event.page;
+    this.currentPage = event.page;  // Jump to any page directly!
     this.updateDisplay();
+    console.log('Page changed to:', this.currentPage);
   }
-
-  /**
-   * Copies a direct answer URL for the given questionnaire id to the clipboard.
-   * @param id active questionnaire id
-   */
 
   copyAnswersUrl(id: string): void {
     const url = `${window.location.origin}/answer/${id}`;
     this.clipboard.copy(url);
-    console.log(`URL ${url} copied to clipboard!`);
   }
 
   toggleGroupCollapse(groupId: string) {
     this.groupCollapsed[groupId] = !this.groupCollapsed[groupId];
   }
 
-  // Count completed items for badges (role = 'student' | 'teacher')
   getAnsweredCount(questionnaires: ActiveQuestionnaireBase[] = [], role: 'student' | 'teacher'): number {
     if (!questionnaires || questionnaires.length === 0) return 0;
-    if (role === 'student') return questionnaires.filter(q => !!q.studentCompletedAt).length;
-    return questionnaires.filter(q => !!q.teacherCompletedAt).length;
+    return role === 'student'
+      ? questionnaires.filter(q => !!q.studentCompletedAt).length
+      : questionnaires.filter(q => !!q.teacherCompletedAt).length;
+
   }
 }

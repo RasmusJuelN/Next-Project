@@ -53,6 +53,7 @@ export interface QuestionnaireGroup {
 // new: grouped response shape (cursor + count)
 export interface QuestionnaireGroupResponse {
   groups: QuestionnaireGroup[];
-  queryCursor: string | null;
   totalCount: number;
+  currentPage: number;
+  totalPages: number;
 }
