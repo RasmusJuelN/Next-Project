@@ -174,10 +174,12 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
         if (string.IsNullOrWhiteSpace(studentUsernameQuery))
             throw new ArgumentException("Student username query cannot be null or empty", nameof(studentUsernameQuery));
 
+        studentUsernameQuery = studentUsernameQuery.Trim();
         // Find students that have active questionnaires with this teacher and match the username query
         var students = await _context.ActiveQuestionnaires
             .Where(aq => aq.Teacher != null && aq.Teacher.Guid == teacherId &&
-                        aq.Student != null && aq.Student.UserName.Contains(studentUsernameQuery))
+                        aq.Student != null && (aq.Student.UserName.Contains(studentUsernameQuery) || 
+                         (aq.Student.FullName != null && aq.Student.FullName.Contains(studentUsernameQuery))))
             .Select(aq => aq.Student!)
             .Distinct()
             .ToListAsync();
