@@ -175,14 +175,16 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
         };
     }
 
-
-    public async Task<QuestionnaireGroupKeysetPaginationResult> FetchActiveQuestionnaireGroupsForTeacherPaginated(QuestionnaireGroupKeysetPaginationRequest request, Guid teacherGuid)
+    /// <summary>
+    /// Retrieves paginated questionnaire groups for a teacher using offset pagination.
+    /// </summary>
+    public async Task<QuestionnaireGroupOffsetPaginationResult> FetchActiveQuestionnaireGroupsForTeacherWithOffsetPagination(QuestionnaireGroupOffsetPaginationRequest request, Guid teacherGuid)
     {
 
         int? teacherFk = await _unitOfWork.User.GetIdByGuidAsync(teacherGuid);
         if (!teacherFk.HasValue)
         {
-            return new QuestionnaireGroupKeysetPaginationResult
+            return new QuestionnaireGroupOffsetPaginationResult
             {
                 Groups = new List<QuestionnaireGroupResult>(),
                 CurrentPage = request.PageNumber,
@@ -219,7 +221,7 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
 
         int totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
 
-        return new QuestionnaireGroupKeysetPaginationResult
+        return new QuestionnaireGroupOffsetPaginationResult
         {
             Groups = resultGroups,
             CurrentPage = request.PageNumber,

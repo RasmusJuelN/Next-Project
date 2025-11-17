@@ -87,7 +87,7 @@ namespace API.Controllers
         /// Retrieves a paginated list of questionnaire groups using keyset pagination.
         /// </summary>
         /// <param name="request">
-        /// The <see cref="QuestionnaireGroupKeysetPaginationRequest"/> containing pagination,
+        /// The <see cref="QuestionnaireGroupOffsetPaginationRequest"/> containing pagination,
         /// ordering, and optional filtering parameters.
         /// </param>
         /// <returns>
@@ -100,11 +100,11 @@ namespace API.Controllers
         /// </remarks>
         [HttpGet("groups/paginated")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<QuestionnaireGroupKeysetPaginationResult>> GetGroupsPaginated([FromQuery] QuestionnaireGroupKeysetPaginationRequest request)
+        public async Task<ActionResult<QuestionnaireGroupOffsetPaginationResult>> GetGroupsPaginated([FromQuery] QuestionnaireGroupOffsetPaginationRequest request)
         {
             try
             {
-                var result = await _questionnaireService.FetchQuestionnaireGroupsWithKeysetPagination(request);
+                var result = await _questionnaireService.FetchQuestionnaireGroupsWithOffsetPagination(request);
                 return Ok(result);
             }
             catch (Exception ex)
