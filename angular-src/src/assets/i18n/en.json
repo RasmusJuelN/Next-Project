@@ -248,5 +248,35 @@
     "DOWNLOAD_PDF": "Download PDF",
     "OPEN_PDF_SHORT": "Open",
     "DOWNLOAD_PDF_SHORT": "Download"
+  },
+
+  "ACTIVE_BUILDER": {
+    "ANONYMOUS_QUESTIONNAIRE": "Anonymous Questionnaire",
+    "EVALUATION_QUESTIONNAIRE": "Evaluation Questionnaire",
+    "SWITCH_TO_EVALUATION": "Switch to evaluation questionnaire",
+    "SWITCH_TO_ANONYMOUS": "Switch to anonymous questionnaire",
+    "SEARCH_PARTICIPANTS": "Search for participants (name, class, etc.):",
+    "SEARCH_STUDENT": "Search for Student:",
+    "SEARCH_TEACHER": "Search for Teacher:",
+    "SEARCH_TEMPLATE": "Search for Template:",
+    "PLACEHOLDER_STUDENTS": "Enter student names...",
+    "PLACEHOLDER_TEACHERS": "Enter teacher names...",
+    "PLACEHOLDER_TEMPLATE": "Enter template title...",
+    "LOADING_STUDENTS": "Loading students...",
+    "LOADING_TEACHERS": "Loading teachers...",
+    "LOADING_TEMPLATES": "Loading templates...",
+    "LOAD_MORE_STUDENTS": "Load More Students",
+    "LOAD_MORE_TEACHERS": "Load More Teachers",
+    "LOAD_MORE_TEMPLATES": "Load More Templates",
+    "SELECTED_STUDENTS": "Selected Students:",
+    "SELECTED_TEACHERS": "Selected Teachers:",
+    "SELECTED_TEMPLATES": "Selected Templates:",
+    "REMOVE": "Remove",
+    "CLEAR_ALL": "Clear All",
+    "CREATE_QUESTIONNAIRE_NAME": "Create questionnaire name:",
+    "PLACEHOLDER_EVALUATION_NAME": "e.g. 'Class123 - student evaluation'",
+    "PLACEHOLDER_ANONYMOUS_NAME": "e.g. 'Teaching Evaluation - All Students'",
+    "FINISH": "Finish",
+    "CANCEL": "Cancel"
   }
 }
