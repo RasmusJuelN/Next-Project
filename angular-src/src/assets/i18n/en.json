@@ -10,6 +10,7 @@
   "TMP_SEARCH_BY_NAME": "Search by Name",
   "TMP_SEARCH_BY_ID": "Search by ID",
   "TMP_SEARCH_GROUP_PLACEHOLDER": "Search by Group...",
+  "TMP_SEARCH_TEMPLATE_PLACEHOLDER": "Search by template title...",
   "TMP_ITEMS_PER_PAGE": "Items per page:",
   "TMP_LOADING": "Loading...",
   "TMP_BUTTON_EDIT": "Edit",

@@ -27,20 +27,20 @@
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full mb-4">
 
         <!-- Search Type -->
-        <select
+        <!-- <select
           #searchType
           (change)="onSearchTypeChange(searchType.value)"
           class="w-full sm:w-auto min-w-0 border border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50">
           <option value="name" selected>{{ 'TMP_SEARCH_BY_NAME' | translate }}</option>
           <option value="id">{{ 'TMP_SEARCH_BY_ID' | translate }}</option>
-        </select>
+        </select> -->
 
         <!-- Search Input -->
         <input
           #search
           type="text"
           (input)="onSearchChange(search.value)"
-          placeholder="{{ 'TMP_SEARCH_GROUP_PLACEHOLDER' | translate }}"
+          placeholder="{{ 'TMP_SEARCH_TEMPLATE_PLACEHOLDER' | translate }}"
           class="w-full sm:w-64 px-4 py-2 border-primary_orange_1 rounded-lg focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80" />
 
         <!-- Page Size Selector -->

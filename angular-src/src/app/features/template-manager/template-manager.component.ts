@@ -114,13 +114,13 @@ export class TemplateManagerComponent {
   }
 
   /** Toggle server-side search type ('name'|'id'), */
-  onSearchTypeChange(type: string): void {
-    if (type === 'name' || type === 'id') {
-      this.searchType = type;
-      this.resetData();
-      this.fetchTemplateBases();
-    }
-  }
+  // onSearchTypeChange(type: string): void {
+  //   if (type === 'name' || type === 'id') {
+  //     this.searchType = type;
+  //     this.resetData();
+  //     this.fetchTemplateBases();
+  //   }
+  // }
 
  /**
  * Reset pagination state and (optionally) search parameters.
