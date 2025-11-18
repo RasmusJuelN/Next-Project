@@ -561,7 +561,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     private UserAdd GenerateStudent(Guid id)
     {
         BasicUserInfo? ldapStudent = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Student not found in LDAP.");
-        string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.Contains(x.Value)).Key;
+        string studentRole = _JWTSettings.Roles.First(x => ldapStudent.MemberOf.Any(y => y.Contains(x.Value, StringComparison.OrdinalIgnoreCase))).Key;
 
         return new()
         {
@@ -594,7 +594,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     private UserAdd GenerateTeacher(Guid id)
     {
         BasicUserInfo? ldapTeacher = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Teacher not found in LDAP.");
-        string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.Contains(x.Value)).Key;
+        string teacherRole = _JWTSettings.Roles.First(x => ldapTeacher.MemberOf.Any(y => y.Contains(x.Value, StringComparison.OrdinalIgnoreCase))).Key;
 
         return new()
         {
