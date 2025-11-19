@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Database.DTO.QuestionnaireTemplate;
 using Database.Enums;
 using Database.Extensions;
