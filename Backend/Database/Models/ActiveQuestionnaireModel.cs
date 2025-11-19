@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Database.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Database.Models;
@@ -132,6 +133,17 @@ public class ActiveQuestionnaireModel
 
     [ForeignKey(nameof(GroupId))]
     public QuestionnaireGroupModel? Group { get; set; }
+
+    /// <summary>
+    /// Gets or sets the type of the active questionnaire.
+    /// This property defines the category or classification of the questionnaire being used.
+    /// </summary>
+    /// <value>
+    /// An <see cref="ActiveQuestionnaireType"/> enumeration value that specifies the questionnaire type.
+    /// This property is required and must be set when creating an instance of the model.
+    /// </value>
+    [Required]
+    public required ActiveQuestionnaireType QuestionnaireType { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of student responses submitted for this questionnaire.

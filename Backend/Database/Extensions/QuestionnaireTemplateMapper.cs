@@ -1,4 +1,5 @@
 using Database.DTO.QuestionnaireTemplate;
+using Database.Enums;
 using Database.Models;
 
 namespace Database.Extensions;
@@ -80,7 +81,7 @@ public static class QuestionnaireTemplateMapper
     /// <remarks>
     /// This method creates a new ActiveQuestionnaireModel instance based on the provided template and associated student and teacher.
     /// </remarks>
-    public static ActiveQuestionnaireModel ToActiveQuestionnaire(this QuestionnaireTemplate questionnaire, QuestionnaireTemplateModel questionnaireModel, StudentModel student, TeacherModel teacher)
+    public static ActiveQuestionnaireModel ToActiveQuestionnaire(this QuestionnaireTemplate questionnaire, QuestionnaireTemplateModel questionnaireModel, StudentModel student, TeacherModel teacher, ActiveQuestionnaireType questionnaireType)
     {
         return new()
         {
@@ -88,7 +89,8 @@ public static class QuestionnaireTemplateMapper
             Description = questionnaire.Description,
             Student = student,
             Teacher = teacher,
-            QuestionnaireTemplate = questionnaireModel
+            QuestionnaireTemplate = questionnaireModel,
+            QuestionnaireType = questionnaireType
         };
     }
 }

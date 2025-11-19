@@ -227,6 +227,7 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
                     ActivatedAt = activatedAtTimes[i],
                     StudentCompletedAt = completedAtTime[i],
                     TeacherCompletedAt = completedAtTime[i],
+                    QuestionnaireType = ActiveQuestionnaireType.Anonymous,
                     Student = new StudentModel()
                     {
                         Id = studentId,
