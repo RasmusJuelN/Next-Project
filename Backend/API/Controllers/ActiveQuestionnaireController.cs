@@ -353,6 +353,11 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
+            if (await _questionnaireService.IsActiveQuestionnaireAnonymous(id))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, "The requested questionnaire is anonymous and does not have associated responses.");
+            }
+
             FullResponse response = await _questionnaireService.GetFullResponseAsync(id);
 
             if (userId != response.Student.User.Guid && userId != response.Teacher.User.Guid)
@@ -362,7 +367,7 @@ namespace API.Controllers
             }
             else
             {
-                return Ok(await _questionnaireService.GetFullResponseAsync(id));
+                return Ok(response);
             }
         }
 

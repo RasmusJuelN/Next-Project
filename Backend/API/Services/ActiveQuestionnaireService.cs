@@ -475,6 +475,11 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     /// <exception cref="InvalidOperationException">Thrown when the questionnaire is not found.</exception>
     public async Task<FullResponse> GetFullResponseAsync(Guid id)
     {
+        if (await _unitOfWork.ActiveQuestionnaire.IsActiveQuestionnaireAnonymous(id))
+        {
+            throw new ArgumentException("Cannot retrieve full response for anonymous questionnaires.");
+        }
+        
         return await _unitOfWork.ActiveQuestionnaire.GetFullResponseAsync(id);
     }
 
@@ -646,5 +651,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         });
     }
 
+    public async Task<bool> IsActiveQuestionnaireAnonymous(Guid activeQuestionnaireId)
+    {
+        return await _unitOfWork.ActiveQuestionnaire.IsActiveQuestionnaireAnonymous(activeQuestionnaireId);
+    }
 }
 // Add the missing CreatedAt property to the QuestionnaireGroupResult class
