@@ -4,6 +4,7 @@ using API.DTO.Responses.ActiveQuestionnaire;
 using API.Exceptions;
 using API.Services;
 using Database.DTO.ActiveQuestionnaire;
+using Database.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -556,6 +557,13 @@ namespace API.Controllers
             {
                 return StatusCode(500, new { message = "Failed to fetch completed students", error = ex.Message });
             }
+        }
+
+        [HttpGet("types")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AllRoles")]
+        public async Task<ActionResult<List<string>>> GetActiveQuestionnaireTypes()
+        {
+            return Ok(Enum.GetValues(typeof(ActiveQuestionnaireType)));
         }
     }
 
