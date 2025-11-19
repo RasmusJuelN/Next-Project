@@ -390,7 +390,10 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Option)
             .Include(a => a.Student)
-            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue)
+            .Where(a => a.Student.Guid == studentid &&
+                a.QuestionnaireTemplate.Id == templateid
+                && a.StudentCompletedAt.HasValue &&
+                a.QuestionnaireType == ActiveQuestionnaireType.Standard)
             .ToListAsync();
 
         return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate())];
