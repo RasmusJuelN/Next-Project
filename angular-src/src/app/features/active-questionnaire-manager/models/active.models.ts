@@ -63,7 +63,7 @@ export interface QuestionnaireBase {
   teacherCompletedAt?: string; // or Date
 }
 // Response DTO for keyset pagination
-export interface QuestionnaireGroupKeysetPaginationResult {
+export interface QuestionnaireGroupOffsetPaginationResult {
   groups: QuestionnaireGroupResult[];
   currentPage: number;  
   totalPages: number;    

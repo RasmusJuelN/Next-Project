@@ -17,6 +17,7 @@ using System.Net;
 using API.Services.Authentication;
 using System.Text.Json.Serialization;
 using Serilog;
+using API.Filters;
 
 const string settingsFile = "config.json";
 
@@ -117,6 +118,7 @@ builder.Services.AddScoped<IApplicationLogRepository, ApplicationLogRepository>(
 
 builder.Services.AddControllers(options =>{
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+    options.Filters.Add<HttpResponseExceptionFilter>();
 }).AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -133,16 +133,8 @@ namespace API.Controllers
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<QuestionnaireGroupResult>> CreateGroup([FromBody] ActivateQuestionnaireGroup request)
         {
-            try
-            {
-                var result = await _questionnaireService.ActivateQuestionnaireGroup(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating questionnaire group: {Message}", ex.Message);
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _questionnaireService.ActivateQuestionnaireGroup(request);
+            return Ok(result);
         }
 
 

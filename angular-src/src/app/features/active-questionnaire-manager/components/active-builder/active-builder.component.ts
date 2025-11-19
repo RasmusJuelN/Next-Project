@@ -33,6 +33,7 @@ export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
   public groupName: string = '';
   public isAnonymousMode = false;
+  public duplicateGroupNameError: string = '';
   public groupNameError: string = '';
   public studentError: string = '';
   public teacherError: string = '';
@@ -244,45 +245,47 @@ private handleDocumentClick = (event: MouseEvent) => {
       };
       this.activeService.createAnonymousQuestionnaireGroup(payload).subscribe(() => {
         alert('Anonymt spørgeskema oprettet!');
+        // TODO ERROR HANDLING
         this.backToListEvent.emit();
       });
       return;
     }
 
+    this.duplicateGroupNameError = '';
     this.groupNameError = '';
-  this.studentError = '';
-  this.teacherError = '';
-  this.templateError = '';
+    this.studentError = '';
+    this.teacherError = '';
+    this.templateError = '';
 
-  let hasError = false;
+    let hasError = false;
 
-  // Normal mode: students, teachers, template, group name
-  if (!Array.isArray(this.student.selected) || this.student.selected.length === 0) {
-    this.studentError = 'Du skal vælge mindst én elev.';
-    hasError = true;
-  }
-  if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
-    this.teacherError = 'Du skal vælge mindst én lærer.';
-    hasError = true;
-  }
-  if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
-    this.templateError = 'Du skal vælge en skabelon.';
-    hasError = true;
-  }
-  if (!this.template.selected[0].id) {
-    this.templateError = 'Den valgte skabelon mangler et ID.';
-    hasError = true;
-  }
-  if (!this.groupName.trim()) {
-    this.groupNameError = 'Spørgeskema gruppen skal tildeles et navn.';
-    hasError = true;
-  }
-  if (hasError) {
-    return;
-  }
-  if (this.template.selected.length > 1) {
-    alert('Der kan kun tildeles én skabelon ad gangen.');
-    return;
+    // Normal mode: students, teachers, template, group name
+    if (!Array.isArray(this.student.selected) || this.student.selected.length === 0) {
+      this.studentError = 'Du skal vælge mindst én elev.';
+      hasError = true;
+    }
+    if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
+      this.teacherError = 'Du skal vælge mindst én lærer.';
+      hasError = true;
+    }
+    if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
+      this.templateError = 'Du skal vælge en skabelon.';
+      hasError = true;
+    }
+    if (!this.template.selected[0].id) {
+      this.templateError = 'Den valgte skabelon mangler et ID.';
+      hasError = true;
+    }
+    if (!this.groupName.trim()) {
+      this.groupNameError = 'Spørgeskema gruppen skal tildeles et navn.';
+      hasError = true;
+    }
+    if (hasError) {
+      return;
+    }
+    if (this.template.selected.length > 1) {
+      alert('Der kan kun tildeles én skabelon ad gangen.');
+      return;
     }
     
     const newGroup = {
@@ -291,10 +294,21 @@ private handleDocumentClick = (event: MouseEvent) => {
       studentIds: this.student.selected.map(s => s.id),
       teacherIds: this.teacher.selected.map(t => t.id)
     };
-    this.activeService.createActiveQuestionnaireGroup(newGroup).subscribe(() => {
+    this.activeService.createActiveQuestionnaireGroup(newGroup).subscribe({
+    next: () => {
       alert('Spørgeskema-gruppe oprettet!');
       this.backToListEvent.emit();
-    });
+    },
+    error: (error: any) => {
+      // Handle duplicate name error (409 Conflict)
+      if (error.status === 409) {
+        this.duplicateGroupNameError = `En spørgeskema-gruppe med navnet '${this.groupName}' eksisterer allerede.`;
+        console.log('Duplicate group name error:', this.duplicateGroupNameError);
+      } else {
+        alert('An error occurred while creating the group.');
+      }
+    }
+  });
   }
 
 
