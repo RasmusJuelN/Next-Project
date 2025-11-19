@@ -62,24 +62,13 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         return activeQuestionnaire.ToDto();
     }
 
-    /// <summary>
-    /// Creates a new active questionnaire instance from a template and assigns it to specific participants.
-    /// </summary>
-    /// <param name="questionnaireTemplateId">The ID of the questionnaire template to activate.</param>
-    /// <param name="studentId">The GUID of the student participant.</param>
-    /// <param name="teacherId">The GUID of the teacher participant.</param>
-    /// <returns>The newly created ActiveQuestionnaire instance with complete structure.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when any of the specified entities (template, student, teacher) are not found.</exception>
-    /// <remarks>
-    /// This method efficiently retrieves participants from local context when available to minimize database queries.
-    /// The created questionnaire inherits title and description from the template and establishes participant relationships.
-    /// The template structure including questions and options is included for immediate use.
-    /// </remarks>
+    /// <inheritdoc/>
     public async Task<ActiveQuestionnaire> ActivateQuestionnaireAsync(
         Guid questionnaireTemplateId,
         Guid studentId,
         Guid teacherId,
-        Guid groupId)
+        Guid groupId,
+        ActiveQuestionnaireType activeQuestionnaireType)
     {
         // Fetch student and teacher
         StudentModel student = _context.Users.Local.OfType<StudentModel>().SingleOrDefault(u => u.Guid == studentId) ?? await _context.Users.OfType<StudentModel>().SingleAsync(u => u.Guid == studentId);
@@ -99,7 +88,8 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             Student = student,
             Teacher = teacher,
             QuestionnaireTemplate = questionnaireTemplate,
-            GroupId = groupId
+            GroupId = groupId,
+            QuestionnaireType = activeQuestionnaireType
         };
 
         await _genericRepository.AddAsync(activeQuestionnaire);
@@ -107,26 +97,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         return activeQuestionnaire.ToDto();
     }
 
-    /// <summary>
-    /// Performs paginated retrieval of active questionnaires with comprehensive filtering and sorting options using keyset pagination.
-    /// </summary>
-    /// <param name="amount">The number of questionnaires to retrieve per page.</param>
-    /// <param name="sortOrder">The ordering criteria for the results.</param>
-    /// <param name="cursorIdPosition">Optional cursor ID for pagination continuation.</param>
-    /// <param name="cursorActivatedAtPosition">Optional cursor activation timestamp for pagination continuation.</param>
-    /// <param name="titleQuery">Optional filter by questionnaire title (partial match).</param>
-    /// <param name="student">Optional filter by student name or username (partial match).</param>
-    /// <param name="teacher">Optional filter by teacher name or username (partial match).</param>
-    /// <param name="idQuery">Optional filter by questionnaire ID (partial match).</param>
-    /// <param name="userId">Optional filter to show questionnaires assigned to a specific user (student or teacher).</param>
-    /// <param name="onlyStudentCompleted">When true, shows only questionnaires where students have completed their responses.</param>
-    /// <param name="onlyTeacherCompleted">When true, shows only questionnaires where teachers have completed their responses.</param>
-    /// <returns>A tuple containing the list of questionnaire base DTOs and the total count matching the criteria.</returns>
-    /// <remarks>
-    /// Uses keyset pagination for consistent performance with large datasets. The cursor parameters work together
-    /// to maintain stable pagination even when new records are added. Multiple filter options can be combined
-    /// to create complex queries. Includes participant information for efficient display without additional queries.
-    /// </remarks>
+    /// <inheritdoc/>
     public async Task<(List<ActiveQuestionnaireBase>, int)> PaginationQueryWithKeyset(
         int amount,
         ActiveQuestionnaireOrderingOptions sortOrder,
@@ -140,7 +111,8 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         bool onlyStudentCompleted = false,
         bool onlyTeacherCompleted = false,
         bool pendingStudent = false,         // NEW
-        bool pendingTeacher = false)
+        bool pendingTeacher = false,
+        ActiveQuestionnaireType? questionnaireType = null)
     {
         IQueryable<ActiveQuestionnaireModel> query = _genericRepository.GetAsQueryable();
 
@@ -185,6 +157,11 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
 
         if (pendingTeacher)
             query = query.Where(q => !q.TeacherCompletedAt.HasValue);
+        
+        if (questionnaireType is not null)
+        {
+            query = query.Where(q => q.QuestionnaireType == questionnaireType);
+        }
 
         int totalCount = await query.CountAsync();
 
@@ -456,7 +433,8 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
                 ActiveQuestionnaires = t.ActiveQuestionnaires
                     .Where(a => 
                         // Filter by groups if provided
-                        groups.Count == 0 || groups.Contains(a.GroupId)
+                        groups.Count == 0 || groups.Contains(a.GroupId) &&
+                        a.QuestionnaireType == ActiveQuestionnaireType.Anonymous
                     )
                     .Select(a => new
                     {

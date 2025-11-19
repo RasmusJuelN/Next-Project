@@ -65,7 +65,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             request.Teacher,
             request.ActiveQuestionnaireId,
             onlyStudentCompleted: request.FilterStudentCompleted,
-            onlyTeacherCompleted: request.FilterTeacherCompleted
+            onlyTeacherCompleted: request.FilterTeacherCompleted,
+            questionnaireType: request.QuestionnaireType
         );
 
         ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;
@@ -126,7 +127,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             foreach (var teacherId in request.TeacherIds)
             {
                 var questionnaire = await _unitOfWork.ActiveQuestionnaire.ActivateQuestionnaireAsync(
-                    request.TemplateId, studentId, teacherId, group.GroupId);
+                    request.TemplateId, studentId, teacherId, group.GroupId, request.QuestionnaireType);
                 createdQuestionnaires.Add(questionnaire);
             }
         }
@@ -402,7 +403,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
                 // Fix: Add a groupId parameter to the ActivateQuestionnaireAsync call
                 var groupId = Guid.NewGuid(); // Generate a new groupId or use an existing one if applicable
                 var activeQuestionnaire = await _unitOfWork.ActiveQuestionnaire.ActivateQuestionnaireAsync(
-                    request.TemplateId, studentId, teacherId, groupId);
+                    request.TemplateId, studentId, teacherId, groupId, request.QuestionnaireType);
 
                 createdQuestionnaires.Add(activeQuestionnaire);
             }

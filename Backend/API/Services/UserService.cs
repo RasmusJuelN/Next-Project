@@ -101,7 +101,8 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
             student: request.Teacher,
             idQuery: request.ActiveQuestionnaireId,
             userId: userId,
-            onlyStudentCompleted: request.FilterStudentCompleted);
+            onlyStudentCompleted: request.FilterStudentCompleted,
+            questionnaireType: request.QuestionnaireType);
         
         ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;
 
@@ -157,7 +158,8 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
             idQuery: request.ActiveQuestionnaireId,
             userId: userId,
             onlyStudentCompleted: request.FilterStudentCompleted,
-            onlyTeacherCompleted: request.FilterTeacherCompleted);
+            onlyTeacherCompleted: request.FilterTeacherCompleted,
+            questionnaireType: request.QuestionnaireType);
 
         ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;
 

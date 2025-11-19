@@ -24,6 +24,8 @@ public record class ActiveQuestionnaireKeysetPaginationRequestBase
     public Guid? ActiveQuestionnaireId { get; set; }
 
     public string? QueryCursor { get; set; }
+
+    public ActiveQuestionnaireType? QuestionnaireType { get; set; }
 }
 
 /// <summary>

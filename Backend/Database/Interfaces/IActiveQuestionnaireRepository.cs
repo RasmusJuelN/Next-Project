@@ -31,6 +31,8 @@ public interface IActiveQuestionnaireRepository
     /// <param name="questionnaireTemplateId">The ID of the questionnaire template to activate.</param>
     /// <param name="studentId">The ID of the student who will complete the questionnaire.</param>
     /// <param name="teacherId">The ID of the teacher who will review the questionnaire.</param>
+    /// <param name="groupId">The ID of the group associated with this questionnaire activation.</param>
+    /// <param name="activeQuestionnaireType">The type of active questionnaire being created.</param>
     /// <returns>The newly created ActiveQuestionnaire instance.</returns>
     /// <exception cref="ArgumentException">Thrown when any of the provided IDs are not found.</exception>
     /// <exception cref="InvalidOperationException">Thrown when the template is locked or cannot be activated.</exception>
@@ -38,7 +40,8 @@ public interface IActiveQuestionnaireRepository
         Guid questionnaireTemplateId,
         Guid studentId,
         Guid teacherId,
-        Guid groupId);
+        Guid groupId,
+        ActiveQuestionnaireType activeQuestionnaireType);
 
     /// <summary>
     /// Performs paginated retrieval of active questionnaires with advanced filtering and sorting options using keyset pagination.
@@ -54,6 +57,9 @@ public interface IActiveQuestionnaireRepository
     /// <param name="userId">Optional filter to show questionnaires assigned to a specific user.</param>
     /// <param name="onlyStudentCompleted">When true, shows only questionnaires completed by students.</param>
     /// <param name="onlyTeacherCompleted">When true, shows only questionnaires completed by teachers.</param>
+    /// <param name="pendingStudent">When true, shows only questionnaires pending student completion.</param>
+    /// <param name="pendingTeacher">When true, shows only questionnaires pending teacher completion.</param>
+    /// <param name="questionnaireType">Optional filter by the type of active questionnaire.</param>
     /// <returns>A tuple containing the list of questionnaires and the total count matching the criteria.</returns>
     /// <remarks>
     /// Uses keyset pagination for consistent performance with large datasets. Combine cursor parameters for proper pagination.
@@ -72,7 +78,8 @@ public interface IActiveQuestionnaireRepository
         bool onlyStudentCompleted = false,
         bool onlyTeacherCompleted = false,
         bool pendingStudent = false,         // NEW
-        bool pendingTeacher = false);
+        bool pendingTeacher = false,
+        ActiveQuestionnaireType? questionnaireType = null);
 
 
     /// <summary>
