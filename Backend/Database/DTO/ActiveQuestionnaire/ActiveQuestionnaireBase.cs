@@ -1,4 +1,5 @@
 using Database.DTO.User;
+using Database.Enums;
 
 namespace Database.DTO.ActiveQuestionnaire;
 
@@ -14,6 +15,7 @@ namespace Database.DTO.ActiveQuestionnaire;
 /// <param name="Teacher">The teacher user associated with the questionnaire.</param>
 /// <param name="StudentCompletedAt">The date and time when the student completed the questionnaire, if applicable.</param>
 /// <param name="TeacherCompletedAt">The date and time when the teacher completed the questionnaire, if applicable.</param>
+/// <param name="QuestionnaireType">The type of the active questionnaire.</param>
 /// <remarks>
 /// This record serves as the foundation for active questionnaire operations, tracking the lifecycle
 /// of a questionnaire from activation through completion by both participants.
@@ -31,4 +33,5 @@ public record class ActiveQuestionnaireBase
     public required UserBase Teacher { get; set; }
     public required DateTime? StudentCompletedAt { get; set; }
     public required DateTime? TeacherCompletedAt { get; set; }
+    public required ActiveQuestionnaireType QuestionnaireType { get; set; }
 }

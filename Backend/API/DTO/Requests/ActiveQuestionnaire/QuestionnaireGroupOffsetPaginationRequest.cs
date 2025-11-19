@@ -73,5 +73,7 @@ namespace API.DTO.Requests.ActiveQuestionnaire
         /// When set to true, filters the results to show only groups that have pending teacher reviews.
         /// </remarks>
         public bool? PendingTeacher { get; set; }
+
+        public ActiveQuestionnaireType? QuestionnaireType { get; set; }
     }
 }

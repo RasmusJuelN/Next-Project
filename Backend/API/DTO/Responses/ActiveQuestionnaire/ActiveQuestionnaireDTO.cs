@@ -1,5 +1,6 @@
 using Database.DTO.QuestionnaireTemplate;
 using Database.DTO.User;
+using Database.Enums;
 
 namespace API.DTO.Responses.ActiveQuestionnaire;
 
@@ -19,6 +20,7 @@ public record class ActiveQuestionnaireUserSpecificBase
     public required string Title { get; set; }
     public string? Description { get; set; }
     public required DateTime ActivatedAt { get; set; }
+    public required ActiveQuestionnaireType QuestionnaireType { get; set; }
 }
 
 /// <summary>

@@ -1,11 +1,5 @@
-﻿using Database.DTO.ActiveQuestionnaire;
+﻿using Database.Enums;
 using Database.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Database.Enums;
 
 namespace Database.Interfaces
 {
@@ -78,7 +72,8 @@ namespace Database.Interfaces
             bool? pendingStudent = false,
             bool? pendingTeacher = false,
             int? teacherFK = null,
-            int? pageNumber = null);
+            int? pageNumber = null,
+            ActiveQuestionnaireType? activeQuestionnaireType = null);
 
 
     }

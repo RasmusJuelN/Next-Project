@@ -34,7 +34,8 @@ public static class ActiveQuestionnaireExtensions
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
             Student = activeQuestionnaire.Student,
-            StudentCompletedAt = activeQuestionnaire.StudentCompletedAt
+            StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
+            QuestionnaireType = activeQuestionnaire.QuestionnaireType
         };
     }
 
@@ -62,7 +63,8 @@ public static class ActiveQuestionnaireExtensions
             Student = activeQuestionnaire.Student,
             StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
             Teacher = activeQuestionnaire.Teacher,
-            TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt
+            TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt,
+            QuestionnaireType = activeQuestionnaire.QuestionnaireType
         };
     }
 
@@ -89,7 +91,8 @@ public static class ActiveQuestionnaireExtensions
             Student = activeQuestionnaire.Student,
             StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
             Teacher = activeQuestionnaire.Teacher,
-            TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt
+            TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt,
+            QuestionnaireType = activeQuestionnaire.QuestionnaireType
         };
     }
 }

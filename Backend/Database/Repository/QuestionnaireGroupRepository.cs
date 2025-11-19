@@ -1,12 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Database.DTO.ActiveQuestionnaire;
-using Database.Enums;
+﻿using Database.Enums;
 using Database.Extensions;
 using Database.Interfaces;
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
-using Database.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Database.Repository
@@ -94,30 +90,7 @@ namespace Database.Repository
                 .ToListAsync();
         }
 
-        /// <summary>
-        /// Retrieves a paginated list of questionnaire groups using keyset pagination with
-        /// optional filtering, ordering, and cursor-based continuation.
-        /// </summary>
-        /// <param name="amount">The maximum number of results to return.</param>
-        /// <param name="sortOrder">The ordering criteria for the results.</param>
-        /// <param name="cursorIdPosition">An optional cursor group ID to continue pagination.</param>
-        /// <param name="cursorCreatedAtPosition">An optional cursor creation date to continue pagination.</param>
-        /// <param name="titleQuery">An optional text filter applied to group names.</param>
-        /// <param name="groupId">An optional group ID filter for exact matches.</param>
-        /// <param name="pendingStudent">If true, only groups with at least one incomplete student questionnaire are returned.</param>
-        /// <param name="pendingTeacher">If true, only groups with at least one incomplete teacher questionnaire are returned.</param>
-        /// <returns>
-        /// A tuple containing:
-        /// <list type="bullet">
-        /// <item><description>A list of <see cref="QuestionnaireGroupModel"/> entities that match the query.</description></item>
-        /// <item><description>The total count of all entities matching the filter (before pagination).</description></item>
-        /// </list>
-        /// </returns>
-        /// <remarks>
-        /// Keyset pagination ensures stable and efficient page navigation by using creation date
-        /// and group ID as continuation markers, avoiding performance issues with large offsets.
-        /// Related templates, students, and teachers are eagerly loaded for immediate use.
-        /// </remarks>
+        /// <inheritdoc/>
         public async Task<(List<QuestionnaireGroupModel>, int)> PaginationQueryWithKeyset(
             int amount,
                     QuestionnaireGroupOrderingOptions sortOrder,
@@ -126,7 +99,8 @@ namespace Database.Repository
                     bool? pendingStudent = false,
                     bool? pendingTeacher = false,
                     int? teacherFK = null,
-                    int? pageNumber = 1)
+                    int? pageNumber = 1,
+                    ActiveQuestionnaireType? activeQuestionnaireType = null)
         {
             IQueryable<QuestionnaireGroupModel> query = _genericRepository.GetAsQueryable();
 
@@ -151,6 +125,11 @@ namespace Database.Repository
             if (teacherFK.HasValue)
             {
                 query = query.Where(g => g.Questionnaires.Any(q => q.TeacherFK == teacherFK.Value));
+            }
+
+            if (activeQuestionnaireType is not null)
+            {
+                query = query.Where(g => g.Questionnaires.Any(q => q.QuestionnaireType == activeQuestionnaireType));
             }
 
             int totalCount = await query.CountAsync();

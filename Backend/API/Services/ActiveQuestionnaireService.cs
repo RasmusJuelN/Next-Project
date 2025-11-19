@@ -1,7 +1,7 @@
 using System.Net;
-using API.DTO.User;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
+using API.DTO.User;
 using API.Exceptions;
 using API.Interfaces;
 using Database.DTO.ActiveQuestionnaire;
@@ -142,7 +142,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             Student = q.Student,
             Teacher = q.Teacher,
             StudentCompletedAt = q.StudentCompletedAt,
-            TeacherCompletedAt = q.TeacherCompletedAt
+            TeacherCompletedAt = q.TeacherCompletedAt,
+            QuestionnaireType = q.QuestionnaireType
         }).ToList();
 
 
@@ -188,7 +189,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             pendingStudent: request.PendingStudent,
             pendingTeacher: request.PendingTeacher,
             teacherFK: null,
-            pageNumber: request.PageNumber
+            pageNumber: request.PageNumber,
+            activeQuestionnaireType: request.QuestionnaireType
         );
 
         var results = groups.Select(group => new QuestionnaireGroupResult
@@ -213,7 +215,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
                     FullName = q.Teacher.FullName
                 },
                 StudentCompletedAt = q.StudentCompletedAt,
-                TeacherCompletedAt = q.TeacherCompletedAt
+                TeacherCompletedAt = q.TeacherCompletedAt,
+                QuestionnaireType = q.QuestionnaireType
             }).ToList()
         }).ToList();
 
@@ -270,7 +273,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
                 FullName = q.Teacher.FullName
             },
             StudentCompletedAt = q.StudentCompletedAt,
-            TeacherCompletedAt = q.TeacherCompletedAt
+            TeacherCompletedAt = q.TeacherCompletedAt,
+            QuestionnaireType = q.QuestionnaireType
         }).ToList();
 
         return new QuestionnaireGroupResult
@@ -319,7 +323,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
                         FullName = q.Teacher.FullName
                     },
                     StudentCompletedAt = q.StudentCompletedAt,
-                    TeacherCompletedAt = q.TeacherCompletedAt
+                    TeacherCompletedAt = q.TeacherCompletedAt,
+                    QuestionnaireType = q.QuestionnaireType
                 }).ToList();
 
             results.Add(new QuestionnaireGroupResult

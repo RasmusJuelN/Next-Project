@@ -35,7 +35,8 @@ public static class ActiveQuestionnaireMapper
             Student = activeQuestionnaire.Student.ToBaseDto(),
             Teacher = activeQuestionnaire.Teacher.ToBaseDto(),
             StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
-            TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt
+            TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt,
+            QuestionnaireType = activeQuestionnaire.QuestionnaireType
         };
     }
 
@@ -65,6 +66,7 @@ public static class ActiveQuestionnaireMapper
             Teacher = activeQuestionnaire.Teacher.ToBaseDto(),
             StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
             TeacherCompletedAt = activeQuestionnaire.TeacherCompletedAt,
+            QuestionnaireType = activeQuestionnaire.QuestionnaireType,
             Questions = [.. activeQuestionnaire.QuestionnaireTemplate.Questions.Select(q => q.ToDto())]
         };
     }
@@ -93,8 +95,8 @@ public static class ActiveQuestionnaireMapper
             Id = activeQuestionnaire.Id,
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
-            Student = new() { User = activeQuestionnaire.Student.ToDto(), CompletedAt = (DateTime)activeQuestionnaire.StudentCompletedAt!},
-            Teacher = new() { User = activeQuestionnaire.Teacher.ToDto(), CompletedAt = (DateTime)activeQuestionnaire.TeacherCompletedAt!},
+            Student = new() { User = activeQuestionnaire.Student.ToDto(), CompletedAt = (DateTime)activeQuestionnaire.StudentCompletedAt! },
+            Teacher = new() { User = activeQuestionnaire.Teacher.ToDto(), CompletedAt = (DateTime)activeQuestionnaire.TeacherCompletedAt! },
             Answers = [.. activeQuestionnaire.StudentAnswers.Zip(activeQuestionnaire.TeacherAnswers).Select(a => new FullAnswer {
                 Question = a.First.Question!.Prompt,
                 StudentResponse = a.First.CustomResponse ?? a.First.Option!.DisplayText,
@@ -118,7 +120,7 @@ public static class ActiveQuestionnaireMapper
             Id = activeQuestionnaire.Id,
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
-            Student = new() { User = activeQuestionnaire.Student.ToDto(), CompletedAt = (DateTime)activeQuestionnaire.StudentCompletedAt!},
+            Student = new() { User = activeQuestionnaire.Student.ToDto(), CompletedAt = (DateTime)activeQuestionnaire.StudentCompletedAt! },
             StudentCompletedAt = activeQuestionnaire.StudentCompletedAt,
             Answers = [.. activeQuestionnaire.StudentAnswers.Select(a => new StudentAnswer {
                 Question = a.Question!.Prompt,
