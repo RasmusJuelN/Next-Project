@@ -529,7 +529,8 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .Where(aq => aq.Student!.Guid == studentId && 
                          aq.Teacher!.Guid == teacherId && 
                          aq.QuestionnaireTemplateFK == templateId &&
-                         (aq.StudentCompletedAt != null || aq.TeacherCompletedAt != null)) // Only include questionnaires with at least one completion
+                         (aq.StudentCompletedAt != null || aq.TeacherCompletedAt != null) &&
+                         aq.QuestionnaireType == ActiveQuestionnaireType.Standard) // Only include questionnaires with at least one completion
             .OrderBy(aq => aq.ActivatedAt)
             .ToListAsync();
 
