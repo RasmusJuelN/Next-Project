@@ -200,12 +200,12 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
         // Users
         int studentId = -1;
         int teacherId = -2;
-        Guid studentGuid = Guid.Parse("8ccdeb24-9027-40f0-986f-a5d2d171469a");
-        Guid teacherGuid = Guid.Parse("76889b1b-c762-482b-a1cb-2e4189dbb484");
-        string studentUserName = "student1";
-        string teacherUserName = "teacher1";
-        string studentFullName = "Student One";
-        string teacherFullName = "Teacher One";
+        Guid studentGuid = Guid.Parse("7f8669b1-82ef-4992-b129-98816c8062ae");
+        Guid teacherGuid = Guid.Parse("2fd332b4-39b0-4d4b-9e52-04cd9eea2dd4");
+        string studentUserName = "Brigitte.Cantrell";
+        string teacherUserName = "Goodman.Powell";
+        string studentFullName = "Brigitte Cantrell";
+        string teacherFullName = "Goodman Powell";
         UserRoles studentRole = UserRoles.Student;
         UserRoles teacherRole = UserRoles.Teacher;
         UserPermissions studentPermissions = UserPermissions.Student;
