@@ -624,4 +624,12 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
 
         return completedQuestionnaires.Select(aq => aq.ToBaseDto()).ToList();
     }
+
+    public async Task<bool> IsActiveQuestionnaireAnonymous(Guid activeQuestionnaireId)
+    {
+        return await _context.Set<ActiveQuestionnaireModel>()
+            .Where(a => a.Id == activeQuestionnaireId)
+            .Select(a => a.QuestionnaireType)
+            .SingleOrDefaultAsync() == ActiveQuestionnaireType.Anonymous;
+    }
 }

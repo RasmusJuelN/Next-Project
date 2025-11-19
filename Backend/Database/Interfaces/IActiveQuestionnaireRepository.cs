@@ -172,4 +172,15 @@ public interface IActiveQuestionnaireRepository
     Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups);
 
     Task<List<ActiveQuestionnaireBase>> GetCompletedQuestionnairesByGroupAsync(Guid activeQuestionnaireId);
+
+    /// <summary>
+    /// Determines whether the specified active questionnaire is of anonymous type.
+    /// </summary>
+    /// <param name="activeQuestionnaireId">The unique identifier of the active questionnaire to check.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a boolean value:
+    /// <c>true</c> if the active questionnaire is anonymous; otherwise, <c>false</c>.
+    /// Returns <c>false</c> if no questionnaire with the specified ID is found.
+    /// </returns>
+    Task<bool> IsActiveQuestionnaireAnonymous(Guid activeQuestionnaireId);
 }
