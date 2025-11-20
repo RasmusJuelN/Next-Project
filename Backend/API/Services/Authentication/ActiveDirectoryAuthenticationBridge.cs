@@ -55,7 +55,7 @@ public class ActiveDirectoryAuthenticationBridge(
             }
             else
             {
-                _Logger.LogDebug("Creating new LDAP connection to {Host}:{Port}", _LdapSettings.Host, _LdapSettings.Port);
+                _Logger.LogDebug("Creating new LDAP connection to {Host}:{Port}", _LdapSettings.Host, port);
                 _Connection = CreateConnection(connectionOptions);
                 LdapSearchConstraints constraints = new();
                 constraints.ReferralFollowing = true;
