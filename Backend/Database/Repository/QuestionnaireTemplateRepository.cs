@@ -335,7 +335,8 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         var templates = await _context.ActiveQuestionnaires
             .Where(aq => aq.Student != null && aq.Student.Guid == studentId && 
                         aq.Teacher != null && aq.Teacher.Guid == teacherId &&
-                        aq.StudentCompletedAt.HasValue && aq.TeacherCompletedAt.HasValue)
+                        aq.StudentCompletedAt.HasValue && aq.TeacherCompletedAt.HasValue &&
+                        aq.QuestionnaireType == ActiveQuestionnaireType.Standard)
             .Select(aq => aq.QuestionnaireTemplate!)
             .Distinct()
             .OrderByDescending(t => t.CreatedAt)
