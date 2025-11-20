@@ -1,10 +1,14 @@
+using System.Text.Json.Serialization;
 using Settings.Interfaces;
 
 namespace Settings.Models;
 
 public class RootSettings : Base, IRootSettings
 {
-    public override string Key { get; } = "Settings";
+    [JsonIgnore]
+    public override string Key { get; } = "";
+
+    public int Version { get; set; } = 2;
 
     public DatabaseSettings Database { get; set; } = new();
     public JWTSettings JWT { get; set; } = new();

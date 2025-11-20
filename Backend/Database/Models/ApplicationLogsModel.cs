@@ -21,18 +21,17 @@ public class ApplicationLogsModel
     /// </summary>
     [Key]
     public int Id { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the primary log message content.
     /// </summary>
     /// <remarks>
-    /// Contains the main log message with a maximum length of 1000 characters.
+    /// Contains the main log message.
     /// Should provide clear, concise information about the logged event or condition.
     /// </remarks>
     [Required]
-    [MaxLength(1000)]
     public required string Message { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the severity level of this log entry using Microsoft.Extensions.Logging.LogLevel.
     /// </summary>
@@ -42,7 +41,7 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public required LogLevel LogLevel { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the timestamp when this log entry was created.
     /// </summary>
@@ -52,7 +51,7 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public DateTime Timestamp { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the event identifier associated with this log entry.
     /// </summary>
@@ -62,7 +61,16 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public required int EventId { get; set; }
-    
+
+    /// <summary>
+    /// Gets or sets the description of the event associated with this log entry.
+    /// </summary>
+    /// <remarks>
+    /// Provides additional context about the event being logged, and which type it is.
+    /// </remarks>
+    [Required]
+    public required string EventDescription { get; set; }
+
     /// <summary>
     /// Gets or sets the category or source component that generated this log entry.
     /// </summary>
@@ -72,15 +80,13 @@ public class ApplicationLogsModel
     /// </remarks>
     [Required]
     public required string Category { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the optional exception details if this log entry is related to an error.
     /// </summary>
     /// <remarks>
     /// Contains serialized exception information including stack traces and inner exceptions.
-    /// Maximum length of 5000 characters to accommodate detailed error information.
     /// Null for non-error log entries.
     /// </remarks>
-    [MaxLength(5000)]
     public string? Exception { get; set; }
 }

@@ -4,23 +4,29 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { finalize } from 'rxjs';
+import { LoginErrorCode } from '../home/models/login.model';
+import { LanguageSwitcherComponent } from '../../core/components/language-switcher/language-switcher.component';
+import { TrackCapsDirective } from '../../shared/directives/caps-lock';
 
 
-/**
- * Login component.
- *
- * Provides a login form and integrates with the authentication service. Used inside of other components.
- *
- * Handles:
- * - Username/password input.
- * - Calling `AuthService.login` and updating UI state.
- * - Emitting success or error events to parent components.
- * - Showing loading and error states during login attempts.
- */
+const ERROR_I18N: Record<LoginErrorCode, string> = {
+  [LoginErrorCode.InvalidCredentials]: 'LOGIN.ERRORS.INVALID',
+  [LoginErrorCode.Network]:            'LOGIN.ERRORS.NETWORK',
+  [LoginErrorCode.Server]:             'LOGIN.ERRORS.SERVER',
+  [LoginErrorCode.Unknown]:            'LOGIN.ERRORS.GENERIC',
+  // If your enum also includes these, keep them:
+  [LoginErrorCode.BadRequest]:         'LOGIN.ERRORS.BAD_REQUEST',
+  [LoginErrorCode.Forbidden]:          'LOGIN.ERRORS.FORBIDDEN',
+  [LoginErrorCode.RateLimited]:        'LOGIN.ERRORS.RATE_LIMITED',
+  [LoginErrorCode.Unavailable]:        'LOGIN.ERRORS.UNAVAILABLE',
+  [LoginErrorCode.Timeout]:            'LOGIN.ERRORS.TIMEOUT',
+};
+
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule],
+  imports: [FormsModule, CommonModule, TranslateModule, LanguageSwitcherComponent, TrackCapsDirective],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
@@ -29,39 +35,44 @@ export class LoginComponent {
   private router = inject(Router);
   
 
-  @Output() loggedIn = new EventEmitter<boolean>(); // Emits true if login succeeds
-  @Output() errorOccurred = new EventEmitter<string>(); // Emits error message if login fails
+  @Output() loggedIn = new EventEmitter<boolean>();
+  @Output() errorOccurred = new EventEmitter<LoginErrorCode>();
 
   userName = '';
   password = '';
-  errorMessage = '';
-  // 
-   isLoading = false;
+
+  errorKey: string | null = null;
+
+  isLoading = false;
+  capsLockOn = false;
 
   login() {
-        this.isLoading = true; //  Set loading to true
+    if (this.isLoading) return;
+    this.isLoading = true;
+    this.errorKey = null;
 
-    this.authService.login(this.userName, this.password).subscribe({
-      next: (isAuthenticated) => {
-        this.isLoading = false; // Set loading to false after login attempt
-        if (isAuthenticated) {
-          this.loggedIn.emit(true); // Notify parent component of successful login
-        } else {
-          const errorMsg = 'Invalid username or password.'; //{{'LOGIN_ERROR_INVALID' | translate  }}
-          this.errorMessage = errorMsg;
-          this.errorOccurred.emit(errorMsg); // Notify parent component of the error
-        }
-      },
-      error: (error) => {
-        this.isLoading = false; // Set loading to false on error
-        const errorMsg = 'An error occurred during login. Please try again.'; //{{'LOGIN_ERROR_GENERIC' | translate }}
-        this.errorMessage = errorMsg;
-        this.errorOccurred.emit(errorMsg);
-      },
+    this.authService.login(this.userName, this.password).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe(res => {
+      if (res.success) {
+        this.loggedIn.emit(true);
+        return;
+      }
+      this.errorKey = ERROR_I18N[res.code];
+      this.errorOccurred.emit(res.code);
     });
   }
 
   onSubmit() {
+    // Prevent submission if required fields are empty
+    if (!this.userName?.trim() || !this.password?.trim()) {
+      this.errorKey = 'LOGIN.ERRORS.REQUIRED_FIELDS';
+      return;
+    }
     this.login();
+  }
+
+  onCapsLockChange(capsLockOn: boolean) {
+    this.capsLockOn = capsLockOn;
   }
 }

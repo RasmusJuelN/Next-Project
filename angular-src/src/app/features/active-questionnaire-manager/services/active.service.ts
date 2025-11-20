@@ -83,18 +83,24 @@ export class ActiveService {
   }
   
   getQuestionnaireGroupsPaginated(
+  pageNumber: number,
   pageSize: number,
-  queryCursor: string = '',
-  searchTitle: string = ''
-) {
-  let params = new HttpParams().set('PageSize', pageSize.toString());
-
-  if (queryCursor) {
-    params = params.set('QueryCursor', queryCursor);
-  }
+  searchTitle: string = '',
+  filterPendingStudent: boolean = false,
+  filterPendingTeacher: boolean = false
+): Observable<QuestionnaireGroupKeysetPaginationResult> {
+  let params = new HttpParams()
+    .set('pageNumber', pageNumber.toString())
+    .set('pageSize', pageSize.toString());
 
   if (searchTitle) {
-    params = params.set('Title', searchTitle);
+    params = params.set('title', searchTitle);
+  }
+  if (filterPendingStudent) {
+    params = params.set('pendingStudent', 'true');
+  }
+  if (filterPendingTeacher) {
+    params = params.set('pendingTeacher', 'true');
   }
 
   return this.apiService.get<QuestionnaireGroupKeysetPaginationResult>(

@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
@@ -23,8 +24,12 @@ import { Observable, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class ErrorHandlingService {
-  handleError(error: any, specificMessage?: string): Observable<never> {
-    console.error('Error occurred:', specificMessage, error);
-    return throwError(() => new Error(specificMessage ? `${specificMessage}: ${error.message}` : error.message));
+  handleError(err: any, specificMessage?: string): Observable<never> {
+    const error = new Error(specificMessage ? `${specificMessage}: ${err.message}` : err.message);
+    console.error('Error occurred:', error);
+    if (err instanceof HttpErrorResponse) {
+      return throwError(() => err);  // keep the real HttpErrorResponse
+    }
+    return throwError(() => error);
   }
 }

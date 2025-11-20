@@ -48,6 +48,9 @@ export interface Question {
   /** Whether custom answers (outside predefined options) are allowed. */
   allowCustom: boolean;
 
+  /** Sort order for this question within the template. */
+  sortOrder: number;
+
   /** List of answer options available for this question. */
   options: Option[];
 }
@@ -64,6 +67,9 @@ export interface Option {
 
   /** Display text shown to the user. */
   displayText: string;
+
+  /** Sort order for this option within the question. */
+  sortOrder: number;
 }
 
 /**

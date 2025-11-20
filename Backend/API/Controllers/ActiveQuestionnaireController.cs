@@ -61,22 +61,6 @@ namespace API.Controllers
             return Ok(await _questionnaireService.FetchActiveQuestionnaireBases(request));
         }
 
-        [HttpGet("groups/paginated")]
-        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<QuestionnaireGroupKeysetPaginationResult>> GetGroupsPaginated(
-    [FromQuery] QuestionnaireGroupKeysetPaginationRequest request)
-        {
-            try
-            {
-                var result = await _questionnaireService.FetchQuestionnaireGroups(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching paginated questionnaire groups: {Message}", ex.Message);
-                return StatusCode(500, ex.Message);
-            }
-        }
 
         /// <summary>
         /// Activates a questionnaire template by creating an active questionnaire instance.
@@ -99,6 +83,52 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of questionnaire groups using keyset pagination.
+        /// </summary>
+        /// <param name="request">
+        /// The <see cref="QuestionnaireGroupOffsetPaginationRequest"/> containing pagination,
+        /// ordering, and optional filtering parameters.
+        /// </param>
+        /// <returns>
+        /// An <see cref="ActionResult{QuestionnaireGroupKeysetPaginationResult}"/> containing
+        /// the requested page of questionnaire groups, or an error response if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated as an Admin. 
+        /// Errors are logged and return HTTP 500 if an exception occurs.
+        /// </remarks>
+        [HttpGet("groups/paginated")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        public async Task<ActionResult<QuestionnaireGroupOffsetPaginationResult>> GetGroupsPaginated([FromQuery] QuestionnaireGroupOffsetPaginationRequest request)
+        {
+            try
+            {
+                var result = await _questionnaireService.FetchQuestionnaireGroupsWithOffsetPagination(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching paginated questionnaire groups: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new questionnaire group from a specified template and assigns participants.
+        /// </summary>
+        /// <param name="request">
+        /// The <see cref="ActivateQuestionnaireGroup"/> object containing the group name, template ID,
+        /// and lists of student and teacher GUIDs to include.
+        /// </param>
+        /// <returns>
+        /// An <see cref="ActionResult{QuestionnaireGroupResult}"/> containing the created group details,
+        /// or an error response if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated as an Admin.
+        /// Errors are logged and return HTTP 500 if an exception occurs.
+        /// </remarks>
         [HttpPost("createGroup")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<QuestionnaireGroupResult>> CreateGroup([FromBody] ActivateQuestionnaireGroup request)
@@ -115,6 +145,18 @@ namespace API.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Retrieves all questionnaire groups including their active questionnaires and participants.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="List{QuestionnaireGroupResult}"/> containing all questionnaire groups,
+        /// or an error response if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated as an Admin.
+        /// Errors are logged and return HTTP 500 if an exception occurs.
+        /// </remarks>
         [HttpGet("groups")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<List<QuestionnaireGroupResult>>> GetAllGroups()
@@ -131,7 +173,44 @@ namespace API.Controllers
             }
         }
 
-        // Get info about a questionnaire group
+        /// <summary>
+        /// Retrieves basic information for all questionnaire groups.
+        /// </summary>
+        /// <returns>
+        /// A list of <see cref="QuestionnaireGroupBasicResult"/> containing basic information about all questionnaire groups.
+        /// Returns HTTP 200 with the list on success, or HTTP 500 with error message on failure.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires admin authorization and uses access token authentication.
+        /// </remarks>
+        [HttpGet("groupsBasic")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminAndTeacherOnly")]
+        public async Task<ActionResult<List<QuestionnaireGroupBasicResult>>> GetAllGroupsBasic()
+        {
+            try
+            {
+                var results = await _questionnaireService.GetAllQuestionnaireGroupsBasic();
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching all questionnaire groups: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves detailed information about a single questionnaire group by its ID.
+        /// </summary>
+        /// <param name="groupId">The GUID of the questionnaire group to retrieve.</param>
+        /// <returns>
+        /// An <see cref="ActionResult{QuestionnaireGroupResult}"/> containing the group details if found,
+        /// <c>NotFound()</c> if the group does not exist, or an error response if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires the user to be authenticated. Admin access is not strictly required.
+        /// Errors are logged and return HTTP 500 if an exception occurs.
+        /// </remarks>
         [HttpGet("{groupId}/getGroup")]
         [Authorize(AuthenticationSchemes = "AccessToken")]
         public async Task<ActionResult<QuestionnaireGroupResult>> GetGroup(Guid groupId)
@@ -287,6 +366,32 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("responseHistory")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<StudentResultHistory>> GetResponseHistory([FromQuery] Guid studentId, [FromQuery] Guid templateId)
+        {
+            Guid teacherId;
+            try
+            {
+                teacherId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error parsing teacher ID from claims: {Message}", e.Message);
+                return Unauthorized();
+            }
+
+            StudentResultHistory? responseHistory = await _questionnaireService.GetResponseHistoryAsync(studentId, teacherId, templateId);
+
+            if (responseHistory == null)
+            {
+                _logger.LogWarning("No response history found for teacher {TeacherId}, student {StudentId}, and template {TemplateId}", teacherId, studentId, templateId);
+                return NotFound();
+            }
+
+            return Ok(responseHistory);
+        }
+
         /// <summary>
         /// Checks if the authenticated user has already answered a specific questionnaire.
         /// </summary>
@@ -350,5 +455,103 @@ namespace API.Controllers
 
             return await _questionnaireService.IsActiveQuestionnaireComplete(id, userId);
         }
+
+
+        [HttpGet("{studentid},{templateid}/getResponsesFromUserAndTemplate")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<List<FullResponse>>> GetResponsesFromTemplatesAndStudent(Guid studentid, Guid templateid)
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
+                return Unauthorized();
+            }
+
+            List<FullStudentRespondsDate> response = await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid);
+
+            if (response.Count > 0)
+            {
+                if (userId != response[0].Student.User.Guid)
+                {
+                    _logger.LogWarning("User {UserId} is not authorized to view questionnaire response for {QuestionnaireId}", userId, studentid);
+                    return Unauthorized();
+                }
+                else
+                {
+                    return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid));
+                }
+            }
+            else { return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateAsync(studentid, templateid)); }
+        }
+
+        [HttpGet("{studentid},{templateid}/getResponsesFromUserAndTemplateWithDate")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<List<FullResponse>>> GetResponsesFromTemplatesAndStudentWithDate(Guid studentid, Guid templateid)
+        {
+            Guid userId;
+            try
+            {
+                userId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error parsing user ID from claims: {Message}", e.Message);
+                return Unauthorized();
+            }
+
+            List<FullStudentRespondsDate> response = await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);
+
+            return Ok(await _questionnaireService.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid));
+        }
+
+
+        /// <summary>
+        /// Retrieves anonymised survey responses for a specific questionnaire.
+        /// </summary>
+        /// <param name="responsesRequest">The request containing questionnaire ID, users, and groups to filter responses.</param>
+        /// <returns>
+        /// An <see cref="ActionResult{T}"/> containing a <see cref="SurveyResponseSummary"/> with anonymised response data,
+        /// or a 500 status code with error message if an exception occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires teacher authorization and uses access token authentication.
+        /// The response data is anonymised to protect user privacy while providing survey insights.
+        /// </remarks>
+        [HttpGet("GetAnonymisedResponses/")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<SurveyResponseSummary>> GetAnonymisedResponses([FromQuery] AnonymisedResponsesRequest responsesRequest)
+        {
+            try
+            {
+                SurveyResponseSummary result = await _questionnaireService.GetAnonymisedResponses(responsesRequest.QuestionnaireId, responsesRequest.Users, responsesRequest.Groups);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching anonymised responses: {Message}", ex.Message);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("{id:guid}/completedStudentsByGroup")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<IActionResult> GetCompletedStudentsByGroup(Guid id)
+        {
+            try
+            {
+                var students = await _questionnaireService.GetCompletedStudentsByGroup(id);
+                return Ok(students);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to fetch completed students", error = ex.Message });
+            }
+        }
     }
+
 }

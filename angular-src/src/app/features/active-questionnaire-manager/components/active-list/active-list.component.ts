@@ -7,11 +7,12 @@ import { QuestionnaireGroupResult, QuestionnaireGroupKeysetPaginationResult } fr
 
 import { PageChangeEvent, PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../../../shared/loading/loading.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-active-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent, TranslateModule],
   templateUrl: './active-list.component.html',
   styleUrls: ['./active-list.component.css']
 })
@@ -33,7 +34,7 @@ export class ActiveListComponent implements OnInit {
   totalPages: number = 0;
 
   // Cache cursors
-  cachedCursors: { [pageNumber: number]: string | null } = {};
+  // cachedCursors: { [pageNumber: number]: string | null } = {1: null};
 
   // Search filters
   searchTitle: string = '';
@@ -42,6 +43,8 @@ export class ActiveListComponent implements OnInit {
   isListCollapsed: boolean = false;
   isLoading = false;
   errorMessage: string | null = null;
+  filterPendingStudent = false;
+  filterPendingTeacher = false;
 
   @Output() createNewQuestionnaireEvent = new EventEmitter<void>();
 
@@ -54,15 +57,12 @@ export class ActiveListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cachedCursors[1] = null;
-
     // Debounced search
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(({ title }) => {
         this.searchTitle = title;
-        this.currentPage = 1;
-        this.cachedCursors = { 1: null };
+        this.currentPage = 1; 
         this.fetchGroups();
       });
 
@@ -84,7 +84,6 @@ export class ActiveListComponent implements OnInit {
   onPageSizeChange(value: number): void {
     this.pageSize = value;
     this.currentPage = 1;
-    this.cachedCursors = { 1: null };
     this.fetchGroups();
   }
 
@@ -93,25 +92,27 @@ export class ActiveListComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    const nextCursor = this.cachedCursors[this.currentPage] ?? undefined;
-
     this.activeService
-      .getQuestionnaireGroupsPaginated(this.pageSize, nextCursor, this.searchTitle)
+      .getQuestionnaireGroupsPaginated(
+        this.currentPage,
+        this.pageSize,
+        this.searchTitle,
+        this.filterPendingStudent,
+        this.filterPendingTeacher
+      )
       .subscribe({
-        next: (res: QuestionnaireGroupKeysetPaginationResult) => {
+        next: (res) => {
           this.groups = res.groups;
+          
+          // Initialize collapse state
           res.groups.forEach(g => {
             if (this.groupCollapsed[g.groupId] === undefined) {
-              this.groupCollapsed[g.groupId] = true; // collapsed by default
+              this.groupCollapsed[g.groupId] = true;
             }
           });
 
-          if (res.queryCursor) {
-            this.cachedCursors[this.currentPage + 1] = res.queryCursor;
-          }
-
           this.totalItems = res.totalCount;
-          this.totalPages = Math.ceil(res.totalCount / this.pageSize);
+          this.totalPages = res.totalPages;
           this.isLoading = false;
         },
         error: () => {
@@ -119,6 +120,11 @@ export class ActiveListComponent implements OnInit {
           this.isLoading = false;
         },
       });
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+    this.fetchGroups();
   }
 
   toggleListCollapse(): void {

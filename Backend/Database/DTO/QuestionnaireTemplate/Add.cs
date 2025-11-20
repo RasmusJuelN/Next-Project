@@ -1,3 +1,5 @@
+using API.Attributes;
+
 namespace Database.DTO.QuestionnaireTemplate;
 
 /// <summary>
@@ -24,6 +26,14 @@ public record class QuestionnaireOptionAdd
     /// This text is what users will see when selecting an option in the questionnaire.
     /// </remarks>
     public required string DisplayText { get; set; }
+
+    /// <summary>
+    /// Gets or sets the sort order for this option.
+    /// </summary>
+    /// <remarks>
+    /// Used to control the display order of options in the frontend. Lower values appear first.
+    /// </remarks>
+    public required int SortOrder { get; set; }
 }
 
 /// <summary>
@@ -55,12 +65,22 @@ public record class QuestionnaireQuestionAdd
     public required bool AllowCustom { get; set; }
 
     /// <summary>
+    /// Gets or sets the sort order for this question.
+    /// </summary>
+    /// <value>
+    /// Used to control the display order of questions in the frontend. Lower values appear first.
+    /// This property is required.
+    /// </value>
+    public required int SortOrder { get; set; }
+
+    /// <summary>
     /// Gets or sets the list of predefined answer options for this question.
     /// </summary>
     /// <value>
     /// A list of <see cref="QuestionnaireOptionAdd"/> objects representing the available
     /// answer choices. Defaults to an empty list if not specified.
     /// </value>
+    [MaxQuestionOptions]
     public List<QuestionnaireOptionAdd> Options { get; set; } = [];
 }
 

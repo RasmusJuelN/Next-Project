@@ -7,6 +7,9 @@ export interface Option {
 
   /** Display text for the option. */
   displayText: string;
+
+  /** Sort order for this option within the question. */
+  sortOrder: number;
 }
 
 
@@ -23,6 +26,9 @@ export interface Question {
 
   /** Whether custom free-text answers are allowed. */
   allowCustom: boolean;
+
+  /** Sort order for this question within the questionnaire. */
+  sortOrder: number;
 }
 
 /** Represents a questionnaire template or active questionnaire. */

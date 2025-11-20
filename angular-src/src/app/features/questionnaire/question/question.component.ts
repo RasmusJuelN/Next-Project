@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Answer, Question } from '../models/answer.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 /**
@@ -19,7 +20,7 @@ import { Answer, Question } from '../models/answer.model';
 @Component({
   selector: 'app-question',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './question.component.html',
   styleUrls: ['./question.component.css'],
 })

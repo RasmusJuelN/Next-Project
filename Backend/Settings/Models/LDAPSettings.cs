@@ -1,17 +1,35 @@
+using System.ComponentModel;
+using System.Text.Json.Serialization;
 using Settings.Interfaces;
 
 namespace Settings.Models;
 
 public class LDAPSettings : Base, ILDAPSettings
 {
+    [JsonIgnore]
     public override string Key { get; } = "LDAP";
 
+    [Description("The LDAP server host address. Can be an IP address or domain name.")]
     public string Host { get; set; } = string.Empty;
-    public int Port { get; set; } = 0;
-    public int SSLPort { get; set; } = 0;
+
+    [Description("The LDAP server port number.")]
+    public int Port { get; set; } = 389;
+
+    [Description("The LDAP server SSL port number.")]
+    public int SSLPort { get; set; } = 636;
+    
+    [Description("Indicates whether to use SSL for LDAP connections.")]
     public bool UseSSL { get; set; } = true;
+
+    [Description("The Fully Qualified Domain Name for the LDAP server.")]
     public string FQDN { get; set; } = string.Empty;
+
+    [Description("The Base Distinguished Name (DN) for LDAP searches.")]
     public string BaseDN { get; set; } = string.Empty;
+
+    [Description("The Service Account (SA) username for LDAP authentication.")]
     public string SA { get; set; } = string.Empty;
+
+    [Description("The Service Account (SA) password for LDAP authentication.")]
     public string SAPassword { get; set; } = string.Empty;
 }

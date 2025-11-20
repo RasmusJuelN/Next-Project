@@ -1,12 +1,14 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
-import { ActiveAnonymousBuilderComponent } from '../active-anonymous-builder/active-anonymous-builder.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
 interface UserSearchEntity<T> extends SearchEntity<T> {
@@ -24,7 +26,7 @@ type SearchType = 'student' | 'teacher' | 'template';
 @Component({
   selector: 'app-active-questionnaire-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, ActiveAnonymousBuilderComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, ModalComponent],
   templateUrl: './active-builder.component.html',
   styleUrls: ['./active-builder.component.css']
 })
@@ -36,6 +38,9 @@ export class ActiveBuilderComponent implements OnInit {
   public studentError: string = '';
   public teacherError: string = '';
   public templateError: string = '';
+  public showStudentResults = false;
+  public showTeacherResults = false;
+  public showTemplateResults = false;
 
   public student: UserSearchEntity<User> = {
     selected: [],
@@ -75,10 +80,41 @@ export class ActiveBuilderComponent implements OnInit {
     queryCursor: undefined
   };
 
+    @ViewChild("studentSearchArea", { static: false })
+    studentSearchArea!: ElementRef;
+    @ViewChild("teacherSearchArea", { static: false })
+    teacherSearchArea!: ElementRef;
+    @ViewChild("templateSearchArea", { static: false })
+    templateSearchArea!: ElementRef;
+
   // Set the page size (10 results per search)
   searchAmount = 10;
 
+  // Confirmation modal state
+  public showConfirmationModal = false;
+  public confirmationTitle = '';
+  public confirmationText = '';
+  public confirmationConfirmText = '';
+  public confirmationCancelText = '';
+
   @Output() backToListEvent = new EventEmitter<void>();
+
+
+private handleDocumentClick = (event: MouseEvent) => {
+  const studentArea = this.studentSearchArea?.nativeElement;
+  const teacherArea  = this.teacherSearchArea?.nativeElement;
+  const templateArea = this.templateSearchArea?.nativeElement;
+
+  if (studentArea && !studentArea.contains(event.target as Node)) {
+    this.showStudentResults = false;
+  }
+  if (teacherArea && !teacherArea.contains(event.target as Node)) {
+    this.showTeacherResults = false;
+  }
+  if (templateArea && !templateArea.contains(event.target as Node)) {
+    this.showTemplateResults = false;
+  }
+};
 
   ngOnInit(): void {
     // Subscribe to debounced search subjects.
@@ -99,8 +135,13 @@ export class ActiveBuilderComponent implements OnInit {
       .subscribe((term) => {
         this.fetch('template', term);
       });
+
+  document.addEventListener("mousedown", this.handleDocumentClick, true);
   }
 
+  ngOnDestroy(): void {
+  document.removeEventListener("mousedown", this.handleDocumentClick, true);
+  }
   // Returns the proper state based on the entity.
   private getState(entity: SearchType): SearchEntity<any> {
     if (entity === 'student') {
@@ -164,6 +205,8 @@ export class ActiveBuilderComponent implements OnInit {
     }
   }
 
+
+
   onInputChange(entity: SearchType, value: string): void {
     const state = this.getState(entity);
     state.searchInput = value;
@@ -182,14 +225,47 @@ export class ActiveBuilderComponent implements OnInit {
     } else {
       state.selected.splice(idx, 1);
     }
-    // Do NOT clear search results so user can select multiple
+    // Clear search input and hide search results
     state.searchInput = '';
-    // state.searchResults = [];
+    
+    // Hide search results dropdown based on entity type
+    if (entity === 'student') {
+      this.showStudentResults = false;
+    } else if (entity === 'teacher') {
+      this.showTeacherResults = false;
+    } else if (entity === 'template') {
+      this.showTemplateResults = false;
+    }
   }
 
   clearSelected(entity: SearchType): void {
     const state = this.getState(entity);
     state.selected = [];
+  }
+
+  /** Show confirmation modal before creating questionnaire */
+  showCreateConfirmation(): void {
+    if (this.isAnonymousMode) {
+      this.confirmationTitle = 'ACTIVE_BUILDER.CONFIRM_ANONYMOUS_TITLE';
+      this.confirmationText = 'ACTIVE_BUILDER.CONFIRM_ANONYMOUS_MESSAGE';
+    } else {
+      this.confirmationTitle = 'ACTIVE_BUILDER.CONFIRM_EVALUATION_TITLE';
+      this.confirmationText = 'ACTIVE_BUILDER.CONFIRM_EVALUATION_MESSAGE';
+    }
+    this.confirmationConfirmText = 'ACTIVE_BUILDER.CONFIRM_YES';
+    this.confirmationCancelText = 'ACTIVE_BUILDER.CONFIRM_NO';
+    this.showConfirmationModal = true;
+  }
+
+  /** Handle confirmation modal confirm action */
+  onConfirmCreate(): void {
+    this.showConfirmationModal = false;
+    this.createActiveQuestionnaire();
+  }
+
+  /** Handle confirmation modal cancel action */
+  onCancelCreate(): void {
+    this.showConfirmationModal = false;
   }
 
   createActiveQuestionnaire(): void {
@@ -214,7 +290,7 @@ export class ActiveBuilderComponent implements OnInit {
       return;
     }
 
-    this.groupNameError = '';
+  this.groupNameError = '';
   this.studentError = '';
   this.teacherError = '';
   this.templateError = '';

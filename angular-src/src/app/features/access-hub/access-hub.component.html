@@ -1,16 +1,16 @@
 <div class="flex flex-col justify-center items-center w-full h-full bg-gray-100 p-4 sm:p-8">
   <div class="flex flex-col max-w-3xl w-full bg-white shadow-md rounded-lg p-6 sm:p-8 flex-grow">
     <!-- Authenticated User -->
-    <ng-container *ngIf="isAuthenticated; else noAccess">
+    <ng-container *ngIf="isAuthenticated(); else noAccess">
       <!-- Dynamic Heading Based on Role -->
       <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 text-center sm:text-left">
         Route Hub
       </h2>
 
       <!-- Navigation for Specific Roles -->
-      <nav class="mb-6 flex-grow" *ngIf="userRole">
+      <nav class="mb-6 flex-grow" *ngIf="userRole()">
         <ul class="space-y-4">
-          <li *ngFor="let link of navLinks[userRole]">
+          <li *ngFor="let link of navLinksForUser()">
             <a
               [routerLink]="link.route"
               class="block w-full text-gray-700 font-medium bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg text-center sm:text-left"

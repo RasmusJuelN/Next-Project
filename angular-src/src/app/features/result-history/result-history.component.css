@@ -1,0 +1,127 @@
+/* Result History Component Styles */
+
+/* Custom transitions for smooth interactions */
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Search input focus effects */
+input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+/* Search results dropdown animation */
+.search-results {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Result navigation buttons */
+.nav-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Selected item badges */
+.selected-badge {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Loading spinner */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Result card transitions */
+.result-card {
+  transition: all 0.3s ease-in-out;
+}
+
+.result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom scrollbar for search results */
+.search-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-results::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .search-section,
+  .navigation-header,
+  .back-button {
+    display: none !important;
+  }
+  
+  .result-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}

@@ -42,3 +42,18 @@ export interface ActiveQuestionnaireResponse {
   /** Total number of questionnaires available. */
   totalCount: number;
 }
+
+export interface QuestionnaireGroup {
+  groupId: string;
+  groupName: string;
+  templateId: string;
+  questionnaires: ActiveQuestionnaireBase[];
+}
+
+// new: grouped response shape (cursor + count)
+export interface QuestionnaireGroupResponse {
+  groups: QuestionnaireGroup[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+}

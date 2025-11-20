@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Database.DTO.QuestionnaireTemplate;
 using Database.Enums;
 using Database.Extensions;
@@ -52,6 +53,9 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
         foreach (QuestionnaireQuestionUpdate updatedQuestion in updatedTemplate.Questions)
         {
+            if (updatedQuestion.Options.Count > 10)
+                throw new Exception("A question can have at most 10 options.");
+                 
             QuestionnaireQuestionModel? existingQuestion = existingTemplate.Questions.SingleOrDefault(q => q.Id == updatedQuestion.Id);
 
             if (existingQuestion is not null)
@@ -59,6 +63,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
                 // Update existing question and check its options
                 existingQuestion.Prompt = updatedQuestion.Prompt;
                 existingQuestion.AllowCustom = updatedQuestion.AllowCustom;
+                existingQuestion.SortOrder = updatedQuestion.SortOrder;
 
                 HashSet<int> updatedOptionIds = [.. updatedQuestion.Options.Where(o => o.Id is not null).Select(o => o.Id!.Value)];
                 IEnumerable<QuestionnaireOptionModel> oldOptions = existingQuestion.Options.Where(e => !updatedOptionIds.Contains(e.Id));
@@ -77,6 +82,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
                         // Update existing option
                         existingOption.OptionValue = updatedOption.OptionValue;
                         existingOption.DisplayText = updatedOption.DisplayText;
+                        existingOption.SortOrder = updatedOption.SortOrder;
                     }
                     else
                     {
@@ -129,6 +135,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
                 existingQuestion.Prompt = patchedQuestion.Prompt ?? existingQuestion.Prompt;
                 existingQuestion.AllowCustom = patchedQuestion.AllowCustom ?? existingQuestion.AllowCustom;
+                existingQuestion.SortOrder = patchedQuestion.SortOrder ?? existingQuestion.SortOrder;
 
                 if (patchedQuestion.Options is not null && patchedQuestion.Options.Count != 0)
                 {
@@ -141,6 +148,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
                         existingOption.OptionValue = patchedOption.OptionValue ?? existingOption.OptionValue;
                         existingOption.DisplayText = patchedOption.DisplayText ?? existingOption.DisplayText;
+                        existingOption.SortOrder = patchedOption.SortOrder ?? existingOption.SortOrder;
                     }
                 }
             }
@@ -210,7 +218,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
     /// Active questionnaires are explicitly removed first to maintain referential integrity.
     /// Use with caution as this will affect all users who have active instances of this template.
     /// </remarks>
-    public async Task DeleteAsync(Guid id)
+    public async Task HardDeleteAsync(Guid id)
     {
         QuestionnaireTemplateModel existingTemplate = await _context.QuestionnaireTemplates.Include(q => q.ActiveQuestionnaires).SingleAsync(q => q.Id == id);
 
@@ -220,6 +228,47 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         }
 
         _genericRepository.Delete(existingTemplate);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        QuestionnaireTemplateModel existingTemplate = await _context.QuestionnaireTemplates.SingleAsync(q => q.Id == id);
+
+        existingTemplate.TemplateStatus = TemplateStatus.Deleted;
+        existingTemplate.LastUpated = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Undeletes a soft deleted questionnaire template by restoring its status.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to undelete.</param>
+    /// <returns>The restored QuestionnaireTemplate with updated status.</returns>
+    /// <exception cref="Exception">Thrown when the template with the specified ID is not found or is not in deleted state.</exception>
+    /// <remarks>
+    /// This operation restores a previously soft deleted template. The template status will be set to Draft
+    /// unless there are active questionnaires associated with it, in which case it will be set to Finalized.
+    /// Updates the LastUpdated timestamp to track the restoration.
+    /// </remarks>
+    public async Task<QuestionnaireTemplate> UndeleteAsync(Guid id)
+    {
+        QuestionnaireTemplateModel existingTemplate = await _context.QuestionnaireTemplates
+            .Include(t => t.ActiveQuestionnaires)
+            .SingleOrDefaultAsync(t => t.Id == id)
+            ?? throw new Exception("Template not found.");
+
+        if (existingTemplate.TemplateStatus != TemplateStatus.Deleted)
+        {
+            throw new Exception("Template is not in deleted state and cannot be undeleted.");
+        }
+
+        // Set status based on whether there are active questionnaires
+        existingTemplate.TemplateStatus = existingTemplate.ActiveQuestionnaires.Count > 0 
+            ? TemplateStatus.Finalized 
+            : TemplateStatus.Draft;
+        
+        existingTemplate.LastUpated = DateTime.UtcNow;
+
+        return existingTemplate.ToDto();
     }
 
     /// <summary>
@@ -265,6 +314,11 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
             var status = templateStatus.Value;
             query = query.Where(q => q.TemplateStatus == status);
         }
+        else
+        {
+            // If no specific status is provided, exclude deleted templates by default
+            query = query.Where(q => q.TemplateStatus != TemplateStatus.Deleted);
+        }
 
         int totalCount = await query.CountAsync();
 
@@ -300,5 +354,40 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         }
 
         return existing.ToDto();
+    }
+
+    /// <summary>
+    /// Retrieves questionnaire template bases that both a specific student and teacher have answered.
+    /// </summary>
+    /// <param name="studentId">The unique identifier (GUID) of the student.</param>
+    /// <param name="teacherId">The unique identifier (GUID) of the teacher.</param>
+    /// <returns>A list of QuestionnaireTemplateBase DTOs representing templates where both participants have completed their responses.</returns>
+    /// <exception cref="ArgumentException">Thrown when studentId or teacherId is empty.</exception>
+    /// <remarks>
+    /// This method finds all questionnaire templates for which both the specified student and teacher have completed
+    /// their portions of active questionnaires. Only templates with completed responses from both participants are included.
+    /// Returns lightweight template base DTOs for efficient display and further processing.
+    /// Useful for result history and tracking shared questionnaire completion between student-teacher pairs.
+    /// Results are ordered by the most recent completion date for better user experience.
+    /// </remarks>
+    public async Task<List<QuestionnaireTemplateBase>> GetTemplateBasesAnsweredByStudentAsync(Guid studentId, Guid teacherId)
+    {
+        if (studentId == Guid.Empty)
+            throw new ArgumentException("Student ID cannot be empty", nameof(studentId));
+            
+        if (teacherId == Guid.Empty)
+            throw new ArgumentException("Teacher ID cannot be empty", nameof(teacherId));
+
+        // Find all templates for which both the student and teacher have completed their active questionnaires
+        var templates = await _context.ActiveQuestionnaires
+            .Where(aq => aq.Student != null && aq.Student.Guid == studentId && 
+                        aq.Teacher != null && aq.Teacher.Guid == teacherId &&
+                        aq.StudentCompletedAt.HasValue && aq.TeacherCompletedAt.HasValue)
+            .Select(aq => aq.QuestionnaireTemplate!)
+            .Distinct()
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+
+        return templates.Select(t => t.ToBaseDto()).ToList();
     }
 }

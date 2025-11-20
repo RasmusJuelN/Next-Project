@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Result } from '../models/result.model';
+import { Result } from '../../../shared/models/result.model';
+import { Role } from '../../../shared/models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +14,11 @@ export class MockResultService {
       title: 'Math Quiz',
       description: null,
       student: {
-        user: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: "test" },
+        user: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: Role.Student },
         completedAt: new Date('2025-03-24T10:00:00')
       },
       teacher: {
-        user: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: "test" },
+        user: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: Role.Teacher },
         completedAt: new Date('2025-03-24T10:05:00')
       },
       answers: [
@@ -42,11 +43,11 @@ export class MockResultService {
       title: 'Science Quiz',
       description: null,
       student: {
-        user: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: "test" },
+        user: { id: 's1', userName: 'johnd123', fullName: 'John Doe', role: Role.Student },
         completedAt: new Date('2025-03-23T09:00:00')
       },
       teacher: {
-        user: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: "test" },
+        user: { id: 't1', userName: 'smithT', fullName: 'Mrs. Smith', role: Role.Teacher },
         completedAt: new Date('2025-03-23T09:05:00')
       },
       answers: [

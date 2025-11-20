@@ -107,7 +107,7 @@ public class ActiveQuestionnaireModel
     /// </remarks>
     [Required]
     [ForeignKey(nameof(StudentFK))]
-    public required StudentModel Student { get; set; }
+    public StudentModel? Student { get; set; }
     
     /// <summary>
     /// Gets or sets the navigation property to the teacher assigned to this questionnaire.
@@ -117,7 +117,7 @@ public class ActiveQuestionnaireModel
     /// </remarks>
     [Required]
     [ForeignKey(nameof(TeacherFK))]
-    public required TeacherModel Teacher { get; set; }
+    public TeacherModel? Teacher { get; set; }
     
     /// <summary>
     /// Gets or sets the navigation property to the questionnaire template this instance was created from.
@@ -128,10 +128,10 @@ public class ActiveQuestionnaireModel
     /// </remarks>
     [Required]
     [ForeignKey(nameof(QuestionnaireTemplateFK))]
-    public required QuestionnaireTemplateModel QuestionnaireTemplate { get; set; }
+    public QuestionnaireTemplateModel? QuestionnaireTemplate { get; set; }
 
     [ForeignKey(nameof(GroupId))]
-    public QuestionnaireGroupModel Group { get; set; }
+    public QuestionnaireGroupModel? Group { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of student responses submitted for this questionnaire.

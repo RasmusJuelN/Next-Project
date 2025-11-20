@@ -1,31 +1,26 @@
+<div *ngIf="user(); else loginForm" class="flex flex-col h-full flex-grow items-center justify-center p-4 sm:p-8">
 
-<div
-  *ngIf="loggedInAlready$ | async; else loginForm"
-  class="flex flex-col h-full flex-grow items-center justify-center p-4 sm:p-8" 
->
+  <div
+    class="bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border-primary_orange_1 border-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 w-full max-w-lg ">
 
-  <div class="bg-white/90 shadow-xl rounded-2xl sm:p-10 border border-primary_dark_light w-full max-w-lg">
 
- 
-    <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center">
-       {{ 'GREETING' | translate:{ username: username } }}
+    <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">
+      {{ 'COMMON.GREETING' | translate:{ username: username() } }}
 
       <!-- Hej {{ username  | translate}}! -->
     </h2>
 
-    <p *ngIf="!activeQuestionnaireString" class="text-center text-gray-500 mb-4">
-      {{ 'NO_ACTIVE_QUESTIONNAIRE' | translate }}
+    <p *ngIf="!activeQuestionnaireId" class="text-center text-gray-500 mb-4">
+      {{ 'HOME.NO_ACTIVE_QUESTIONNAIRE' | translate }}
       <!-- Der er ingen aktive spørgeskemaer  -->
     </p>
 
     <!-- Action Buttons -->
     <div class="space-y-4">
-      <button
-        *ngIf="activeQuestionnaireString"
+      <button *ngIf="activeQuestionnaireId"
         class="dashboard-button w-full bg-primary_orange_1 text-white py-3 px-4 rounded-lg hover:bg-primary_orange_light focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        (click)="toActiveQuestionnaire()"
-      >
-      {{ 'ANSWER_QUESTIONNAIRE' | translate }}
+        (click)="toActiveQuestionnaire()">
+        {{ 'HOME.ANSWER_QUESTIONNAIRE' | translate }}
         <!-- Et spørgeskema kan besvares -->
       </button>
 
@@ -50,8 +45,5 @@
 </div>
 
 <ng-template #loginForm>
-  <app-login
-    (loggedIn)="onLoginSuccess()"
-    (errorOccurred)="onLoginError($event)"
-  ></app-login>
+  <app-login (errorOccurred)="onLoginError($event)"></app-login>
 </ng-template>

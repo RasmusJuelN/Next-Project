@@ -1,37 +1,15 @@
 {
-
-  "BUTTON_EN": "English",
-  "BUTTON_DA": "Dansk",
-  "GREETING": "Hello {{username}}!",
   "NO_ACTIVE_QUESTIONNAIRE": "There are no active questionnaires",
-  "ANSWER_QUESTIONNAIRE": "A questionnaire can be answered",
-  "NAV_TOGGLE_MENU": "Toggle menu",
-  "NAV_LOG_OUT": "Log out",
-  "NAV_ACTIVE_QUESTIONNAIRES": "Active Questionnaires",
-  "NAV_DATA_COMPARE": "Data Compare",
-  "NAV_OVERVIEW": "Overview",
-  "NAV_TEMPLATES": "Templates",
-   "LOGIN_WELCOME": "Welcome",
-  "LOGIN_SUBTITLE": "Log in to answer questionnaires",
-  "LOGIN_USERNAME_PLACEHOLDER": "Enter username",
-  "LOGIN_PASSWORD_PLACEHOLDER": "Enter password",
-  "LOGIN_USERNAME_REQUIRED": "Username is required",
-  "LOGIN_PASSWORD_REQUIRED": "Password is required",
-  "LOGIN_ERROR_INVALID": "Invalid username or password.",
-  "LOGIN_ERROR_GENERAL": "An error occurred during login. Please try again.",
-  "LOGIN_SUBMIT": "Sign In",
-  "LOGIN_LOADING": "Signing In...",
   "TMP_NEW_TITLE": "New Template",
-  "TMP_NEW_DESC":"Description for the new template",
+  "TMP_NEW_DESC": "Description for the new template",
   "TMP_NEW_QUESTION": "Default Question",
 
-
-   "TMP_TITLE_ADMINISTER_TEMPLATES": "Manage Templates",
-   "TMP_DATA_COMPARE_TITLE": "Data Compare",
+  "TMP_TITLE_ADMINISTER_TEMPLATES": "Manage Templates",
+  "TMP_DATA_COMPARE_TITLE": "Data Compare",
   "TMP_BUTTON_CREATE_NEW": "Create New Template",
   "TMP_SEARCH_BY_NAME": "Search by Name",
   "TMP_SEARCH_BY_ID": "Search by ID",
-  "TMP_SEARCH_PLACEHOLDER": "Search templates...",
+  "TMP_SEARCH_GROUP_PLACEHOLDER": "Search by Group...",
   "TMP_ITEMS_PER_PAGE": "Items per page:",
   "TMP_LOADING": "Loading...",
   "TMP_BUTTON_EDIT": "Edit",
@@ -50,6 +28,7 @@
   "TMP_FAIL_LOAD_DETAIL": "Failed to load the full template details.",
   "TMP_DELETE_ERROR": "Error deleting template.",
   "TMP_UPDATE_ERROR": "Error updating template.",
+  "TMP_NO_ACTIVE_QUESTIONNAIRES": "There are no active questionnaires",
 
   "TMP_EDITOR_TITLE": "Template Editing",
   "TMP_TEMPLATE_TITLE": "Template Title",
@@ -62,12 +41,11 @@
   "TMP_NEXT": "Next",
   "TMP_PREVIOUS": "Previous",
 
-   "TMP_ACTIVE_SURVEYS": "Active surveys",
-   "TMP_ANSWER": "Answer",
-   "TMP_SETUP_AT": "Setup at:",
+  "TMP_ACTIVE_SURVEYS": "Active surveys",
+  "TMP_ANSWER": "Answer",
+  "TMP_SETUP_AT": "Setup at:",
 
-
-   "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires",
+  "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires",
   "TMP_SEARCH_BY_STUDENT_NAME": "Search by Student Name",
   "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Search by Active Questionnaire ID",
   "TMP_SEARCHPLACEHOLDER": "Search...",
@@ -80,35 +58,94 @@
   "TMP_COMPLETED": "Completed",
   "TMP_PENDING": "Pending",
   "TMP_VIEW_RESULTS": "View Results",
+  "TMP_TITLE_TEMPLATE_LIST": "Template List",
+  "FILTER_STUDENT_PENDING": "Student pending",
+  "FILTER_TEACHER_PENDING": "Teacher pending",
 
+  "TEMPLATES.DELETE.TITLE": "Confirm Deletion",
+  "TEMPLATES.DELETE.MSG": "Are you sure you want to delete this template? This action will delete related data.",
 
   "TMP_FINALIZE_TITLE": "Publish template?",
   "TMP_FINALIZE_TEXT": "When a template is published, it becomes read-only. <br/>Are you sure you want to publish?",
   "TMP_FINALIZE_CONFIRM": "Publish",
+  "TMP_PUBLISH": "Publish",
   "TMP_VIEW_MODE": "Template View",
   "TMP_EDIT_MODE": "Template Editing",
-
 
   "COMMON": {
     "BUTTONS": {
       "VIEW": "View",
+      "EDIT": "Edit",
       "COPY": "Copy",
       "DELETE_PERMANENT": "Delete Permanently",
       "CANCEL": "Cancel",
       "CLOSE": "Close",
-      "SHOW": "View",
-      "EDIT": "Edit",
-      "NEXT": "Next",
       "PREVIOUS": "Previous",
-      "SUBMIT": "Submit"
+      "NEXT": "Next",
+      "SUBMIT" : "Submit"
     },
-    "GREETING": "Hello {{username}}!"
+    "GREETING": "Hello {{username}}!",
+    "ROLES": {
+      "STUDENT": "Student",
+      "TEACHER": "Teacher",
+      "ADMIN": "Admin"
+    },
+    "LOADING": "Loading...",
+    "BACK": "Back",
+    "OF": "of"
   },
-  "TEMPLATES": {
-    "DELETE": {
-      "TITLE": "Confirm Deletion",
-      "MSG": "Are you sure you want to delete this template? This action will delete related data."
+
+  "LOGIN": {
+    "WELCOME": "Welcome",
+    "SUBTITLE": "Log in to answer questionnaires",
+    "USERNAME_PLACEHOLDER": "Enter username",
+    "PASSWORD_PLACEHOLDER": "Enter password",
+    "USERNAME_REQUIRED": "Username is required",
+    "PASSWORD_REQUIRED": "Password is required",
+    "ERROR_INVALID": "Invalid username or password.",
+    "ERROR_GENERAL": "An error occurred during login. Please try again.",
+    "SUBMIT": "Sign In",
+    "LOADING": "Signing In...",
+    "CAPS_LOCK_WARNING": "Caps Lock is on",
+    "ERRORS": {
+      "INVALID": "Invalid username or password.",
+      "NETWORK": "Could not connect to the server. Check your internet connection.",
+      "SERVER": "A server error occurred. Please try again later.",
+      "GENERIC": "An unexpected error occurred. Please try again.",
+      "BAD_REQUEST": "Invalid request. Please check your input.",
+      "FORBIDDEN": "Access denied.",
+      "RATE_LIMITED": "Too many attempts. Please wait before trying again.",
+      "UNAVAILABLE": "Service temporarily unavailable.",
+      "TIMEOUT": "Request timed out. Please try again.",
+      "REQUIRED_FIELDS": "Please fill in all required fields."
     }
+  },
+  "NAV": {
+    "TOGGLE_MENU": "Toggle menu",
+    "LOG_OUT": "Log out",
+    "ACTIVE_QUESTIONNAIRES": "Active Questionnaires",
+    "DATA_COMPARE": "Data Compare",
+    "RESULT_HISTORY": "Result History",
+    "OVERVIEW": "Overview",
+    "TEMPLATES": "Templates",
+    "HOME": "Home"
+  },
+
+  "HOME" : {
+    "ANSWER_QUESTIONNAIRE" :"A questionnaire can be answered",
+    "NO_ACTIVE_QUESTIONNAIRE": "There are no active questionnaires"
+  },
+
+  "ACTIVE_LIST": {
+    "TITLE": "Manage Active Questionnaires",
+    "BUTTON_CREATE": "Assign a Questionnaire",
+    "SUBTITLE": "Active Questionnaires",
+    "SEARCH_PLACEHOLDER": "Search for group...",
+    "FILTER_STUDENT_PENDING": "Student pending",
+    "FILTER_TEACHER_PENDING": "Teacher pending",
+    "ITEMS_PER_PAGE": "Items per page:",
+    "GROUP_STUDENT": "Student",
+    "GROUP_TEACHER": "Teacher"
   },
 
   "QUESTION_EDITOR": {
@@ -120,8 +157,133 @@
     "DELETE_OPTION": "Delete Option",
     "ADD_OPTION": "Add New Option",
     "SAVE": "Save Question"
-},
+  },
   "QUESTIONAIRE": {
-    "COLLABORATOR": "Collaborator"
+    "COLLABORATOR": "Collaborator",
+    "CUSTOM_ANSWER_ERROR": "Too few characters to proceed.",
+    "CUSTOM_ANSWER_CHARACTER_COUNT": "characters"
+  },
+  "DATA_COMPARE" : {
+    "SEARCH_STUDENT_LABEL": "Search for student or group:",
+    "SEARCH_STUDENT_PLACEHOLDER": "Enter student or group name...",
+    "LOADING_STUDENTS": "Loading students...",
+    "LOAD_MORE_STUDENTS": "Load More Students",
+    "SELECTED_STUDENTS": "Selected Students:",
+    "REMOVE": "Remove",
+    "CLEAR_ALL": "Clear All",
+    "SEARCH_TEMPLATE_LABEL": "Search for Template:",
+    "SEARCH_TEMPLATE_PLACEHOLDER": "Enter template title...",
+    "LOADING_TEMPLATES": "Loading templates...",
+    "LOAD_MORE_TEMPLATES": "Load More Templates",
+    "SELECTED_TEMPLATES": "Selected Templates:",
+    "UPDATE_CHART": "Update Chart",
+    "PIE_CHART": "Pie Chart",
+    "BAR_CHART": "Bar Chart"
+  },
+  "LANG": {
+    "EN": "English",
+    "DA": "Danish"
+  },
+  "PDF": {
+    "TITLE": "Matrix Questionnaire (Teacher / Student)",
+    "META_NOTE": "Questions can have 0–10 options. Only chosen predefined options show an X. If there is an option for own answer, it is shown below.",
+    "NO_OPTIONS_NOTE": "No predefined options for this question — use the remarks area below.",
+    "TEACHER_ROW": "Teacher",
+    "STUDENT_ROW": "Student",
+    "TEACHER_CUSTOM": "Teacher (own answer):",
+    "STUDENT_CUSTOM": "Student (own answer):",
+    "TABLE_TEMPLATE": "Template",
+    "TABLE_STUDENT": "Student",
+    "TABLE_TEACHER": "Teacher",
+    "FOOTER_LEFT": "",
+    "PAGE": "Page"
+  },
+
+  "RESULT": {
+    "COMPRESSED_VIEW": "Compressed View",
+    "FULL_VIEW": "Full View",
+    "COMPRESSED_VIEW_SHORT": "Compressed",
+    "FULL_VIEW_SHORT": "Full",
+    "TOGGLE_VIEW_TOOLTIP": "Toggle view mode",
+    "OPEN_PDF": "Open PDF",
+    "OPEN_PDF_SHORT": "Open",
+    "OPEN_PDF_TOOLTIP": "Open PDF in new tab",
+    "DOWNLOAD_PDF": "Download PDF",
+    "DOWNLOAD_PDF_SHORT": "Download",
+    "DOWNLOAD_PDF_TOOLTIP": "Download PDF",
+    "PRINT": "Print",
+    "PRINT_SHORT": "Print",
+    "PRINT_TOOLTIP": "Print",
+    "TEMPLATE_TITLE": "Template:",
+    "STUDENT_LABEL": "Student",
+    "TEACHER_LABEL": "Teacher",
+    "COMPLETED_ON": "Completed on:",
+    "CUSTOM_ANSWER": "Custom answer",
+    "CUSTOM_RESPONSES": "Custom responses:",
+    "NO_OPTIONS_AVAILABLE": "No options available for this question",
+    "SCROLL_HINT": "Scroll horizontally to see all options →",
+    "DROPDOWN_SELECT_STUDENT": "Select Student"
+  },
+
+  "RESULT_HISTORY": {
+    "TITLE": "Student Result History",
+    "SELECT_STUDENT": "Select Student",
+    "SELECT_QUESTIONNAIRE": "Select Questionnaire",
+    "SEARCH_STUDENTS": "Search students...",
+    "SEARCH_QUESTIONNAIRES": "Search questionnaires...",
+    "NO_RESULTS": "No results found",
+    "NO_RESULTS_DESC": "No results found for the selected student and questionnaire combination.",
+    "INSTRUCTIONS": "Select a student and questionnaire to view results",
+    "INSTRUCTIONS_DESC": "Use the search fields above to find and select a student and questionnaire template to view the historical results.",
+    "SELECT_STUDENT_FIRST": "Please select a student first",
+    "SELECT_STUDENT_FIRST_DESC": "You need to select a student before you can choose a questionnaire template.",
+    "SHARED_QUESTIONNAIRES_AVAILABLE": "shared questionnaire(s) available with",
+    "LOADING_SHARED_QUESTIONNAIRES": "Loading shared questionnaires...",
+    "SELECT_SHARED_QUESTIONNAIRE": "Select a shared questionnaire:",
+    "SHARED_COMPLETION_WITH": "Shared completion with",
+    "FULL_VIEW": "Full View",
+    "COMPACT_VIEW": "Compact View",
+    "FULL_VIEW_SHORT": "Full",
+    "COMPACT_VIEW_SHORT": "Compact",
+    "OPEN_PDF": "Open PDF",
+    "DOWNLOAD_PDF": "Download PDF",
+    "OPEN_PDF_SHORT": "Open",
+    "DOWNLOAD_PDF_SHORT": "Download"
+  },
+
+  "ACTIVE_BUILDER": {
+    "ANONYMOUS_QUESTIONNAIRE": "Anonymous Questionnaire",
+    "EVALUATION_QUESTIONNAIRE": "Evaluation Questionnaire",
+    "SWITCH_TO_EVALUATION": "Switch to evaluation questionnaire",
+    "SWITCH_TO_ANONYMOUS": "Switch to anonymous questionnaire",
+    "SEARCH_PARTICIPANTS": "Search for participants (name, class, etc.):",
+    "SEARCH_STUDENT": "Search for Student:",
+    "SEARCH_TEACHER": "Search for Teacher:",
+    "SEARCH_TEMPLATE": "Search for Template:",
+    "PLACEHOLDER_STUDENTS": "Enter student names...",
+    "PLACEHOLDER_TEACHERS": "Enter teacher names...",
+    "PLACEHOLDER_TEMPLATE": "Enter template title...",
+    "LOADING_STUDENTS": "Loading students...",
+    "LOADING_TEACHERS": "Loading teachers...",
+    "LOADING_TEMPLATES": "Loading templates...",
+    "LOAD_MORE_STUDENTS": "Load More Students",
+    "LOAD_MORE_TEACHERS": "Load More Teachers",
+    "LOAD_MORE_TEMPLATES": "Load More Templates",
+    "SELECTED_STUDENTS": "Selected Students:",
+    "SELECTED_TEACHERS": "Selected Teachers:",
+    "SELECTED_TEMPLATES": "Selected Templates:",
+    "REMOVE": "Remove",
+    "CLEAR_ALL": "Clear All",
+    "CREATE_QUESTIONNAIRE_NAME": "Create questionnaire name:",
+    "PLACEHOLDER_EVALUATION_NAME": "e.g. 'Class123 - student evaluation'",
+    "PLACEHOLDER_ANONYMOUS_NAME": "e.g. 'Teaching Evaluation - All Students'",
+    "FINISH": "Finish",
+    "CANCEL": "Cancel",
+    "CONFIRM_ANONYMOUS_TITLE": "Confirm Anonymous Questionnaire Creation",
+    "CONFIRM_ANONYMOUS_MESSAGE": "Are you sure you want to create this anonymous questionnaire? This action will assign the selected template to all chosen participants.",
+    "CONFIRM_EVALUATION_TITLE": "Confirm Evaluation Questionnaire Creation",
+    "CONFIRM_EVALUATION_MESSAGE": "Are you sure you want to create this evaluation questionnaire? This action will assign the selected template to all chosen students and teachers.",
+    "CONFIRM_YES": "Yes, Create Questionnaire",
+    "CONFIRM_NO": "No, Cancel"
   }
 }

@@ -1,66 +1,75 @@
 <div *ngIf="isLoading" class="text-center text-gray-700">Indlæser...</div>
 <div *ngIf="errorMessage" class="text-center text-red-500">{{ errorMessage }}</div>
 
-<div *ngIf="result" class="answer-session bg-gray-100 p-6 max-w-4xl mx-auto print:bg-white print:shadow-none print:p-0 print:overflow-visible relative">
-  <button
-  (click)="printPage()"
-  class="absolute top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded print:hidden"
->
-  Print
-</button>
-  <h2 class="text-2xl font-semibold text-gray-800 mb-6 print:text-black">
-    Skabelon: {{ result.title }}
-  </h2>
-  <h3>Id: {{ result.id }}</h3>
-
-  <div class="user-info-section mb-8 border-b print:border-gray-400 pb-4">
-    <div class="info-item mb-4">
-      <span class="block font-bold text-gray-700 print:text-black">Elev:</span>
-      <span class="block text-gray-900 print:text-black">{{ result.student.user.fullName }}</span>
-      <span class="block text-gray-500 print:text-black">
-        Fuldført den: {{ result.student.completedAt | date:'medium' }}
-      </span>
-    </div>
+<div *ngIf="result" class="answer-session bg-primary_background_white/80 p-4 mb-4 sm:p-10 max-w-7xl mx-auto shadow-xl rounded-2xl border-2 border-primary_orange_1 print:bg-white print:shadow-none print:p-0 print:overflow-visible">
+  <!-- Action Buttons - Mobile friendly layout -->
+  <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-6 print:hidden gap-4">
+    <h2 class="text-2xl sm:text-3xl font-bold text-primary_orange_1 print:text-black order-2 sm:order-1">
+      {{ translate.instant('RESULT.TEMPLATE_TITLE') }} {{ result.title }}
+    </h2>
+    
+    <div class="flex flex-wrap gap-2 order-1 sm:order-2 w-full sm:w-auto">
+      <!-- Toggle View Button -->
+      <button
+        (click)="toggleView()"
+        class="bg-primary_dark_blue text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_dark_light hover:text-white flex-1 sm:flex-none min-w-0 transition"
+        [title]="translate.instant('RESULT.TOGGLE_VIEW_TOOLTIP')"
+      >
+        <span class="hidden sm:inline">{{ isFullView ? translate.instant('RESULT.COMPRESSED_VIEW') : translate.instant('RESULT.FULL_VIEW') }}</span>
+        <span class="sm:hidden">{{ isFullView ? translate.instant('RESULT.COMPRESSED_VIEW_SHORT') : translate.instant('RESULT.FULL_VIEW_SHORT') }}</span>
+      </button>
+      
+      <!-- PDF Buttons -->
+      <button
+        (click)="openPdf()"
+        class="bg-primary_orange_1 text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_orange_light flex-1 sm:flex-none transition"
+        [title]="translate.instant('RESULT.OPEN_PDF_TOOLTIP')"
+      >
+        <span class="hidden sm:inline">{{ translate.instant('RESULT.OPEN_PDF') }}</span>
+        <span class="sm:hidden">{{ translate.instant('RESULT.OPEN_PDF_SHORT') }}</span>
+      </button>
+      
+      <button
+        (click)="generatePdf()"
+        class="bg-blue-900 text-white px-3 py-2 text-sm rounded-xl hover:bg-blue-700 flex-1 sm:flex-none transition"
+        [title]="translate.instant('RESULT.DOWNLOAD_PDF_TOOLTIP')"
+      >
+        <span class="hidden sm:inline">{{ translate.instant('RESULT.DOWNLOAD_PDF') }}</span>
+        <span class="sm:hidden">{{ translate.instant('RESULT.DOWNLOAD_PDF_SHORT') }}</span>
+      </button>
+      <!-- Student Selection Dropdown -->
   
-    <div class="info-item">
-      <span class="block font-bold text-gray-700 print:text-black">Lærer:</span>
-      <span class="block text-gray-900 print:text-black">{{ result.teacher.user.fullName }}</span>
-      <span class="block text-gray-500 print:text-black">
-        Fuldført den: {{ result.teacher.completedAt | date:'medium' }}
-      </span>
     </div>
+    
+  </div>
+  <div class=" flex items-center gap-3 float-end">
+    <label for="student-select" class="text-sm font-medium text-gray-700">
+      {{ 'RESULT.DROPDOWN_SELECT_STUDENT' | translate }}:
+    </label>
+    <select 
+      id="student-select"
+      [(ngModel)]="selectedCompletionId"
+      (change)="onStudentSelect($event)"
+      class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+      <option *ngFor="let student of completedStudents" [value]="student.id">
+        {{ student.student.fullName }}{{ student.student.userName ? ' (' + student.student.userName + ')' : '' }}
+      </option>
+    </select>
   </div>
 
-  <div class="questions-section space-y-6">
-    <div *ngFor="let answer of result.answers" class="question-answer-pair print:break-inside-avoid">
-      <h3 class="text-lg font-semibold text-gray-800 mb-3 print:text-black">
-        {{ answer.question }}
-      </h3>
-
-      <div class="answers-comparison grid grid-cols-2 gap-4 print:grid-cols-1 print:border-b print:pb-4 print:mb-4">
-        
-        <div class="answer-container bg-gray-50 p-4 rounded-lg print:bg-transparent print:p-0">
-          <span class="block font-bold text-gray-700 print:text-black">Elev:</span>
-          <p class="text-gray-900 print:text-black">{{ answer.studentResponse }}</p>
-          <span *ngIf="answer.isStudentResponseCustom" class="text-sm text-blue-500">Brugerdefineret svar</span>
-        </div>
-
-        <div class="answer-container bg-gray-50 p-4 rounded-lg print:bg-transparent print:p-0">
-          <span class="block font-bold text-gray-700 print:text-black">instruktør:</span>
-          <p class="text-gray-900 print:text-black">{{ answer.teacherResponse }}</p>
-          <span *ngIf="answer.isTeacherResponseCustom" class="text-sm text-blue-500">Brugerdefineret svar</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<label for="charts">Change Chart Type : </label>
-<select name="charts" id="charts" [(ngModel)]="chartType" (change)="updateChart(chartType)">
-  <option value="stacked">Stacked Chart</option>
-  <option value="donut">Donut Chart</option>
-</select>
-<div class="flex justify-center mt-8 w-full" *ngIf="chartOptions">
-  <div class=" flex justify-center">
-    <ag-charts class="w-[800px]" [options]="chartOptions"></ag-charts>
-  </div>
+  <!-- Use the reusable ShowResultComponent without its own container -->
+  <app-show-result 
+    [result]="result"
+    [isFullView]="isFullView"
+    [config]="resultConfig">
+  </app-show-result>
 </div>
+
+
+
+<!-- Chart Section (if present) -->
+<!-- <div class="flex justify-center mt-8 w-full max-w-7xl mx-auto" *ngIf="chartOptions">
+  <div class="flex justify-center">
+    <ag-charts class="w-[1000px] h-[500px]" [options]="chartOptions"></ag-charts>
+  </div>
+</div> -->

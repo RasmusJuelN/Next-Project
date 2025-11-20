@@ -1,4 +1,4 @@
-using API.DTO.LDAP;
+using API.DTO.User;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Requests.User;
 using API.DTO.Responses.ActiveQuestionnaire;
@@ -6,6 +6,10 @@ using API.DTO.Responses.User;
 using API.Extensions;
 using API.Interfaces;
 using Database.DTO.ActiveQuestionnaire;
+using Database.DTO.User;
+using Database.Enums;
+using Database.Extensions;
+using System.Collections.Generic;
 
 namespace API.Services;
 
@@ -50,7 +54,7 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
     /// <exception cref="ArgumentException">Thrown when request parameters are invalid.</exception>
     public UserQueryPaginationResult QueryLDAPUsersWithPagination(UserQueryPagination request)
     {
-        (List<BasicUserInfoWithObjectGuid> ldapUsers, string sessionId, bool hasMore) = _authenticationBridge.SearchUserPagination<BasicUserInfoWithObjectGuid>(request.User, request.Role.ToString(), request.PageSize, request.SessionId);
+        (List<BasicUserInfoWithUserID> ldapUsers, string sessionId, bool hasMore) = _authenticationBridge.SearchUserPagination<BasicUserInfoWithUserID>(request.User, request.Role.ToString(), request.PageSize, request.SessionId);
 
         return new()
         {
@@ -154,7 +158,7 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
             userId: userId,
             onlyStudentCompleted: request.FilterStudentCompleted,
             onlyTeacherCompleted: request.FilterTeacherCompleted);
-        
+
         ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;
 
         string? queryCursor = null;
@@ -168,6 +172,61 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
             ActiveQuestionnaireBases = [.. activeQuestionnaireBases.Select(a => a.ToActiveQuestionnaireTeacherDTO())],
             QueryCursor = queryCursor,
             TotalCount = totalCount
+        };
+    }
+
+    /// <summary>
+    /// Retrieves paginated questionnaire groups for a teacher using offset pagination.
+    /// </summary>
+    public async Task<QuestionnaireGroupOffsetPaginationResult> FetchActiveQuestionnaireGroupsForTeacherWithOffsetPagination(QuestionnaireGroupOffsetPaginationRequest request, Guid teacherGuid)
+    {
+
+        int? teacherFk = await _unitOfWork.User.GetIdByGuidAsync(teacherGuid);
+        if (!teacherFk.HasValue)
+        {
+            return new QuestionnaireGroupOffsetPaginationResult
+            {
+                Groups = new List<QuestionnaireGroupResult>(),
+                CurrentPage = request.PageNumber,
+                TotalCount = 0,
+                TotalPages = 0
+            };
+        }
+
+
+        var (groups, totalCount) = await _unitOfWork.QuestionnaireGroup.PaginationQueryWithKeyset(
+        request.PageSize,
+        QuestionnaireGroupOrderingOptions.CreatedAtDesc,
+        request.Title,
+        groupId: request.GroupId,
+        pendingStudent: request.PendingStudent,
+        pendingTeacher: request.PendingTeacher,
+        teacherFK: teacherFk,
+        pageNumber: request.PageNumber
+    );
+
+        // Map models -> DTOs
+        var resultGroups = groups.Select(g => new QuestionnaireGroupResult
+        {
+            GroupId = g.GroupId,
+            Name = g.Name,
+            TemplateId = g.TemplateId,
+            Questionnaires = g.Questionnaires
+                .Select(q =>
+                q.ToBaseDto()             
+                 .ToActiveQuestionnaireAdminDTO()             
+            )
+                .ToList()
+        }).ToList();
+
+        int totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
+
+        return new QuestionnaireGroupOffsetPaginationResult
+        {
+            Groups = resultGroups,
+            CurrentPage = request.PageNumber,
+            TotalCount = totalCount,
+            TotalPages = totalPages
         };
     }
 
@@ -187,5 +246,30 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
     public async Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid userId)
     {
         return await _unitOfWork.ActiveQuestionnaire.GetPendingActiveQuestionnaires(userId);
+    }
+
+    /// <summary>
+    /// Searches for students related to a specific teacher by student username.
+    /// </summary>
+    /// <param name="teacherId">The unique identifier of the teacher.</param>
+    /// <param name="studentUsernameQuery">The student username or partial username to search for.</param>
+    /// <returns>A list of LdapUserBase DTOs representing students related to the teacher that match the username query.</returns>
+    /// <remarks>
+    /// This method finds students who have active questionnaires assigned to the specified teacher
+    /// and whose username contains the search query. This ensures that teachers can only search
+    /// for students they are working with through questionnaires.
+    /// </remarks>
+    /// <exception cref="ArgumentException">Thrown when teacherId is invalid or studentUsernameQuery is null/empty.</exception>
+    public async Task<List<LdapUserBase>> SearchStudentsRelatedToTeacherAsync(Guid teacherId, string studentUsernameQuery)
+    {
+        var fullUsers = await _unitOfWork.User.SearchStudentsRelatedToTeacherAsync(teacherId, studentUsernameQuery);
+        
+        // Convert FullUser to LdapUserBase
+        return fullUsers.Select(user => new LdapUserBase
+        {
+            Id = user.Guid,
+            FullName = user.FullName,
+            UserName = user.UserName
+        }).ToList();
     }
 }

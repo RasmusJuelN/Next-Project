@@ -9,58 +9,39 @@
   <div>
     <label for="title" class="block text-sm font-medium text-primary_dark_blue mb-2">
       <!-- Skabelon Titel -->
-       {{ 'TMP_TEMPLATE_TITLE' | translate }}
+      {{ 'TMP_TEMPLATE_TITLE' | translate }}
     </label>
-    <input
-      type="text"
-      id="title"
-      name="title"
-      [(ngModel)]="template.title"
-      [disabled]="readonly"
-      class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
-      [placeholder]="'TMP_NEW_TITLE' | translate"
-    />
+    <input type="text" id="title" name="title" [(ngModel)]="template.title" [disabled]="readonly"
+      class="block w-full px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
+      [placeholder]="'TMP_NEW_TITLE' | translate" />
   </div>
 
   <!-- Template Description -->
   <div>
     <label for="description" class="block text-sm font-medium text-primary_dark_blue mb-2">
       <!-- Beskrivelse -->
-       {{ 'TMP_TEMPLATE_DESCRIPTION' | translate }}
+      {{ 'TMP_TEMPLATE_DESCRIPTION' | translate }}
     </label>
-    <textarea
-      id="description"
-      name="description"
-      [(ngModel)]="template.description"
-      rows="4"
-      class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
-     [placeholder]="'TMP_NEW_DESC' | translate"
-      [disabled]="readonly"
-    ></textarea>
+    <textarea id="description" name="description" [(ngModel)]="template.description" rows="4"
+      class="block w-full px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm sm:text-base bg-gray-50"
+      [placeholder]="'TMP_NEW_DESC' | translate" [disabled]="readonly"></textarea>
   </div>
   <!--  placeholder="Indtast skabelon beskrivelse" -->
 
   <!-- Save and Cancel Buttons -->
   <div class="flex flex-col sm:flex-row justify-end sm:space-x-4 space-y-2 sm:space-y-0">
-    <button
-      type="button"
-      (click)="onCancel()"
-      class="px-4 py-2 bg-gray-500 text-white rounded-xl shadow-sm hover:bg-gray-600 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none"
-    >
+    <button type="button" (click)="onCancel()"
+      class="px-4 py-2 bg-gray-500 text-white rounded-xl shadow-sm hover:bg-gray-600 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none">
       <!-- Annuller -->
       {{ 'TMP_CANCEL' | translate }}
     </button>
-    <button *ngIf="!readonly"
-            type="button"
-            (click)="onSave()"
-            class="px-4 py-2 bg-green-500 text-white rounded-xl shadow-sm hover:bg-green-600 focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors">
+    <button *ngIf="!readonly" type="button" (click)="onSave()"
+      class="px-4 py-2 bg-green-500 text-white rounded-xl shadow-sm hover:bg-green-600 focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors">
       {{ 'TMP_SAVE_TEMPLATE' | translate }}
     </button>
-    <button *ngIf="!readonly && template?.id"
-            type="button"
-            (click)="openFinalizeModal()"
-            class="px-4 py-2 bg-purple-500 text-white rounded-lg shadow-sm hover:bg-purple-600 focus:ring-2 focus:ring-purple-400 focus:outline-none">
-      Udgiv
+    <button *ngIf="!readonly && template?.id" type="button" (click)="openFinalizeModal()"
+      class="px-4 py-2 bg-purple-500 text-white rounded-lg shadow-sm hover:bg-purple-600 focus:ring-2 focus:ring-purple-400 focus:outline-none">
+      {{ 'TMP_PUBLISH' | translate }}
     </button>
   </div>
 </form>
@@ -68,59 +49,62 @@
 <!-- Question List -->
 <div class="mt-6 sm:mt-8 mb-3">
   <h3 class="text-xl sm:text-2xl font-bold text-primary_dark_blue mb-6 text-center sm:text-left tracking-tight">
-    <!-- Spørgsmål -->
-     {{ 'TMP_QUESTIONS' | translate }}
+    {{ 'TMP_QUESTIONS' | translate }}
   </h3>
-  <ul class="space-y-4">
-    <li
-      *ngFor="let question of template.questions"
-      class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:shadow-lg transition-shadow  transition-colors"
-    >
-      <span class="text-primary_dark_blue font-semibold">{{ question.prompt }}</span>
-      <div class="flex space-x-2 mt-2 sm:mt-0">
-        <button
-          class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl  hover:bg-yellow-600  focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
-          (click)="editQuestion(question)"
-        >
-          {{ readonly ? ('COMMON.BUTTONS.SHOW' | translate) : ('COMMON.BUTTONS.EDIT' | translate) }}
-        </button>
-        <button *ngIf="!readonly"
-          class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl  hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
-          (click)="deleteQuestion(question)"
-          [disabled]="readonly"
-        >
-          <!-- Slet -->
-           {{ 'TMP_DELETE' | translate }}
-        </button>
-      </div>
-    </li>
+
+  <!-- Add cdkDropList here -->
+  <ul cdkDropList [cdkDropListData]="template.questions" class="space-y-4" (cdkDropListDropped)="drop($event)">
+    <ng-container *ngFor="let question of template.questions; let i = index">
+      <li cdkDrag
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover">
+        <div class="flex items-center gap-3 w-full">
+          <!-- Drag handle (optional) -->
+          <div cdkDragHandle class="cursor-grab p-1 text-gray-500 hover:text-primary_orange_1">
+            <!-- small icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+            </svg>
+          </div>
+
+          <span class="text-primary_dark_blue font-semibold flex-1">{{ question.prompt }}</span>
+        </div>
+
+        <div class="flex space-x-2 mt-2 sm:mt-0">
+          <button
+            class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
+            (click)="editQuestion(question)">
+            {{ readonly ? ('COMMON.BUTTONS.VIEW' | translate) : ('COMMON.BUTTONS.EDIT' | translate) }}
+          </button>
+          <button *ngIf="!readonly"
+            class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+            (click)="deleteQuestion(question)" [disabled]="readonly">
+            {{ 'TMP_DELETE' | translate }}
+          </button>
+        </div>
+      </li>
+
+      <!-- Inline editor inserted directly below the question when selected -->
+      <li *ngIf="selectedQuestion?.id === question.id" class="p-0">
+        <div class="mt-4">
+          <app-question-editor [question]="selectedQuestion!" [readonly]="readonly" (save)="onSaveQuestion($event)" (cancel)="onCancelEdit()"></app-question-editor>
+        </div>
+      </li>
+    </ng-container>
   </ul>
 
   <!-- Add Question Button -->
   <div class="mt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
     <button *ngIf="!readonly"
-        class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none  transition-colors"
-        (click)="addQuestion()">
-      <!-- Tilføj Nyt Spørgsmål -->
-       {{ 'TMP_ADD_QUESTION' | translate }}
+      class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none  transition-colors"
+      (click)="addQuestion()">
+      {{ 'TMP_ADD_QUESTION' | translate }}
     </button>
   </div>
 </div>
 
-<app-question-editor
-  *ngIf="selectedQuestion"
-  [question]="selectedQuestion"
-  [readonly]="readonly"
-  (save)="onSaveQuestion($event)"
-  (cancel)="onCancelEdit()">
-</app-question-editor>
 
-<app-modal
-  [isOpen]="finalizeModalOpen"
-  [title]="'TMP_FINALIZE_TITLE' | translate"
-  [text]="'TMP_FINALIZE_TEXT' | translate"
-  [confirmText]="'TMP_FINALIZE_CONFIRM' | translate"
-  [cancelText]="'TMP_CANCEL' | translate"
-  (confirm)="confirmFinalize()"
-  (cancel)="closeFinalizeModal()">
+
+<app-modal [isOpen]="finalizeModalOpen" [title]="'TMP_FINALIZE_TITLE' | translate"
+  [text]="'TMP_FINALIZE_TEXT' | translate" [confirmText]="'TMP_FINALIZE_CONFIRM' | translate"
+  [cancelText]="'TMP_CANCEL' | translate" (confirm)="confirmFinalize()" (cancel)="closeFinalizeModal()">
 </app-modal>

@@ -1,10 +1,12 @@
 using Database.DTO.ActiveQuestionnaire;
+using Database.DTO.QuestionnaireTemplate;
 using Database.Enums;
 using Database.Extensions;
 using Database.Interfaces;
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Database.Repository;
 
@@ -38,7 +40,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     {
         ActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
             query => query.Include(a => a.Student).Include(a => a.Teacher)) ?? throw new Exception("Active questionnaire not found.");
-        
+
         return activeQuestionnaire.ToBaseDto();
     }
 
@@ -56,7 +58,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     {
         ActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
             query => query.Include(a => a.Student).Include(a => a.Teacher).Include(a => a.QuestionnaireTemplate.Questions).ThenInclude(q => q.Options)) ?? throw new Exception("Active questionnaire not found.");
-        
+
         return activeQuestionnaire.ToDto();
     }
 
@@ -97,7 +99,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             Student = student,
             Teacher = teacher,
             QuestionnaireTemplate = questionnaireTemplate,
-            GroupId = groupId 
+            GroupId = groupId
         };
 
         await _genericRepository.AddAsync(activeQuestionnaire);
@@ -136,7 +138,9 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         Guid? idQuery = null,
         Guid? userId = null,
         bool onlyStudentCompleted = false,
-        bool onlyTeacherCompleted = false)
+        bool onlyTeacherCompleted = false,
+        bool pendingStudent = false,         // NEW
+        bool pendingTeacher = false)
     {
         IQueryable<ActiveQuestionnaireModel> query = _genericRepository.GetAsQueryable();
 
@@ -175,6 +179,12 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         {
             query = query.Where(q => q.TeacherCompletedAt.HasValue);
         }
+
+        if (pendingStudent)
+            query = query.Where(q => !q.StudentCompletedAt.HasValue);
+
+        if (pendingTeacher)
+            query = query.Where(q => !q.TeacherCompletedAt.HasValue);
 
         int totalCount = await query.CountAsync();
 
@@ -330,23 +340,26 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Question)
+            .ThenInclude(q => q.Options)
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Option)
             .Include(a => a.TeacherAnswers)
             .ThenInclude(a => a.Question)
+            .ThenInclude(q => q.Options)
             .Include(a => a.TeacherAnswers)
             .ThenInclude(a => a.Option)
             .Include(a => a.Student)
             .Include(a => a.Teacher)
             .SingleAsync(a => a.Id == id);
-        
+
         if (!activeQuestionnaire.StudentCompletedAt.HasValue || !activeQuestionnaire.TeacherCompletedAt.HasValue)
         {
             throw new Exception("The requested Active Questionnaire is not yet completed.");
         }
-        
-        return activeQuestionnaire.ToFullResponse();
+
+        return activeQuestionnaire.ToFullResponseAll();
     }
+
 
     /// <summary>
     /// Retrieves all pending active questionnaires for a specific user.
@@ -376,6 +389,261 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             throw new Exception("User is not a student or teacher.");
         }
 
+
+
         return [.. activeQuestionnaireBases.Select(a => a.ToBaseDto())];
+
+    }
+
+
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
+    {
+        //get template based on templateid
+        QuestionnaireTemplateModel template = await _context.QuestionnaireTemplates.SingleAsync(t => t.Id == templateid);
+        if (template.Title.IsNullOrEmpty())
+        {
+            throw new Exception("The requested Template Questionnaire does not exsist.");
+        }
+
+
+        //get all activae questionares where it's id is equal to templateId AND studentid
+        List<ActiveQuestionnaireModel> activeQuestionnaires = await _context.ActiveQuestionnaires
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.Student)
+            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && a.StudentCompletedAt.HasValue)
+            .ToListAsync();
+
+        return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate())];
+    }
+
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
+    {
+        QuestionnaireTemplateModel template = await _context.QuestionnaireTemplates.SingleAsync(t => t.Id == templateid);
+        if (template.Title.IsNullOrEmpty())
+        {
+            throw new Exception("The requested Template Questionnaire does not exsist.");
+        }
+
+        List<ActiveQuestionnaireModel> activeQuestionnaires = await _context.ActiveQuestionnaires
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.StudentAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.TeacherAnswers)
+            .ThenInclude(a => a.Question)
+            .Include(a => a.TeacherAnswers)
+            .ThenInclude(a => a.Option)
+            .Include(a => a.Student)
+            .Include(a => a.Teacher)
+            .Where(a => a.Student.Guid == studentid && a.QuestionnaireTemplate.Id == templateid && (a.StudentCompletedAt.HasValue ||  a.TeacherCompletedAt.HasValue))
+            .ToListAsync();
+
+        return [.. activeQuestionnaires.Select(a => a.ToFullStudentRespondsDate())];
+    }
+
+    public async Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups)
+    {
+        // Get the template with its active questionnaires and all related data
+        var templateData = await _context.QuestionnaireTemplates
+            .Where(t => t.Id == templateId)
+            .Select(t => new
+            {
+                t.Title,
+                t.Description,
+                ActiveQuestionnaires = t.ActiveQuestionnaires
+                    .Where(a => 
+                        // Filter by groups if provided
+                        groups.Count == 0 || groups.Contains(a.GroupId)
+                    )
+                    .Select(a => new
+                    {
+                        a.Id,
+                        ActivatedAt = a.ActivatedAt.Date,
+                        StudentAnswers = a.StudentAnswers
+                            .Where(sa => users.Count == 0 || (a.Student != null && users.Contains(a.Student.Guid)))
+                            .Select(sa => new
+                            {
+                                QuestionPrompt = sa.Question!.Prompt,
+                                Answer = sa.CustomResponse ?? sa.Option!.DisplayText
+                            }).ToList(),
+                        TeacherAnswers = a.TeacherAnswers
+                            .Where(ta => users.Count == 0 || (a.Teacher != null && users.Contains(a.Teacher.Guid)))
+                            .Select(ta => new
+                            {
+                                QuestionPrompt = ta.Question!.Prompt,
+                                Answer = ta.CustomResponse ?? ta.Option!.DisplayText
+                            }).ToList()
+                    }).ToList()
+            })
+            .SingleOrDefaultAsync() ?? throw new Exception("Survey response summary not found.");
+
+        // Create individual results for each questionnaire (one dataset per questionnaire)
+        var anonymisedDataSet = templateData.ActiveQuestionnaires.Select(questionnaire => 
+        {
+            var allAnswers = new List<dynamic>();
+            allAnswers.AddRange(questionnaire.StudentAnswers);
+            allAnswers.AddRange(questionnaire.TeacherAnswers);
+
+            return new AnonymisedSurveyResults
+            {
+                DatasetTitle = questionnaire.ActivatedAt.ToString("yyyy-MM-dd"),
+                ParticipantCount = questionnaire.StudentAnswers.Count + questionnaire.TeacherAnswers.Count,
+                AnonymisedResponses = [.. allAnswers
+                    .GroupBy(response => response.QuestionPrompt)
+                    .Select(questionGroup => new AnonymisedResponsesQuestion
+                    {
+                        Question = questionGroup.Key,
+                        Answers = [.. questionGroup
+                            .GroupBy(response => response.Answer)
+                            .Select(answerGroup => new AnonymisedResponsesAnswer
+                            {
+                                Answer = answerGroup.Key,
+                                Count = answerGroup.Count()
+                            })]
+                    })]
+            };
+        })
+        .OrderBy(result => result.DatasetTitle)
+        .ToList();
+
+        return new SurveyResponseSummary
+        {
+            Title = templateData.Title,
+            Description = templateData.Description,
+            AnonymisedResponseDataSet = anonymisedDataSet
+        };
+    }
+
+    /// <summary>
+    /// Retrieves the response history for a specific student and questionnaire template.
+    /// </summary>
+    /// <param name="studentId">The unique identifier of the student whose response history to retrieve.</param>
+    /// <param name="teacherId">The unique identifier of the teacher making the request.</param>
+    /// <param name="templateId">The unique identifier of the questionnaire template.</param>
+    /// <returns>
+    /// A <see cref="StudentResultHistory"/> object containing the student's response history for the specified template,
+    /// or null if no history is found.
+    /// </returns>
+    /// <remarks>
+    /// This method retrieves all historical responses from a student for a specific questionnaire template,
+    /// providing teachers with insight into student progress over time.
+    /// </remarks>
+    public async Task<StudentResultHistory?> GetResponseHistoryAsync(Guid studentId, Guid teacherId, Guid templateId)
+    {
+        // Get all active questionnaires for the specific student, teacher, and template combination
+        var questionnaires = await _context.ActiveQuestionnaires
+            .Include(aq => aq.Student)
+            .Include(aq => aq.Teacher)
+            .Include(aq => aq.QuestionnaireTemplate)
+                .ThenInclude(qt => qt!.Questions)
+                    .ThenInclude(q => q.Options)
+            .Include(aq => aq.StudentAnswers)
+                .ThenInclude(sa => sa.Question)
+            .Include(aq => aq.StudentAnswers)
+                .ThenInclude(sa => sa.Option)
+            .Include(aq => aq.TeacherAnswers)
+                .ThenInclude(ta => ta.Question)
+            .Include(aq => aq.TeacherAnswers)
+                .ThenInclude(ta => ta.Option)
+            .Where(aq => aq.Student!.Guid == studentId && 
+                         aq.Teacher!.Guid == teacherId && 
+                         aq.QuestionnaireTemplateFK == templateId &&
+                         (aq.StudentCompletedAt != null || aq.TeacherCompletedAt != null)) // Only include questionnaires with at least one completion
+            .OrderBy(aq => aq.ActivatedAt)
+            .ToListAsync();
+
+        if (!questionnaires.Any())
+            return null;
+
+        var firstQuestionnaire = questionnaires.First();
+        
+        return new StudentResultHistory
+        {
+            Student = new DTO.User.UserBase
+            {
+                UserName = firstQuestionnaire.Student!.UserName,
+                FullName = firstQuestionnaire.Student.FullName
+            },
+            Teacher = new DTO.User.UserBase
+            {
+                UserName = firstQuestionnaire.Teacher!.UserName,
+                FullName = firstQuestionnaire.Teacher.FullName
+            },
+            Template = new QuestionnaireTemplate
+            {
+                Id = firstQuestionnaire.QuestionnaireTemplate!.Id,
+                Title = firstQuestionnaire.QuestionnaireTemplate.Title,
+                Description = firstQuestionnaire.QuestionnaireTemplate.Description,
+                CreatedAt = firstQuestionnaire.QuestionnaireTemplate.CreatedAt,
+                LastUpdated = firstQuestionnaire.QuestionnaireTemplate.LastUpated,
+                IsLocked = firstQuestionnaire.QuestionnaireTemplate.IsLocked,
+                Questions = firstQuestionnaire.QuestionnaireTemplate.Questions.OrderBy(q => q.SortOrder).Select(q => new QuestionnaireTemplateQuestion
+                {
+                    Id = q.Id,
+                    Prompt = q.Prompt,
+                    AllowCustom = q.AllowCustom,
+                    SortOrder = q.SortOrder,
+                    Options = q.Options.OrderBy(o => o.SortOrder).Select(o => new QuestionnaireTemplateOption
+                    {
+                        Id = o.Id,
+                        DisplayText = o.DisplayText,
+                        OptionValue = o.OptionValue,
+                        SortOrder = o.SortOrder
+                    }).ToList()
+                }).ToList()
+            },
+            AnswersInfo = questionnaires.Select(aq => new AnswerInfo
+            {
+                activeQuestionnaireId = aq.Id,
+                StudentCompletedAt = aq.StudentCompletedAt!,
+                TeacherCompletedAt = aq.TeacherCompletedAt!,
+
+                Answers = aq.QuestionnaireTemplate!.Questions.Select(q =>
+                {
+                    var studentAnswer = aq.StudentAnswers.FirstOrDefault(sa => sa.QuestionFK == q.Id);
+                    var teacherAnswer = aq.TeacherAnswers.FirstOrDefault(ta => ta.QuestionFK == q.Id);
+
+                    return new AnswerDetails
+                    {
+                        QuestionId = q.Id.ToString(),
+                        StudentResponse = studentAnswer?.CustomResponse,
+                        IsStudentResponseCustom = !string.IsNullOrEmpty(studentAnswer?.CustomResponse),
+                        SelectedOptionIdsByStudent = studentAnswer?.OptionFK.HasValue == true ? [studentAnswer.OptionFK.Value] : null,
+                        TeacherResponse = teacherAnswer?.CustomResponse,
+                        IsTeacherResponseCustom = !string.IsNullOrEmpty(teacherAnswer?.CustomResponse),
+                        SelectedOptionIdsByTeacher = teacherAnswer?.OptionFK.HasValue == true ? [teacherAnswer.OptionFK.Value] : null
+                    };
+                }).ToList()
+            }).ToList()
+        };
+
+
+    }
+
+    /// <summary>
+    /// Gets all completed active questionnaires in the same group
+    /// </summary>
+    public async Task<List<ActiveQuestionnaireBase>> GetCompletedQuestionnairesByGroupAsync(Guid activeQuestionnaireId)
+    {
+        var sourceQuestionnaire = await _context.Set<ActiveQuestionnaireModel>()
+            .Where(aq => aq.Id == activeQuestionnaireId)
+            .Select(aq => new { aq.GroupId })
+            .FirstOrDefaultAsync();
+
+        if (sourceQuestionnaire == null)
+            return new List<ActiveQuestionnaireBase>();
+
+        var completedQuestionnaires = await _context.Set<ActiveQuestionnaireModel>()
+            .Where(aq => aq.GroupId == sourceQuestionnaire.GroupId
+                      && aq.StudentCompletedAt != null
+                      && aq.TeacherCompletedAt != null)
+            .Include(aq => aq.Student)
+            .Include(aq => aq.Teacher)
+            .ToListAsync();
+
+        return completedQuestionnaires.Select(aq => aq.ToBaseDto()).ToList();
     }
 }

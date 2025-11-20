@@ -12,7 +12,7 @@ export interface User {
   fullName: string;
 
   /** Role string (should match one of the `Role` enum values). */
-  role: string;
+  role: Role;
 }
 
 /**
