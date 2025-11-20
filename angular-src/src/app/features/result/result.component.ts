@@ -1,21 +1,23 @@
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ResultService } from "./services/result.service";
 import { PdfGenerationService } from "./services/pdf-generation.service";
-import { Result } from "./models/result.model";
-import { Template, TemplateStatus } from "../../shared/models/template.model";
+import { Result } from "../../shared/models/result.model";
 import { CommonModule } from "@angular/common";
 import { AgCharts } from "ag-charts-angular";
 import { AgBarSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { TranslateService, TranslateModule } from "@ngx-translate/core";
+import { ShowResultComponent, ShowResultConfig } from "../../shared/show-result/show-result.component";
+import { Subject, takeUntil } from "rxjs";
+
 
 @Component({
   selector: "app-result",
   standalone: true,
   providers: [ResultService, PdfGenerationService],
-  imports: [CommonModule, AgCharts, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, AgCharts, RouterModule, FormsModule, TranslateModule, ShowResultComponent],
   templateUrl: "./result.component.html",
   template: `
     <button (click)="updateChart('stacked')">Stacked</button>
@@ -27,9 +29,8 @@ import { TranslateService, TranslateModule } from "@ngx-translate/core";
   `,
   styleUrls: ["./result.component.css"],
 })
-export class ResultComponent implements OnInit {
+export class ResultComponent implements OnInit, OnDestroy{
   result: Result | null = null;
-  template: Template | null = null;
   isLoading = true;
   errorMessage: string | null = null;
 
@@ -39,74 +40,78 @@ export class ResultComponent implements OnInit {
   // Toggle between compressed and full view
   isFullView = false;
 
+  completedStudents: Array<{ id: string; student: { fullName: string; userName?: string } }> = [];
+  selectedCompletionId: string | null = null;
+  private destroy$ = new Subject<void>();
+
+  // Configuration for ShowResultComponent
+  resultConfig: ShowResultConfig = {
+    showTemplate: true,
+    showStudent: true,
+    showTeacher: true,
+    showCompletionDates: true,
+    useCardStyling: false // We handle card styling in the parent component
+  };
+
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private resultService: ResultService,
     private pdfGenerationService: PdfGenerationService,
-    public translate: TranslateService
+    public translate: TranslateService,
+
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get("id");
-    if (id) {
-      // Tjek om resultatet kan tilgås inden det hentes
-      this.resultService.canGetResult(id).subscribe({
-        next: (canGet: boolean) => {
-          if (canGet) {
-            this.fetchResult(id);
-          } else {
-            this.errorMessage =
-              "Resultatet er ikke tilgængeligt eller ikke fuldført.";
-            this.isLoading = false;
-          }
-        },
-        error: (err: any) => {
-          console.error(err);
-          this.errorMessage = "Fejl ved kontrol af resultatadgang.";
+    // Subscribe to route parameter changes
+    this.route.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.isLoading = true;
+          this.errorMessage = null;
+          this.result = null;
+          
+          // Check if result can be accessed before fetching
+          this.resultService.canGetResult(id).subscribe({
+            next: (canGet: boolean) => {
+              if (canGet) {
+                this.fetchResult(id);
+              } else {
+                this.errorMessage = "Resultatet er ikke tilgængeligt eller ikke fuldført.";
+                this.isLoading = false;
+              }
+            },
+            error: (err: any) => {
+              console.error(err);
+              this.errorMessage = "Fejl ved kontrol af resultatadgang.";
+              this.isLoading = false;
+            },
+          });
+        } else {
+          this.errorMessage = "Ugyldigt resultat-ID.";
           this.isLoading = false;
-        },
+        }
       });
-    } else {
-      this.errorMessage = "Ugyldigt resultat-ID.";
-      this.isLoading = false;
-    }
   }
 
-  printPage(): void {
-    window.print();
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   toggleView(): void {
     this.isFullView = !this.isFullView;
   }
 
-  getTemplateQuestionOptions(questionPrompt: string): any[] {
-    if (!this.template) return [];
-    const templateQuestion = this.template.questions.find(q => q.prompt === questionPrompt);
-    return templateQuestion?.options?.slice(0, 15) || [];
-  }
 
-  isOptionSelected(response: string, isCustom: boolean, option: any, index: number): boolean {
-    if (isCustom || !response) return false;
-    
-    // Try to match by option value, display text, or index
-    if (response === option.displayText) return true;
-    if (response === option.optionValue?.toString()) return true;
-    if (response === (index + 1).toString()) return true; // Match 1-based index
-    if (response === index.toString()) return true; // Match 0-based index
-    
-    // Try exact text match (case insensitive)
-    if (response?.toLowerCase() === option.displayText?.toLowerCase()) return true;
-    
-    return false;
-  }
 
   generatePdf(): void {
     if (this.result) {
       try {
-        // Use actual template if available, otherwise create mock template
-        const template = this.template || this.createTemplateFromResult(this.result);
-        this.pdfGenerationService.generatePdf(this.result, template);
+        this.pdfGenerationService.generatePdf(this.result);
       } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Error generating PDF. Please try again.');
@@ -119,9 +124,7 @@ export class ResultComponent implements OnInit {
   openPdf(): void {
     if (this.result) {
       try {
-        // Use actual template if available, otherwise create mock template
-        const template = this.template || this.createTemplateFromResult(this.result);
-        this.pdfGenerationService.openPdf(this.result, template);
+        this.pdfGenerationService.openPdf(this.result);
       } catch (error) {
         console.error('Error opening PDF:', error);
         alert('Error opening PDF. Please try again.');
@@ -131,68 +134,52 @@ export class ResultComponent implements OnInit {
     }
   }
 
-  private createTemplateFromResult(result: Result): Template {
-    // Fallback method: Create a basic template from result data when actual template is not available
-    // This ensures PDF generation still works even if template fetch fails
-    const questions = result.answers.map((answer, index) => ({
-      id: index + 1,
-      prompt: answer.question,
-      allowCustom: answer.isStudentResponseCustom || answer.isTeacherResponseCustom,
-      options: [] // We don't have the original options, so leave empty
-    }));
 
-    return {
-      id: result.id,
-      title: result.title,
-      description: result.description || '',
-      templateStatus: TemplateStatus.Finalized,
-      questions: questions
-    };
-  }
 
   fetchResult(id: string): void {
-    // Fetch both result and template
     this.resultService.getResultById(id).subscribe({
       next: (data: Result) => {
         if (data) {
           this.result = data;
+          this.selectedCompletionId = id;
           this.updateChart(this.chartType, data);
-          
-          // Now fetch the template
-          this.fetchTemplate(id);
+          this.loadCompletedStudents(id); // Load dropdown data
+          this.isLoading = false;
         } else {
-          this.errorMessage = "Resultat ikke fundet.";
+          this.errorMessage = 'Resultat ikke fundet.';
           this.isLoading = false;
         }
       },
       error: (err: any) => {
         console.error(err);
-        this.errorMessage = "Resultat ikke fundet.";
+        this.errorMessage = 'Resultat ikke fundet.';
         this.isLoading = false;
       },
     });
   }
 
-  fetchTemplate(id: string): void {
-    this.resultService.getTemplateByResultId(id).subscribe({
-      next: (templateData: Template) => {
-        if (templateData) {
-          this.template = templateData;
-          console.log('Template loaded successfully for PDF generation');
-        } else {
-          console.warn('Template data is empty, PDF generation will use fallback template');
-        }
-        this.isLoading = false;
+  private loadCompletedStudents(activeQuestionnaireId: string): void {
+    this.resultService.getCompletedStudentsByGroup(activeQuestionnaireId).subscribe({
+      next: (students) => {
+        this.completedStudents = students ?? [];
       },
-      error: (err: any) => {
-        console.error('Error fetching template:', err);
-        console.warn('Template fetch failed, PDF generation will use fallback template created from result data');
-        // Don't show error to user, just log it and continue
-        // PDF generation will fall back to mock template if needed
-        this.isLoading = false;
-      },
+      error: (err) => {
+        console.error('Failed to load completed students:', err);
+        this.completedStudents = [];
+      }
     });
   }
+  onStudentSelect(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const newId = selectElement.value;
+    if (newId ) {
+      this.isLoading = true;
+      this.router.navigate(['/results', newId]);
+      
+    }
+  }
+  
+
 
   updateChart(type: "stacked" | "donut", dataOverride?: Result): void {
     this.chartType = type;

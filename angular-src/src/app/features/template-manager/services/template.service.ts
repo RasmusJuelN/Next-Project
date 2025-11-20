@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
 import { TemplateBaseResponse } from '../models/template.model';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
@@ -60,18 +61,59 @@ export class TemplateService {
   
   /** Gets full template details by id. */
   getTemplateDetails(id: string): Observable<Template> {
-    return this.apiService.get<Template>(`${this.apiUrl}/${id}`);
+    return this.apiService.get<Template>(`${this.apiUrl}/${id}`).pipe(
+      map((template: Template) => this.sortTemplateData(template))
+    );
   }
 
   /** Creates a new template draft. */
   addTemplate(template: Template): Observable<Template> {
-    return this.apiService.post<Template>(`${this.apiUrl}/add`, template);
+    // Ensure sort orders are properly set before sending
+    this.ensureSortOrders(template);
+    return this.apiService.post<Template>(`${this.apiUrl}/add`, template).pipe(
+      map((response: Template) => this.sortTemplateData(response))
+    );
   }
 
   /** Updates an existing template. */
   updateTemplate(templateId: string, updatedTemplate: Template): Observable<Template> {
+    // Ensure sort orders are properly set before sending
+    this.ensureSortOrders(updatedTemplate);
     const url = `${this.apiUrl}/${templateId}/update`;
-    return this.apiService.put<Template>(url, updatedTemplate);
+    return this.apiService.put<Template>(url, updatedTemplate).pipe(
+      map((response: Template) => this.sortTemplateData(response))
+    );
+  }
+
+  /** Ensures all questions and options have proper sort orders. */
+  private ensureSortOrders(template: Template): void {
+    if (template.questions) {
+      template.questions.forEach((question, questionIndex) => {
+        if (question.sortOrder === undefined || question.sortOrder === null) {
+          question.sortOrder = questionIndex;
+        }
+        if (question.options) {
+          question.options.forEach((option, optionIndex) => {
+            if (option.sortOrder === undefined || option.sortOrder === null) {
+              option.sortOrder = optionIndex;
+            }
+          });
+        }
+      });
+    }
+  }
+
+  /** Sorts template data by sortOrder. */
+  private sortTemplateData(template: Template): Template {
+    if (template.questions) {
+      template.questions.sort((a, b) => a.sortOrder - b.sortOrder);
+      template.questions.forEach(question => {
+        if (question.options) {
+          question.options.sort((a, b) => a.sortOrder - b.sortOrder);
+        }
+      });
+    }
+    return template;
   }
 
   /** Deletes a template by id. */
@@ -86,6 +128,8 @@ export class TemplateService {
    */
   upgradeTemplate(templateId: string): Observable<Template>{
     const url = `${this.apiUrl}/${templateId}/finalize`;
-    return this.apiService.post<Template>(url, {});
+    return this.apiService.post<Template>(url, {}).pipe(
+      map((response: Template) => this.sortTemplateData(response))
+    );
   }
 }

@@ -4,5 +4,6 @@ using System.Text.Json.Serialization;
 public enum TemplateStatus
 {
     Draft,
-    Finalized
+    Finalized,
+    Deleted
 }

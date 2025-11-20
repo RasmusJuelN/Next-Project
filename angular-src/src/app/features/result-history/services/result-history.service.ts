@@ -1,0 +1,289 @@
+import { Injectable, inject } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ApiService } from '../../../core/services/api.service';
+import { environment } from '../../../../environments/environment';
+import { Result } from '../../../shared/models/result.model';
+import { Template, TemplateBase, TemplateStatus } from '../../../shared/models/template.model';
+import { Role, User } from '../../../shared/models/user.model';
+import { HttpParams } from '@angular/common/http';
+import { Attempt, AttemptAnswer, StudentResultHistory, TemplateBaseResponse, UserPaginationResult, AnswerInfo, AnswerDetails } from '../models/result-history.model';
+
+
+
+const mockTemplate: Template = {
+  id: 'template-123',
+  title: 'Math Skills Assessment',
+  description: 'Evaluation of numeracy skills, problem solving, and classroom engagement.',
+  templateStatus: TemplateStatus.Finalized,
+  createdAt: '2025-01-10T09:00:00Z',
+  lastUpdated: '2025-02-01T12:00:00Z',
+  isLocked: true,
+  questions: [
+    {
+      id: 1,
+      sortOrder: 0,
+      prompt: 'How well does the student understand basic arithmetic?',
+      allowCustom: false,
+      options: [
+        { id: 10, sortOrder: 0, optionValue: 1, displayText: 'Poor' },
+        { id: 11, sortOrder: 1, optionValue: 2, displayText: 'Fair' },
+        { id: 12, sortOrder: 2, optionValue: 3, displayText: 'Good' },
+        { id: 13, sortOrder: 3, optionValue: 4, displayText: 'Excellent' },
+        { id: 14, sortOrder: 4, optionValue: 5, displayText: 'Outstanding' }
+      ]
+    },
+    {
+      id: 2,
+      sortOrder: 1,
+      prompt: "Student's problem-solving skills in mathematics",
+      allowCustom: false,
+      options: [
+        { id: 20, sortOrder: 0, optionValue: 1, displayText: 'Poor' },
+        { id: 21, sortOrder: 1, optionValue: 2, displayText: 'Fair' },
+        { id: 22, sortOrder: 2, optionValue: 3, displayText: 'Good' },
+        { id: 23, sortOrder: 3, optionValue: 4, displayText: 'Excellent' },
+        { id: 24, sortOrder: 4, optionValue: 5, displayText: 'Outstanding' }
+      ]
+    },
+    {
+      id: 3,
+      sortOrder: 2,
+      prompt: 'What motivates the student most in learning?',
+      allowCustom: true,
+      options: [
+        { id: 30, sortOrder: 0, optionValue: 1, displayText: 'Grades and recognition' },
+        { id: 31, sortOrder: 1, optionValue: 2, displayText: 'Understanding concepts' },
+        { id: 32, sortOrder: 2, optionValue: 3, displayText: 'Practical applications' },
+        { id: 33, sortOrder: 3, optionValue: 4, displayText: 'Peer interaction' },
+        { id: 34, sortOrder: 4, optionValue: 5, displayText: 'Other (please specify)' }
+      ]
+    },
+    {
+      id: 4,
+      sortOrder: 3,
+      prompt: 'How does the student respond to collaborative learning activities?',
+      allowCustom: true,
+      options: [
+        { id: 40, sortOrder: 0, optionValue: 1, displayText: 'Prefers individual work' },
+        { id: 41, sortOrder: 1, optionValue: 2, displayText: 'Peer interaction' },
+        { id: 42, sortOrder: 2, optionValue: 3, displayText: 'Practical applications' },
+        { id: 43, sortOrder: 3, optionValue: 4, displayText: 'Understanding concepts' },
+        { id: 44, sortOrder: 4, optionValue: 5, displayText: 'Mixed results' }
+      ]
+    }
+  ]
+};
+
+
+// Shared mock users
+const mockStudent: User = {
+  id: 'student-1',
+  fullName: 'John Doe',
+  userName: 'john.doe',
+  role: Role.Student
+};
+
+const mockTeacher: User = {
+  id: 'teacher-1',
+  fullName: 'Jane Smith',
+  userName: 'jane.smith',
+  role: Role.Teacher
+};
+
+// Helper: build answers for a single attempt
+function buildAttemptAnswers(
+  variant: 'early' | 'late'
+): AnswerDetails[] {
+  // variant lets us simulate improvement over time
+
+  return [
+    // Q1: basic arithmetic understanding
+    {
+      questionId: '1',
+      studentResponse: variant === 'early' ? 'Fair' : 'Excellent',
+      isStudentResponseCustom: false,
+      selectedOptionIdsByStudent: [
+        variant === 'early' ? 11 /* Fair */ : 13 /* Excellent */
+      ],
+
+      teacherResponse: variant === 'early' ? 'Good' : 'Excellent',
+      isTeacherResponseCustom: false,
+      selectedOptionIdsByTeacher: [
+        variant === 'early' ? 12 /* Good */ : 13 /* Excellent */
+      ]
+    },
+
+    // Q2: problem-solving skills
+    {
+      questionId: '2',
+      studentResponse: variant === 'early' ? 'Fair' : 'Good',
+      isStudentResponseCustom: false,
+      selectedOptionIdsByStudent: [
+        variant === 'early' ? 21 /* Fair */ : 22 /* Good */
+      ],
+
+      teacherResponse: variant === 'early' ? 'Good' : 'Excellent',
+      isTeacherResponseCustom: false,
+      selectedOptionIdsByTeacher: [
+        variant === 'early' ? 22 /* Good */ : 23 /* Excellent */
+      ]
+    },
+
+    // Q3: motivation (custom allowed)
+    {
+      questionId: '3',
+      studentResponse:
+        variant === 'early'
+          ? "I find math challenging but I'm trying my best."
+          : 'Math has become much more enjoyable!',
+      isStudentResponseCustom: true,
+      selectedOptionIdsByStudent: [
+        // student didn't explicitly pick from predefined in early,
+        // but in late, let's say they clicked "Understanding concepts"
+        ...(variant === 'late' ? [31] : [])
+      ],
+
+      teacherResponse:
+        variant === 'early'
+          ? 'Needs support with problem-solving strategies.'
+          : 'Excellent progress with analytical skills.',
+      isTeacherResponseCustom: true,
+      selectedOptionIdsByTeacher: undefined // teacher feedback is narrative here
+    },
+
+    // Q4: collaboration
+    {
+      questionId: '4',
+      studentResponse:
+        variant === 'early'
+          ? 'Peer interaction'
+          : 'Understanding concepts',
+      isStudentResponseCustom: false,
+      selectedOptionIdsByStudent: [
+        variant === 'early' ? 41 /* Peer interaction */ : 43 /* Understanding concepts */
+      ],
+
+      teacherResponse:
+        variant === 'early'
+          ? 'Initially struggles with group work and needs encouragement.'
+          : 'Excellent collaborator who helps peers and leads group discussions.',
+      isTeacherResponseCustom: true,
+      selectedOptionIdsByTeacher: undefined
+    }
+  ];
+}
+
+// Build two attempts: one older and one newer
+const mockAnswersInfo: AnswerInfo[] = [
+  {
+    activeQuestionnaireId: 'aq-001',
+    studentCompletedAt: new Date('2025-02-12T10:15:00Z'),
+    teacherCompletedAt: new Date('2025-02-12T11:00:00Z'),
+    answers: buildAttemptAnswers('early')
+  },
+  {
+    activeQuestionnaireId: 'aq-002',
+    studentCompletedAt: new Date('2025-05-28T09:40:00Z'),
+    teacherCompletedAt: new Date('2025-05-28T10:10:00Z'),
+    answers: buildAttemptAnswers('late')
+  }
+];
+
+const mockStudentResultHistory: StudentResultHistory = {
+  student: mockStudent,
+  teacher: mockTeacher,
+  template: mockTemplate,
+  answersInfo: mockAnswersInfo
+};
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ResultHistoryService {
+  private apiUrl = `${environment.apiUrl}/active-questionnaire`;
+  private apiService = inject(ApiService);
+
+  /**
+   * Get result history for a specific student and template combination
+   * @param studentId - The ID of the student
+   * @param templateId - The ID of the questionnaire template
+   * @returns Observable of StudentResultHistory
+   */
+  getStudentResultHistory(
+    studentId: string,
+    templateId: string
+  ): Observable<StudentResultHistory> {
+    const params = new HttpParams()
+      .set('studentId', studentId)
+      .set('templateId', templateId);
+
+    return this.apiService.get<StudentResultHistory>(
+      `${this.apiUrl}/responseHistory`,
+      params
+    );
+  }
+
+  // -------------------
+  // SEARCH HELPERS
+  // -------------------
+
+  /**
+   * Search for students related to the current teacher user.
+   * Uses the new teacher-specific endpoint that only returns students
+   * the teacher has worked with through active questionnaires.
+   */
+  searchStudentsRelatedToTeacher(studentUsernameQuery: string): Observable<User[]> {
+    const params = new HttpParams().set('studentUsernameQuery', studentUsernameQuery);
+
+    return this.apiService.get<User[]>(
+      `${environment.apiUrl}/user/teacher/students/search`,
+      params
+    );
+  }
+
+  /**
+   * Get questionnaire template bases that both the teacher and specified student have completed.
+   * Uses the new teacher-specific endpoint that filters templates to shared completions only.
+   */
+  getTemplateBasesAnsweredByStudent(studentId: string): Observable<{ templateBases: TemplateBase[] }> {
+    return this.apiService.get<TemplateBase[]>(`${environment.apiUrl}/questionnaire-template/answeredbystudent/${studentId}`)
+      .pipe(
+        // Transform to match expected format
+        map((templates: TemplateBase[]) => ({ templateBases: templates }))
+      );
+  }
+
+  // Legacy search methods (kept for backward compatibility if needed elsewhere)
+  searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResponse> {
+    let params = new HttpParams()
+      .set('title', term)
+      .set('pageSize', 5)
+      .set('templateStatus', 'Finalized');
+
+    if (queryCursor) params = params.set('queryCursor', queryCursor);
+
+    return this.apiService.get<TemplateBaseResponse>(
+      `${environment.apiUrl}/questionnaire-template/`,
+      params
+    );
+  }
+
+  searchUsers(
+    term: string,
+    role: 'student' | 'teacher',
+    pageSize: number,
+    sessionId?: string
+  ): Observable<UserPaginationResult> {
+    const formattedRole = role.charAt(0).toUpperCase() + role.slice(1);
+
+    let params = new HttpParams()
+      .set('User', term)
+      .set('Role', formattedRole)
+      .set('PageSize', pageSize.toString());
+
+    if (sessionId) params = params.set('SessionId', sessionId);
+
+    return this.apiService.get<UserPaginationResult>(`${environment.apiUrl}/User`, params);
+  }
+}

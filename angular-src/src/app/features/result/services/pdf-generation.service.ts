@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Result } from '../models/result.model';
-import { Template } from '../../../shared/models/template.model';
+import { Result } from '../../../shared/models/result.model';
 import { TranslateService } from '@ngx-translate/core';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 
@@ -25,8 +24,8 @@ export class PdfGenerationService {
    * Generates a PDF report from questionnaire results and downloads it.
    * Creates a matrix-style layout showing teacher and student responses.
    */
-  generatePdf(result: Result, template: Template): void {
-    const docDefinition = this.buildDocDefinition(result, template);
+  generatePdf(result: Result): void {
+    const docDefinition = this.buildDocDefinition(result);
     const filename = `questionnaire-matrix-${result.id}.pdf`;
     pdfMake.createPdf(docDefinition).download(filename);
   }
@@ -34,16 +33,16 @@ export class PdfGenerationService {
   /**
    * Generates a PDF and opens it in a new tab instead of downloading.
    */
-  openPdf(result: Result, template: Template): void {
-    const docDefinition = this.buildDocDefinition(result, template);
+  openPdf(result: Result): void {
+    const docDefinition = this.buildDocDefinition(result);
     pdfMake.createPdf(docDefinition).open();
   }
 
-  private buildDocDefinition(result: Result, template: Template): any {
+  private buildDocDefinition(result: Result): any {
     const content = [
-      this.createHeaderTable(result, template),
+      this.createHeaderTable(result),
       this.createMetaNote(),
-      ...this.createQuestionBlocks(result, template)
+      ...this.createQuestionBlocks(result)
     ];
 
     return {
@@ -61,14 +60,14 @@ export class PdfGenerationService {
     };
   }
 
-  private createHeaderTable(result: Result, template: Template): any {
+  private createHeaderTable(result: Result): any {
     return {
       table: {
         widths: ['*', '*'],
         body: [
           [
             { text: this.translate.instant('PDF.TABLE_TEMPLATE'), bold: true }, 
-            `${template.title}  (ID: ${template.id || result.id})`
+            `${result.title}  (ID: ${result.id})`
           ],
           [
             { text: this.translate.instant('PDF.TABLE_STUDENT'), bold: true }, 
@@ -127,19 +126,18 @@ export class PdfGenerationService {
     };
   }
 
-  private createQuestionBlocks(result: Result, template: Template): any[] {
+  private createQuestionBlocks(result: Result): any[] {
     const blocks: any[] = [];
     
     result.answers.forEach((answer, index) => {
-      const templateQuestion = template.questions.find(q => q.prompt === answer.question);
-      blocks.push(...this.createQuestionBlock(answer, templateQuestion, index));
+      blocks.push(...this.createQuestionBlock(answer, index));
     });
 
     return blocks;
   }
 
-  private createQuestionBlock(answer: any, templateQuestion: any, index: number): any[] {
-    const options = templateQuestion?.options?.slice(0, this.MAX_OPTIONS) || [];
+  private createQuestionBlock(answer: any, index: number): any[] {
+    const options = answer.options?.slice(0, this.MAX_OPTIONS) || [];
     const teacherResponse = this.formatAnswer(answer.teacherResponse, answer.isTeacherResponseCustom);
     const studentResponse = this.formatAnswer(answer.studentResponse, answer.isStudentResponseCustom);
 
@@ -207,7 +205,8 @@ export class PdfGenerationService {
       const studentRow = this.createMatrixRow(
         this.translate.instant('PDF.STUDENT_ROW'), 
         studentResponse, 
-        options
+        options,
+        'student'
       );
       body.push(studentRow);
     }
@@ -217,7 +216,8 @@ export class PdfGenerationService {
       const teacherRow = this.createMatrixRow(
         this.translate.instant('PDF.TEACHER_ROW'), 
         teacherResponse, 
-        options
+        options,
+        'teacher'
       );
       body.push(teacherRow);
     }
@@ -236,11 +236,11 @@ export class PdfGenerationService {
     };
   }
 
-  private createMatrixRow(label: string, response: any, options: any[]): any[] {
+  private createMatrixRow(label: string, response: any, options: any[], role: 'student' | 'teacher'): any[] {
     const cells = [{ text: label, bold: true }];
     
     options.forEach((option, index) => {
-      const isMarked = !response.isCustom && this.isOptionSelected(response, option, index);
+      const isMarked = !response.isCustom && this.isOptionSelected(response, option, index, role);
       cells.push(this.createCheckboxCell(isMarked));
     });
 
@@ -255,8 +255,16 @@ export class PdfGenerationService {
     };
   }
 
-  private isOptionSelected(response: any, option: any, index: number): boolean {
-    // Try to match by option value, display text, or index
+  private isOptionSelected(response: any, option: any, index: number, role: 'student' | 'teacher'): boolean {
+    // If the option has selection information, use it directly based on role
+    if (role === 'student' && option.isSelectedByStudent !== undefined) {
+      return option.isSelectedByStudent;
+    }
+    if (role === 'teacher' && option.isSelectedByTeacher !== undefined) {
+      return option.isSelectedByTeacher;
+    }
+    
+    // Fallback to text matching for backward compatibility
     if (response.text === option.displayText) return true;
     if (response.text === option.optionValue?.toString()) return true;
     if (response.text === (index + 1).toString()) return true; // Match 1-based index

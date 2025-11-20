@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
-using Settings.Default;
+using Settings.Models;
 
 namespace Logging.Extensions;
 
@@ -18,14 +18,14 @@ public static class FileLoggerExtensions
             ServiceDescriptor.Singleton<ILoggerProvider, FileLoggerProvider>());
 
         LoggerProviderOptions.RegisterProviderOptions
-            <DefaultFileLogger, FileLoggerProvider>(builder.Services);
+            <DBLoggerSettings, FileLoggerProvider>(builder.Services);
 
         return builder;
     }
 
     public static ILoggingBuilder AddFileLogger(
         this ILoggingBuilder builder,
-        Action<DefaultFileLogger> configure)
+        Action<DBLoggerSettings> configure)
         {
             builder.AddFileLogger();
             builder.Services.Configure(configure);

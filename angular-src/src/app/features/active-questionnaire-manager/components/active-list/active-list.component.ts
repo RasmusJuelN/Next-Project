@@ -34,7 +34,7 @@ export class ActiveListComponent implements OnInit {
   totalPages: number = 0;
 
   // Cache cursors
-  cachedCursors: { [pageNumber: number]: string | null } = {1: null};
+  // cachedCursors: { [pageNumber: number]: string | null } = {1: null};
 
   // Search filters
   searchTitle: string = '';
@@ -57,15 +57,12 @@ export class ActiveListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cachedCursors[1] = null;
-
     // Debounced search
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(({ title }) => {
         this.searchTitle = title;
-        this.currentPage = 1;
-        this.cachedCursors = { 1: null };
+        this.currentPage = 1; 
         this.fetchGroups();
       });
 
@@ -87,52 +84,48 @@ export class ActiveListComponent implements OnInit {
   onPageSizeChange(value: number): void {
     this.pageSize = value;
     this.currentPage = 1;
-    this.cachedCursors = { 1: null };
     this.fetchGroups();
   }
 
   // --- Fetch groups ---
   private fetchGroups(): void {
-  this.isLoading = true;
-  this.errorMessage = null;
+    this.isLoading = true;
+    this.errorMessage = null;
 
-  const nextCursor = this.cachedCursors[this.currentPage] ?? undefined;
+    this.activeService
+      .getQuestionnaireGroupsPaginated(
+        this.currentPage,
+        this.pageSize,
+        this.searchTitle,
+        this.filterPendingStudent,
+        this.filterPendingTeacher
+      )
+      .subscribe({
+        next: (res) => {
+          this.groups = res.groups;
+          
+          // Initialize collapse state
+          res.groups.forEach(g => {
+            if (this.groupCollapsed[g.groupId] === undefined) {
+              this.groupCollapsed[g.groupId] = true;
+            }
+          });
 
-  this.activeService
-    .getQuestionnaireGroupsPaginated(
-      this.pageSize,
-      nextCursor,
-      this.searchTitle,
-      this.filterPendingStudent,
-      this.filterPendingTeacher  // NEW
-    )
-    .subscribe({
-      next: (res) => {
-        this.groups = res.groups;
-        res.groups.forEach(g => {
-          if (this.groupCollapsed[g.groupId] === undefined) {
-            this.groupCollapsed[g.groupId] = true;
-          }
-        });
-        if (res.queryCursor) {
-          this.cachedCursors[this.currentPage + 1] = res.queryCursor;
-        }
-        this.totalItems = res.totalCount;
-        this.totalPages = Math.ceil(res.totalCount / this.pageSize);
-        this.isLoading = false;
-      },
-      error: () => {
-        this.errorMessage = 'Kunne ikke indlæse spørgeskemagrupper.';
-        this.isLoading = false;
-      },
-    });
-}
+          this.totalItems = res.totalCount;
+          this.totalPages = res.totalPages;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.errorMessage = 'Kunne ikke indlæse spørgeskemagrupper.';
+          this.isLoading = false;
+        },
+      });
+  }
 
-onFilterChange(): void {
-  this.currentPage = 1;
-  this.cachedCursors = { 1: null };
-  this.fetchGroups();
-}
+  onFilterChange(): void {
+    this.currentPage = 1;
+    this.fetchGroups();
+  }
 
   toggleListCollapse(): void {
     Object.keys(this.groupCollapsed).forEach(id => {

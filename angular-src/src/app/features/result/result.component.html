@@ -37,162 +37,39 @@
         <span class="hidden sm:inline">{{ translate.instant('RESULT.DOWNLOAD_PDF') }}</span>
         <span class="sm:hidden">{{ translate.instant('RESULT.DOWNLOAD_PDF_SHORT') }}</span>
       </button>
-      
-      <button
-        (click)="printPage()"
-        class="bg-gray-700 text-white px-3 py-2 text-sm rounded-xl hover:bg-gray-500 hover:text-white flex-1 sm:flex-none transition"
-        [title]="translate.instant('RESULT.PRINT_TOOLTIP')"
-      >
-        <span class="hidden sm:inline">{{ translate.instant('RESULT.PRINT') }}</span>
-        <span class="sm:hidden">{{ translate.instant('RESULT.PRINT_SHORT') }}</span>
-      </button>
+      <!-- Student Selection Dropdown -->
+  
     </div>
-  </div>
-
-  <!-- Template ID -->
-  <h3 class="text-lg font-medium text-primary_dark_blue mb-6">ID: {{ result.id }}</h3>
-
-  <!-- User Info Section - Mobile Responsive -->
-  <div class="user-info-section mb-8 border-b print:border-gray-400 pb-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Student Info -->
-      <div class="info-item bg-white p-4 rounded-lg shadow-sm border border-primary_orange_1">
-        <span class="block font-bold text-primary_dark_blue print:text-black mb-2">{{ translate.instant('RESULT.STUDENT_LABEL') }}</span>
-        <span class="block text-gray-900 print:text-black font-medium mb-1 break-words">{{ result.student.user.fullName }}</span>
-        <span class="block text-sm text-gray-500 print:text-black break-words">
-          {{ translate.instant('RESULT.COMPLETED_ON') }} {{ result.student.completedAt | date:'short' }}
-        </span>
-      </div>
     
-      <!-- Teacher Info -->
-      <div class="info-item bg-white p-4 rounded-lg shadow-sm border border-primary_orange_1">
-        <span class="block font-bold text-primary_dark_blue print:text-black mb-2">{{ translate.instant('RESULT.TEACHER_LABEL') }}</span>
-        <span class="block text-gray-900 print:text-black font-medium mb-1 break-words">{{ result.teacher.user.fullName }}</span>
-        <span class="block text-sm text-gray-500 print:text-black break-words">
-          {{ translate.instant('RESULT.COMPLETED_ON') }} {{ result.teacher.completedAt | date:'short' }}
-        </span>
-      </div>
-    </div>
+  </div>
+  <div class=" flex items-center gap-3 float-end">
+    <label for="student-select" class="text-sm font-medium text-gray-700">
+      {{ 'RESULT.DROPDOWN_SELECT_STUDENT' | translate }}:
+    </label>
+    <select 
+      id="student-select"
+      [(ngModel)]="selectedCompletionId"
+      (change)="onStudentSelect($event)"
+      class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+      <option *ngFor="let student of completedStudents" [value]="student.id">
+        {{ student.student.fullName }}{{ student.student.userName ? ' (' + student.student.userName + ')' : '' }}
+      </option>
+    </select>
   </div>
 
-  <!-- Compressed View - Mobile Responsive -->
-  <div *ngIf="!isFullView" class="questions-section space-y-8">
-    <div *ngFor="let answer of result.answers; let i = index" class="question-answer-pair print:break-inside-avoid bg-secondary_background_gray rounded-lg shadow-sm border border-primary_orange_1 p-4 sm:p-6">
-      <h3 class="text-base sm:text-lg font-semibold text-primary_dark_blue mb-4 print:text-black break-words">
-        {{ i + 1 }}. {{ answer.question }}
-      </h3>
-
-      <div class="answers-comparison grid grid-cols-1 lg:grid-cols-2 gap-4 print:grid-cols-1 print:border-b print:pb-4 print:mb-4">
-        
-        <!-- Student Answer -->
-        <div class="answer-container bg-primary_background_white/80 p-3 sm:p-4 rounded-lg print:bg-transparent print:p-0 order-1 border border-primary_orange_1">
-          <span class="block font-bold text-primary_dark_blue print:text-black mb-2">{{ translate.instant('RESULT.STUDENT_LABEL') }}:</span>
-          <p class="text-gray-900 print:text-black break-words mb-2">{{ answer.studentResponse }}</p>
-          <span *ngIf="answer.isStudentResponseCustom" class="inline-block text-xs sm:text-sm bg-primary_orange_1 text-white px-2 py-1 rounded">{{ translate.instant('RESULT.CUSTOM_ANSWER') }}</span>
-        </div>
-
-        <!-- Teacher Answer -->
-        <div class="answer-container bg-primary_background_white/80 p-3 sm:p-4 rounded-lg print:bg-transparent print:p-0 order-2 border border-primary_orange_1">
-          <span class="block font-bold text-primary_dark_blue print:text-black mb-2">{{ translate.instant('RESULT.TEACHER_LABEL') }}:</span>
-          <p class="text-gray-900 print:text-black break-words mb-2">{{ answer.teacherResponse }}</p>
-          <span *ngIf="answer.isTeacherResponseCustom" class="inline-block text-xs sm:text-sm bg-primary_orange_1 text-white px-2 py-1 rounded">{{ translate.instant('RESULT.CUSTOM_ANSWER') }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Full View (PDF-like Matrix Style) - Mobile Responsive -->
-  <div *ngIf="isFullView" class="questions-section space-y-8">
-    <div *ngFor="let answer of result.answers; let i = index" class="question-block print:break-inside-avoid bg-white rounded-lg shadow-sm border border-primary_orange_1 p-4 sm:p-6">
-      <h3 class="text-base sm:text-lg font-semibold text-primary_dark_blue mb-4 print:text-black break-words">
-        {{ i + 1 }}. {{ answer.question }}
-      </h3>
-
-      <ng-container *ngIf="getTemplateQuestionOptions(answer.question) as options">
-        <!-- Matrix Table with horizontal scroll for mobile -->
-        <div *ngIf="options.length > 0 && (!answer.isStudentResponseCustom || !answer.isTeacherResponseCustom)" 
-             class="matrix-table mb-4">
-          
-          <!-- Scrollable container for mobile -->
-          <div class="overflow-x-auto border border-primary_orange_1 rounded">
-            <table class="min-w-full border-collapse">
-              <thead>
-                <tr class="bg-primary_orange_light/30">
-                  <th class="border border-primary_orange_1 p-2 text-left font-medium text-primary_dark_blue min-w-[80px] sticky left-0 bg-primary_orange_light/30 z-10"></th>
-                  <th *ngFor="let option of options" 
-                      class="border border-primary_orange_1 p-2 text-center font-medium text-primary_dark_blue text-xs sm:text-sm min-w-[120px] sm:min-w-[150px]">
-                    <div class="break-words leading-tight">
-                      {{ option.displayText }}
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Student row (only if not custom) -->
-                <tr *ngIf="!answer.isStudentResponseCustom">
-                  <td class="border border-primary_orange_1 p-2 font-semibold bg-white sticky left-0 z-10 min-w-[80px]">
-                    {{ translate.instant('RESULT.STUDENT_LABEL') }}
-                  </td>
-                  <td *ngFor="let option of options; let optionIndex = index" 
-                      class="border border-primary_orange_1 p-2 text-center min-w-[120px] sm:min-w-[150px]">
-                    <span *ngIf="isOptionSelected(answer.studentResponse, answer.isStudentResponseCustom, option, optionIndex)" 
-                          class="font-bold text-lg text-primary_orange_1">X</span>
-                  </td>
-                </tr>
-                <!-- Teacher row (only if not custom) -->
-                <tr *ngIf="!answer.isTeacherResponseCustom">
-                  <td class="border border-primary_orange_1 p-2 font-semibold bg-white sticky left-0 z-10 min-w-[80px]">
-                    {{ translate.instant('RESULT.TEACHER_LABEL') }}
-                  </td>
-                  <td *ngFor="let option of options; let optionIndex = index" 
-                      class="border border-primary_orange_1 p-2 text-center min-w-[120px] sm:min-w-[150px]">
-                    <span *ngIf="isOptionSelected(answer.teacherResponse, answer.isTeacherResponseCustom, option, optionIndex)" 
-                          class="font-bold text-lg text-primary_orange_1">X</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- No options note -->
-        <div *ngIf="options.length === 0" class="bg-primary_background_white/80 p-3 rounded border border-primary_orange_1 mb-4">
-          <p class="text-sm text-primary_dark_blue italic">{{ translate.instant('RESULT.NO_OPTIONS_AVAILABLE') }}</p>
-        </div>
-      </ng-container>
-
-      <!-- Custom Responses Section - Mobile Responsive -->
-      <div *ngIf="answer.isStudentResponseCustom || answer.isTeacherResponseCustom" 
-           class="custom-responses bg-primary_background_white/80 p-3 sm:p-4 rounded border border-primary_orange_1">
-        <h4 class="font-semibold text-primary_dark_blue mb-3 text-sm sm:text-base">{{ translate.instant('RESULT.CUSTOM_RESPONSES') }}</h4>
-        
-        <!-- Student custom response -->
-        <div *ngIf="answer.isStudentResponseCustom" class="custom-response mb-3 p-2 bg-white rounded">
-          <div class="flex flex-col sm:flex-row">
-            <span class="font-medium text-primary_dark_light mb-1 sm:mb-0 sm:w-20 sm:flex-shrink-0 italic text-sm">
-              {{ translate.instant('RESULT.STUDENT_LABEL') }}:
-            </span>
-            <span class="text-gray-900 break-words text-sm">{{ answer.studentResponse }}</span>
-          </div>
-        </div>
-        
-        <!-- Teacher custom response -->
-        <div *ngIf="answer.isTeacherResponseCustom" class="custom-response p-2 bg-white rounded">
-          <div class="flex flex-col sm:flex-row">
-            <span class="font-medium text-primary_dark_light mb-1 sm:mb-0 sm:w-20 sm:flex-shrink-0 italic text-sm">
-              {{ translate.instant('RESULT.TEACHER_LABEL') }}:
-            </span>
-            <span class="text-gray-900 break-words text-sm">{{ answer.teacherResponse }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Chart Section (if present) -->
-  <div class="flex justify-center mt-8 w-full" *ngIf="chartOptions">
-    <div class="flex justify-center">
-      <ag-charts class="w-[1000px] h-[500px]" [options]="chartOptions"></ag-charts>
-    </div>
-  </div>
+  <!-- Use the reusable ShowResultComponent without its own container -->
+  <app-show-result 
+    [result]="result"
+    [isFullView]="isFullView"
+    [config]="resultConfig">
+  </app-show-result>
 </div>
+
+
+
+<!-- Chart Section (if present) -->
+<!-- <div class="flex justify-center mt-8 w-full max-w-7xl mx-auto" *ngIf="chartOptions">
+  <div class="flex justify-center">
+    <ag-charts class="w-[1000px] h-[500px]" [options]="chartOptions"></ag-charts>
+  </div>
+</div> -->

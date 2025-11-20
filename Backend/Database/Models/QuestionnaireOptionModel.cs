@@ -44,6 +44,16 @@ public class QuestionnaireOptionModel
     public required string DisplayText { get; set; }
     
     /// <summary>
+    /// Gets or sets the sort order for this option within the question.
+    /// </summary>
+    /// <remarks>
+    /// Used to control the display order of options in the frontend. Lower values appear first.
+    /// Enables drag and drop reordering functionality in the user interface.
+    /// </remarks>
+    [Required]
+    public required int SortOrder { get; set; }
+    
+    /// <summary>
     /// Gets or sets the foreign key reference to the question this option belongs to.
     /// </summary>
     /// <remarks>

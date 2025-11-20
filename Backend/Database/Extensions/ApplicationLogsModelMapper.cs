@@ -30,6 +30,7 @@ public static class ApplicationLogsModelMapper
             LogLevel = applicationLog.LogLevel,
             Timestamp = applicationLog.Timestamp,
             EventId = applicationLog.EventId,
+            EventDescription = applicationLog.EventDescription,
             Category = applicationLog.Category,
             Exception = applicationLog.Exception
         };

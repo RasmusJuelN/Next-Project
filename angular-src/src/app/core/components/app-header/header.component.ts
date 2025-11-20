@@ -69,9 +69,8 @@ export class HeaderComponent {
   private cdr = inject(ChangeDetectorRef);
 
   readonly isAuthenticated = this.authService.isAuthenticated; // already a computed in the service
-  readonly userRole = computed<Role | null>(
-    () => this.authService.user()?.role ?? null
-  );
+  readonly userRole = computed<Role | null>( () => this.authService.user()?.role ?? null );
+  readonly username = computed(() => this.authService.user()?.userName ?? '');
 
   isMenuOpen = false;
 
@@ -96,6 +95,7 @@ export class HeaderComponent {
         route: "/show-active-questionnaires",
       },
       { name: "NAV.DATA_COMPARE", route: "/data-compare" },
+      { name: "NAV.RESULT_HISTORY", route: "/result-history" },
     ],
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },

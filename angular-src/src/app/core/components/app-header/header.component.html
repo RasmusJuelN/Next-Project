@@ -7,24 +7,32 @@
     <!-- <span class="sr-only">Toggle menu</span> -->
     <span class="sr-only">{{'NAV.TOGGLE_MENU' | translate}} </span>
     <app-menu-svg [logoType]="isMenuOpen ? 'close' : 'menu'"></app-menu-svg>
-    
+
   </button>
-  
+
 
   <!-- Mobile Nav Drawer -->
   <nav *ngIf="isMenuOpen"
     class="fixed top-0 left-0 z-40 h-full  bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16 print:hidden">
     <!-- Profile Dropdown Button (Mobile) -->
     <div class="absolute right-4 top-4 flex items-center gap-2 z-50">
-      <button (click)="toggleProfileDropdown()" class="profile-dropdown-trigger flex items-center px-2 py-2 rounded-full border-2 border-primary_orange_1 bg-white hover:bg-primary_orange_light focus:outline-none">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-primary_orange_1">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9.001 9.001 0 0112 15c2.21 0 4.21.805 5.879 2.146M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      <button (click)="toggleProfileDropdown()"
+        class="profile-dropdown-trigger flex items-center px-2 py-2 rounded-full border-2 border-primary_orange_1 bg-white hover:bg-primary_orange_light focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          class="w-6 h-6 text-primary_orange_1">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M5.121 17.804A9.001 9.001 0 0112 15c2.21 0 4.21.805 5.879 2.146M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
       </button>
       <!-- Dropdown Menu (Mobile) -->
-      <div *ngIf="showProfileDropdown" class="profile-dropdown-menu absolute right-0 top-12 mt-2 w-48 bg-white border border-primary_orange_1 rounded-xl shadow-lg z-50 flex flex-col py-2">
+      <div *ngIf="showProfileDropdown"
+        class="profile-dropdown-menu absolute right-0 top-12 mt-2 w-48 bg-white border border-primary_orange_1 rounded-xl shadow-lg z-50 flex flex-col py-2">
+        <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ username() }}</p>
+        <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ userRole() }}</p>
+        <hr class="border-primary_orange_1">
         <app-language-switcher class="px-2 py-2"></app-language-switcher>
-        <button (click)="logout()" class="px-4 py-2 text-primary_orange_1 hover:text-primary_orange_light text-left w-full shadow-black">
+        <button (click)="logout()"
+          class="px-4 py-2 text-primary_orange_1 hover:text-primary_orange_light text-left w-full shadow-black">
           {{ 'NAV.LOG_OUT' | translate }}
         </button>
       </div>
@@ -82,31 +90,30 @@
     </div>
 
     <!-- Right -->
-    <div>
-
-      <div class="col-start-3 justify-self-end flex items-center gap-4 shrink-0 relative">
-        <!-- Profile Dropdown Button -->
-        <button #profileBtn (click)="toggleProfileDropdown()"
-          class="profile-dropdown-trigger flex items-center px-3 py-2 rounded-full border-2 border-primary_orange_1 bg-white hover:bg-secondary_background_gray focus:outline-none ">
-          <!-- Person Icon SVG -->
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            class="w-6 h-6 text-primary_orange_1 ">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M5.121 17.804A9.001 9.001 0 0112 15c2.21 0 4.21.805 5.879 2.146M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+    <div class="col-start-3 justify-self-end flex items-center gap-4 shrink-0 relative">
+      <!-- Profile Dropdown Button -->
+      <button #profileBtn (click)="toggleProfileDropdown()"
+        class="profile-dropdown-trigger flex items-center px-3 py-2 rounded-full border-2 border-primary_orange_1 bg-white hover:bg-secondary_background_gray focus:outline-none ">
+        <!-- Person Icon SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          class="w-6 h-6 text-primary_orange_1 ">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M5.121 17.804A9.001 9.001 0 0112 15c2.21 0 4.21.805 5.879 2.146M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+      <!-- Dropdown Menu -->
+      <div *ngIf="showProfileDropdown" #profileMenu
+        class="profile-dropdown-menu absolute right-0 top-12 mt-2 w-48 bg-white border border-primary_orange_1 rounded-xl shadow-lg z-50 flex flex-col py-2">
+        <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ username() }}</p>
+        <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ userRole() }}</p>
+        <hr class="border-primary_orange_1">
+        <app-language-switcher class="px-2 py-2"></app-language-switcher>
+        <button (click)="logout()"
+          class=" py-2 mx-2 text-white bg-primary_orange_1 hover:bg-primary_orange_light text-center rounded-md shadow-black">
+          {{ 'NAV.LOG_OUT' | translate }}
         </button>
-        <!-- Dropdown Menu -->
-        <div *ngIf="showProfileDropdown" #profileMenu
-          class="profile-dropdown-menu absolute right-0 top-12 mt-2 w-48 bg-white border border-primary_orange_1 rounded-xl shadow-lg z-50 flex flex-col py-2">
-          <app-language-switcher class="px-2 py-2"></app-language-switcher>
-          <button (click)="logout()"
-            class=" py-2 mx-2 text-white bg-primary_orange_1 hover:bg-primary_orange_light text-center rounded-md shadow-black">
-            {{ 'NAV.LOG_OUT' | translate }}
-          </button>
-        </div>
       </div>
     </div>
-
   </nav>
 
 </ng-container>
