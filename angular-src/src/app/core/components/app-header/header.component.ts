@@ -69,9 +69,8 @@ export class HeaderComponent {
   private cdr = inject(ChangeDetectorRef);
 
   readonly isAuthenticated = this.authService.isAuthenticated; // already a computed in the service
-  readonly userRole = computed<Role | null>(
-    () => this.authService.user()?.role ?? null
-  );
+  readonly userRole = computed<Role | null>( () => this.authService.user()?.role ?? null );
+  readonly username = computed(() => this.authService.user()?.userName ?? '');
 
   isMenuOpen = false;
 
