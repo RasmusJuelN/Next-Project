@@ -56,6 +56,8 @@ public record class LDAPSettingsFetchResponse : ILDAPSettings
 {
     public required string Host { get; set; }
     public required int Port { get; set; }
+    public int SSLPort { get; set; }
+    public bool UseSSL { get; set; }
     public required string FQDN { get; set; }
     public required string BaseDN { get; set; }
     public required string SA { get; set; }

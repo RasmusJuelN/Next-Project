@@ -26,7 +26,19 @@ public class ActiveDirectoryAuthenticationBridge(
     public override void Authenticate(string username, string password)
     {
         _Logger.LogInformation("Starting LDAP authentication for user: {Username}", username);
-        
+
+        int port;
+        LdapConnectionOptions connectionOptions = new();
+        if (_LdapSettings.UseSSL)
+        {
+            connectionOptions.UseSsl();
+            port = _LdapSettings.SSLPort;
+        }
+        else
+        {
+            port = _LdapSettings.Port;
+        }
+
         try
         {
             if (_Connection is not null && _Connection.Connected)
@@ -43,14 +55,14 @@ public class ActiveDirectoryAuthenticationBridge(
             }
             else
             {
-                _Logger.LogDebug("Creating new LDAP connection to {Host}:{Port}", _LdapSettings.Host, _LdapSettings.Port);
-                _Connection = CreateConnection();
+                _Logger.LogDebug("Creating new LDAP connection to {Host}:{Port}", _LdapSettings.Host, port);
+                _Connection = CreateConnection(connectionOptions);
                 LdapSearchConstraints constraints = new();
                 constraints.ReferralFollowing = true;
                 _Connection.Constraints = constraints;
             }
 
-            _Connection.Connect(_LdapSettings.Host, _LdapSettings.Port);
+            _Connection.Connect(_LdapSettings.Host, port);
 
             BindWithSimple(username, password);
             _Logger.LogInformation("LDAP authentication successful for user: {Username}", username);
@@ -59,7 +71,7 @@ public class ActiveDirectoryAuthenticationBridge(
         catch (LdapException ex)
         {
             _Logger.LogError(ex, "LDAP authentication failed for user: {Username} with result code: {ResultCode}", username, ex.ResultCode);
-            
+
             // https://ldap.com/ldap-result-code-reference/
             throw ex.ResultCode switch
             {
