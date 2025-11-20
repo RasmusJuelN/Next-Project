@@ -144,7 +144,13 @@
     "FILTER_TEACHER_PENDING": "Teacher pending",
     "ITEMS_PER_PAGE": "Items per page:",
     "GROUP_STUDENT": "Student",
-    "GROUP_TEACHER": "Teacher"
+    "GROUP_TEACHER": "Teacher",
+    "GROUP_TYPE": "Questionnaire type:"
+  },
+
+  "QUESTIONNAIRE_TYPE": {
+    "STANDARD": "Standard",
+    "ANONYMOUS": "Anonymous"
   },
 
   "QUESTION_EDITOR": {

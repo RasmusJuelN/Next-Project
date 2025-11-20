@@ -96,7 +96,8 @@ export class TeacherDashboardComponent implements OnInit {
               student: q.student,
               teacher: q.teacher,
               templateId: q.templateId ?? q.TemplateId ?? null
-            }))
+            })),
+            questionnaireType: g.questionnaireType
           }));
 
           // Initialize collapse state

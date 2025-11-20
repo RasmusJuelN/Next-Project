@@ -146,7 +146,13 @@
     "FILTER_TEACHER_PENDING": "Lærer mangler svar",
     "ITEMS_PER_PAGE": "Elementer pr. side:",
     "GROUP_STUDENT": "Elev",
-    "GROUP_TEACHER": "Lærer"
+    "GROUP_TEACHER": "Lærer",
+    "GROUP_TYPE": "Spørgeskema type:"
+  },
+
+  "QUESTIONNAIRE_TYPE": {
+    "STANDARD": "Standard",
+    "ANONYMOUS": "Anonym"
   },
 
   "QUESTION_EDITOR": {

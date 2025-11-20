@@ -107,6 +107,16 @@
                   /
                   <span class="text-gray-800">{{ group.questionnaires.length }}</span>
                 </span>
+                <span>
+                  {{ 'ACTIVE_LIST.GROUP_TYPE' | translate}}
+                  <span
+                    [ngClass]="{
+                      'text-green-600 font-bold': group.questionnaireType === 'Standard',
+                      'text-yellow-600 font-bold': group.questionnaireType === 'Anonymous'
+                    }">
+                    {{ ('QUESTIONNAIRE_TYPE.' + group.questionnaireType.toUpperCase()) | translate }}
+                  </span>
+                </span>
               </div>
             </div>
             <!-- Collapse arrow on the right -->
