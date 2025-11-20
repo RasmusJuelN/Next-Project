@@ -68,6 +68,7 @@
   "TMP_FINALIZE_TITLE": "Publish template?",
   "TMP_FINALIZE_TEXT": "When a template is published, it becomes read-only. <br/>Are you sure you want to publish?",
   "TMP_FINALIZE_CONFIRM": "Publish",
+  "TMP_PUBLISH": "Publish",
   "TMP_VIEW_MODE": "Template View",
   "TMP_EDIT_MODE": "Template Editing",
 

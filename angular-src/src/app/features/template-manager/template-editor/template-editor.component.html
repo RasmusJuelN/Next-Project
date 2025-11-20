@@ -41,7 +41,7 @@
     </button>
     <button *ngIf="!readonly && template?.id" type="button" (click)="openFinalizeModal()"
       class="px-4 py-2 bg-purple-500 text-white rounded-lg shadow-sm hover:bg-purple-600 focus:ring-2 focus:ring-purple-400 focus:outline-none">
-      Udgiv
+      {{ 'TMP_PUBLISH' | translate }}
     </button>
   </div>
 </form>

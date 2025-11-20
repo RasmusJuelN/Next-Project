@@ -67,6 +67,7 @@
   "TMP_FINALIZE_TITLE": "Udgiv skabelon?",
   "TMP_FINALIZE_TEXT": "Når en skabelon udgives, bliver den skrivebeskyttet. <br/>Er du sikker på, at du vil udgive?",
   "TMP_FINALIZE_CONFIRM": "Udgiv",
+  "TMP_PUBLISH": "Udgiv",
   "TMP_VIEW_MODE": "Skabelonvisning",
   "TMP_EDIT_MODE": "Skabelonredigering",
 
