@@ -218,7 +218,8 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
                 q.ToBaseDto()             
                  .ToActiveQuestionnaireAdminDTO()             
             )
-                .ToList()
+                .ToList(),
+                QuestionnaireType = g.Questionnaires.Select(a => a.QuestionnaireType).SingleOrDefault()
         }).ToList();
 
         int totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);

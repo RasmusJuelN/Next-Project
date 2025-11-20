@@ -20,7 +20,6 @@ public record class ActiveQuestionnaireUserSpecificBase
     public required string Title { get; set; }
     public string? Description { get; set; }
     public required DateTime ActivatedAt { get; set; }
-    public required ActiveQuestionnaireType QuestionnaireType { get; set; }
 }
 
 /// <summary>
@@ -31,6 +30,7 @@ public record class ActiveQuestionnaireStudentBase : ActiveQuestionnaireUserSpec
 {
     public required UserBase Student { get; set; }
     public required DateTime? StudentCompletedAt { get; set; }
+    public required ActiveQuestionnaireType QuestionnaireType { get; set; }
 }
 
 /// <summary>
@@ -47,6 +47,7 @@ public record class ActiveQuestionnaireTeacherBase : ActiveQuestionnaireUserSpec
     public required DateTime? StudentCompletedAt { get; set; }
     public required DateTime? TeacherCompletedAt { get; set; }
     public string? GroupName { get; set; }
+    public required ActiveQuestionnaireType QuestionnaireType { get; set; }
 }
 
 /// <summary>
@@ -63,6 +64,7 @@ public record class ActiveQuestionnaireAdminBase : ActiveQuestionnaireUserSpecif
     public required UserBase Teacher { get; set; }
     public required DateTime? StudentCompletedAt { get; set; }
     public required DateTime? TeacherCompletedAt { get; set; }
+    public required ActiveQuestionnaireType QuestionnaireType { get; set; }
 }
 
 //###################################################//

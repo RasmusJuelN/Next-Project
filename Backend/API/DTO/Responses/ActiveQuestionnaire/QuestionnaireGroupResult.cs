@@ -1,5 +1,7 @@
 ﻿
 
+using Database.Enums;
+
 namespace API.DTO.Responses.ActiveQuestionnaire
 {
     /// <summary>
@@ -28,5 +30,6 @@ namespace API.DTO.Responses.ActiveQuestionnaire
     {
         public Guid TemplateId { get; set; }
         public List<ActiveQuestionnaireAdminBase> Questionnaires { get; set; }
+        public required ActiveQuestionnaireType QuestionnaireType { get; set; }
     }
 }

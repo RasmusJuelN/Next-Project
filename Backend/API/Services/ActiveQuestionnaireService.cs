@@ -152,7 +152,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             GroupId = group.GroupId,
             Name = group.Name,
             TemplateId = group.TemplateId,
-            Questionnaires = questionnaireDtos
+            Questionnaires = questionnaireDtos,
+            QuestionnaireType = questionnaireDtos.Select(a => a.QuestionnaireType).SingleOrDefault()
         };
     }
 
@@ -217,7 +218,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
                 StudentCompletedAt = q.StudentCompletedAt,
                 TeacherCompletedAt = q.TeacherCompletedAt,
                 QuestionnaireType = q.QuestionnaireType
-            }).ToList()
+            }).ToList(),
+            QuestionnaireType = group.Questionnaires.Select(a => a.QuestionnaireType).SingleOrDefault()
         }).ToList();
 
         int totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
@@ -282,7 +284,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             GroupId = group.GroupId,
             Name = group.Name,
             TemplateId = group.TemplateId,
-            Questionnaires = questionnaireDtos
+            Questionnaires = questionnaireDtos,
+            QuestionnaireType = questionnaireDtos.Select(a => a.QuestionnaireType).SingleOrDefault()
         };
     }
 
@@ -332,7 +335,8 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
                 GroupId = group.GroupId,
                 Name = group.Name,
                 TemplateId = group.TemplateId,
-                Questionnaires = questionnaires
+                Questionnaires = questionnaires,
+                QuestionnaireType = group.Questionnaires.Select(a => a.QuestionnaireType).SingleOrDefault()
             });
         }
 
