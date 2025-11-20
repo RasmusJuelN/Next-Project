@@ -1,5 +1,5 @@
 <!-- Search areas for students and templates -->
-<!-- <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+ <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
     <div class="flex flex-col w-full mt-4 sm:mt-0" #templateSearchArea>
         <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'DATA_COMPARE.SEARCH_TEMPLATE_LABEL' |
             translate }}</label>
@@ -70,15 +70,9 @@
             <ul class="space-y-1">
                 <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
                     class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
-                    <ng-container *ngIf="stud.type === 'user'; else groupResult">
-                        <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName
-                                }})</span></span>
+                    <ng-container *ngIf="stud.type === 'user'">
+                        <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName }})</span></span>
                     </ng-container>
-                    <ng-template #groupResult>
-                        <span class="font-semibold text-primary_dark_blue">{{ stud.type === 'group' ? stud.name
-                            : '' }}</span>
-                        <span class="ml-2 text-xs text-gray-500">[Gruppe]</span>
-                    </ng-template>
                 </li>
             </ul>
 
@@ -93,15 +87,9 @@
             <strong>{{ 'DATA_COMPARE.SELECTED_STUDENTS' | translate }}</strong>
             <ul class="mt-1 space-y-1">
                 <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
-                    <ng-container *ngIf="stud.type === 'user'; else selectedGroup">
-                        <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName
-                                }})</span></span>
+                    <ng-container *ngIf="stud.type === 'user'">
+                        <span>{{ stud.fullName }}<span *ngIf="stud.userName"> ({{ stud.userName }})</span></span>
                     </ng-container>
-                    <ng-template #selectedGroup>
-                        <span class="font-semibold text-primary_dark_blue">{{ stud.type === 'group' ? stud.name
-                            : '' }}</span>
-                        <span class="ml-2 text-xs text-gray-500">[Gruppe]</span>
-                    </ng-template>
                     <button (click)="select('student', stud)"
                         class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{
                         'DATA_COMPARE.REMOVE' | translate }}</button>
@@ -112,7 +100,7 @@
                 'DATA_COMPARE.CLEAR_ALL' | translate }}</button>
         </div>
     </div>
-</div> -->
+</div>
 
 
 <!-- Chart and Question navigation -->
