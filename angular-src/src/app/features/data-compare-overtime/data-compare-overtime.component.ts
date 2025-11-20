@@ -3,6 +3,11 @@ import type { AgCartesianChartOptions } from 'ag-charts-community';
 import { Component, OnInit, inject } from '@angular/core';
 import { AgCharts } from 'ag-charts-angular';
 import { DataCompareService } from './services/data-compare-overtime.service';
+import { TranslateModule } from "@ngx-translate/core";
+import { User } from "../../shared/models/user.model";
+import { SearchEntity } from "../active-questionnaire-manager/models/searchEntity.model";
+import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
+
 
 @Component({
   selector: 'app-data-compare-overtime',
@@ -121,59 +126,100 @@ private updateChartForQuestion(index: number) {
     a.question === question.title ||
     a.question === question.text
       );
-      return match?.map((a: any) => ({
-        date: new Date(
+      return match?.map((a: any) => {
+        const completedDate = new Date(
           entry.student?.completedAt ?? entry.teacher?.completedAt ?? Date.now()
-        ),
-        TeacherAnswer: toNumeric(a.teacherResponse),
-        StudentAnswer: toNumeric(a.studentResponse),
-      }));
+        );
+        return {
+          date: completedDate,
+          dateLabel: completedDate.toLocaleString('da-DK', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+          }),
+          TeacherAnswer: toNumeric(a.teacherResponse),
+          StudentAnswer: toNumeric(a.studentResponse),
+        };
+      });
     })
-    .filter((x) => x && (x.TeacherAnswer !== null || x.StudentAnswer !== null));
+    .filter((x) => x && (x.TeacherAnswer !== null || x.StudentAnswer !== null))
+    .sort((a, b) => a.date.getTime() - b.date.getTime()); // Sort by date
 
-  console.log(' Filtered chart data:', filtered);
+  // Add unique index to each point to ensure equal spacing
+  const indexedData = filtered.map((item, idx) => ({
+    ...item,
+    index: idx,
+    displayLabel: `${item.dateLabel} (#${idx + 1})`
+  }));
 
-this.options = {
-  ...this.options,
-  title: { text: question.prompt || question.title || question.text || 'Spørgsmål' },
-  data: filtered,
-axes: [
-  {
-    type: 'time',
-    position: 'bottom',
-    title: { text: 'Tidspunkt for besvarelse' },
-  },
-{
-  type: 'number',
-  position: 'left',
-  min: 0,
-  max: this.answers.length - 1,
-  nice: false,
-  label: {
-    avoidCollisions: false,
-    formatter: (p) => {
-      const v = p.value;
-      // only label exact integers to avoid duplicates
-      if (Math.abs(v - Math.round(v)) > 1e-6) return '';
-      const idx = Math.round(v);
-      return this.answers[idx] ?? '';
-    },
-  },
-  tick: {
-    // @ts-expect-error: supported at runtime
-    step: 1, // ask for 1-per-index ticks
-  },
-  title: { text: 'Svarmuligheder' },
+  console.log(' Filtered chart data:', indexedData);
+
+  this.options = {
+    ...this.options,
+    title: { text: question.prompt || question.title || question.text || 'Spørgsmål' },
+    data: indexedData,
+    series: [
+      {
+        type: 'line',
+        xKey: 'index',
+        yKey: 'TeacherAnswer',
+        yName: 'Lærer',
+        tooltip: {
+          renderer: (params) => ({
+            content: `${params.datum.dateLabel}<br/>Lærer: ${this.answers[params.datum[params.yKey]] ?? 'Ukendt'}`,
+          }),
+        },
+      },
+      {
+        type: 'line',
+        xKey: 'index',
+        yKey: 'StudentAnswer',
+        yName: 'Elev',
+        tooltip: {
+          renderer: (params) => ({
+            content: `${params.datum.dateLabel}<br/>Elev: ${this.answers[params.datum[params.yKey]] ?? 'Ukendt'}`,
+          }),
+        },
+      },
+    ],
+    axes: [
+      {
+        type: 'category',
+        position: 'bottom',
+        title: { text: 'Tidspunkt for besvarelse' },
+        label: {
+          rotation: 0,
+          formatter: (params) => {
+            const dataPoint = indexedData[params.value];
+            return dataPoint ? dataPoint.dateLabel : '';
+          }
+        }
+      },
+      {
+        type: 'number',
+        position: 'left',
+        min: 0,
+        max: this.answers.length - 1,
+        nice: false,
+        label: {
+          avoidCollisions: false,
+          formatter: (p) => {
+            const v = p.value;
+            if (Math.abs(v - Math.round(v)) > 1e-6) return '';
+            const idx = Math.round(v);
+            const text = this.answers[idx] ?? '';
+            return text.length > 25 ? text.substring(0, 22) + '...' : text;
+          },
+        },
+        tick: {
+          // @ts-expect-error: supported at runtime
+          step: 1,
+        },
+        title: { text: 'Svarmuligheder' },
+      },
+    ],
+  };
 }
-,
-],
-
-
-};
-
-
-}
-
 
   public nextQuestion() {
     if (this.currentQuestionIndex < this.totalQuestions - 1) {
@@ -188,4 +234,25 @@ axes: [
       this.updateChartForQuestion(this.currentQuestionIndex);
     }
   }
+
+
+  private wrapText(text: string, maxLength: number): string {
+    if (text.length <= maxLength) return text;
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+    
+    words.forEach(word => {
+      if ((currentLine + word).length <= maxLength) {
+        currentLine += (currentLine ? ' ' : '') + word;
+      } else {
+        if (currentLine) lines.push(currentLine);
+        currentLine = word;
+      }
+    });
+    if (currentLine) lines.push(currentLine);
+    
+    return lines.join('\n');
+  }
+
 }

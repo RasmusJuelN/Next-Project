@@ -1,16 +1,23 @@
 .chart-container {
-  width: 100%;
-  max-width: 1000px; /* optional */
-  height: 500px;     /* key: makes chart larger */
-  margin: 0 auto;
+  width: calc(50vw + 200px);
+  height: 600px;
+  position: relative;
+  margin-right: 200px;
 }
 
 ag-charts {
   display: block;
   width: 100%;
   height: 100%;
+  padding-left: 200px;
+  box-sizing: border-box;
+}
 
-
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #e5e7eb;
 }
 
 .controls button {
@@ -29,7 +36,4 @@ ag-charts {
 .controls button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-  .chart-container {
-  height: 500px; /* or 600px for long answer lists */
 }
