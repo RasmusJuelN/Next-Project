@@ -133,8 +133,20 @@ namespace API.Controllers
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
         public async Task<ActionResult<QuestionnaireGroupResult>> CreateGroup([FromBody] ActivateQuestionnaireGroup request)
         {
-            var result = await _questionnaireService.ActivateQuestionnaireGroup(request);
-            return Ok(result);
+            try
+            {
+                var result = await _questionnaireService.ActivateQuestionnaireGroup(request);
+                return Ok(result);
+            }
+            catch (HttpResponseException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating questionnaire group: {Message}", ex.Message);
+                return StatusCode(500, new { message = "Der opstod en fejl ved oprettelse af gruppen." });
+            }
         }
 
 
