@@ -314,6 +314,11 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
             var status = templateStatus.Value;
             query = query.Where(q => q.TemplateStatus == status);
         }
+        else
+        {
+            // If no specific status is provided, exclude deleted templates by default
+            query = query.Where(q => q.TemplateStatus != TemplateStatus.Deleted);
+        }
 
         int totalCount = await query.CountAsync();
 
