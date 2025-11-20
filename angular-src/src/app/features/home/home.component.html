@@ -1,14 +1,11 @@
+<div *ngIf="user(); else loginForm" class="flex flex-col h-full flex-grow items-center justify-center p-4 sm:p-8">
 
-<div
-  *ngIf="user(); else loginForm"
-  class="flex flex-col h-full flex-grow items-center justify-center p-4 sm:p-8" 
->
+  <div
+    class="bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border-primary_orange_1 border-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 w-full max-w-lg ">
 
-  <div class="bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border-primary_orange_1 border-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 w-full max-w-lg ">
 
- 
     <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">
-       {{ 'COMMON.GREETING' | translate:{ username: username() } }}
+      {{ 'COMMON.GREETING' | translate:{ username: username() } }}
 
       <!-- Hej {{ username  | translate}}! -->
     </h2>
@@ -20,12 +17,10 @@
 
     <!-- Action Buttons -->
     <div class="space-y-4">
-      <button
-        *ngIf="activeQuestionnaireId"
+      <button *ngIf="activeQuestionnaireId"
         class="dashboard-button w-full bg-primary_orange_1 text-white py-3 px-4 rounded-lg hover:bg-primary_orange_light focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        (click)="toActiveQuestionnaire()"
-      >
-      {{ 'HOME.ANSWER_QUESTIONNAIRE' | translate }}
+        (click)="toActiveQuestionnaire()">
+        {{ 'HOME.ANSWER_QUESTIONNAIRE' | translate }}
         <!-- Et spørgeskema kan besvares -->
       </button>
 
@@ -50,7 +45,5 @@
 </div>
 
 <ng-template #loginForm>
-  <app-login
-    (errorOccurred)="onLoginError($event)"
-  ></app-login>
+  <app-login (errorOccurred)="onLoginError($event)"></app-login>
 </ng-template>
