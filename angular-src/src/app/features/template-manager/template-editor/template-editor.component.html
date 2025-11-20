@@ -3,6 +3,13 @@
   {{ readonly ? ('TMP_VIEW_MODE' | translate) : ('TMP_EDIT_MODE' | translate) }}
 </h2>
 
+<!-- Duplicate modal shown when trying to save with duplicates -->
+<app-modal [isOpen]="duplicateModalOpen" [title]="'TMP_DUPLICATE_WARNING_TITLE' | translate" [text]="'TMP_DUPLICATE_WARNING_TEXT' | translate"
+  [confirmText]="'OK' | translate" (confirm)="closeDuplicateModal()" (cancel)="closeDuplicateModal()"
+  [cancelText]="'OK' | translate"
+  >
+</app-modal>
+
 <!-- Template Details -->
 <form class="space-y-4 sm:space-y-6">
   <!-- Template Title -->
@@ -56,12 +63,15 @@
   <ul cdkDropList [cdkDropListData]="template.questions" class="space-y-4" (cdkDropListDropped)="drop($event)">
     <ng-container *ngFor="let question of template.questions; let i = index">
       <li cdkDrag
-        class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover">
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border shadow-sm hover:bg-secondary_background_hover"
+        [class.border-primary_orange_1]="!isQuestionDuplicate(question)"
+        [class.border-red-500]="isQuestionDuplicate(question)">
         <div class="flex items-center gap-3 w-full">
           <!-- Drag handle (optional) -->
           <div cdkDragHandle class="cursor-grab p-1 text-gray-500 hover:text-primary_orange_1">
             <!-- small icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
             </svg>
           </div>
@@ -86,7 +96,8 @@
       <!-- Inline editor inserted directly below the question when selected -->
       <li *ngIf="selectedQuestion?.id === question.id" class="p-0">
         <div class="mt-4">
-          <app-question-editor [question]="selectedQuestion!" [readonly]="readonly" (save)="onSaveQuestion($event)" (cancel)="onCancelEdit()"></app-question-editor>
+          <app-question-editor [question]="selectedQuestion!" [readonly]="readonly" [duplicate]="duplicateQuestionIds.indexOf((selectedQuestion?.id ?? question.id) ?? -999999) !== -1" [duplicateOptionIds]="getDuplicateOptionIdsForQuestion(selectedQuestion ?? question)" (save)="onSaveQuestion($event)"
+            (cancel)="onCancelEdit()"></app-question-editor>
         </div>
       </li>
     </ng-container>

@@ -46,6 +46,15 @@ export class TemplateEditorComponent implements OnChanges {
   /** True if the template is finalized (readonly mode). */
   readonly = false;
 
+  // Holds IDs of questions that have duplicate prompts
+  duplicateQuestionIds: number[] = [];
+
+  // Holds IDs of questions that contain options that are duplicated across the template
+  duplicateOptionQuestionIds: number[] = [];
+
+  // Controls the duplicate warning modal
+  duplicateModalOpen = false;
+
   finalizeModalOpen = false;
   /** Set to true when order changed via drag-drop; used to avoid auto-saving on drop */
   orderChanged = false;
@@ -73,7 +82,75 @@ export class TemplateEditorComponent implements OnChanges {
 
   // Method to emit the saveTemplate event with the updated template
   onSave() {
+    // Validate template for duplicates before emitting save
+    const valid = this.validateTemplate();
+    if (!valid) {
+      // open modal to inform user
+      this.duplicateModalOpen = true;
+      return;
+    }
+
     this.saveTemplate.emit(this.template);
+  }
+
+  /**
+   * Validate the template for duplicates:
+   * - No two questions may have the same prompt (case-insensitive, trimmed)
+   * - No two options across the template may have the same label (case-insensitive, trimmed)
+   * Marks offending questions in duplicateQuestionIds and duplicateOptionQuestionIds.
+   * Returns true if there are no duplicates, false otherwise.
+   */
+  validateTemplate(): boolean {
+    this.duplicateQuestionIds = [];
+    this.duplicateOptionQuestionIds = [];
+
+    if (!this.template || !this.template.questions) {
+      return true;
+    }
+
+    // Check question prompt duplicates
+    const promptMap = new Map<string, number[]>();
+    this.template.questions.forEach((q) => {
+      const key = (q.prompt || "").trim().toLowerCase();
+      const qid = q.id ?? -999999;
+      if (!promptMap.has(key)) promptMap.set(key, []);
+      promptMap.get(key)!.push(qid);
+    });
+
+    promptMap.forEach((ids, key) => {
+      if (key !== "" && ids.length > 1) {
+        this.duplicateQuestionIds.push(...ids);
+      }
+    });
+
+    // Check option label duplicates across all questions
+    const optionMap = new Map<string, { questionIds: Set<number> }>();
+    this.template.questions.forEach((q) => {
+      const qid = q.id ?? -999999;
+      q.options?.forEach((opt) => {
+        const k = (opt.displayText || "").trim().toLowerCase();
+        if (!optionMap.has(k)) optionMap.set(k, { questionIds: new Set<number>() });
+        optionMap.get(k)!.questionIds.add(qid);
+      });
+    });
+
+    optionMap.forEach((val, key) => {
+      // ignore empty labels for duplicate matching (other validators handle empties)
+      if (key !== "" && val.questionIds.size > 1) {
+        val.questionIds.forEach((qid) => this.duplicateOptionQuestionIds.push(qid));
+      }
+    });
+
+    return this.duplicateQuestionIds.length === 0 && this.duplicateOptionQuestionIds.length === 0;
+  }
+
+  isQuestionDuplicate(q: Question): boolean {
+    const qid = q.id ?? -999999;
+    return this.duplicateQuestionIds.includes(qid) || this.duplicateOptionQuestionIds.includes(qid);
+  }
+
+  closeDuplicateModal() {
+    this.duplicateModalOpen = false;
   }
 
   // Method to emit the cancelEdit event

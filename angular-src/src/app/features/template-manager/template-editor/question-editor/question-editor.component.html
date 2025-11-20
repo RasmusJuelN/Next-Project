@@ -1,22 +1,18 @@
-<div class="question-editor flex flex-col bg-white p-6 rounded-xl shadow-lg border-2 border-primary_orange_1 space-y-6">
+<div class="question-editor flex flex-col bg-white p-6 rounded-xl shadow-lg border-2 space-y-6"
+  [class.border-primary_orange_1]="!duplicate" [class.border-red-500]="duplicate">
   <h3 class="text-2xl font-bold text-primary_dark_blue mb-4 text-center sm:text-left tracking-tight">
     {{ 'QUESTION_EDITOR.TITLE' | translate }}
   </h3>
-
-
-  <div *ngIf="validationErrors.length > 0" #errorContainer class="p-4 bg-red-100 border-2 border-red-400 rounded-xl">
-    <ul class="list-disc pl-5 text-sm text-red-700">
-      <li *ngFor="let error of validationErrors">{{ error }}</li>
-    </ul>
-  </div>
 
   <div>
     <label class="block text-sm font-medium text-primary_dark_blue mb-2">
       {{ 'QUESTION_EDITOR.LABEL_TITLE' | translate }}
     </label>
     <input type="text" [(ngModel)]="question.prompt" [disabled]="readonly"
-      class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-gray-50"
+      class="block w-full px-4 py-2 border-2 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-gray-50"
+      [class.border-primary_orange_1]="!duplicate" [class.border-red-500]="duplicate"
       placeholder="{{ 'QUESTION_EDITOR.PLACEHOLDER_TITLE' | translate }}" />
+    <p *ngIf="duplicate" class="text-red-600 text-sm mt-1">{{ 'QUESTION_EDITOR.ERROR_DUPLICATE_QUESTION' | translate }}</p>
 
   </div>
 
@@ -49,7 +45,10 @@
             <div class="w-full sm:w-[600px] ">
               <label class="block text-sm font-medium text-primary_dark_blue mb-2">Label:</label>
               <textarea [(ngModel)]="option.displayText" [readOnly]="readonly"
-                class="block w-full px-4 py-3 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-white min-h-[30px]"></textarea>
+                class="block w-full px-4 py-3 border-2 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-white min-h-[30px]"
+                [class.border-primary_orange_1]="!isOptionDuplicate(option) && !duplicate"
+                [class.border-red-500]="isOptionDuplicate(option)"></textarea>
+              <p *ngIf="isOptionDuplicate(option)" class="text-red-600 text-sm mt-1">{{ 'QUESTION_EDITOR.DUPLICATE_ANSWER' | translate }}</p>
             </div>
           </div>
 
