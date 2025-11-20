@@ -218,7 +218,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
     /// Active questionnaires are explicitly removed first to maintain referential integrity.
     /// Use with caution as this will affect all users who have active instances of this template.
     /// </remarks>
-    public async Task DeleteAsync(Guid id)
+    public async Task HardDeleteAsync(Guid id)
     {
         QuestionnaireTemplateModel existingTemplate = await _context.QuestionnaireTemplates.Include(q => q.ActiveQuestionnaires).SingleAsync(q => q.Id == id);
 
@@ -228,6 +228,47 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         }
 
         _genericRepository.Delete(existingTemplate);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        QuestionnaireTemplateModel existingTemplate = await _context.QuestionnaireTemplates.SingleAsync(q => q.Id == id);
+
+        existingTemplate.TemplateStatus = TemplateStatus.Deleted;
+        existingTemplate.LastUpated = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Undeletes a soft deleted questionnaire template by restoring its status.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to undelete.</param>
+    /// <returns>The restored QuestionnaireTemplate with updated status.</returns>
+    /// <exception cref="Exception">Thrown when the template with the specified ID is not found or is not in deleted state.</exception>
+    /// <remarks>
+    /// This operation restores a previously soft deleted template. The template status will be set to Draft
+    /// unless there are active questionnaires associated with it, in which case it will be set to Finalized.
+    /// Updates the LastUpdated timestamp to track the restoration.
+    /// </remarks>
+    public async Task<QuestionnaireTemplate> UndeleteAsync(Guid id)
+    {
+        QuestionnaireTemplateModel existingTemplate = await _context.QuestionnaireTemplates
+            .Include(t => t.ActiveQuestionnaires)
+            .SingleOrDefaultAsync(t => t.Id == id)
+            ?? throw new Exception("Template not found.");
+
+        if (existingTemplate.TemplateStatus != TemplateStatus.Deleted)
+        {
+            throw new Exception("Template is not in deleted state and cannot be undeleted.");
+        }
+
+        // Set status based on whether there are active questionnaires
+        existingTemplate.TemplateStatus = existingTemplate.ActiveQuestionnaires.Count > 0 
+            ? TemplateStatus.Finalized 
+            : TemplateStatus.Draft;
+        
+        existingTemplate.LastUpated = DateTime.UtcNow;
+
+        return existingTemplate.ToDto();
     }
 
     /// <summary>
@@ -272,6 +313,11 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
         {
             var status = templateStatus.Value;
             query = query.Where(q => q.TemplateStatus == status);
+        }
+        else
+        {
+            // If no specific status is provided, exclude deleted templates by default
+            query = query.Where(q => q.TemplateStatus != TemplateStatus.Deleted);
         }
 
         int totalCount = await query.CountAsync();
