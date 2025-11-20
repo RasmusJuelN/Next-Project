@@ -240,7 +240,8 @@ private handleDocumentClick = (event: MouseEvent) => {
       }
       const payload = {
         participantIds: this.student.selected.map(s => s.id),
-        templateId: this.template.selected[0].id
+        templateId: this.template.selected[0].id,
+        questionnaireType: QuestionnaireType.Anonymous
       };
       this.activeService.createAnonymousQuestionnaireGroup(payload).subscribe(() => {
         alert('Anonymt spørgeskema oprettet!');
@@ -289,7 +290,8 @@ private handleDocumentClick = (event: MouseEvent) => {
       name: this.groupName,
       templateId: this.template.selected[0].id,
       studentIds: this.student.selected.map(s => s.id),
-      teacherIds: this.teacher.selected.map(t => t.id)
+      teacherIds: this.teacher.selected.map(t => t.id),
+      questionnaireType: QuestionnaireType.Standard
     };
     this.activeService.createActiveQuestionnaireGroup(newGroup).subscribe(() => {
       alert('Spørgeskema-gruppe oprettet!');
