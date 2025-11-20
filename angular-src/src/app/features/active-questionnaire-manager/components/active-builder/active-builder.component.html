@@ -122,7 +122,7 @@
     </div>
     <!-- Finish and Cancel Buttons -->
     <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
-      <button [disabled]="!student.selected || !template.selected" (click)="createActiveQuestionnaire()"
+      <button [disabled]="!student.selected || !template.selected" (click)="showCreateConfirmation()"
         class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
         {{ 'ACTIVE_BUILDER.FINISH' | translate }}
       </button>
@@ -302,7 +302,7 @@
     <!-- Finish and Back Buttons -->
     <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
       <button [disabled]="!student.selected || !teacher.selected || !template.selected"
-        (click)="createActiveQuestionnaire()"
+        (click)="showCreateConfirmation()"
         class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors  disabled:opacity-50 disabled:cursor-not-allowed">
         {{ 'ACTIVE_BUILDER.FINISH' | translate }}
       </button>
@@ -311,4 +311,15 @@
       </button>
     </div>
   </ng-container>
+
+  <!-- Confirmation Modal -->
+  <app-modal
+    [isOpen]="showConfirmationModal"
+    [title]="confirmationTitle | translate"
+    [text]="confirmationText | translate"
+    [confirmText]="confirmationConfirmText | translate"
+    [cancelText]="confirmationCancelText | translate"
+    (confirm)="onConfirmCreate()"
+    (cancel)="onCancelCreate()">
+  </app-modal>
 </div>

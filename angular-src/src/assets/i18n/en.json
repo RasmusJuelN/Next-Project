@@ -277,6 +277,12 @@
     "PLACEHOLDER_EVALUATION_NAME": "e.g. 'Class123 - student evaluation'",
     "PLACEHOLDER_ANONYMOUS_NAME": "e.g. 'Teaching Evaluation - All Students'",
     "FINISH": "Finish",
-    "CANCEL": "Cancel"
+    "CANCEL": "Cancel",
+    "CONFIRM_ANONYMOUS_TITLE": "Confirm Anonymous Questionnaire Creation",
+    "CONFIRM_ANONYMOUS_MESSAGE": "Are you sure you want to create this anonymous questionnaire? This action will assign the selected template to all chosen participants.",
+    "CONFIRM_EVALUATION_TITLE": "Confirm Evaluation Questionnaire Creation",
+    "CONFIRM_EVALUATION_MESSAGE": "Are you sure you want to create this evaluation questionnaire? This action will assign the selected template to all chosen students and teachers.",
+    "CONFIRM_YES": "Yes, Create Questionnaire",
+    "CONFIRM_NO": "No, Cancel"
   }
 }
