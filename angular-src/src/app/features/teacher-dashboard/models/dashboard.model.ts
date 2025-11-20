@@ -48,6 +48,7 @@ export interface QuestionnaireGroup {
   groupName: string;
   templateId: string;
   questionnaires: ActiveQuestionnaireBase[];
+  questionnaireType: string;
 }
 
 // new: grouped response shape (cursor + count)
@@ -56,4 +57,5 @@ export interface QuestionnaireGroupResponse {
   totalCount: number;
   currentPage: number;
   totalPages: number;
+  questionnaireType: string;
 }
