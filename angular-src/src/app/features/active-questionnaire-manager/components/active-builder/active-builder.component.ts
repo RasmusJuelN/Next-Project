@@ -7,6 +7,7 @@ import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
+import { QuestionnaireType } from '../../../../shared/models/questionnaire-types.enum';
 
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
