@@ -48,6 +48,7 @@ export interface ActiveQuestionnaire {
 export interface QuestionnaireGroupResult {
   groupId: string;
   name: string;
+  createdAt: string;
   templateId: string;
   questionnaires: QuestionnaireBase[];
 }

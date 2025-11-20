@@ -9,6 +9,8 @@ import { PageChangeEvent, PaginationComponent } from '../../../../shared/compone
 import { LoadingComponent } from '../../../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
 
+
+
 @Component({
   selector: 'app-active-list',
   standalone: true,

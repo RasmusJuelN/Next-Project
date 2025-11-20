@@ -210,6 +210,7 @@ public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork
         {
             GroupId = g.GroupId,
             Name = g.Name,
+            CreatedAt = g.CreatedAt,
             TemplateId = g.TemplateId,
             Questionnaires = g.Questionnaires
                 .Select(q =>

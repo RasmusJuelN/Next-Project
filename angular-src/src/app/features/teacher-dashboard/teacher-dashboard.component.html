@@ -75,12 +75,17 @@
           [attr.aria-controls]="'group-panel-' + group.groupId">
 
           <!-- Group header: name, status (left) and arrow (right) -->
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-              <h3 class="text-lg sm:text-xl font-bold text-primary_dark_blue leading-snug mb-1 sm:mb-0">
+          <div class="flex justify-between">
+            <div class="flex flex-col sm:flex-col">
+              <h3 class="text-lg sm:text-xl font-bold text-primary_dark_blue leading-snug">
                 {{ group.groupName }}
+                
               </h3>
-              <div class="flex flex-row flex-wrap gap-2 text-xs sm:text-sm text-gray-600">
+              <span class="text-gray-500 font-normal text-sm">
+                  {{ group.createdAt | date:'dd-MM-yyyy HH:mm' }}
+                </span>
+            </div>
+            <div class="flex flex-row flex-wrap gap-2 text-xs sm:text-sm text-gray-600 items-center">
                 <span>
                   {{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }}
                   <span
@@ -107,10 +112,11 @@
                   /
                   <span class="text-gray-800">{{ group.questionnaires.length }}</span>
                 </span>
+                <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="transition-transform duration-300 text-lg ml-4">▼</span>
               </div>
-            </div>
+
             <!-- Collapse arrow on the right -->
-            <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="transition-transform duration-300 text-lg ml-4">▼</span>
+            
           </div>
 
           <!-- Questionnaires list -->
@@ -121,7 +127,7 @@
                 class="p-2 px-4 border border-primary_orange_1 rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div class="min-w-0">
                   <span class="block font-semibold text-gray-800 break-words">{{ q.title }}</span>
-                  <span class="block sm:inline text-xs text-gray-500">{{ q.activatedAt | date:'dd-MM-yyyy HH:mm' }}</span>
+                  
                 </div>
 
                 <div class="flex flex-col sm:flex-row sm:gap-6 gap-1">

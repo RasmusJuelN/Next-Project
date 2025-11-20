@@ -66,43 +66,46 @@
     [attr.aria-controls]="'group-panel-' + group.groupId">
     
     <!-- Group header: name, status (left) and arrow (right) -->
-    <div class="flex items-center justify-between gap-2">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-        <h3 class="text-lg sm:text-xl font-bold text-primary_dark_blue leading-snug mb-1 sm:mb-0">
-          {{ group.name }}
-        </h3>
-        <div class="flex flex-row flex-wrap gap-2 text-xs sm:text-sm text-gray-600">
-          <span>
-            {{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }}
-            <span
-              [ngClass]="{
-                'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === 0,
-                'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'student') > 0 && getAnsweredCount(group.questionnaires, 'student') < group.questionnaires.length,
-                'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === group.questionnaires.length
-              }">
-              {{ getAnsweredCount(group.questionnaires, 'student') }}
-            </span>
-            /
-            <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-          </span>
-          <span>
-            {{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }}
-            <span
-              [ngClass]="{
-                'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === 0,
-                'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') > 0 && getAnsweredCount(group.questionnaires, 'teacher') < group.questionnaires.length,
-                'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === group.questionnaires.length
-              }">
-              {{ getAnsweredCount(group.questionnaires, 'teacher') }}
-            </span>
-            /
-            <span class="text-gray-800">{{ group.questionnaires.length }}</span>
-          </span>
-        </div>
-      </div>
-      <!-- Collapse arrow on the right -->
-      <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="transition-transform duration-300 text-lg ml-4">▼</span>
-    </div>
+    <div class="flex justify-between">
+            <div class="flex flex-col sm:flex-col">
+              <h3 class="text-lg sm:text-xl font-bold text-primary_dark_blue leading-snug">
+                {{ group.name }}
+                
+              </h3>
+              <span class="text-gray-500 font-normal text-sm">
+                  {{ group.createdAt | date:'dd-MM-yyyy HH:mm' }}
+                </span>
+            </div>
+            <div class="flex flex-row flex-wrap gap-2 text-xs sm:text-sm text-gray-600 items-center">
+                <span>
+                  {{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }}
+                  <span
+                    [ngClass]="{
+                      'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === 0,
+                      'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'student') > 0 && getAnsweredCount(group.questionnaires, 'student') < group.questionnaires.length,
+                      'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === group.questionnaires.length
+                    }">
+                    {{ getAnsweredCount(group.questionnaires, 'student') }}
+                  </span>
+                  /
+                  <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+                </span>
+                <span>
+                  {{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }}
+                  <span
+                    [ngClass]="{
+                      'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === 0,
+                      'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') > 0 && getAnsweredCount(group.questionnaires, 'teacher') < group.questionnaires.length,
+                      'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === group.questionnaires.length
+                    }">
+                    {{ getAnsweredCount(group.questionnaires, 'teacher') }}
+                  </span>
+                  /
+                  <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+                </span>
+                <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="transition-transform duration-300 text-lg ml-4">▼</span>
+              </div>
+              </div>
 
     <!-- Questionnaires list -->
     <div *ngIf="!groupCollapsed[group.groupId]" class="mt-3 sm:mt-4">
