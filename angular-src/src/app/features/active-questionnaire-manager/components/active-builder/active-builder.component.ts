@@ -2,11 +2,13 @@ import { Component, ElementRef, EventEmitter, inject, OnInit, Output, ViewChild 
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
-import { ActiveAnonymousBuilderComponent } from '../active-anonymous-builder/active-anonymous-builder.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
 interface UserSearchEntity<T> extends SearchEntity<T> {
@@ -23,7 +25,7 @@ type SearchType = 'student' | 'teacher' | 'template';
 
 @Component({
     selector: 'app-active-questionnaire-builder',
-    imports: [CommonModule, FormsModule, ActiveAnonymousBuilderComponent],
+    imports: [CommonModule, FormsModule, TranslateModule, ModalComponent, ActiveAnonymousBuilderComponent],
     templateUrl: './active-builder.component.html',
     styleUrls: ['./active-builder.component.css']
 })
@@ -86,6 +88,13 @@ export class ActiveBuilderComponent implements OnInit {
 
   // Set the page size (10 results per search)
   searchAmount = 10;
+
+  // Confirmation modal state
+  public showConfirmationModal = false;
+  public confirmationTitle = '';
+  public confirmationText = '';
+  public confirmationConfirmText = '';
+  public confirmationCancelText = '';
 
   @Output() backToListEvent = new EventEmitter<void>();
 
@@ -215,14 +224,47 @@ private handleDocumentClick = (event: MouseEvent) => {
     } else {
       state.selected.splice(idx, 1);
     }
-    // Do NOT clear search results so user can select multiple
+    // Clear search input and hide search results
     state.searchInput = '';
-    // state.searchResults = [];
+    
+    // Hide search results dropdown based on entity type
+    if (entity === 'student') {
+      this.showStudentResults = false;
+    } else if (entity === 'teacher') {
+      this.showTeacherResults = false;
+    } else if (entity === 'template') {
+      this.showTemplateResults = false;
+    }
   }
 
   clearSelected(entity: SearchType): void {
     const state = this.getState(entity);
     state.selected = [];
+  }
+
+  /** Show confirmation modal before creating questionnaire */
+  showCreateConfirmation(): void {
+    if (this.isAnonymousMode) {
+      this.confirmationTitle = 'ACTIVE_BUILDER.CONFIRM_ANONYMOUS_TITLE';
+      this.confirmationText = 'ACTIVE_BUILDER.CONFIRM_ANONYMOUS_MESSAGE';
+    } else {
+      this.confirmationTitle = 'ACTIVE_BUILDER.CONFIRM_EVALUATION_TITLE';
+      this.confirmationText = 'ACTIVE_BUILDER.CONFIRM_EVALUATION_MESSAGE';
+    }
+    this.confirmationConfirmText = 'ACTIVE_BUILDER.CONFIRM_YES';
+    this.confirmationCancelText = 'ACTIVE_BUILDER.CONFIRM_NO';
+    this.showConfirmationModal = true;
+  }
+
+  /** Handle confirmation modal confirm action */
+  onConfirmCreate(): void {
+    this.showConfirmationModal = false;
+    this.createActiveQuestionnaire();
+  }
+
+  /** Handle confirmation modal cancel action */
+  onCancelCreate(): void {
+    this.showConfirmationModal = false;
   }
 
   createActiveQuestionnaire(): void {
@@ -247,7 +289,7 @@ private handleDocumentClick = (event: MouseEvent) => {
       return;
     }
 
-    this.groupNameError = '';
+  this.groupNameError = '';
   this.studentError = '';
   this.teacherError = '';
   this.templateError = '';

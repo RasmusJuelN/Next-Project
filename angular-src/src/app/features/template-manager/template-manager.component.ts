@@ -348,7 +348,7 @@ get confirmText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
       return this.deleteConfirmStep === 0
-        ? this.translate.instant('COMMON.BUTTONS.CONTINUE')
+        ? this.translate.instant('TMP_DELETE')
         : this.translate.instant('TMP_DELETE');
     case TemplateModalType.Copy:
       return this.translate.instant('COMMON.BUTTONS.COPY');

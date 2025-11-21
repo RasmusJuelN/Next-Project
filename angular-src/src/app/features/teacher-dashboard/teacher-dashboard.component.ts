@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard'; 
 import { PageChangeEvent, PaginationComponent } from '../../shared/components/pagination/pagination.component';
-import { ActiveQuestionnaireBase, ActiveQuestionnaireResponse } from './models/dashboard.model';
+import { ActiveQuestionnaireBase, QuestionnaireGroup} from './models/dashboard.model';
 import { TeacherService } from './services/teacher.service';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,11 +31,10 @@ import { TranslateModule } from '@ngx-translate/core';
 export class TeacherDashboardComponent implements OnInit {
   private teacherService = inject(TeacherService);
   private clipboard = inject(Clipboard); // For copying active questionaire id
+  private searchSubject = new Subject<string>();
+
   // Search state
   searchTerm: string = '';
-  // "name" will search by student name; "id" will search by active questionnaire ID.
-  searchType: 'name' | 'id' = 'name';
-  private searchSubject = new Subject<string>();
 
   // Pagination state
   currentPage: number = 1;
@@ -44,23 +43,15 @@ export class TeacherDashboardComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
-  // Cache cursors by page number; page 1 starts with a null cursor.
-  // cachedCursors: { [pageNumber: number]: string | null } = { 1: null };
-
   // Filters
   filterStudentCompleted = false;
   filterTeacherCompleted = false;
 
   // Data to display
-  // displayedQuestionnaires: ActiveQuestionnaireBase[] = [];
-  displayedGroups: {
-    groupId: string;
-    groupName: string; 
-    questionnaires: ActiveQuestionnaireBase[];
-  }[] = [];
-
+  displayedGroups: QuestionnaireGroup[] = [];
   groupCollapsed: { [groupId: string]: boolean } = {};
 
+  // UI state
   isLoading = false;
   errorMessage: string | null = null;
 
@@ -79,11 +70,9 @@ export class TeacherDashboardComponent implements OnInit {
   private updateDisplay(): void {
     this.isLoading = true;
     this.errorMessage = null;
-    console.log('🔵 Frontend sending:', { currentPage: this.currentPage, pageSize: this.pageSize });
     this.teacherService
       .getQuestionnaireGroups(
-        
-        this.currentPage,      // Pass page number directly
+        this.currentPage,
         this.pageSize,
         this.searchTerm,
         this.filterStudentCompleted,
@@ -91,11 +80,10 @@ export class TeacherDashboardComponent implements OnInit {
       )
       .subscribe({
         next: (res) => {
-          console.log('🟢 Backend returned:', { currentPage: res.currentPage, totalPages: res.totalPages, totalCount: res.totalCount });
           const groups = res.groups ?? [];
           this.displayedGroups = groups.map((g: any) => ({
             groupId: g.groupId,
-            groupName: g.groupName ?? g.name ?? g.Name ?? 'Ungrouped',
+            groupName: g.groupName ?? g.name ?? 'Ungrouped',
             templateId: g.templateId ?? g.TemplateId ?? null,
             questionnaires: (g.questionnaires ?? []).map((q: any) => ({
               id: q.id,

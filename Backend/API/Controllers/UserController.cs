@@ -201,10 +201,27 @@ namespace API.Controllers
             return Ok(await _userService.GetActiveQuestionnairesForTeacher(request, userId));
         }
 
-        [HttpGet("Teacher/ActiveQuestionnaires/Grouped")]
+        /// <summary>
+        /// Retrieves paginated questionnaire groups for a teacher using offset pagination.
+        /// </summary>
+        /// <param name="request">The pagination request containing page number, page size, and filtering criteria.</param>
+        /// <param name="teacherGuid">The unique identifier of the teacher user.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. The task result contains
+        /// paginated questionnaire groups with their associated questionnaires, metadata, and pagination information.
+        /// </returns>
+        /// <remarks>
+        /// This method returns questionnaire groups that contain questionnaires assigned to the specified teacher.
+        /// The results include group metadata, questionnaire details, student and teacher information, and completion status.
+        /// Pagination is implemented using offset pagination (page numbers) for direct page navigation.
+        /// Groups can be filtered by pending student or teacher completions.
+        /// </remarks>
+        /// <exception cref="ArgumentException">Thrown when request parameters are invalid.</exception>
+        /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks teacher privileges.</exception>
+        [HttpGet("Teacher/ActiveQuestionnaires/GroupedAndOffsetPaginated")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
-        [ProducesResponseType(typeof(QuestionnaireGroupKeysetPaginationResult), StatusCodes.Status200OK)]
-        public async Task<ActionResult<QuestionnaireGroupKeysetPaginationResult>> GetActiveQuestionnaireGroupsForTeacherPaginated([FromQuery] QuestionnaireGroupKeysetPaginationRequest request)
+        [ProducesResponseType(typeof(QuestionnaireGroupOffsetPaginationResult), StatusCodes.Status200OK)]
+        public async Task<ActionResult<QuestionnaireGroupOffsetPaginationResult>> GetActiveQuestionnaireGroupsForTeacherWithOffsetPagination([FromQuery] QuestionnaireGroupOffsetPaginationRequest request)
         {
             Guid userId;
             try
@@ -216,7 +233,7 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            var result = await _userService.FetchActiveQuestionnaireGroupsForTeacherPaginated(request, userId);
+            var result = await _userService.FetchActiveQuestionnaireGroupsForTeacherWithOffsetPagination(request, userId);
             return Ok(result);
         }
 

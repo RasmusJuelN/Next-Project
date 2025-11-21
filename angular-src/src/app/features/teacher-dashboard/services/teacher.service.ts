@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ActiveQuestionnaireResponse, QuestionnaireGroupResponse } from '../models/dashboard.model';
+import { QuestionnaireGroupResponse } from '../models/dashboard.model';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
@@ -23,48 +23,15 @@ export class TeacherService {
   private apiUrl = `${environment.apiUrl}/user/teacher`;
   private apiService = inject(ApiService);
 
-
-  /**
-   * Retrieves active questionnaires for the teacher.
-   *
-   * @param pageNumber Current page number (1-based)
-   * @param searchTerm Text to search (student name or questionnaire id).
-   * @param searchType Field to search: 'name' | 'id'.
-   * @param pageSize Number of items per page.
-   * @param filterStudentCompleted If true, only include those where student is done.
-   * @param filterTeacherCompleted If true, only include those where teacher is done.
-   * @returns Observable emitting the paginated response.
+ /**
+   * Retrieves paginated questionnaire groups for the authenticated teacher.
+   * 
+   * @param pageNumber Current page (1-based)
+   * @param pageSize Items per page
+   * @param searchTitle Optional search filter for group names
+   * @param filterPendingStudent Show only groups with incomplete student submissions
+   * @param filterPendingTeacher Show only groups with incomplete teacher reviews
    */
-  getQuestionnaires(
-    searchTerm: string,
-    searchType: 'name' | 'id',
-    queryCursor: string | null,
-    pageSize: number,
-    filterStudentCompleted: boolean,
-    filterTeacherCompleted: boolean
-  ): Observable<ActiveQuestionnaireResponse> {
-    let params = new HttpParams()
-      .set('pageSize', pageSize.toString())
-      .set('filterStudentCompleted', filterStudentCompleted.toString())
-      .set('filterTeacherCompleted', filterTeacherCompleted.toString());
-  
-    if (queryCursor) {
-      params = params.set('queryCursor', queryCursor);
-    }
-  
-    // Use appropriate query parameter based on search type.
-    if (searchType === 'id') {
-      params = params.set('activeQuestionnaireId', searchTerm);
-    } else {
-      params = params.set('student', searchTerm);
-    }
-  
-    return this.apiService.get<ActiveQuestionnaireResponse>(
-      `${this.apiUrl}/activequestionnaires`,
-      params
-    );
-  }
-
   getQuestionnaireGroups(
   pageNumber: number,
   pageSize: number,
@@ -80,7 +47,7 @@ export class TeacherService {
   if (filterPendingTeacher) params = params.set('pendingTeacher', 'true');
 
   return this.apiService.get<QuestionnaireGroupResponse>(
-    `${this.apiUrl}/activequestionnaires/grouped`,
+    `${this.apiUrl}/activequestionnaires/GroupedAndOffsetPaginated`,
     params
   );
 }

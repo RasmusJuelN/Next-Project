@@ -155,24 +155,27 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     }
 
     /// <summary>
-    /// Retrieves a paginated list of questionnaire groups using keyset pagination and maps them
+    /// Retrieves a paginated list of questionnaire groups using offset pagination and maps them
     /// to lightweight DTOs for client consumption.
     /// </summary>
     /// <param name="request">
-    /// The <see cref="QuestionnaireGroupKeysetPaginationRequest"/> containing pagination parameters,
+    /// The <see cref="QuestionnaireGroupOffsetPaginationRequest"/> containing page number, page size,
     /// ordering preferences, and optional filters.
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous operation, containing a
-    /// <see cref="QuestionnaireGroupKeysetPaginationResult"/> with the requested page of results,
-    /// total count, and a continuation cursor for subsequent queries.
+    /// <see cref="QuestionnaireGroupOffsetPaginationResult"/> with the requested page of results,
+    /// current page number, total pages, and total count.
     /// </returns>
     /// <remarks>
-    /// Keyset pagination ensures efficient retrieval of large datasets by using a creation date
-    /// and group ID as the continuation marker. The resulting DTOs include group details,
-    /// associated template IDs, and nested questionnaire summaries.
+    /// Offset pagination provides direct page navigation by using page numbers and page size
+    /// to calculate result offsets. This allows users to jump to any page within the result set.
+    /// The resulting DTOs include group details, associated template IDs, nested questionnaire summaries,
+    /// and completion status for both students and teachers. Groups can be filtered by pending
+    /// student or teacher completions, and searched by title.
     /// </remarks>
-    public async Task<QuestionnaireGroupKeysetPaginationResult> FetchQuestionnaireGroupsWithKeysetPagination(QuestionnaireGroupKeysetPaginationRequest request)
+    /// <exception cref="ArgumentException">Thrown when request parameters are invalid.</exception>
+    public async Task<QuestionnaireGroupOffsetPaginationResult> FetchQuestionnaireGroupsWithOffsetPagination(QuestionnaireGroupOffsetPaginationRequest request)
     {
 
         (List<QuestionnaireGroupModel> groups, int totalCount) = await _unitOfWork.QuestionnaireGroup
@@ -215,7 +218,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
 
         int totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
 
-        return new QuestionnaireGroupKeysetPaginationResult
+        return new QuestionnaireGroupOffsetPaginationResult
         {
             Groups = results,
             CurrentPage = request.PageNumber,  // Return the requested page number
@@ -561,7 +564,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     private UserAdd GenerateStudent(Guid id)
     {
         BasicUserInfo? ldapStudent = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Student not found in LDAP.");
-        string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.Contains(x.Value)).Key;
+        string studentRole = _JWTSettings.Roles.First(x => ldapStudent.MemberOf.Any(y => y.Contains(x.Value, StringComparison.OrdinalIgnoreCase))).Key;
 
         return new()
         {
@@ -594,7 +597,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     private UserAdd GenerateTeacher(Guid id)
     {
         BasicUserInfo? ldapTeacher = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Teacher not found in LDAP.");
-        string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.Contains(x.Value)).Key;
+        string teacherRole = _JWTSettings.Roles.First(x => ldapTeacher.MemberOf.Any(y => y.Contains(x.Value, StringComparison.OrdinalIgnoreCase))).Key;
 
         return new()
         {

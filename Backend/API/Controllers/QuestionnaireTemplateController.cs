@@ -252,6 +252,44 @@ namespace API.Controllers
         }
 
         /// <summary>
+        /// Restores a soft deleted questionnaire template by changing its status from Deleted.
+        /// </summary>
+        /// <param name="id">The unique identifier of the questionnaire template to restore.</param>
+        /// <returns>
+        /// Returns 200 OK with the restored template if successful.
+        /// Returns 404 Not Found if the template with the specified ID does not exist.
+        /// Returns 400 Bad Request if the template is not in deleted state.
+        /// Returns 500 Internal Server Error if an unexpected error occurs.
+        /// </returns>
+        /// <remarks>
+        /// This endpoint requires admin-level authorization and uses access token authentication.
+        /// The template status will be set to Draft unless there are active questionnaires associated with it,
+        /// in which case it will be set to Finalized to maintain proper workflow state.
+        /// </remarks>
+        [HttpPost("{id}/undelete")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
+        [ProducesResponseType(typeof(QuestionnaireTemplate), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<QuestionnaireTemplate>> UndeleteQuestionnaireTemplate(Guid id)
+        {
+            try
+            {
+                var restored = await _questionnaireTemplateService.UndeleteTemplate(id);
+                return Ok(restored);
+            }
+            catch (SQLException.ItemNotFound)
+            {
+                return NotFound();
+            }
+            catch (SQLException.NotValidated ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Gets questionnaire template bases that have been answered by both a specific student and the current teacher.
         /// This endpoint allows teachers to view shared questionnaire history with individual students.
         /// </summary>
