@@ -35,19 +35,18 @@ enum TemplateModalType {
  * - Uses translation keys for all labels and default values.
  */
 @Component({
-  selector: 'app-template-manager',
-  standalone: true,
-  imports: [
-    TemplateEditorComponent,
-    FormsModule,
-    CommonModule,
-    PaginationComponent,
-    LoadingComponent,
-    TranslateModule,
-    ModalComponent
-  ],
-  templateUrl: './template-manager.component.html',
-  styleUrls: ['./template-manager.component.css'],
+    selector: 'app-template-manager',
+    imports: [
+        TemplateEditorComponent,
+        FormsModule,
+        CommonModule,
+        PaginationComponent,
+        LoadingComponent,
+        TranslateModule,
+        ModalComponent
+    ],
+    templateUrl: './template-manager.component.html',
+    styleUrls: ['./template-manager.component.css']
 })
 export class TemplateManagerComponent {
   private templateService = inject(TemplateService);

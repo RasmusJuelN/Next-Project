@@ -23,11 +23,10 @@ import { TranslateModule } from '@ngx-translate/core';
  * - Navigation to answer/results when applicable.
  */
 @Component({
-  selector: 'app-teacher-dashboard',
-  standalone: true,
-  imports: [ClipboardModule,FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule],
-  templateUrl: './teacher-dashboard.component.html',
-  styleUrls: ['./teacher-dashboard.component.css']
+    selector: 'app-teacher-dashboard',
+    imports: [ClipboardModule, FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule],
+    templateUrl: './teacher-dashboard.component.html',
+    styleUrls: ['./teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent implements OnInit {
   private teacherService = inject(TeacherService);

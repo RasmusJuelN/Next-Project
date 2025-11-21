@@ -6,11 +6,10 @@ import { Lang } from '../../../i18n.config';
 
 
 @Component({
-  selector: 'app-language-switcher',
-  standalone: true,
-  imports: [CommonModule, TranslateModule ],
-  templateUrl: './language-switcher.component.html',
-  styleUrl: './language-switcher.component.css'
+    selector: 'app-language-switcher',
+    imports: [CommonModule, TranslateModule],
+    templateUrl: './language-switcher.component.html',
+    styleUrl: './language-switcher.component.css'
 })
 export class LanguageSwitcherComponent {
   i18n = inject(I18nService);
