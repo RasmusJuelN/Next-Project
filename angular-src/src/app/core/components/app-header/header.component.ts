@@ -77,6 +77,7 @@ export class HeaderComponent {
   /** Global navigation links visible to all users. */
   globalNavLinks: { name: string; route: string }[] = [
     { name: "NAV.HOME", route: "/" },
+    { name: "NAV.USER_GUIDE", route: "/user-guide" },
   ];
 
   /** Role-specific navigation links (labels use translation keys). */
@@ -86,6 +87,7 @@ export class HeaderComponent {
         name: "NAV.ACTIVE_QUESTIONNAIRES",
         route: "/show-active-questionnaires",
       },
+      { name: "NAV.USER_GUIDE", route: "/user-guide" }
     ],
     [Role.Teacher]: [
       //{ name: 'Overview', route: '/hub' },
@@ -96,11 +98,13 @@ export class HeaderComponent {
       },
       { name: "NAV.DATA_COMPARE", route: "/data-compare" },
       { name: "NAV.RESULT_HISTORY", route: "/result-history" },
+      { name: "NAV.USER_GUIDE", route: "/user-guide" }
     ],
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },
       { name: "NAV.TEMPLATES", route: "/templates" },
       { name: "NAV.ACTIVE_QUESTIONNAIRES", route: "/active-questionnaire" },
+      { name: "NAV.USER_GUIDE", route: "/user-guide" }
     ],
   };
 
