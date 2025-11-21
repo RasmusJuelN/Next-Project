@@ -132,69 +132,50 @@
     "USER_GUIDE": "User Guide"
   },
 
-  "USER_GUIDE": {
-    "TITLE": "User Guide",
-    "STUDENT": {
-      "GETTING_STARTED": {
-        "TITLE": "Getting Started as a Student",
-        "CONTENT": "Welcome! As a student, you can participate in questionnaires and view your results. Use the navigation bar to access active questionnaires assigned to you."
-      },
-      "ANSWERING_QUESTIONNAIRES": {
-        "TITLE": "Answering Questionnaires",
-        "CONTENT": "Click on 'Active Questionnaires' to see available questionnaires. Select a questionnaire and click 'Answer' to begin. Make sure to submit your responses before the deadline."
-      },
-      "VIEWING_RESULTS": {
-        "TITLE": "Viewing Results",
-        "CONTENT": "After completing a questionnaire, you can view your results by clicking on the questionnaire from the active list. Results may be available immediately or after the teacher has published them."
-      }
+"USER_GUIDE": {
+  "TITLE": "User Guide",
+  "STUDENT": {
+    "ANSWERING_QUESTIONNAIRES": {
+      "TITLE": "Answering Questionnaires",
+      "CONTENT": "Go to 'Active Questionnaires' and click 'Answer' to begin. Three question types: Multiple Choice, Custom Answer Only, or Mixed. Progress saves automatically."
     },
-    "TEACHER": {
-      "GETTING_STARTED": {
-        "TITLE": "Getting Started as a Teacher",
-        "CONTENT": "Welcome! As a teacher, you can monitor student progress, compare data, and view historical results. Start by exploring the overview dashboard to see current questionnaire activities."
-      },
-      "DASHBOARD": {
-        "TITLE": "Teacher Dashboard",
-        "CONTENT": "The overview dashboard shows all active questionnaires and student completion status. Use the search and filtering options to find specific questionnaires or students."
-      },
-      "DATA_COMPARE": {
-        "TITLE": "Data Comparison",
-        "CONTENT": "Use Data Compare to analyze and compare results across different questionnaires, time periods, or student groups. This helps identify trends and patterns in the data."
-      },
-      "RESULT_HISTORY": {
-        "TITLE": "Result History",
-        "CONTENT": "Access historical data and past questionnaire results through Result History. You can filter by date ranges, specific questionnaires, or student groups to analyze long-term trends."
-      }
-    },
-    "ADMIN": {
-      "GETTING_STARTED": {
-        "TITLE": "Getting Started as an Administrator",
-        "CONTENT": "Welcome! As an administrator, you have full access to manage templates, activate questionnaires, and oversee the entire system. Start by familiarizing yourself with the Templates section."
-      },
-      "TEMPLATE_MANAGEMENT": {
-        "TITLE": "Template Management",
-        "CONTENT": "Create, edit, and delete questionnaire templates in the Templates section. Templates serve as blueprints for questionnaires. You can add questions, set question types, and configure template settings."
-      },
-      "ACTIVE_QUESTIONNAIRES": {
-        "TITLE": "Active Questionnaire Management",
-        "CONTENT": "Use the Active Questionnaires section to create new questionnaire instances from templates, assign them to students and teachers, and manage their lifecycle from activation to completion."
-      },
-      "USER_MANAGEMENT": {
-        "TITLE": "User Management",
-        "CONTENT": "Monitor user activities, manage user roles, and ensure proper access control throughout the system. Keep track of user engagement and system usage patterns."
-      }
-    },
-    "GENERAL": {
-      "NAVIGATION": {
-        "TITLE": "Navigation",
-        "CONTENT": "Use the navigation bar at the top to access different sections. Your available options depend on your user role. The profile dropdown provides access to logout and user settings."
-      },
-      "LANGUAGE_SWITCH": {
-        "TITLE": "Language Settings",
-        "CONTENT": "You can switch between English and Danish using the language selector in the navigation bar. Your language preference will be remembered for future sessions."
-      }
+    "VIEWING_RESULTS": {
+      "TITLE": "Your Role",
+      "CONTENT": "You provide responses but cannot view your submitted answers. Teachers can see and analyze all responses for educational insights."
     }
   },
+  "TEACHER": {
+    "DASHBOARD": {
+      "TITLE": "Overview Dashboard",
+      "CONTENT": "View active questionnaires and completion status. Monitor your assigned questionnaires and view results from completed ones."
+    },
+    "DATA_COMPARE": {
+      "TITLE": "Data Compare",
+      "CONTENT": "Analyze responses from questionnaires you've participated in. Compare results and identify patterns between student and teacher responses."
+    },
+    "RESULT_HISTORY": {
+      "TITLE": "Result History",
+      "CONTENT": "Track how individual students' answers change over time. See progression when students complete the same questionnaire multiple times."
+    }
+  },
+  "ADMIN": {
+    "TEMPLATE_MANAGEMENT": {
+      "TITLE": "Templates",
+      "CONTENT": "Create questionnaire blueprints with three question types: Multiple Choice, Custom Answer, or Mixed. Templates must be finalized before use and cannot be edited after. Copy templates to make changes."
+    },
+    "ACTIVE_QUESTIONNAIRES": {
+      "TITLE": "Active Questionnaires",
+      "CONTENT": "Create groups from finalized templates. Select one teacher, one template, and multiple students. Separate questionnaires are generated for each student-teacher pair."
+    }
+  },
+  "GENERAL": {
+    "NAVIGATION": {
+      "TITLE": "Navigation",
+      "CONTENT": "Navigation options depend on your role. Use the profile dropdown (top right) to logout or switch language."
+    }
+  }
+},
+
 
 
 

@@ -86,63 +86,43 @@
   "USER_GUIDE": {
     "TITLE": "Brugervejledning",
     "STUDENT": {
-      "GETTING_STARTED": {
-        "TITLE": "Kom i gang som studerende",
-        "CONTENT": "Velkommen! Som studerende kan du deltage i spørgeskemaer og se dine resultater. Brug navigationsbjælken for at få adgang til aktive spørgeskemaer tildelt til dig."
-      },
       "ANSWERING_QUESTIONNAIRES": {
         "TITLE": "Besvarelse af spørgeskemaer",
-        "CONTENT": "Klik på 'Aktive spørgeskemaer' for at se tilgængelige spørgeskemaer. Vælg et spørgeskema og klik 'Besvar' for at begynde. Sørg for at indsende dine svar før deadline."
+        "CONTENT": "Gå til 'Aktive spørgeskemaer' og klik 'Besvar'. Tre spørgsmålstyper: Multiple Choice, Kun brugerdefineret svar, eller Blandet. Fremgang gemmes automatisk."
       },
       "VIEWING_RESULTS": {
-        "TITLE": "Visning af resultater",
-        "CONTENT": "Efter at have gennemført et spørgeskema kan du se dine resultater ved at klikke på spørgeskemaet fra den aktive liste. Resultater kan være tilgængelige med det samme eller efter at læreren har offentliggjort dem."
+        "TITLE": "Din rolle",
+        "CONTENT": "Du giver svar men kan ikke se dine indsendte besvarelser. Lærere kan se og analysere alle svar til undervisningsformål."
       }
     },
     "TEACHER": {
-      "GETTING_STARTED": {
-        "TITLE": "Kom i gang som lærer",
-        "CONTENT": "Velkommen! Som lærer kan du overvåge studenterens fremgang, sammenligne data og se historiske resultater. Start med at udforske oversigts-dashboardet for at se aktuelle spørgeskemaaktiviteter."
-      },
       "DASHBOARD": {
-        "TITLE": "Lærer dashboard",
-        "CONTENT": "Oversigts-dashboardet viser alle aktive spørgeskemaer og studenternes fuldførselsstatus. Brug søge- og filtreringsmuligheder for at finde specifikke spørgeskemaer eller studenter."
+        "TITLE": "Oversigt dashboard",
+        "CONTENT": "Se aktive spørgeskemaer og fuldførselsstatus. Overvåg dine tildelte spørgeskemaer og se resultater fra gennemførte."
       },
       "DATA_COMPARE": {
-        "TITLE": "Datasammenligning",
-        "CONTENT": "Brug Sammenlign Data til at analysere og sammenligne resultater på tværs af forskellige spørgeskemaer, tidsperioder eller studentgrupper. Dette hjælper med at identificere tendenser og mønstre i dataene."
+        "TITLE": "Sammenlign Data",
+        "CONTENT": "Analyser svar fra spørgeskemaer du har deltaget i. Sammenlign resultater og identificer mønstre mellem student- og lærersvar."
       },
       "RESULT_HISTORY": {
         "TITLE": "Resultathistorik",
-        "CONTENT": "Få adgang til historiske data og tidligere spørgeskemaresultater gennem Resultathistorik. Du kan filtrere efter datointervaller, specifikke spørgeskemaer eller studentgrupper for at analysere langsigtede tendenser."
+        "CONTENT": "Spor hvordan individuelle studenters svar ændrer sig over tid. Se progression når studenter gennemfører samme spørgeskema flere gange."
       }
     },
     "ADMIN": {
-      "GETTING_STARTED": {
-        "TITLE": "Kom i gang som administrator",
-        "CONTENT": "Velkommen! Som administrator har du fuld adgang til at administrere skabeloner, aktivere spørgeskemaer og overvåge hele systemet. Start med at sætte dig ind i Skabeloner-sektionen."
-      },
       "TEMPLATE_MANAGEMENT": {
-        "TITLE": "Administration af skabeloner",
-        "CONTENT": "Opret, rediger og slet spørgeskemaskabeloner i Skabeloner-sektionen. Skabeloner fungerer som skabeloner for spørgeskemaer. Du kan tilføje spørgsmål, indstille spørgsmålstyper og konfigurere skabelonindstillinger."
+        "TITLE": "Skabeloner",
+        "CONTENT": "Opret spørgeskemaplaner med tre spørgsmålstyper: Multiple Choice, Brugerdefineret svar, eller Blandet. Skabeloner skal afsluttes før brug og kan ikke redigeres efter. Kopier skabeloner for at lave ændringer."
       },
       "ACTIVE_QUESTIONNAIRES": {
-        "TITLE": "Administration af aktive spørgeskemaer",
-        "CONTENT": "Brug sektionen Aktive spørgeskemaer til at oprette nye spørgeskemainstanser fra skabeloner, tildele dem til studenter og lærere, og administrere deres livscyklus fra aktivering til fuldførelse."
-      },
-      "USER_MANAGEMENT": {
-        "TITLE": "Brugeradministration",
-        "CONTENT": "Overvåg brugeraktiviteter, administrer brugerroller og sørg for korrekt adgangskontrol i hele systemet. Hold styr på brugerengagement og systembrugsmønstre."
+        "TITLE": "Aktive spørgeskemaer",
+        "CONTENT": "Opret grupper fra afsluttede skabeloner. Vælg én lærer, én skabelon, og flere studerende. Separate spørgeskemaer genereres for hver studerende-lærer kombination."
       }
     },
     "GENERAL": {
       "NAVIGATION": {
         "TITLE": "Navigation",
-        "CONTENT": "Brug navigationsbjælken øverst for at få adgang til forskellige sektioner. Dine tilgængelige muligheder afhænger af din brugerrolle. Profil-dropdownen giver adgang til logud og brugerindstillinger."
-      },
-      "LANGUAGE_SWITCH": {
-        "TITLE": "Sprogindstillinger",
-        "CONTENT": "Du kan skifte mellem engelsk og dansk ved hjælp af sprogvælgeren i navigationsbjælken. Din sprogpræference vil blive husket til fremtidige sessioner."
+        "CONTENT": "Navigationsmuligheder afhænger af din rolle. Brug profil-dropdownen (øverst til højre) til logud eller sprogskift."
       }
     }
   },

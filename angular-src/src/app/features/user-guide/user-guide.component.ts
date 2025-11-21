@@ -24,10 +24,6 @@ export class UserGuideComponent {
   private roleSections: Record<Role, GuideSection[]> = {
     [Role.Student]: [
       {
-        titleKey: 'USER_GUIDE.STUDENT.GETTING_STARTED.TITLE',
-        contentKey: 'USER_GUIDE.STUDENT.GETTING_STARTED.CONTENT'
-      },
-      {
         titleKey: 'USER_GUIDE.STUDENT.ANSWERING_QUESTIONNAIRES.TITLE',
         contentKey: 'USER_GUIDE.STUDENT.ANSWERING_QUESTIONNAIRES.CONTENT'
       },
@@ -37,10 +33,6 @@ export class UserGuideComponent {
       }
     ],
     [Role.Teacher]: [
-      {
-        titleKey: 'USER_GUIDE.TEACHER.GETTING_STARTED.TITLE',
-        contentKey: 'USER_GUIDE.TEACHER.GETTING_STARTED.CONTENT'
-      },
       {
         titleKey: 'USER_GUIDE.TEACHER.DASHBOARD.TITLE',
         contentKey: 'USER_GUIDE.TEACHER.DASHBOARD.CONTENT'
@@ -56,20 +48,12 @@ export class UserGuideComponent {
     ],
     [Role.Admin]: [
       {
-        titleKey: 'USER_GUIDE.ADMIN.GETTING_STARTED.TITLE',
-        contentKey: 'USER_GUIDE.ADMIN.GETTING_STARTED.CONTENT'
-      },
-      {
         titleKey: 'USER_GUIDE.ADMIN.TEMPLATE_MANAGEMENT.TITLE',
         contentKey: 'USER_GUIDE.ADMIN.TEMPLATE_MANAGEMENT.CONTENT'
       },
       {
         titleKey: 'USER_GUIDE.ADMIN.ACTIVE_QUESTIONNAIRES.TITLE',
         contentKey: 'USER_GUIDE.ADMIN.ACTIVE_QUESTIONNAIRES.CONTENT'
-      },
-      {
-        titleKey: 'USER_GUIDE.ADMIN.USER_MANAGEMENT.TITLE',
-        contentKey: 'USER_GUIDE.ADMIN.USER_MANAGEMENT.CONTENT'
       }
     ]
   };
@@ -79,10 +63,6 @@ export class UserGuideComponent {
     {
       titleKey: 'USER_GUIDE.GENERAL.NAVIGATION.TITLE',
       contentKey: 'USER_GUIDE.GENERAL.NAVIGATION.CONTENT'
-    },
-    {
-      titleKey: 'USER_GUIDE.GENERAL.LANGUAGE_SWITCH.TITLE',
-      contentKey: 'USER_GUIDE.GENERAL.LANGUAGE_SWITCH.CONTENT'
     }
   ];
 
