@@ -149,10 +149,6 @@
       "TITLE": "Overview Dashboard",
       "CONTENT": "View active questionnaires and completion status. Monitor your assigned questionnaires and view results from completed ones."
     },
-    "DATA_COMPARE": {
-      "TITLE": "Data Compare",
-      "CONTENT": "Analyze responses from questionnaires you've participated in. Compare results and identify patterns between student and teacher responses."
-    },
     "RESULT_HISTORY": {
       "TITLE": "Result History",
       "CONTENT": "Track how individual students' answers change over time. See progression when students complete the same questionnaire multiple times."

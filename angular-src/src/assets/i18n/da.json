@@ -88,7 +88,7 @@
     "STUDENT": {
       "ANSWERING_QUESTIONNAIRES": {
         "TITLE": "Besvarelse af spørgeskemaer",
-        "CONTENT": "Gå til 'Aktive spørgeskemaer' og klik 'Besvar'. Tre spørgsmålstyper: Multiple Choice, Kun brugerdefineret svar, eller Blandet. Fremgang gemmes automatisk."
+        "CONTENT": "Gå til 'Aktive spørgeskemaer' og klik 'Besvar'. Tre spørgsmålstyper: \"Multiple Choice\", \"Custom Answer\", eller \"Mixed\". Fremgang gemmes automatisk."
       },
       "VIEWING_RESULTS": {
         "TITLE": "Din rolle",
@@ -100,10 +100,6 @@
         "TITLE": "Oversigt dashboard",
         "CONTENT": "Se aktive spørgeskemaer og fuldførselsstatus. Overvåg dine tildelte spørgeskemaer og se resultater fra gennemførte."
       },
-      "DATA_COMPARE": {
-        "TITLE": "Sammenlign Data",
-        "CONTENT": "Analyser svar fra spørgeskemaer du har deltaget i. Sammenlign resultater og identificer mønstre mellem student- og lærersvar."
-      },
       "RESULT_HISTORY": {
         "TITLE": "Resultathistorik",
         "CONTENT": "Spor hvordan individuelle studenters svar ændrer sig over tid. Se progression når studenter gennemfører samme spørgeskema flere gange."
@@ -112,11 +108,11 @@
     "ADMIN": {
       "TEMPLATE_MANAGEMENT": {
         "TITLE": "Skabeloner",
-        "CONTENT": "Opret spørgeskemaplaner med tre spørgsmålstyper: Multiple Choice, Brugerdefineret svar, eller Blandet. Skabeloner skal afsluttes før brug og kan ikke redigeres efter. Kopier skabeloner for at lave ændringer."
+        "CONTENT": "Opret spørgeskemaplaner med tre spørgsmålstyper: \"Multiple Choice\", \"Custom Answer\", eller \"Mixed\". Skabeloner skal \"finalized\" før brug og kan ikke redigeres efter. Kopier skabeloner for at lave ændringer."
       },
       "ACTIVE_QUESTIONNAIRES": {
         "TITLE": "Aktive spørgeskemaer",
-        "CONTENT": "Opret grupper fra afsluttede skabeloner. Vælg én lærer, én skabelon, og flere studerende. Separate spørgeskemaer genereres for hver studerende-lærer kombination."
+        "CONTENT": "Opret grupper fra \"finalized\" skabeloner. Vælg én lærer, én skabelon, og flere studerende. Separate spørgeskemaer genereres for hver studerende-lærer kombination."
       }
     },
     "GENERAL": {

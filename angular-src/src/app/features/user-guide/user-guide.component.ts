@@ -38,10 +38,6 @@ export class UserGuideComponent {
         contentKey: 'USER_GUIDE.TEACHER.DASHBOARD.CONTENT'
       },
       {
-        titleKey: 'USER_GUIDE.TEACHER.DATA_COMPARE.TITLE',
-        contentKey: 'USER_GUIDE.TEACHER.DATA_COMPARE.CONTENT'
-      },
-      {
         titleKey: 'USER_GUIDE.TEACHER.RESULT_HISTORY.TITLE',
         contentKey: 'USER_GUIDE.TEACHER.RESULT_HISTORY.CONTENT'
       }
