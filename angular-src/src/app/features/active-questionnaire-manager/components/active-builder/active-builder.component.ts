@@ -25,7 +25,7 @@ type SearchType = 'student' | 'teacher' | 'template';
 
 @Component({
     selector: 'app-active-questionnaire-builder',
-    imports: [CommonModule, FormsModule, TranslateModule, ModalComponent, ActiveAnonymousBuilderComponent],
+    imports: [CommonModule, FormsModule, TranslateModule, ModalComponent],
     templateUrl: './active-builder.component.html',
     styleUrls: ['./active-builder.component.css']
 })
