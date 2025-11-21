@@ -12,7 +12,6 @@ import {
   ShowResultConfig
 } from '../../shared/show-result/show-result.component';
 
-
 import {
   Answer,
   QuestionOption,
@@ -21,6 +20,9 @@ import {
 import { ResultHistoryService } from './services/result-history.service';
 import { Attempt, StudentResultHistory, AnswerInfo } from './models/result-history.model';
 import { PdfGenerationService } from '../result/services/pdf-generation.service';
+import { AgCharts } from 'ag-charts-angular';
+import type { AgCartesianChartOptions } from 'ag-charts-community';
+import { DataCompareService } from '../data-compare-overtime/services/data-compare-overtime.service';
 
 enum SearchEnum {
   Student = 'student',
@@ -40,19 +42,33 @@ interface SearchState<T> {
 @Component({
   selector: 'app-result-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ShowResultComponent, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ShowResultComponent, TranslateModule, AgCharts],
   templateUrl: './result-history.component.html',
   styleUrls: ['./result-history.component.css']
 })
 export class ResultHistoryComponent implements OnInit {
   private resultHistoryService = inject(ResultHistoryService);
   private pdfGenerationService = inject(PdfGenerationService);
+  private dataCompareService = inject(DataCompareService);
+
 
   public translate = inject(TranslateService)
   
   public searchEnum = SearchEnum;
   public student = this.createSearchState<User>();
   public template = this.createSearchState<TemplateBase>();
+  public showGraph = false;
+  public currentQuestionIndex = 0;
+  public totalQuestions = 0;
+  public allQuestions: any[] = [];
+  public allResponses: any[] = [];
+  public answers: string[] = [];
+  public chartOptions: AgCartesianChartOptions = {
+    title: { text: 'Svar over tid' },
+    data: [],
+    series: [],
+    axes: []
+  };
 
   public showDropdown = {
     [SearchEnum.Student]: false,
@@ -227,7 +243,7 @@ private fetch(type: SearchEnum, term: string): void {
   /**
    * Fetch using the new normalized "history with attempts" shape
    */
-  fetchStudentResultsV2(): void {
+ fetchStudentResultsV2(): void {
     if (!this.student.selected || !this.template.selected) return;
 
     this.isLoading = true;
@@ -243,10 +259,17 @@ private fetch(type: SearchEnum, term: string): void {
           this.history = data;
           this.currentAttemptIndex = 0;
           this.isLoading = false;
+          
+          console.log('History loaded:', this.history);
+          if (this.shouldLoadGraphAfterHistory) {
+            this.shouldLoadGraphAfterHistory = false;
+            this.TestGraf();
+          }
         },
         error: () => {
           this.errorMessage = 'Failed to load student result history.';
           this.isLoading = false;
+          this.shouldLoadGraphAfterHistory = false;
         }
       });
   }
@@ -404,6 +427,7 @@ private fetch(type: SearchEnum, term: string): void {
   /**
    * Helper method to get the display text for selected option IDs
    */
+
   private getSelectedOptionText(selectedOptionIds: number[] | null | undefined, options: any[] | undefined): string | null {
     if (!selectedOptionIds?.length || !options?.length) return null;
     
@@ -414,4 +438,205 @@ private fetch(type: SearchEnum, term: string): void {
   public hasResult(): boolean {
     return !!this.getCurrentResultLikeResult();
   }
+
+public TestGraf() {
+    console.log("TestGraf");
+    
+    if (!this.student.selected || !this.template.selected) {
+      console.warn('Missing student or template selection');
+      return;
+    }
+
+    // Get IDs from selected items and history
+    const templateId = this.template.selected.id;
+    const studentId = this.student.selected.id;
+    
+        // The teacher ID should come from the history object
+    // If history isn't loaded yet, we need to wait for it
+    if (!this.history) {
+      console.warn('History not loaded yet, fetching it first...');
+      // Fetch the history first, then load graph
+      this.fetchStudentResultsV2();
+      // Set a flag to load graph after history loads
+      this.shouldLoadGraphAfterHistory = true;
+      return;
+    }
+
+    const teacherId = this.history.teacher.id;
+
+    if (!teacherId) {
+      console.error('Teacher ID is undefined!');
+      return;
+    }
+
+    this.showGraph = !this.showGraph;
+
+    if (this.showGraph) {
+      this.loadGraphData(templateId, studentId, teacherId);
+    }
+
+  }
+
+    private shouldLoadGraphAfterHistory = false;
+
+
+  private loadGraphData(templateId: string, studentId: string, teacherId: string) {
+    // Load questions
+    this.dataCompareService.getQuestionareOptiontsByID(templateId).subscribe({
+      next: (res) => {
+        if (res?.questions?.length) {
+          this.allQuestions = res.questions;
+          this.totalQuestions = res.questions.length;
+        }
+        this.loadGraphResponses(templateId, studentId, teacherId);
+      },
+      error: (err) => console.error('Error loading questions:', err)
+    });
+  }
+
+  private loadGraphResponses(templateId: string, studentId: string, teacherId: string) {
+    this.dataCompareService.getResponsesByID(studentId, teacherId, templateId).subscribe({
+      next: (res) => {
+        console.log('Raw API responses:', res);
+        this.allResponses = Array.isArray(res) ? res : [];
+        this.currentQuestionIndex = 0;
+        this.updateChartForQuestion(this.currentQuestionIndex);
+      },
+      error: (err) => console.error('Error fetching responses:', err),
+    });
+  }
+
+  private updateChartForQuestion(index: number) {
+    const question = this.allQuestions[index];
+    console.log('Updating chart for question:', question?.text ?? question);
+
+    if (!question) return;
+
+    this.answers = (question.options ?? [])
+      .map((opt: any) => opt.displayText)
+      .filter((t: string) => !!t);
+    console.log('Possible answers:', this.answers);
+
+    const toNumeric = (text: string) => {
+      const idx = this.answers.indexOf(text);
+      return idx !== -1 ? idx : null;
+    };
+
+    const filtered = this.allResponses
+      .flatMap((entry) => {
+        const match = entry.answers?.filter(
+          (a: any) =>
+            a.question === question.prompt ||
+            a.question === question.title ||
+            a.question === question.text
+        );
+        return match?.map((a: any) => {
+          const completedDate = new Date(
+            entry.student?.completedAt ?? entry.teacher?.completedAt ?? Date.now()
+          );
+          return {
+            date: completedDate,
+            dateLabel: completedDate.toLocaleString('da-DK', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            }),
+            TeacherAnswer: toNumeric(a.teacherResponse),
+            StudentAnswer: toNumeric(a.studentResponse),
+          };
+        });
+      })
+      .filter((x) => x && (x.TeacherAnswer !== null || x.StudentAnswer !== null))
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    const indexedData = filtered.map((item, idx) => ({
+      ...item,
+      index: idx,
+      displayLabel: `${item.dateLabel} (#${idx + 1})`
+    }));
+
+    console.log('Filtered chart data:', indexedData);
+
+    this.chartOptions = {
+      title: { text: question.prompt || question.title || question.text || 'Spørgsmål' },
+      data: indexedData,
+      series: [
+        {
+          type: 'line',
+          xKey: 'index',
+          yKey: 'TeacherAnswer',
+          yName: 'Lærer',
+          tooltip: {
+            renderer: (params) => ({
+              content: `${params.datum.dateLabel}<br/>Lærer: ${this.answers[params.datum[params.yKey]] ?? 'Ukendt'}`,
+            }),
+          },
+        },
+        {
+          type: 'line',
+          xKey: 'index',
+          yKey: 'StudentAnswer',
+          yName: 'Elev',
+          tooltip: {
+            renderer: (params) => ({
+              content: `${params.datum.dateLabel}<br/>Elev: ${this.answers[params.datum[params.yKey]] ?? 'Ukendt'}`,
+            }),
+          },
+        },
+      ],
+      axes: [
+        {
+          type: 'category',
+          position: 'bottom',
+          title: { text: 'Tidspunkt for besvarelse' },
+          label: {
+            rotation: 0,
+            formatter: (params) => {
+              const dataPoint = indexedData[params.value];
+              return dataPoint ? dataPoint.dateLabel : '';
+            }
+          }
+        },
+        {
+          type: 'number',
+          position: 'left',
+          min: 0,
+          max: this.answers.length - 1,
+          nice: false,
+          label: {
+            avoidCollisions: false,
+            formatter: (p) => {
+              const v = p.value;
+              if (Math.abs(v - Math.round(v)) > 1e-6) return '';
+              const idx = Math.round(v);
+              const text = this.answers[idx] ?? '';
+              return text.length > 25 ? text.substring(0, 22) + '...' : text;
+            },
+          },
+          tick: {
+            // @ts-expect-error: supported at runtime
+            step: 1,
+          },
+          title: { text: 'Svarmuligheder' },
+        },
+      ],
+    };
+  }
+
+  public nextGraphQuestion() {
+    if (this.currentQuestionIndex < this.totalQuestions - 1) {
+      this.currentQuestionIndex++;
+      this.updateChartForQuestion(this.currentQuestionIndex);
+    }
+  }
+
+  public prevGraphQuestion() {
+    if (this.currentQuestionIndex > 0) {
+      this.currentQuestionIndex--;
+      this.updateChartForQuestion(this.currentQuestionIndex);
+    }
+  }
+
 }
+
+
