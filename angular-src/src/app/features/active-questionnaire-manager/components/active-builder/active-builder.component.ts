@@ -212,8 +212,9 @@ select(entity: SearchType, item: any): void {
     state.selected = [];
   }
   
-  // Special handling for teacher: only allow one selection
+  // ✅ Special handling for teacher: only allow one selection
   if (entity === 'teacher') {
+    this.showTeacherResults = false;
     const idx = state.selected.findIndex((u: any) => u.id === item.id);
     if (idx === -1) {
       // Replace the existing teacher with the new one
@@ -230,18 +231,24 @@ select(entity: SearchType, item: any): void {
     } else {
       state.selected.splice(idx, 1);
     }
+    // Clear search input and hide search results
+    state.searchInput = '';
+    
+    // Hide search results dropdown based on entity type
+    if (entity === 'student') {
+      this.showStudentResults = false;
+    } else if (entity === 'template') {
+      this.showTemplateResults = false;
+      }
+    }
   }
   
-  // Clear search input
-  state.searchInput = '';
-}
-
-  clearSelected(entity: SearchType): void {
-    const state = this.getState(entity);
-    state.selected = [];
-  }
-
-  createActiveQuestionnaire(): void {
+    clearSelected(entity: SearchType): void {
+      const state = this.getState(entity);
+      state.selected = [];
+    }
+  
+    createActiveQuestionnaire(): void {
     if (this.isAnonymousMode) {
       // Anonymous mode: only participants and template
       if (

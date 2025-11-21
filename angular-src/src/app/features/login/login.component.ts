@@ -24,11 +24,10 @@ const ERROR_I18N: Record<LoginErrorCode, string> = {
 };
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule, LanguageSwitcherComponent, TrackCapsDirective],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+    selector: 'app-login',
+    imports: [FormsModule, CommonModule, TranslateModule, LanguageSwitcherComponent, TrackCapsDirective],
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   private authService = inject(AuthService);

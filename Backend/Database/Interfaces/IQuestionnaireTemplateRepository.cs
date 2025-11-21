@@ -46,17 +46,47 @@ public interface IQuestionnaireTemplateRepository
     /// Only provided fields in the patch DTO will be updated, preserving existing content for null fields.
     /// </remarks>
     Task<QuestionnaireTemplate> Patch(Guid id, QuestionnaireTemplatePatch patchedTemplate);
+
     /// <summary>
-    /// Permanently deletes a questionnaire template from the database.
+    /// Soft deletes a questionnaire template by marking it as deleted instead of removing it from the database.
     /// </summary>
-    /// <param name="id">The ID of the questionnaire template to delete.</param>
+    /// <param name="id">The ID of the questionnaire template to soft delete.</param>
     /// <exception cref="ArgumentException">Thrown when the template ID is not found.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the template has associated active questionnaires and cannot be deleted.</exception>
     /// <remarks>
-    /// Templates with active questionnaires cannot be deleted to maintain referential integrity.
-    /// This operation is irreversible and will cascade delete all associated questions and options.
+    /// This operation marks the template as deleted by setting its status to TemplateStatus.Deleted
+    /// and updating the LastUpdated timestamp. The template remains in the database for audit purposes
+    /// but is excluded from normal queries. This approach maintains referential integrity and allows
+    /// for potential recovery of deleted templates if needed.
     /// </remarks>
     Task DeleteAsync(Guid id);
+
+    /// <summary>
+    /// Permanently deletes a questionnaire template and all associated active questionnaires from the database.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to permanently delete.</param>
+    /// <exception cref="ArgumentException">Thrown when the template ID is not found.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the template cannot be deleted.</exception>
+    /// <remarks>
+    /// This operation is irreversible and will cascade delete all associated questions, options, and active questionnaires.
+    /// Active questionnaires are explicitly removed first to maintain referential integrity.
+    /// Use with caution as this will affect all users who have active instances of this template.
+    /// Consider using DeleteAsync for soft deletion in most scenarios.
+    /// </remarks>
+    Task HardDeleteAsync(Guid id);
+
+    /// <summary>
+    /// Undeletes a soft deleted questionnaire template by restoring its status.
+    /// </summary>
+    /// <param name="id">The ID of the questionnaire template to undelete.</param>
+    /// <returns>The restored QuestionnaireTemplate with updated status.</returns>
+    /// <exception cref="ArgumentException">Thrown when the template ID is not found.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the template is not in deleted state.</exception>
+    /// <remarks>
+    /// This operation restores a previously soft deleted template. The template status will be set to Draft
+    /// unless there are active questionnaires associated with it, in which case it will be set to Finalized.
+    /// Updates the LastUpdated timestamp to track the restoration.
+    /// </remarks>
+    Task<QuestionnaireTemplate> UndeleteAsync(Guid id);
 
     /// <summary>
     /// Retrieves basic information about a questionnaire template without detailed question structure.

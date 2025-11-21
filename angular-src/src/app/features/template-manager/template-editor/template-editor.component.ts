@@ -21,11 +21,10 @@ import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-
  * - Switching to readonly mode if the template is finalized.
  */
 @Component({
-  selector: 'app-template-editor',
-  standalone: true,
-  imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent, TranslateModule, DragDropModule],
-  templateUrl: './template-editor.component.html',
-  styleUrl: './template-editor.component.css'
+    selector: 'app-template-editor',
+    imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent, TranslateModule, DragDropModule],
+    templateUrl: './template-editor.component.html',
+    styleUrl: './template-editor.component.css'
 })
 export class TemplateEditorComponent implements OnChanges {
   /** Template being edited. */

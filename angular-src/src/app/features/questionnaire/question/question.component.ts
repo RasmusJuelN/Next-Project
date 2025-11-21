@@ -18,11 +18,10 @@ import { TranslateModule } from '@ngx-translate/core';
  * - Emitting updated `Answer` objects when selection changes.
  */
 @Component({
-  selector: 'app-question',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
-  templateUrl: './question.component.html',
-  styleUrls: ['./question.component.css'],
+    selector: 'app-question',
+    imports: [CommonModule, FormsModule, TranslateModule],
+    templateUrl: './question.component.html',
+    styleUrls: ['./question.component.css']
 })
 export class QuestionComponent implements OnChanges {
   /** The current question to display. */

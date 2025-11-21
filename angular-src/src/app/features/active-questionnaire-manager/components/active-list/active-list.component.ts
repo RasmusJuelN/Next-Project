@@ -12,11 +12,10 @@ import { TranslateModule } from '@ngx-translate/core';
 
 
 @Component({
-  selector: 'app-active-list',
-  standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent, TranslateModule],
-  templateUrl: './active-list.component.html',
-  styleUrls: ['./active-list.component.css']
+    selector: 'app-active-list',
+    imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent, TranslateModule],
+    templateUrl: './active-list.component.html',
+    styleUrls: ['./active-list.component.css']
 })
 export class ActiveListComponent implements OnInit {
   private activeService = inject(ActiveService);

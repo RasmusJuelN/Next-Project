@@ -20,11 +20,10 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
  * - Managing login/logout flows and error states.
  */
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [LoginComponent, CommonModule, TranslateModule],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
+    selector: 'app-home',
+    imports: [LoginComponent, CommonModule, TranslateModule],
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
   private authService = inject(AuthService);
