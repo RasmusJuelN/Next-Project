@@ -206,21 +206,35 @@ private handleDocumentClick = (event: MouseEvent) => {
   }
 
   // Add or remove user from selected array
-  select(entity: SearchType, item: any): void {
-    const state = this.getState(entity);
-    if (!Array.isArray(state.selected)) {
+select(entity: SearchType, item: any): void {
+  const state = this.getState(entity);
+  if (!Array.isArray(state.selected)) {
+    state.selected = [];
+  }
+  
+  // Special handling for teacher: only allow one selection
+  if (entity === 'teacher') {
+    const idx = state.selected.findIndex((u: any) => u.id === item.id);
+    if (idx === -1) {
+      // Replace the existing teacher with the new one
+      state.selected = [item];
+    } else {
+      // If clicking the same teacher, deselect it
       state.selected = [];
     }
+  } else {
+    // Normal multi-select behavior for students and templates
     const idx = state.selected.findIndex((u: any) => u.id === item.id);
     if (idx === -1) {
       state.selected.push(item);
     } else {
       state.selected.splice(idx, 1);
     }
-    // Do NOT clear search results so user can select multiple
-    state.searchInput = '';
-    // state.searchResults = [];
   }
+  
+  // Clear search input
+  state.searchInput = '';
+}
 
   clearSelected(entity: SearchType): void {
     const state = this.getState(entity);
