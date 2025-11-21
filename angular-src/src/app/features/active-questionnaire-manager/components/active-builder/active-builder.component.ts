@@ -7,6 +7,7 @@ import { ActiveService } from '../../services/active.service';
 import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
@@ -25,7 +26,7 @@ type SearchType = 'student' | 'teacher' | 'template';
 @Component({
   selector: 'app-active-questionnaire-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ModalComponent],
   templateUrl: './active-builder.component.html',
   styleUrls: ['./active-builder.component.css']
 })
@@ -88,6 +89,13 @@ export class ActiveBuilderComponent implements OnInit {
 
   // Set the page size (10 results per search)
   searchAmount = 10;
+
+   // Confirmation modal state
+  public showConfirmationModal = false;
+  public confirmationTitle = '';
+  public confirmationText = '';
+  public confirmationConfirmText = '';
+  public confirmationCancelText = '';
 
   @Output() backToListEvent = new EventEmitter<void>();
 
@@ -247,6 +255,31 @@ select(entity: SearchType, item: any): void {
       const state = this.getState(entity);
       state.selected = [];
     }
+
+     /** Show confirmation modal before creating questionnaire */
+  showCreateConfirmation(): void {
+    if (this.isAnonymousMode) {
+      this.confirmationTitle = 'ACTIVE_BUILDER.CONFIRM_ANONYMOUS_TITLE';
+      this.confirmationText = 'ACTIVE_BUILDER.CONFIRM_ANONYMOUS_MESSAGE';
+    } else {
+      this.confirmationTitle = 'ACTIVE_BUILDER.CONFIRM_EVALUATION_TITLE';
+      this.confirmationText = 'ACTIVE_BUILDER.CONFIRM_EVALUATION_MESSAGE';
+    }
+    this.confirmationConfirmText = 'ACTIVE_BUILDER.CONFIRM_YES';
+    this.confirmationCancelText = 'ACTIVE_BUILDER.CONFIRM_NO';
+    this.showConfirmationModal = true;
+  }
+
+  /** Handle confirmation modal confirm action */
+  onConfirmCreate(): void {
+    this.showConfirmationModal = false;
+    this.createActiveQuestionnaire();
+  }
+
+  /** Handle confirmation modal cancel action */
+  onCancelCreate(): void {
+    this.showConfirmationModal = false;
+  }
   
     createActiveQuestionnaire(): void {
     if (this.isAnonymousMode) {
