@@ -67,6 +67,7 @@
   "TMP_FINALIZE_TITLE": "Udgiv skabelon?",
   "TMP_FINALIZE_TEXT": "Når en skabelon udgives, bliver den skrivebeskyttet. <br/>Er du sikker på, at du vil udgive?",
   "TMP_FINALIZE_CONFIRM": "Udgiv",
+  "TMP_PUBLISH": "Udgiv",
   "TMP_VIEW_MODE": "Skabelonvisning",
   "TMP_EDIT_MODE": "Skabelonredigering",
 
@@ -286,6 +287,12 @@
     "PLACEHOLDER_EVALUATION_NAME": "f.eks. 'Hold123 - evaluering af elever'",
     "PLACEHOLDER_ANONYMOUS_NAME": "f.eks. 'Evaluering af undervisning - Alle Elever'",
     "FINISH": "Færdiggør",
-    "CANCEL": "Annuller"
+    "CANCEL": "Annuller",
+    "CONFIRM_ANONYMOUS_TITLE": "Bekræft Oprettelse af Anonymt Spørgeskema",
+    "CONFIRM_ANONYMOUS_MESSAGE": "Er du sikker på, at du vil oprette dette anonyme spørgeskema? Denne handling vil tildele den valgte skabelon til alle udvalgte deltagere.",
+    "CONFIRM_EVALUATION_TITLE": "Bekræft Oprettelse af Evalueringsspørgeskema",
+    "CONFIRM_EVALUATION_MESSAGE": "Er du sikker på, at du vil oprette dette evalueringsspørgeskema? Denne handling vil tildele den valgte skabelon til alle udvalgte elever og lærere.",
+    "CONFIRM_YES": "Ja, Opret Spørgeskema",
+    "CONFIRM_NO": "Nej, Annuller"
   }
 }

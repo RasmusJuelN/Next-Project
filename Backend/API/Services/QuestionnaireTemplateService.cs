@@ -203,6 +203,35 @@ public async Task<QuestionnaireTemplate> FinalizeTemplate(Guid id)
 }
 
     /// <summary>
+    /// Restores a soft deleted questionnaire template by changing its status from Deleted.
+    /// </summary>
+    /// <param name="id">The unique identifier of the template to restore.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains
+    /// the restored questionnaire template with updated status.
+    /// </returns>
+    /// <remarks>
+    /// This method restores a previously soft deleted template. The template status will be set to Draft
+    /// unless there are active questionnaires associated with it, in which case it will be set to Finalized.
+    /// This allows for recovery of accidentally deleted templates while maintaining proper status based on usage.
+    /// </remarks>
+    /// <exception cref="SQLException.ItemNotFound">Thrown when no template exists with the specified ID.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the template is not in deleted state.</exception>
+    public async Task<QuestionnaireTemplate> UndeleteTemplate(Guid id)
+    {
+        try
+        {
+            var undeleted = await _unitOfWork.QuestionnaireTemplate.UndeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
+            return undeleted;
+        }
+        catch (Exception ex)
+        {
+            throw new SQLException.NotValidated(ex.Message, ex);
+        }
+    }
+
+    /// <summary>
     /// Gets questionnaire template bases that have been answered by both a specific student and teacher.
     /// </summary>
     /// <param name="studentId">The ID of the student user.</param>
