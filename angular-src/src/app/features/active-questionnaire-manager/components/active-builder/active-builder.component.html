@@ -12,9 +12,9 @@
 
   <!-- Anonymous Mode -->
   <ng-container *ngIf="isAnonymousMode">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
       <!-- Left Side: Search Inputs -->
-      <div class="pr-0 sm:pr-2 space-y-3 sm:space-y-4">
+      <div class="pr-0 md:pr-2 space-y-3 sm:space-y-4">
         <!-- Search for Student -->
         <div class="flex flex-col w-full relative" #studentSearchArea>
           <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_PARTICIPANTS' | translate }}</label>
@@ -94,12 +94,12 @@
       </div>
 
       <!-- Right Side: Selected Items -->
-      <div class="pl-0 sm:pl-2 space-y-3 sm:space-y-4">
+      <div class="pl-0 md:pl-2 space-y-3 sm:space-y-4">
         <!-- Selected Students -->
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
           <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_STUDENTS' | translate }}</h3>
           <div *ngIf="student.selected.length === 0" class="text-gray-500 text-sm">
-            {{ 'ACTIVE_BUILDER.NO_STUDENTS_SELECTED' | translate }}
+            {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
           </div>
           <div *ngIf="student.selected.length > 0" class="space-y-2">
             <div class="max-h-60 overflow-y-auto space-y-2">
@@ -122,7 +122,7 @@
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
           <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_TEMPLATES' | translate }}</h3>
           <div *ngIf="template.selected.length === 0" class="text-gray-500 text-sm">
-            {{ 'ACTIVE_BUILDER.NO_TEMPLATE_SELECTED' | translate }}
+            {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
           </div>
           <div *ngIf="template.selected.length > 0" class="space-y-2">
             <div class="max-h-40 overflow-y-auto space-y-2">
@@ -143,7 +143,7 @@
       </div>
       
       <!-- Finish and Cancel Buttons -->
-      <div class="lg:col-span-2 mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+      <div class="md:col-span-2 mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
         <button [disabled]="!student.selected || !template.selected" (click)="showCreateConfirmation()"
           class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           {{ 'ACTIVE_BUILDER.FINISH' | translate }}
@@ -157,9 +157,9 @@
 
   <!-- Normal Mode -->
   <ng-container *ngIf="!isAnonymousMode">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
       <!-- Left Side: Search Inputs -->
-      <div class="pr-0 sm:pr-2 space-y-3 sm:space-y-4">
+      <div class="pr-0 md:pr-2 space-y-3 sm:space-y-4">
         <!-- Search for Student -->
         <div class="flex flex-col w-full relative" #studentSearchArea>
           <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_STUDENT' | translate }}</label>
@@ -272,17 +272,17 @@
         <div class="flex flex-col">
           <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.CREATE_QUESTIONNAIRE_NAME' | translate }}</label>
           <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_EVALUATION_NAME' | translate }}" [(ngModel)]="groupName"
-            class="px-4 py-3 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
+            class="px-4 py-3 border border-primary_orange-1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
         </div>
       </div>
 
       <!-- Right Side: Selected Items -->
-      <div class="pl-0 sm:pl-2 space-y-3 sm:space-y-4">
+      <div class="pl-0 md:pl-2 space-y-3 sm:space-y-4">
         <!-- Selected Students -->
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
           <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_STUDENTS' | translate }}</h3>
           <div *ngIf="student.selected.length === 0" class="text-gray-500 text-sm">
-            {{ 'ACTIVE_BUILDER.NO_STUDENTS_SELECTED' | translate }}
+            {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
           </div>
           <div *ngIf="student.selected.length > 0" class="space-y-2">
             <div class="max-h-60 overflow-y-auto space-y-2">
@@ -305,7 +305,7 @@
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
           <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_TEACHERS' | translate }}</h3>
           <div *ngIf="teacher.selected.length === 0" class="text-gray-500 text-sm">
-            {{ 'ACTIVE_BUILDER.NO_TEACHERS_SELECTED' | translate }}
+            {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
           </div>
           <div *ngIf="teacher.selected.length > 0" class="space-y-2">
             <div class="max-h-40 overflow-y-auto space-y-2">
@@ -328,7 +328,7 @@
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
           <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_TEMPLATES' | translate }}</h3>
           <div *ngIf="template.selected.length === 0" class="text-gray-500 text-sm">
-            {{ 'ACTIVE_BUILDER.NO_TEMPLATE_SELECTED' | translate }}
+            {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
           </div>
           <div *ngIf="template.selected.length > 0" class="space-y-2">
             <div class="max-h-40 overflow-y-auto space-y-2">
@@ -349,7 +349,7 @@
       </div>
       
       <!-- Finish and Back Buttons -->
-      <div class="lg:col-span-2 mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+      <div class="md:col-span-2 mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
         <button [disabled]="!student.selected || !teacher.selected || !template.selected"
           (click)="showCreateConfirmation()"
           class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors  disabled:opacity-50 disabled:cursor-not-allowed">

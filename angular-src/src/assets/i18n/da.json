@@ -316,6 +316,7 @@
     "SELECTED_STUDENTS": "Valgte Elever:",
     "SELECTED_TEACHERS": "Valgte Instruktører:",
     "SELECTED_TEMPLATES": "Valgte Skabeloner:",
+    "NOTHING_SELECTED": "Intet er valgt",
     "REMOVE": "Fjern",
     "CLEAR_ALL": "Ryd Alle",
     "CREATE_QUESTIONNAIRE_NAME": "Opret navn på spørgeskema:",
