@@ -23,6 +23,8 @@
   "TMP_DELETE_FINAL_WARN_MSG": "Advarsel: Denne handling kan ikke fortrydes. Sletning af denne skabelon vil permanent fjerne alle relaterede data. Er du helt sikker på, at du vil fortsætte?",
   "TMP_LOCKED_TITLE": "Skabelonen er i brug",
   "TMP_LOCKED_MSG": "Denne skabelon kan ikke redigeres, da den har været brugt.",
+  "TMP_COPY_TITLE": "Kopiér Skabelon",
+  "TMP_COPY_MSG": "Opret en redigerbar kopi af denne skabelon. Kopien vil blive gemt som en ny udkast skabelon.",
   "TMP_BUTTON_CLOSE": "Luk",
   "TMP_FAIL_LOAD_LIST": "Indlæsning af skabeloner mislykkedes. Prøv igen.",
   "TMP_FAIL_LOAD_DETAIL": "Indlæsning af skabelondetaljer mislykkedes.",

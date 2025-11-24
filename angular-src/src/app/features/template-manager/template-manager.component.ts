@@ -324,7 +324,7 @@ get modalTitle(): string {
         ? this.translate.instant('TMP_DELETE_CONFIRM_TITLE')
         : this.translate.instant('TMP_DELETE_CONFIRM_WARN');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_LOCKED_TITLE');
+      return this.translate.instant('TMP_COPY_TITLE');
     default:
       return '';
   }
@@ -337,7 +337,7 @@ get modalText(): string {
         ? this.translate.instant('TEMPLATES.DELETE.MSG')
         : this.translate.instant('TMP_DELETE_FINAL_WARN_MSG');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_LOCKED_MSG');
+      return this.translate.instant('TMP_COPY_MSG');
     default:
       return '';
   }

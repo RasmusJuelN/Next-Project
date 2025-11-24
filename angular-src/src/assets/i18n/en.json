@@ -23,6 +23,8 @@
   "TMP_DELETE_FINAL_WARN_MSG": "Warning: This action cannot be undone. Deleting this template will permanently remove all related data. Are you sure you want to continue?",
   "TMP_LOCKED_TITLE": "Template In Use",
   "TMP_LOCKED_MSG": "This template cannot be edited because it has been used.",
+  "TMP_COPY_TITLE": "Copy Template",
+  "TMP_COPY_MSG": "Create an editable copy of this template. The copy will be saved as a new draft template.",
   "TMP_BUTTON_CLOSE": "Close",
   "TMP_FAIL_LOAD_LIST": "Failed to load templates. Please try again.",
   "TMP_FAIL_LOAD_DETAIL": "Failed to load the full template details.",
