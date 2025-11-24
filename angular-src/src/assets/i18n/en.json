@@ -316,6 +316,7 @@
     "SELECTED_STUDENTS": "Selected Students:",
     "SELECTED_TEACHERS": "Selected Teachers:",
     "SELECTED_TEMPLATES": "Selected Templates:",
+    "NOTHING_SELECTED": "Nothing is selected",
     "REMOVE": "Remove",
     "CLEAR_ALL": "Clear All",
     "CREATE_QUESTIONNAIRE_NAME": "Create questionnaire name:",
