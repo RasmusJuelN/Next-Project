@@ -220,34 +220,32 @@ select(entity: SearchType, item: any): void {
     state.selected = [];
   }
   
-  // ✅ Special handling for teacher: only allow one selection
-  if (entity === 'teacher') {
-    this.showTeacherResults = false;
-    const idx = state.selected.findIndex((u: any) => u.id === item.id);
+   const idx = state.selected.findIndex((u: any) => u.id === item.id);
+    
     if (idx === -1) {
-      // Replace the existing teacher with the new one
-      state.selected = [item];
+      // Adding new item
+      if (entity === 'teacher' || entity === 'template') {
+        // For teacher and template, only allow one selection - replace existing
+        state.selected = [item];
+      } else {
+        // For students, allow multiple selections
+        state.selected.push(item);
+      }
     } else {
-      // If clicking the same teacher, deselect it
-      state.selected = [];
-    }
-  } else {
-    // Normal multi-select behavior for students and templates
-    const idx = state.selected.findIndex((u: any) => u.id === item.id);
-    if (idx === -1) {
-      state.selected.push(item);
-    } else {
+      // Removing existing item (deselecting)
       state.selected.splice(idx, 1);
     }
+    
     // Clear search input and hide search results
     state.searchInput = '';
     
     // Hide search results dropdown based on entity type
     if (entity === 'student') {
       this.showStudentResults = false;
+    } else if (entity === 'teacher') {
+      this.showTeacherResults = false;
     } else if (entity === 'template') {
       this.showTemplateResults = false;
-      }
     }
   }
   
@@ -316,14 +314,22 @@ select(entity: SearchType, item: any): void {
     hasError = true;
   }
   if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
-    this.teacherError = 'Du skal vælge mindst én lærer.';
+    this.teacherError = 'Du skal vælge en lærer.';
+    hasError = true;
+  }
+  if (this.teacher.selected.length > 1) {
+    this.teacherError = 'Du kan kun vælge én lærer.';
     hasError = true;
   }
   if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
     this.templateError = 'Du skal vælge en skabelon.';
     hasError = true;
   }
-  if (!this.template.selected[0].id) {
+  if (this.template.selected.length > 1) {
+    this.templateError = 'Du kan kun vælge én skabelon.';
+    hasError = true;
+  }
+  if (this.template.selected.length > 0 && !this.template.selected[0].id) {
     this.templateError = 'Den valgte skabelon mangler et ID.';
     hasError = true;
   }
@@ -334,10 +340,6 @@ select(entity: SearchType, item: any): void {
   if (hasError) {
     return;
   }
-  if (this.template.selected.length > 1) {
-    alert('Der kan kun tildeles én skabelon ad gangen.');
-    return;
-    }
     
     const newGroup = {
       name: this.groupName,

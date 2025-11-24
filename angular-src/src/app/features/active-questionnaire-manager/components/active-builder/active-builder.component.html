@@ -1,322 +1,447 @@
 <div
-  class="flex flex-col w-full bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border border-primary_dark_blue sm:min-w-[1100px]">
-  <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800 text-center sm:text-left m-0">
+  class="flex flex-col w-full bg-primary_background_white/80 shadow-xl rounded-2xl p-4 sm:p-10 border border-primary_dark_blue sm:min-w-[1100px]">
+  <div class="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+    <h2 class="text-lg sm:text-2xl font-semibold text-gray-800 text-center sm:text-left m-0">
       {{ isAnonymousMode ? ('ACTIVE_BUILDER.ANONYMOUS_QUESTIONNAIRE' | translate) : ('ACTIVE_BUILDER.EVALUATION_QUESTIONNAIRE' | translate) }}
     </h2>
     <button (click)="isAnonymousMode = !isAnonymousMode"
-      class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded ml-4">
+      class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded w-full sm:w-auto sm:ml-4">
       {{ isAnonymousMode ? ('ACTIVE_BUILDER.SWITCH_TO_EVALUATION' | translate) : ('ACTIVE_BUILDER.SWITCH_TO_ANONYMOUS' | translate) }}
     </button>
   </div>
 
   <!-- Anonymous Mode -->
-  <ng-container *ngIf="isAnonymousMode">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-      <!-- Search for Student -->
-  <div class="flex flex-col w-full relative" #studentSearchArea>
-        <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_PARTICIPANTS' | translate }}</label>
-        <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_STUDENTS' | translate }}" [(ngModel)]="student.searchInput"
-          (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
-          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
-          #studentSearch />
+  @if (isAnonymousMode) {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
+      <!-- Left Side: Search Inputs -->
+      <div class="pr-0 md:pr-2 space-y-3 sm:space-y-4">
+        <!-- Search for Student -->
+        <div class="flex flex-col w-full relative" #studentSearchArea>
+          <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_PARTICIPANTS' | translate }}</label>
+          <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_STUDENTS' | translate }}" [(ngModel)]="student.searchInput"
+            (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
+            class="px-4 py-3 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+            #studentSearch />
 
-        <!-- Loading Indicator -->
-        <div *ngIf="student.isLoading" class="text-primary_dark_blue text-sm mt-2">
-          {{ 'ACTIVE_BUILDER.LOADING_STUDENTS' | translate }}
+          <!-- Loading Indicator -->
+          @if (student.isLoading) {
+            <div class="text-primary_dark_blue text-sm mt-2">
+              {{ 'ACTIVE_BUILDER.LOADING_STUDENTS' | translate }}
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (student.errorMessage) {
+            <div class="text-red-500 text-sm mt-2">
+              {{ student.errorMessage }}
+            </div>
+          }
+
+          <!-- Search Results & Load More -->
+          @if (student.searchResults.length > 0 && showStudentResults) {
+            <div class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
+              <ul class="space-y-1">
+                @for (stud of student.searchResults; track stud.id || $index) {
+                  <li (click)="select('student', stud)"
+                    class="py-3 px-4 hover:bg-secondary_background_hover cursor-pointer rounded text-sm">
+                    {{ stud.fullName }} ({{ stud.userName }})
+                  </li>
+                }
+              </ul>
+
+              <!-- Load More Button -->
+              @if (student.page < student.totalPages) {
+                <button
+                  class="mt-2 w-full px-4 py-2  bg-red-500 hover:bg-red-600 text-white text-center font-medium rounded-lg transition">
+                  {{ 'ACTIVE_BUILDER.LOAD_MORE_STUDENTS' | translate }}
+                </button>
+              }
+            </div>
+          }
         </div>
 
-        <!-- Error Message -->
-        <div *ngIf="student.errorMessage" class="text-red-500 text-sm mt-2">
-          {{ student.errorMessage }}
+        <!-- Search for Template -->
+        <div class="flex flex-col w-full relative" #templateSearchArea>
+          <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_TEMPLATE' | translate }}</label>
+          <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_TEMPLATE' | translate }}" [(ngModel)]="template.searchInput"
+            (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
+            class="px-4 py-3 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+            #templateSearch />
+
+          <!-- Loading Indicator -->
+          @if (template.isLoading) {
+            <div class="text-primary_dark_blue text-sm mt-2">
+              {{ 'ACTIVE_BUILDER.LOADING_TEMPLATES' | translate }}
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (template.errorMessage) {
+            <div class="text-red-500 text-sm mt-2">
+              {{ template.errorMessage }}
+            </div>
+          }
+
+          <!-- Search Results & Load More -->
+          @if (template.searchResults.length > 0 && showTemplateResults) {
+            <div class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
+              <ul class="space-y-1">
+                @for (temp of template.searchResults; track temp.id || $index) {
+                  <li (click)="select('template', temp)"
+                    class="py-3 px-4 hover:bg-secondary_background_hover cursor-pointer rounded text-sm">
+                    {{ temp.title }}
+                  </li>
+                }
+              </ul>
+
+              <!-- Load More Button -->
+              @if (template.page < template.totalPages) {
+                <button
+                  class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition">
+                  {{ 'ACTIVE_BUILDER.LOAD_MORE_TEMPLATES' | translate }}
+                </button>
+              }
+            </div>
+          }
         </div>
 
-  <!-- Search Results & Load More -->
-  <div *ngIf="student.searchResults.length > 0 && showStudentResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
-          <ul class="space-y-1">
-            <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
-              class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
-              {{ stud.fullName }} ({{ stud.userName }})
-            </li>
-          </ul>
-
-          <!-- Load More Button -->
-          <button *ngIf="student.page < student.totalPages"
-            class="mt-2 w-full px-4 py-2  bg-red-500 hover:bg-red-600 text-white text-center font-medium rounded-lg transition">
-            {{ 'ACTIVE_BUILDER.LOAD_MORE_STUDENTS' | translate }}
-          </button>
-        </div>
-
-        <!-- Selected Students List -->
-        <div *ngIf="student.selected.length > 0"
-          class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
-          <strong>{{ 'ACTIVE_BUILDER.SELECTED_STUDENTS' | translate }}</strong>
-          <ul class="mt-1 space-y-1">
-            <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
-              <span>{{ stud.fullName }} ({{ stud.userName }})</span>
-              <button (click)="select('student', stud)"
-                class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{ 'ACTIVE_BUILDER.REMOVE' | translate }}</button>
-            </li>
-          </ul>
-          <button (click)="clearSelected('student')"
-            class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">{{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}</button>
-        </div>
-      </div>
-
-      <!-- Search for Template -->
-  <div class="flex flex-col w-full relative" #templateSearchArea>
-        <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_TEMPLATE' | translate }}</label>
-        <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_TEMPLATE' | translate }}" [(ngModel)]="template.searchInput"
-          (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
-          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
-          #templateSearch />
-
-        <!-- Loading Indicator -->
-        <div *ngIf="template.isLoading" class="text-primary_dark_blue text-sm mt-2">
-          {{ 'ACTIVE_BUILDER.LOADING_TEMPLATES' | translate }}
-        </div>
-
-        <!-- Error Message -->
-        <div *ngIf="template.errorMessage" class="text-red-500 text-sm mt-2">
-          {{ template.errorMessage }}
-        </div>
-
-  <!-- Search Results & Load More -->
-  <div *ngIf="template.searchResults.length > 0 && showTemplateResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
-          <ul class="space-y-1">
-            <li *ngFor="let temp of template.searchResults" (click)="select('template', temp)"
-              class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
-              {{ temp.title }}
-            </li>
-          </ul>
-
-          <!-- Load More Button -->
-          <button *ngIf="template.page < template.totalPages"
-            class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium rounded-lg transition">
-            {{ 'ACTIVE_BUILDER.LOAD_MORE_TEMPLATES' | translate }}
-          </button>
-        </div>
-
-        <!-- Selected Templates List -->
-        <div *ngIf="template.selected.length > 0"
-          class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
-          <strong>{{ 'ACTIVE_BUILDER.SELECTED_TEMPLATES' | translate }}</strong>
-          <ul class="mt-1 space-y-1">
-            <li *ngFor="let temp of template.selected" class="flex justify-between items-center">
-              <span>{{ temp.title }}</span>
-              <button (click)="select('template', temp)"
-                class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{ 'ACTIVE_BUILDER.REMOVE' | translate }}</button>
-            </li>
-          </ul>
-          <button (click)="clearSelected('template')"
-            class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">{{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}</button>
-        </div>
-      </div>
-      <div class="flex flex-col row-start-2 col-start-2">
-        <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.CREATE_QUESTIONNAIRE_NAME' | translate }}</label>
-        <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_ANONYMOUS_NAME' | translate }}" [(ngModel)]="groupName"
-          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
-        <div *ngIf="groupNameError" class="text-red-500 text-sm mt-2">
-          {{ groupNameError }}
+        <!-- Group Name Input -->
+        <div class="flex flex-col">
+          <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.CREATE_QUESTIONNAIRE_NAME' | translate }}</label>
+          <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_ANONYMOUS_NAME' | translate }}" [(ngModel)]="groupName"
+            class="px-4 py-3 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
         </div>
       </div>
 
-
-    </div>
-    <!-- Finish and Cancel Buttons -->
-    <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
-      <button [disabled]="!student.selected || !template.selected" (click)="showCreateConfirmation()"
-        class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-        {{ 'ACTIVE_BUILDER.FINISH' | translate }}
-      </button>
-      <button (click)="onBackToList()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-xl">
-        {{ 'ACTIVE_BUILDER.CANCEL' | translate }}
-      </button>
-    </div>
-  </ng-container>
-
-  <!-- Normal Mode -->
-  <ng-container *ngIf="!isAnonymousMode">
-    <!-- ...your existing builder layout... -->
-
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-      <!-- Search for Student -->
-  <div class="flex flex-col w-full relative" #studentSearchArea>
-        <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_STUDENT' | translate }}</label>
-        <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_STUDENTS' | translate }}" [(ngModel)]="student.searchInput"
-          (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
-          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
-          #studentSearch />
-        <div *ngIf="studentError" style="color: red; font-size: 0.9em;">{{ studentError }}</div>
-
-
-        <!-- Loading Indicator -->
-        <div *ngIf="student.isLoading" class="text-primary_dark_blue text-sm mt-2">
-          {{ 'ACTIVE_BUILDER.LOADING_STUDENTS' | translate }}
+      <!-- Right Side: Selected Items -->
+      <div class="pl-0 md:pl-2 space-y-3 sm:space-y-4">
+        <!-- Selected Students -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_STUDENTS' | translate }}</h3>
+          @if (student.selected.length === 0) {
+            <div class="text-gray-500 text-sm">
+              {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
+            </div>
+          } @else {
+            <div class="space-y-2">
+              <div class="max-h-60 overflow-y-auto space-y-2">
+                @for (stud of student.selected; track stud.id || $index) {
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 rounded-lg shadow-sm border space-y-2 sm:space-y-0">
+                    <span class="text-sm font-medium break-words">{{ stud.fullName }} ({{ stud.userName }})</span>
+                    <button (click)="select('student', stud)"
+                      class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors w-full sm:w-auto sm:ml-2">
+                      {{ 'ACTIVE_BUILDER.REMOVE' | translate }}
+                    </button>
+                  </div>
+                }
+              </div>
+              <button (click)="clearSelected('student')"
+                class="mt-3 px-4 py-2 text-sm bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-colors w-full">
+                {{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}
+              </button>
+            </div>
+          }
         </div>
 
-        <!-- Error Message -->
-        <div *ngIf="student.errorMessage" class="text-red-500 text-sm mt-2">
-          {{ student.errorMessage }}
-        </div>
-
-  <!-- Search Results & Load More -->
-  <div *ngIf="student.searchResults.length > 0 && showStudentResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
-          <ul class="space-y-1">
-            <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
-              class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
-              {{ stud.fullName }} ({{ stud.userName }})
-            </li>
-          </ul>
-
-          <!-- Load More Button -->
-          <button *ngIf="student.page < student.totalPages"
-            class="mt-2 w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-center font-medium rounded-lg transition">
-            {{ 'ACTIVE_BUILDER.LOAD_MORE_STUDENTS' | translate }}
-          </button>
-        </div>
-
-        <!-- Selected Students List -->
-        <div *ngIf="student.selected.length > 0"
-          class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
-          <strong>{{ 'ACTIVE_BUILDER.SELECTED_STUDENTS' | translate }}</strong>
-          <ul class="mt-1 space-y-1">
-            <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
-              <span>{{ stud.fullName }} ({{ stud.userName }})</span>
-              <button (click)="select('student', stud)"
-                class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{ 'ACTIVE_BUILDER.REMOVE' | translate }}</button>
-            </li>
-          </ul>
-          <button (click)="clearSelected('student')"
-            class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">{{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}</button>
+        <!-- Selected Templates -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_TEMPLATES' | translate }}</h3>
+          @if (template.selected.length === 0) {
+            <div class="text-gray-500 text-sm">
+              {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
+            </div>
+          } @else {
+            <div class="space-y-2">
+              <div class="max-h-40 overflow-y-auto space-y-2">
+                @for (temp of template.selected; track temp.id || $index) {
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 rounded-lg shadow-sm border space-y-2 sm:space-y-0">
+                    <span class="text-sm font-medium break-words">{{ temp.title }}</span>
+                    <button (click)="select('template', temp)"
+                      class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors w-full sm:w-auto sm:ml-2">
+                      {{ 'ACTIVE_BUILDER.REMOVE' | translate }}
+                    </button>
+                  </div>
+                }
+              </div>
+              <button (click)="clearSelected('template')"
+                class="mt-3 px-4 py-2 text-sm bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-colors w-full">
+                {{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}
+              </button>
+            </div>
+          }
         </div>
       </div>
-
-      <!-- Search for Teacher -->
-  <div class="flex flex-col w-full relative" #teacherSearchArea>
-        <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_TEACHER' | translate }}</label>
-        <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_TEACHERS' | translate }}" [(ngModel)]="teacher.searchInput"
-          (input)="onInputChange('teacher', teacherSearch.value)" (focus)="showTeacherResults = true"
-          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
-          #teacherSearch />
-        <div *ngIf="teacherError" style="color: red; font-size: 0.9em;">{{ teacherError }}</div>
-
-        <!-- Loading Indicator -->
-        <div *ngIf="teacher.isLoading" class="text-primary_dark_blue text-sm mt-2">
-          {{ 'ACTIVE_BUILDER.LOADING_TEACHERS' | translate }}
-        </div>
-
-        <!-- Error Message -->
-        <div *ngIf="teacher.errorMessage" class="text-red-500 text-sm mt-2">
-          {{ teacher.errorMessage }}
-        </div>
-
-  <!-- Search Results & Load More -->
-  <div *ngIf="teacher.searchResults.length > 0 && showTeacherResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
-          <ul class="space-y-1">
-            <li *ngFor="let teach of teacher.searchResults" (click)="select('teacher', teach)"
-              class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
-              {{ teach.fullName }} ({{ teach.userName }})
-            </li>
-          </ul>
-
-          <!-- Load More Button -->
-          <button *ngIf="teacher.page < teacher.totalPages"
-            class="mt-2 w-full px-4 py-2 bg-primary_orange_1 hover:bg-primary_orange_light text-white text-center font-medium rounded-xl transition-colors">
-            {{ 'ACTIVE_BUILDER.LOAD_MORE_TEACHERS' | translate }}
-          </button>
-        </div>
-
-        <!-- Selected Teachers List -->
-        <div *ngIf="teacher.selected.length > 0"
-          class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
-          <strong>{{ 'ACTIVE_BUILDER.SELECTED_TEACHERS' | translate }}</strong>
-          <ul class="mt-1 space-y-1">
-            <li *ngFor="let teach of teacher.selected" class="flex justify-between items-center">
-              <span>{{ teach.fullName }} ({{ teach.userName }})</span>
-              <button (click)="select('teacher', teach)"
-                class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{ 'ACTIVE_BUILDER.REMOVE' | translate }}</button>
-            </li>
-          </ul>
-          <button (click)="clearSelected('teacher')"
-            class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">{{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}</button>
-        </div>
-      </div>
-
-
-    </div>
-
-    <!-- Search for Template -->
-  <div class="flex flex-col w-full mt-4 relative" #templateSearchArea>
-      <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_TEMPLATE' | translate }}</label>
-      <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_TEMPLATE' | translate }}" [(ngModel)]="template.searchInput"
-        (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
-        class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
-        #templateSearch />
-      <div *ngIf="templateError" style="color: red; font-size: 0.9em;">{{ templateError }}</div>
-
-      <!-- Loading Indicator -->
-      <div *ngIf="template.isLoading" class="text-primary_dark_blue text-sm mt-2">
-        {{ 'ACTIVE_BUILDER.LOADING_TEMPLATES' | translate }}
-      </div>
-
-      <!-- Error Message -->
-      <div *ngIf="template.errorMessage" class="text-red-500 text-sm mt-2">
-        {{ template.errorMessage }}
-      </div>
-
-  <!-- Search Results & Load More -->
-  <div *ngIf="template.searchResults.length > 0 && showTemplateResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
-        <ul class="space-y-1">
-          <li *ngFor="let temp of template.searchResults" (click)="select('template', temp)"
-            class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
-            {{ temp.title }}
-          </li>
-        </ul>
-
-        <!-- Load More Button -->
-        <button *ngIf="template.page < template.totalPages"
-          class="mt-2 w-full px-4 py-2 bg-primary_orange_1 hover:bg-primary_orange_light text-white text-center font-medium rounded-xl  transition-colors">
-          {{ 'ACTIVE_BUILDER.LOAD_MORE_TEMPLATES' | translate }}
+      
+      <!-- Finish and Cancel Buttons -->
+      <div class="md:col-span-2 mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <button [disabled]="!student.selected || !template.selected" (click)="showCreateConfirmation()"
+          class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ 'ACTIVE_BUILDER.FINISH' | translate }}
+        </button>
+        <button (click)="onBackToList()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-xl">
+          {{ 'ACTIVE_BUILDER.CANCEL' | translate }}
         </button>
       </div>
+    </div>
+  }
 
-      <!-- Selected Templates List -->
-      <div *ngIf="template.selected.length > 0"
-        class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
-        <strong>{{ 'ACTIVE_BUILDER.SELECTED_TEMPLATES' | translate }}</strong>
-        <ul class="mt-1 space-y-1">
-          <li *ngFor="let temp of template.selected" class="flex justify-between items-center">
-            <span>{{ temp.title }}</span>
-            <button (click)="select('template', temp)"
-              class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{ 'ACTIVE_BUILDER.REMOVE' | translate }}</button>
-          </li>
-        </ul>
-        <button (click)="clearSelected('template')"
-          class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">{{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}</button>
+  <!-- Normal Mode -->
+  @if (!isAnonymousMode) {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
+      <!-- Left Side: Search Inputs -->
+      <div class="pr-0 md:pr-2 space-y-3 sm:space-y-4">
+        <!-- Search for Student -->
+        <div class="flex flex-col w-full relative" #studentSearchArea>
+          <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_STUDENT' | translate }}</label>
+          <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_STUDENTS' | translate }}" [(ngModel)]="student.searchInput"
+            (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
+            class="px-4 py-3 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+            #studentSearch />
+          @if (studentError) {
+            <div class="text-red-500 text-sm mt-1">{{ studentError }}</div>
+          }
+
+          <!-- Loading Indicator -->
+          @if (student.isLoading) {
+            <div class="text-primary_dark_blue text-sm mt-2">
+              {{ 'ACTIVE_BUILDER.LOADING_STUDENTS' | translate }}
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (student.errorMessage) {
+            <div class="text-red-500 text-sm mt-2">
+              {{ student.errorMessage }}
+            </div>
+          }
+
+          <!-- Search Results & Load More -->
+          @if (student.searchResults.length > 0 && showStudentResults) {
+            <div class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
+              <ul class="space-y-1">
+                @for (stud of student.searchResults; track stud.id || $index) {
+                  <li (click)="select('student', stud)"
+                    class="py-3 px-4 hover:bg-secondary_background_hover cursor-pointer rounded text-sm">
+                    {{ stud.fullName }} ({{ stud.userName }})
+                  </li>
+                }
+              </ul>
+
+              <!-- Load More Button -->
+              @if (student.page < student.totalPages) {
+                <button
+                  class="mt-2 w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-center font-medium rounded-lg transition">
+                  {{ 'ACTIVE_BUILDER.LOAD_MORE_STUDENTS' | translate }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Search for Teacher -->
+        <div class="flex flex-col w-full relative" #teacherSearchArea>
+          <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_TEACHER' | translate }}</label>
+          <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_TEACHERS' | translate }}" [(ngModel)]="teacher.searchInput"
+            (input)="onInputChange('teacher', teacherSearch.value)" (focus)="showTeacherResults = true"
+            class="px-4 py-3 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+            #teacherSearch />
+          @if (teacherError) {
+            <div class="text-red-500 text-sm mt-1">{{ teacherError }}</div>
+          }
+
+          <!-- Loading Indicator -->
+          @if (teacher.isLoading) {
+            <div class="text-primary_dark_blue text-sm mt-2">
+              {{ 'ACTIVE_BUILDER.LOADING_TEACHERS' | translate }}
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (teacher.errorMessage) {
+            <div class="text-red-500 text-sm mt-2">
+              {{ teacher.errorMessage }}
+            </div>
+          }
+
+          <!-- Search Results & Load More -->
+          @if (teacher.searchResults.length > 0 && showTeacherResults) {
+            <div class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
+              <ul class="space-y-1">
+                @for (teach of teacher.searchResults; track teach.id || $index) {
+                  <li (click)="select('teacher', teach)"
+                    class="py-3 px-4 hover:bg-secondary_background_hover cursor-pointer rounded text-sm">
+                    {{ teach.fullName }} ({{ teach.userName }})
+                  </li>
+                }
+              </ul>
+
+              <!-- Load More Button -->
+              @if (teacher.page < teacher.totalPages) {
+                <button
+                  class="mt-2 w-full px-4 py-2 bg-primary_orange_1 hover:bg-primary_orange_light text-white text-center font-medium rounded-xl transition-colors">
+                  {{ 'ACTIVE_BUILDER.LOAD_MORE_TEACHERS' | translate }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Search for Template -->
+        <div class="flex flex-col w-full relative" #templateSearchArea>
+          <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_TEMPLATE' | translate }}</label>
+          <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_TEMPLATE' | translate }}" [(ngModel)]="template.searchInput"
+            (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
+            class="px-4 py-3 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+            #templateSearch />
+          @if (templateError) {
+            <div class="text-red-500 text-sm mt-1">{{ templateError }}</div>
+          }
+
+          <!-- Loading Indicator -->
+          @if (template.isLoading) {
+            <div class="text-primary_dark_blue text-sm mt-2">
+              {{ 'ACTIVE_BUILDER.LOADING_TEMPLATES' | translate }}
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (template.errorMessage) {
+            <div class="text-red-500 text-sm mt-2">
+              {{ template.errorMessage }}
+            </div>
+          }
+
+          <!-- Search Results & Load More -->
+          @if (template.searchResults.length > 0 && showTemplateResults) {
+            <div class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
+              <ul class="space-y-1">
+                @for (temp of template.searchResults; track temp.id || $index) {
+                  <li (click)="select('template', temp)"
+                    class="py-3 px-4 hover:bg-secondary_background_hover cursor-pointer rounded text-sm">
+                    {{ temp.title }}
+                  </li>
+                }
+              </ul>
+
+              <!-- Load More Button -->
+              @if (template.page < template.totalPages) {
+                <button
+                  class="mt-2 w-full px-4 py-2 bg-primary_orange_1 hover:bg-primary_orange_light text-white text-center font-medium rounded-xl  transition-colors">
+                  {{ 'ACTIVE_BUILDER.LOAD_MORE_TEMPLATES' | translate }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Group Name Input -->
+        <div class="flex flex-col">
+          <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.CREATE_QUESTIONNAIRE_NAME' | translate }}</label>
+          <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_EVALUATION_NAME' | translate }}" [(ngModel)]="groupName"
+            class="px-4 py-3 border border-primary_orange-1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
+        </div>
+      </div>
+
+      <!-- Right Side: Selected Items -->
+      <div class="pl-0 md:pl-2 space-y-3 sm:space-y-4">
+        <!-- Selected Students -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_STUDENTS' | translate }}</h3>
+          @if (student.selected.length === 0) {
+            <div class="text-gray-500 text-sm">
+              {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
+            </div>
+          } @else {
+            <div class="space-y-2">
+              <div class="max-h-60 overflow-y-auto space-y-2">
+                @for (stud of student.selected; track stud.id || $index) {
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 rounded-lg shadow-sm border space-y-2 sm:space-y-0">
+                    <span class="text-sm font-medium break-words">{{ stud.fullName }} ({{ stud.userName }})</span>
+                    <button (click)="select('student', stud)"
+                      class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors w-full sm:w-auto sm:ml-2">
+                      {{ 'ACTIVE_BUILDER.REMOVE' | translate }}
+                    </button>
+                  </div>
+                }
+              </div>
+              <button (click)="clearSelected('student')"
+                class="mt-3 px-4 py-2 text-sm bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-colors w-full">
+                {{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Selected Teachers -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_TEACHERS' | translate }}</h3>
+          @if (teacher.selected.length === 0) {
+            <div class="text-gray-500 text-sm">
+              {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
+            </div>
+          } @else {
+            <div class="space-y-2">
+              <div class="max-h-40 overflow-y-auto space-y-2">
+                @for (teach of teacher.selected; track teach.id || $index) {
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 rounded-lg shadow-sm border space-y-2 sm:space-y-0">
+                    <span class="text-sm font-medium break-words">{{ teach.fullName }} ({{ teach.userName }})</span>
+                    <button (click)="select('teacher', teach)"
+                      class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors w-full sm:w-auto sm:ml-2">
+                      {{ 'ACTIVE_BUILDER.REMOVE' | translate }}
+                    </button>
+                  </div>
+                }
+              </div>
+              <button (click)="clearSelected('teacher')"
+                class="mt-3 px-4 py-2 text-sm bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-colors w-full">
+                {{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Selected Templates -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">{{ 'ACTIVE_BUILDER.SELECTED_TEMPLATES' | translate }}</h3>
+          @if (template.selected.length === 0) {
+            <div class="text-gray-500 text-sm">
+              {{ 'ACTIVE_BUILDER.NOTHING_SELECTED' | translate }}
+            </div>
+          } @else {
+            <div class="space-y-2">
+              <div class="max-h-40 overflow-y-auto space-y-2">
+                @for (temp of template.selected; track temp.id || $index) {
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 rounded-lg shadow-sm border space-y-2 sm:space-y-0">
+                    <span class="text-sm font-medium break-words">{{ temp.title }}</span>
+                    <button (click)="select('template', temp)"
+                      class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors w-full sm:w-auto sm:ml-2">
+                      {{ 'ACTIVE_BUILDER.REMOVE' | translate }}
+                    </button>
+                  </div>
+                }
+              </div>
+              <button (click)="clearSelected('template')"
+                class="mt-3 px-4 py-2 text-sm bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-colors w-full">
+                {{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Finish and Back Buttons -->
+      <div class="md:col-span-2 mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <button [disabled]="!student.selected || !teacher.selected || !template.selected"
+          (click)="showCreateConfirmation()"
+          class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors  disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ 'ACTIVE_BUILDER.FINISH' | translate }}
+        </button>
+        <button (click)="onBackToList()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-xl">
+          {{ 'ACTIVE_BUILDER.CANCEL' | translate }}
+        </button>
       </div>
     </div>
-    <div class="flex flex-col w-full mt-4">
-      <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.CREATE_QUESTIONNAIRE_NAME' | translate }}</label>
-      <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_EVALUATION_NAME' | translate }}" [(ngModel)]="groupName"
-        class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50" />
-        <div *ngIf="groupNameError" class="text-red-500 text-sm mt-2">
-          {{ groupNameError }}
-        </div>
-    </div>
-    <!-- Finish and Back Buttons -->
-    <div class="flex flex-col sm:flex-row justify-center mt-6 space-y-4 sm:space-y-0 sm:space-x-4">
-      <button [disabled]="!student.selected || !teacher.selected || !template.selected"
-        (click)="showCreateConfirmation()"
-        class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors  disabled:opacity-50 disabled:cursor-not-allowed">
-        {{ 'ACTIVE_BUILDER.FINISH' | translate }}
-      </button>
-      <button (click)="onBackToList()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-xl">
-        {{ 'ACTIVE_BUILDER.CANCEL' | translate }}
-      </button>
-    </div>
-  </ng-container>
+  }
 
   <!-- Confirmation Modal -->
   <app-modal
