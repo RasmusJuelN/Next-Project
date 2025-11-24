@@ -5,8 +5,6 @@ import { ActiveQuestionnaire, QuestionnaireGroupKeysetPaginationResult, Response
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
-import { User } from '../../../shared/models/user.model';
-import { QuestionnaireType } from '../../../shared/models/questionnaire-types.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -162,13 +160,12 @@ searchTemplates(term: string, queryCursor?: string): Observable<TemplateBaseResp
     return this.apiService.get<TemplateBaseResponse>(`${environment.apiUrl}/questionnaire-template/`, params);
   }
 
-  createActiveQuestionnaireGroup(aq: { name: string; templateId: string; studentIds: string[]; teacherIds: string[], questionnaireType: QuestionnaireType }) {
+  createActiveQuestionnaireGroup(aq: { name: string; templateId: string; studentIds: string[]; teacherIds: string[]}) {
   const body = {
     Name: aq.name,
     TemplateId: aq.templateId,
     StudentIds: aq.studentIds,
     TeacherIds: aq.teacherIds,
-    questionnaireType: aq.questionnaireType
   };
   return this.apiService.post<any>(`${this.apiUrl}/creategroup`, body);
 }

@@ -16,49 +16,87 @@
       <!-- Search for Student -->
   <div class="flex flex-col w-full relative" #studentSearchArea>
         <label class="text-gray-700 text-sm mb-1 sm:mb-2">{{ 'ACTIVE_BUILDER.SEARCH_PARTICIPANTS' | translate }}</label>
-        <input type="text" placeholder="{{ 'ACTIVE_BUILDER.PLACEHOLDER_STUDENTS' | translate }}" [(ngModel)]="student.searchInput"
-          (input)="onInputChange('student', studentSearch.value)" (focus)="showStudentResults = true"
-          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
-          #studentSearch />
+        
+        <div class="px-4 py-2 flex border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50">
+          
+          <input type="text" 
+          [placeholder]="participantType === 'student' ? ('ACTIVE_BUILDER.PLACEHOLDER_STUDENTS' | translate) : ('ACTIVE_BUILDER.PLACEHOLDER_TEACHERS' | translate)"
+          [ngModel]="participantType === 'student' ? student.searchInput : teacher.searchInput"
+          (ngModelChange)="participantType === 'student' ? (student.searchInput = $event) : (teacher.searchInput = $event)"
+          (input)="onInputChange(participantType, participantSearch.value)" 
+          (focus)="participantType === 'student' ? (showStudentResults = true) : (showTeacherResults = true)"
+          class="flex-1 bg-transparent border-none outline-none"
+          #participantSearch />
+          
+          <div class="border-l border-slate-200 mx-2"></div>
+            <button (click)="toggleParticipantTypeDropdown()" class="flex items-center bg-transparent text-slate-700 focus:outline-none px-1">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+      </svg>
+    </button>
+    <div *ngIf="showParticipantTypeDropdown" class="min-w-[150px] overflow-hidden absolute left-0 w-full mt-10 w-full bg-white border border-slate-200 rounded-md shadow-lg z-10">
+      <ul>
+        <li (click)="selectParticipantType('student')" 
+            [ngClass]="{
+              'px-4 py-2 text-sm cursor-pointer transition-colors': true,
+              'bg-primary_orange_1 text-white': participantType === 'student',
+              'text-slate-600 hover:bg-gray-100 hover:text-gray-800': participantType !== 'student'
+            }">
+            {{ 'COMMON.ROLES.STUDENT' | translate}}
+        </li>
+        <li (click)="selectParticipantType('teacher')" 
+            [ngClass]="{
+              'px-4 py-2 text-sm cursor-pointer transition-colors': true,
+              'bg-primary_orange_1 text-white': participantType === 'teacher',
+              'text-slate-600 hover:bg-gray-100 hover:text-gray-800': participantType !== 'teacher'
+            }">
+            {{ 'COMMON.ROLES.TEACHER' | translate}}
+        </li>
+      </ul>
+    </div>
+        </div>
 
+          
         <!-- Loading Indicator -->
-        <div *ngIf="student.isLoading" class="text-primary_dark_blue text-sm mt-2">
-          {{ 'ACTIVE_BUILDER.LOADING_STUDENTS' | translate }}
+        <div *ngIf="participantType === 'student' ? student.isLoading : teacher.isLoading" class="text-primary_dark_blue text-sm mt-2">
+          {{ participantType === 'student' ? ('ACTIVE_BUILDER.LOADING_STUDENTS' | translate) : ('ACTIVE_BUILDER.LOADING_TEACHERS' | translate) }}
         </div>
 
         <!-- Error Message -->
-        <div *ngIf="student.errorMessage" class="text-red-500 text-sm mt-2">
-          {{ student.errorMessage }}
+        <div *ngIf="participantType === 'student' ? student.errorMessage : teacher.errorMessage" class="text-red-500 text-sm mt-2">
+          {{ participantType === 'student' ? student.errorMessage : teacher.errorMessage }}
         </div>
 
   <!-- Search Results & Load More -->
-  <div *ngIf="student.searchResults.length > 0 && showStudentResults" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
+  <div *ngIf="(participantType === 'student' ? (student.searchResults.length > 0 && showStudentResults) : (teacher.searchResults.length > 0 && showTeacherResults))" class="absolute z-30 left-0 right-0 top-16 bg-white shadow-md rounded-lg p-2 w-full max-h-60 overflow-auto border border-primary_orange_1 mt-1">
           <ul class="space-y-1">
-            <li *ngFor="let stud of student.searchResults" (click)="select('student', stud)"
+            <li *ngFor="let participant of (participantType === 'student' ? student.searchResults : teacher.searchResults)" 
+                (click)="select(participantType, participant)"
               class="py-2 px-4 hover:bg-secondary_background_hover cursor-pointer rounded">
-              {{ stud.fullName }} ({{ stud.userName }})
+              {{ participant.fullName }} ({{ participant.userName }})
             </li>
           </ul>
 
           <!-- Load More Button -->
-          <button *ngIf="student.page < student.totalPages"
+          <button *ngIf="participantType === 'student' ? (student.page < student.totalPages) : (teacher.page < teacher.totalPages)"
             class="mt-2 w-full px-4 py-2  bg-red-500 hover:bg-red-600 text-white text-center font-medium rounded-lg transition">
-            {{ 'ACTIVE_BUILDER.LOAD_MORE_STUDENTS' | translate }}
+            {{ participantType === 'student' ? ('ACTIVE_BUILDER.LOAD_MORE_STUDENTS' | translate) : ('ACTIVE_BUILDER.LOAD_MORE_TEACHERS' | translate) }}
           </button>
         </div>
 
-        <!-- Selected Students List -->
-        <div *ngIf="student.selected.length > 0"
+        <!-- Selected Participants List -->
+        <div *ngIf="(participantType === 'student' ? student.selected.length > 0 : teacher.selected.length > 0)"
           class="mt-2 text-sm font-medium text-gray-700 bg-gray-100 p-2 rounded-lg">
-          <strong>{{ 'ACTIVE_BUILDER.SELECTED_STUDENTS' | translate }}</strong>
+          <strong>{{ participantType === 'student' ? ('ACTIVE_BUILDER.SELECTED_STUDENTS' | translate) : ('ACTIVE_BUILDER.SELECTED_TEACHERS' | translate) }}</strong>
           <ul class="mt-1 space-y-1">
-            <li *ngFor="let stud of student.selected" class="flex justify-between items-center">
-              <span>{{ stud.fullName }} ({{ stud.userName }})</span>
-              <button (click)="select('student', stud)"
+            <li *ngFor="let participant of (participantType === 'student' ? student.selected : teacher.selected)" class="flex justify-between items-center">
+              <span>{{ participant.fullName }} ({{ participant.userName }})</span>
+              <button (click)="select(participantType, participant)"
                 class="ml-2 px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded">{{ 'ACTIVE_BUILDER.REMOVE' | translate }}</button>
             </li>
           </ul>
-          <button (click)="clearSelected('student')"
+          <button (click)="clearSelected(participantType)"
             class="mt-2 px-2 py-1 text-xs bg-gray-400 hover:bg-gray-500 text-white rounded">{{ 'ACTIVE_BUILDER.CLEAR_ALL' | translate }}</button>
         </div>
       </div>

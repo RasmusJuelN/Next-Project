@@ -41,6 +41,8 @@ export class ActiveBuilderComponent implements OnInit {
   public showStudentResults = false;
   public showTeacherResults = false;
   public showTemplateResults = false;
+  public participantType: 'student' | 'teacher' = 'student';
+  public showParticipantTypeDropdown = false;
 
   public student: UserSearchEntity<User> = {
     selected: [],
@@ -80,34 +82,54 @@ export class ActiveBuilderComponent implements OnInit {
     queryCursor: undefined
   };
 
-    @ViewChild("studentSearchArea", { static: false })
-    studentSearchArea!: ElementRef;
-    @ViewChild("teacherSearchArea", { static: false })
-    teacherSearchArea!: ElementRef;
-    @ViewChild("templateSearchArea", { static: false })
-    templateSearchArea!: ElementRef;
+  @ViewChild("studentSearchArea", { static: false })
+  studentSearchArea!: ElementRef;
+  @ViewChild("teacherSearchArea", { static: false })
+  teacherSearchArea!: ElementRef;
+  @ViewChild("templateSearchArea", { static: false })
+  templateSearchArea!: ElementRef;
 
   // Set the page size (10 results per search)
   searchAmount = 10;
 
   @Output() backToListEvent = new EventEmitter<void>();
 
+  public toggleParticipantTypeDropdown(): void {
+    this.showParticipantTypeDropdown = !this.showParticipantTypeDropdown;
+  }
 
-private handleDocumentClick = (event: MouseEvent) => {
-  const studentArea = this.studentSearchArea?.nativeElement;
-  const teacherArea  = this.teacherSearchArea?.nativeElement;
-  const templateArea = this.templateSearchArea?.nativeElement;
+  public selectParticipantType(type: 'student' | 'teacher'): void {
+    this.participantType = type;
+    this.showParticipantTypeDropdown = false;
 
-  if (studentArea && !studentArea.contains(event.target as Node)) {
-    this.showStudentResults = false;
+    // Clear search results when switching types
+    if (type === 'student') {
+      this.showTeacherResults = false;
+    } else {
+      this.showStudentResults = false;
+    }
   }
-  if (teacherArea && !teacherArea.contains(event.target as Node)) {
-    this.showTeacherResults = false;
-  }
-  if (templateArea && !templateArea.contains(event.target as Node)) {
-    this.showTemplateResults = false;
-  }
-};
+
+  private handleDocumentClick = (event: MouseEvent) => {
+    const studentArea = this.studentSearchArea?.nativeElement;
+    const teacherArea = this.teacherSearchArea?.nativeElement;
+    const templateArea = this.templateSearchArea?.nativeElement;
+
+    if (studentArea && !studentArea.contains(event.target as Node)) {
+      this.showStudentResults = false;
+      // In anonymous mode, also close participant type dropdown and teacher results since they share the same area
+      if (this.isAnonymousMode) {
+        this.showParticipantTypeDropdown = false;
+        this.showTeacherResults = false;
+      }
+    }
+    if (teacherArea && !teacherArea.contains(event.target as Node)) {
+      this.showTeacherResults = false;
+    }
+    if (templateArea && !templateArea.contains(event.target as Node)) {
+      this.showTemplateResults = false;
+    }
+  };
 
   ngOnInit(): void {
     // Subscribe to debounced search subjects.
@@ -129,11 +151,11 @@ private handleDocumentClick = (event: MouseEvent) => {
         this.fetch('template', term);
       });
 
-  document.addEventListener("mousedown", this.handleDocumentClick, true);
+    document.addEventListener("mousedown", this.handleDocumentClick, true);
   }
 
   ngOnDestroy(): void {
-  document.removeEventListener("mousedown", this.handleDocumentClick, true);
+    document.removeEventListener("mousedown", this.handleDocumentClick, true);
   }
   // Returns the proper state based on the entity.
   private getState(entity: SearchType): SearchEntity<any> {
@@ -212,6 +234,22 @@ private handleDocumentClick = (event: MouseEvent) => {
     if (!Array.isArray(state.selected)) {
       state.selected = [];
     }
+
+    // Special handling for template selection (both anonymous and standard mode)
+    if (entity === 'template') {
+      const idx = state.selected.findIndex((u: any) => u.id === item.id);
+      if (idx === -1) {
+        // Replace existing selection with new one (single selection only)
+        state.selected = [item];
+        this.showTemplateResults = false;
+      } else {
+        // Remove if clicking on already selected item
+        state.selected.splice(idx, 1);
+      }
+      return;
+    }
+
+    // Normal behavior for other entities (students/teachers)
     const idx = state.selected.findIndex((u: any) => u.id === item.id);
     if (idx === -1) {
       state.selected.push(item);
@@ -229,75 +267,78 @@ private handleDocumentClick = (event: MouseEvent) => {
   }
 
   createActiveQuestionnaire(): void {
-    if (this.isAnonymousMode) {
-      // Anonymous mode: only participants and template
-      if (
-        !Array.isArray(this.student.selected) || this.student.selected.length === 0 ||
-        !Array.isArray(this.template.selected) || this.template.selected.length === 0 ||
-        !this.template.selected[0].id
-      ) {
-        console.error('Missing required selections for Anonymous Questionnaire.');
-        return;
+    this.groupNameError = '';
+    this.studentError = '';
+    this.teacherError = '';
+    this.templateError = '';
+
+    let hasError = false;
+
+    if (this.isAnonymousMode)
+    {
+      if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0 &&
+          !Array.isArray(this.student.selected) || this.student.selected.length === 0) {
+        this.teacherError = 'Du skal vælge mindst én lærer eller elev i anonym tilstand.';
+        hasError = true;
       }
-      const payload = {
-        participantIds: this.student.selected.map(s => s.id),
-        templateId: this.template.selected[0].id,
-        questionnaireType: QuestionnaireType.Anonymous
-      };
-      this.activeService.createAnonymousQuestionnaireGroup(payload).subscribe(() => {
-        alert('Anonymt spørgeskema oprettet!');
-        this.backToListEvent.emit();
-      });
+    }
+    else
+    {
+      if (!Array.isArray(this.student.selected) || this.student.selected.length === 0) {
+        this.studentError = 'Du skal vælge mindst én elev.';
+        hasError = true;
+      }
+      if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
+        this.teacherError = 'Du skal vælge mindst én lærer.';
+        hasError = true;
+      }
+    }
+    if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
+      this.templateError = 'Du skal vælge en skabelon.';
+      hasError = true;
+    }
+    if (!this.template.selected[0].id) {
+      this.templateError = 'Den valgte skabelon mangler et ID.';
+      hasError = true;
+    }
+    if (!this.groupName.trim()) {
+      this.groupNameError = 'Spørgeskema gruppen skal tildeles et navn.';
+      hasError = true;
+    }
+    if (hasError) {
+      return;
+    }
+    if (this.template.selected.length > 1) {
+      alert('Der kan kun tildeles én skabelon ad gangen.');
       return;
     }
 
-    this.groupNameError = '';
-  this.studentError = '';
-  this.teacherError = '';
-  this.templateError = '';
+    if (this.isAnonymousMode)
+    {
+      const newAnonymousGroup = {
+        name: this.groupName,
+        participantIds: [...this.student.selected.map(s => s.id), ...this.teacher.selected.map(t => t.id)],
+        templateId: this.template.selected[0].id
+      }
 
-  let hasError = false;
-
-  // Normal mode: students, teachers, template, group name
-  if (!Array.isArray(this.student.selected) || this.student.selected.length === 0) {
-    this.studentError = 'Du skal vælge mindst én elev.';
-    hasError = true;
-  }
-  if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
-    this.teacherError = 'Du skal vælge mindst én lærer.';
-    hasError = true;
-  }
-  if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
-    this.templateError = 'Du skal vælge en skabelon.';
-    hasError = true;
-  }
-  if (!this.template.selected[0].id) {
-    this.templateError = 'Den valgte skabelon mangler et ID.';
-    hasError = true;
-  }
-  if (!this.groupName.trim()) {
-    this.groupNameError = 'Spørgeskema gruppen skal tildeles et navn.';
-    hasError = true;
-  }
-  if (hasError) {
-    return;
-  }
-  if (this.template.selected.length > 1) {
-    alert('Der kan kun tildeles én skabelon ad gangen.');
-    return;
+      this.activeService.createAnonymousQuestionnaireGroup(newAnonymousGroup).subscribe(() => {
+        alert('Anonym spørgeskema-gruppe oprettet!');
+        this.backToListEvent.emit();
+      });
     }
-    
-    const newGroup = {
-      name: this.groupName,
-      templateId: this.template.selected[0].id,
-      studentIds: this.student.selected.map(s => s.id),
-      teacherIds: this.teacher.selected.map(t => t.id),
-      questionnaireType: QuestionnaireType.Standard
-    };
-    this.activeService.createActiveQuestionnaireGroup(newGroup).subscribe(() => {
-      alert('Spørgeskema-gruppe oprettet!');
-      this.backToListEvent.emit();
-    });
+    else
+    {
+      const newGroup = {
+        name: this.groupName,
+        templateId: this.template.selected[0].id,
+        studentIds: this.student.selected.map(s => s.id),
+        teacherIds: this.teacher.selected.map(t => t.id),
+      };
+      this.activeService.createActiveQuestionnaireGroup(newGroup).subscribe(() => {
+        alert('Spørgeskema-gruppe oprettet!');
+        this.backToListEvent.emit();
+      });
+    }
   }
 
 
