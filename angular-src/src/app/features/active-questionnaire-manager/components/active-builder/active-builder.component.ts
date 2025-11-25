@@ -24,10 +24,11 @@ interface TemplateSearchEntity extends SearchEntity<TemplateBase> {
 type SearchType = 'student' | 'teacher' | 'template';
 
 @Component({
-    selector: 'app-active-questionnaire-builder',
-    imports: [CommonModule, FormsModule, TranslateModule, ModalComponent],
-    templateUrl: './active-builder.component.html',
-    styleUrls: ['./active-builder.component.css']
+  selector: 'app-active-questionnaire-builder',
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslateModule, ModalComponent],
+  templateUrl: './active-builder.component.html',
+  styleUrls: ['./active-builder.component.css']
 })
 export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
@@ -89,7 +90,7 @@ export class ActiveBuilderComponent implements OnInit {
   // Set the page size (10 results per search)
   searchAmount = 10;
 
-  // Confirmation modal state
+   // Confirmation modal state
   public showConfirmationModal = false;
   public confirmationTitle = '';
   public confirmationText = '';
@@ -213,13 +214,13 @@ private handleDocumentClick = (event: MouseEvent) => {
   }
 
   // Add or remove user from selected array
-  select(entity: SearchType, item: any): void {
-    const state = this.getState(entity);
-    if (!Array.isArray(state.selected)) {
-      state.selected = [];
-    }
-    
-    const idx = state.selected.findIndex((u: any) => u.id === item.id);
+select(entity: SearchType, item: any): void {
+  const state = this.getState(entity);
+  if (!Array.isArray(state.selected)) {
+    state.selected = [];
+  }
+  
+   const idx = state.selected.findIndex((u: any) => u.id === item.id);
     
     if (idx === -1) {
       // Adding new item
@@ -247,13 +248,13 @@ private handleDocumentClick = (event: MouseEvent) => {
       this.showTemplateResults = false;
     }
   }
+  
+    clearSelected(entity: SearchType): void {
+      const state = this.getState(entity);
+      state.selected = [];
+    }
 
-  clearSelected(entity: SearchType): void {
-    const state = this.getState(entity);
-    state.selected = [];
-  }
-
-  /** Show confirmation modal before creating questionnaire */
+     /** Show confirmation modal before creating questionnaire */
   showCreateConfirmation(): void {
     if (this.isAnonymousMode) {
       this.confirmationTitle = 'ACTIVE_BUILDER.CONFIRM_ANONYMOUS_TITLE';
@@ -277,8 +278,8 @@ private handleDocumentClick = (event: MouseEvent) => {
   onCancelCreate(): void {
     this.showConfirmationModal = false;
   }
-
-  createActiveQuestionnaire(): void {
+  
+    createActiveQuestionnaire(): void {
     if (this.isAnonymousMode) {
       // Anonymous mode: only participants and template
       if (
@@ -300,7 +301,7 @@ private handleDocumentClick = (event: MouseEvent) => {
       return;
     }
 
-  this.groupNameError = '';
+    this.groupNameError = '';
   this.studentError = '';
   this.teacherError = '';
   this.templateError = '';

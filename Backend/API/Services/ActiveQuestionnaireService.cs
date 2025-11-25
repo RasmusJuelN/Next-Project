@@ -115,8 +115,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         {
             GroupId = Guid.NewGuid(),
             TemplateId = request.TemplateId,
-            Name = request.Name,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Name = request.Name
+            
         };
         await _unitOfWork.QuestionnaireGroup.AddAsync(group);
 
@@ -149,6 +150,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = questionnaireDtos
         };
@@ -194,6 +196,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = group.Questionnaires.Select(q => new ActiveQuestionnaireAdminBase
             {
@@ -276,6 +279,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = questionnaireDtos
         };

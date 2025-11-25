@@ -84,6 +84,7 @@ export class TeacherDashboardComponent implements OnInit {
           this.displayedGroups = groups.map((g: any) => ({
             groupId: g.groupId,
             groupName: g.groupName ?? g.name ?? 'Ungrouped',
+            createdAt: g.createdAt ?? g.CreatedAt ?? null,
             templateId: g.templateId ?? g.TemplateId ?? null,
             questionnaires: (g.questionnaires ?? []).map((q: any) => ({
               id: q.id,

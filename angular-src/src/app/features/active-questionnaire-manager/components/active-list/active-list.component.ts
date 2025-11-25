@@ -3,11 +3,13 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
-import { QuestionnaireGroupResult, QuestionnaireGroupKeysetPaginationResult } from '../../models/active.models';
+import { QuestionnaireGroupResult, QuestionnaireGroupOffsetPaginationResult } from '../../models/active.models';
 
 import { PageChangeEvent, PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
+
+
 
 @Component({
     selector: 'app-active-list',

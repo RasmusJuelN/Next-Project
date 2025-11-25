@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../core/services/api.service';
-import { ActiveQuestionnaire, QuestionnaireGroupKeysetPaginationResult, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
+import { ActiveQuestionnaire, QuestionnaireGroupOffsetPaginationResult, ResponseActiveQuestionnaireBase, TemplateBaseResponse, UserPaginationResult } from '../models/active.models';
 import { PaginationResponse } from '../../../shared/models/Pagination.model';
 import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
@@ -88,7 +88,7 @@ export class ActiveService {
   searchTitle: string = '',
   filterPendingStudent: boolean = false,
   filterPendingTeacher: boolean = false
-): Observable<QuestionnaireGroupKeysetPaginationResult> {
+): Observable<QuestionnaireGroupOffsetPaginationResult> {
   let params = new HttpParams()
     .set('pageNumber', pageNumber.toString())
     .set('pageSize', pageSize.toString());
@@ -103,7 +103,7 @@ export class ActiveService {
     params = params.set('pendingTeacher', 'true');
   }
 
-  return this.apiService.get<QuestionnaireGroupKeysetPaginationResult>(
+  return this.apiService.get<QuestionnaireGroupOffsetPaginationResult>(
     `${this.apiUrl}/groups/paginated`,
     params
   );
