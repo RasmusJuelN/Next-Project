@@ -4,6 +4,7 @@ using API.Interfaces;
 using Database.DTO.QuestionnaireTemplate;
 using Database.Models;
 using API.DTO.Responses.QuestionnaireTemplate;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
@@ -80,11 +81,33 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the added <see cref="QuestionnaireTemplateModel"/>.
     /// </returns>
+    /// <exception cref="SQLException.ItemAlreadyExists">Thrown when a template with the same title already exists.</exception>
     public async Task<QuestionnaireTemplate> AddTemplate(QuestionnaireTemplateAdd request)
     {
-        QuestionnaireTemplate template = await _unitOfWork.QuestionnaireTemplate.AddAsync(request);
-        await _unitOfWork.SaveChangesAsync();
-        return template;
+        try
+        {
+            QuestionnaireTemplate template = await _unitOfWork.QuestionnaireTemplate.AddAsync(request);
+            await _unitOfWork.SaveChangesAsync();
+            return template;
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+        {
+            throw new SQLException.ItemAlreadyExists($"A template with the title '{request.Title}' already exists.", ex);
+        }
+    }
+
+    /// <summary>
+    /// Determines if a DbUpdateException is caused by a unique constraint violation on the Title field.
+    /// </summary>
+    /// <param name="ex">The DbUpdateException to examine.</param>
+    /// <returns>True if the exception is caused by a Title unique constraint violation.</returns>
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+    {
+        // Check if the exception message contains indicators of unique constraint violation on Title
+        var message = ex.InnerException?.Message ?? ex.Message;
+        return message.Contains("IX_QuestionnaireTemplate_Title") || 
+               (message.Contains("duplicate key") && message.Contains("Title")) ||
+               (message.Contains("UNIQUE constraint failed") && message.Contains("Title"));
     }
 
     /// <summary>
@@ -137,6 +160,10 @@ public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
             var updated = await _unitOfWork.QuestionnaireTemplate.Update(id, updateRequest);
             await _unitOfWork.SaveChangesAsync();
             return updated;
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+        {
+            throw new SQLException.ItemAlreadyExists($"A template with the title '{updateRequest.Title}' already exists.", ex);
         }
         catch (Exception ex)
         {
