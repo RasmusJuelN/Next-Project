@@ -58,14 +58,8 @@
             <app-loading></app-loading>
           </div>
         }
-        <!-- Error Message -->
-        @if (errorMessage) {
-          <div class="text-center p-4">
-            <p class="text-red-500 font-semibold text-lg">{{ errorMessage | translate }}</p>
-          </div>
-        }
         <!-- Template List -->
-        @if (!isLoading && !errorMessage) {
+        @if (!isLoading) {
           <ul class="space-y-4 mt-4">
             @for (template of templateBases; track template) {
               <li
@@ -105,7 +99,7 @@
           </ul>
         }
         <!-- Pagination -->
-        @if (!isLoading && !errorMessage) {
+        @if (!isLoading) {
           <app-pagination
             [currentPage]="currentPage"
             [totalPages]="totalPages"
@@ -131,6 +125,7 @@
         [text]="modalText"
         [confirmText]="confirmText"
         [cancelText]="cancelText"
+        [showCancelButton]="showCancelButton"
         (confirm)="onModalConfirm()"
         (cancel)="onModalCancel()">
       </app-modal>

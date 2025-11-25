@@ -86,9 +86,9 @@ namespace API.Controllers
                 template = await _questionnaireTemplateService.AddTemplate(questionnaireTemplate);
 
             }
-            catch (SQLException.ItemAlreadyExists)
+            catch (SQLException.ItemAlreadyExists ex)
             {
-                return Conflict();
+                return Conflict(ex.Message);
             }
 
             return CreatedAtRoute("", template.Id, template);
@@ -158,6 +158,10 @@ namespace API.Controllers
             catch (SQLException.ItemNotFound)
             {
                 return NotFound();
+            }
+            catch (SQLException.ItemAlreadyExists ex)
+            {
+                return Conflict(ex.Message);
             }
             catch (SQLException.NotValidated)
             {
