@@ -103,7 +103,6 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         };
 
         await _genericRepository.AddAsync(activeQuestionnaire);
-
         return activeQuestionnaire.ToDto();
     }
 

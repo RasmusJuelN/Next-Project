@@ -22,12 +22,20 @@ namespace API.Services;
 /// systems to provide comprehensive questionnaire management functionality. It supports
 /// role-based access control and integrates with LDAP for user verification.
 /// </remarks>
-public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationBridge authenticationBridge, IConfiguration configuration)
+public class ActiveQuestionnaireService : IActiveQuestionnaireService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IAuthenticationBridge _authenticationBridge = authenticationBridge;
-    private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
-    private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuthenticationBridge _authenticationBridge;
+    private readonly LDAPSettings _ldapSettings;
+    private readonly JWTSettings _JWTSettings;
+
+    public ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationBridge authenticationBridge, IConfiguration configuration)
+    {
+        _unitOfWork = unitOfWork;
+        _authenticationBridge = authenticationBridge;
+        _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
+        _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
+    }
 
     /// <summary>
     /// Retrieves a paginated list of active questionnaire base information for administrative purposes.
@@ -527,21 +535,21 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         }
     }
 
-    internal async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
     {
 
         return await _unitOfWork.ActiveQuestionnaire.GetResponsesFromStudentAndTemplateAsync(studentid, templateid);
 
     }
 
-    internal async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
     {
 
         return await _unitOfWork.ActiveQuestionnaire.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);
 
     }
 
-    internal async Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups)
+    public async Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups)
     {
         return await _unitOfWork.ActiveQuestionnaire.GetAnonymisedResponses(templateId, users, groups);
     }
