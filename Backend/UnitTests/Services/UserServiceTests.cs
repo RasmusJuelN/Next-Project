@@ -6,13 +6,7 @@ using API.Services;
 using Database.DTO.ActiveQuestionnaire;
 using Database.DTO.User;
 using Database.Enums;
-using Database.Models;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnitTests.Services
 {
