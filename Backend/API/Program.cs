@@ -47,9 +47,7 @@ SystemSettings systemSettings = ConfigurationBinderService.Bind<SystemSettings>(
 
 builder.Services.AddScoped<IAuthenticationBridge, ActiveDirectoryAuthenticationBridge>();
 builder.Services.AddScoped<JsonSerializerService>();
-//builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<QuestionnaireTemplateService>();
 builder.Services.AddScoped<ActiveQuestionnaireService>();
