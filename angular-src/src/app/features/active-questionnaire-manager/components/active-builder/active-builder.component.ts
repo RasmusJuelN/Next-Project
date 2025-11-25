@@ -8,6 +8,7 @@ import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { CommonModule } from '@angular/common';
 
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
