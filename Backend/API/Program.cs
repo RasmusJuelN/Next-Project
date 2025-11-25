@@ -47,13 +47,11 @@ SystemSettings systemSettings = ConfigurationBinderService.Bind<SystemSettings>(
 
 builder.Services.AddScoped<IAuthenticationBridge, ActiveDirectoryAuthenticationBridge>();
 builder.Services.AddScoped<JsonSerializerService>();
-//builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<QuestionnaireTemplateService>();
-builder.Services.AddScoped<ActiveQuestionnaireService>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IQuestionnaireTemplateService, QuestionnaireTemplateService>();
+builder.Services.AddScoped<IActiveQuestionnaireService, ActiveQuestionnaireService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<CacheService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddAuthentication(cfg => {

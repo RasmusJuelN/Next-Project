@@ -22,13 +22,6 @@ namespace API.Services;
 /// systems to provide comprehensive questionnaire management functionality. It supports
 /// role-based access control and integrates with LDAP for user verification.
 /// </remarks>
-//public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationBridge authenticationBridge, IConfiguration configuration)
-//{
-//    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-//    private readonly IAuthenticationBridge _authenticationBridge = authenticationBridge;
-//    private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
-//    private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
-
 public class ActiveQuestionnaireService : IActiveQuestionnaireService
 {
     private readonly IUnitOfWork _unitOfWork;
