@@ -13,6 +13,7 @@ namespace API.Interfaces
         Task<QuestionnaireTemplate> PatchTemplate(Guid id, QuestionnaireTemplatePatch patchRequest);
         Task DeleteTemplate(Guid id);
         Task<QuestionnaireTemplate> FinalizeTemplate(Guid id);
-
+        Task<QuestionnaireTemplate> UndeleteTemplate(Guid id);
+        Task<List<QuestionnaireTemplateBase>> GetTemplateBasesAnsweredByStudentAsync(Guid studentId, Guid teacherId);
     }
 }

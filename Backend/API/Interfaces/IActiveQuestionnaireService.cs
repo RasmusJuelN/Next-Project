@@ -12,7 +12,7 @@ namespace API.Interfaces
     {
         Task<ActiveQuestionnaireKeysetPaginationResultAdmin> FetchActiveQuestionnaireBases(ActiveQuestionnaireKeysetPaginationRequestFull request);
         Task<QuestionnaireGroupResult> ActivateQuestionnaireGroup(ActivateQuestionnaireGroup request);
-        Task<QuestionnaireGroupKeysetPaginationResult> FetchQuestionnaireGroupsWithKeysetPagination(QuestionnaireGroupKeysetPaginationRequest request);
+        Task<QuestionnaireGroupOffsetPaginationResult> FetchQuestionnaireGroupsWithOffsetPagination(QuestionnaireGroupOffsetPaginationRequest request);
         Task<QuestionnaireGroupResult?> GetQuestionnaireGroup(Guid groupId);
         Task<List<QuestionnaireGroupResult>> GetAllQuestionnaireGroups();
         Task<List<QuestionnaireGroupBasicResult>> GetAllQuestionnaireGroupsBasic();
@@ -26,5 +26,7 @@ namespace API.Interfaces
         Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid);
         Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid);
         Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups);
+        Task<StudentResultHistory?> GetResponseHistoryAsync(Guid studentId, Guid teacherId, Guid templateId);
+        Task<IEnumerable<CompletedStudentDto>> GetCompletedStudentsByGroup(Guid activeQuestionnaireId);
     }
 }

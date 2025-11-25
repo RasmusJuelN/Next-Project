@@ -15,4 +15,8 @@ public interface IUserService
     Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid userId);
 
     UserQueryPaginationResult QueryLDAPUsersWithPagination(UserQueryPagination request);
+
+    Task<QuestionnaireGroupOffsetPaginationResult> FetchActiveQuestionnaireGroupsForTeacherWithOffsetPagination(QuestionnaireGroupOffsetPaginationRequest request, Guid teacherGuid);
+
+    Task<List<LdapUserBase>> SearchStudentsRelatedToTeacherAsync(Guid teacherId, string studentUsernameQuery);
 }
