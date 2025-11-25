@@ -218,12 +218,23 @@ private handleDocumentClick = (event: MouseEvent) => {
     if (!Array.isArray(state.selected)) {
       state.selected = [];
     }
+    
     const idx = state.selected.findIndex((u: any) => u.id === item.id);
+    
     if (idx === -1) {
-      state.selected.push(item);
+      // Adding new item
+      if (entity === 'teacher' || entity === 'template') {
+        // For teacher and template, only allow one selection - replace existing
+        state.selected = [item];
+      } else {
+        // For students, allow multiple selections
+        state.selected.push(item);
+      }
     } else {
+      // Removing existing item (deselecting)
       state.selected.splice(idx, 1);
     }
+    
     // Clear search input and hide search results
     state.searchInput = '';
     
@@ -302,14 +313,22 @@ private handleDocumentClick = (event: MouseEvent) => {
     hasError = true;
   }
   if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
-    this.teacherError = 'Du skal vælge mindst én lærer.';
+    this.teacherError = 'Du skal vælge en lærer.';
+    hasError = true;
+  }
+  if (this.teacher.selected.length > 1) {
+    this.teacherError = 'Du kan kun vælge én lærer.';
     hasError = true;
   }
   if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
     this.templateError = 'Du skal vælge en skabelon.';
     hasError = true;
   }
-  if (!this.template.selected[0].id) {
+  if (this.template.selected.length > 1) {
+    this.templateError = 'Du kan kun vælge én skabelon.';
+    hasError = true;
+  }
+  if (this.template.selected.length > 0 && !this.template.selected[0].id) {
     this.templateError = 'Den valgte skabelon mangler et ID.';
     hasError = true;
   }
@@ -320,10 +339,6 @@ private handleDocumentClick = (event: MouseEvent) => {
   if (hasError) {
     return;
   }
-  if (this.template.selected.length > 1) {
-    alert('Der kan kun tildeles én skabelon ad gangen.');
-    return;
-    }
     
     const newGroup = {
       name: this.groupName,
