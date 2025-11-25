@@ -157,7 +157,6 @@ public class JwtService : IJwtService
             new(JwtRegisteredClaimNames.Sub, userId),
         ];
     }
-    //    public static JwtSecurityTokenHandler GetTokenHandler()
     public JwtSecurityTokenHandler GetTokenHandler()
     {
         return new()
