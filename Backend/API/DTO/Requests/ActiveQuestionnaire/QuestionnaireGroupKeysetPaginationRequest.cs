@@ -1,5 +1,4 @@
-﻿using Database.Enums;
-
+﻿
 namespace API.DTO.Requests.ActiveQuestionnaire
 {
     /// <summary>

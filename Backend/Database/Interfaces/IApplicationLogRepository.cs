@@ -1,4 +1,3 @@
-using Database.DTO.ApplicationLog;
 
 namespace Database.Interfaces;
 

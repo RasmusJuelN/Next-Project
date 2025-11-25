@@ -1,5 +1,3 @@
-using API.Services;
-using Settings.Default;
 
 namespace API.Utils;
 

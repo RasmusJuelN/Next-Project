@@ -1,5 +1,3 @@
-using API.DTO.LDAP;
-using API.DTO.Responses.User;
 
 namespace API.Extensions;
 

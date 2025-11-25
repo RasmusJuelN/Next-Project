@@ -1,5 +1,3 @@
-using Database.DTO.ApplicationLog;
-using Database.Models;
 
 namespace Database.Extensions;
 

@@ -1,5 +1,3 @@
-using API.Attributes;
-using Novell.Directory.Ldap;
 
 namespace API.DTO.LDAP;
 

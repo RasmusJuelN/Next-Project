@@ -1,20 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using API.DTO.LDAP;
-using API.DTO.Requests.Auth;
-using API.DTO.Responses.Auth;
-using API.Exceptions;
-using API.Interfaces;
-using API.Services;
-using API.Utils;
-using Database.DTO.User;
-using Database.Enums;
-using Logging.LogEvents;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Net.Http.Headers;
-using Settings.Models;
 
 namespace API.Controllers
 {

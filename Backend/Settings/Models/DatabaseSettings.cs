@@ -1,5 +1,4 @@
-﻿using Settings.Interfaces;
-
+﻿
 namespace Settings.Models;
 
 public class DatabaseSettings : Base, IDatabaseSettings

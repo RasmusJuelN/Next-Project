@@ -1,12 +1,4 @@
-﻿using Database.DTO.ActiveQuestionnaire;
-using Database.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Database.Enums;
-
+﻿
 namespace Database.Interfaces
 {
     public interface IQuestionnaireGroupRepository

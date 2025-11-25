@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Settings.Interfaces;
 
 namespace Settings.Default;
 

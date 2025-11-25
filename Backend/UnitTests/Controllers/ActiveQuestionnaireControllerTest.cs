@@ -1,24 +1,4 @@
-﻿using API.Controllers;
-using API.DTO.Requests.ActiveQuestionnaire;
-using API.DTO.Responses.ActiveQuestionnaire;
-using API.Exceptions;
-using API.Interfaces;
-using API.Services;
-using Database.DTO.ActiveQuestionnaire;
-using Database.DTO.QuestionnaireTemplate;
-using Database.DTO.User;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace UnitTests.Controllers
 {
     public class ActiveQuestionnaireControllerTest

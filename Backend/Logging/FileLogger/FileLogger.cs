@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Settings.Default;
 
 namespace Logging.FileLogger;
 
