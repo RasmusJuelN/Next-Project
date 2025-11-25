@@ -4,6 +4,8 @@ using API.DTO.Requests.Auth;
 using API.DTO.Responses.Auth;
 using API.Interfaces;
 using API.Services;
+using Database.DTO.User;
+using Database.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +15,7 @@ using Novell.Directory.Ldap;
 using Settings.Models;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
@@ -25,16 +28,14 @@ namespace UnitTests.Controllers
         private readonly Mock<IJwtService> _mockJwtService = new();
         private readonly Mock<IUnitOfWork> _mockUnitOfWork = new();
         private readonly Mock<ILoggerFactory> _mockLoggerFactory = new();
-        private readonly Mock<ILogger> _mockLogger = new();
         private readonly IConfiguration _configuration;
         private readonly AuthController _controller;
 
         public AuthControllerTests()
         {
             var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            _configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string> { { "JWTS:Roles:Admin", "Admin" } })
-                .Build();
+            _configuration = new ConfigurationBuilder().Build();
+             
 
             _controller = new AuthController(
                 _mockJwtService.Object,
@@ -49,9 +50,21 @@ namespace UnitTests.Controllers
                     HttpContext = new DefaultHttpContext()
                 }
             };
-            
-        }
+            // Override private _JWTSettings using reflection
+            var jwtSettings = new JWTSettings
+            {
+                Roles = new Dictionary<string, string>
+                {
+                    { "Admin", "Admin" },
+                    { "User", "User" }
+                }
+            };
 
+            typeof(AuthController)
+                .GetField("_JWTSettings", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.SetValue(_controller, jwtSettings);
+
+        }
         [Fact]
         public async Task Login_ValidCredentials_ReturnsOk()
         {
@@ -66,16 +79,34 @@ namespace UnitTests.Controllers
                 MemberOf = new LdapAttribute("memberOf", "Admin")
             };
 
-            //_mockAuthBridge.Setup(a => a.Authenticate(login.Username, login.Password));
             _mockAuthBridge.Setup(a => a.Authenticate(login.Username, login.Password)).Verifiable();
-
             _mockAuthBridge.Setup(a => a.IsConnected()).Returns(true);
             _mockAuthBridge.Setup(a => a.SearchUser<BasicUserInfoWithObjectGuid>(login.Username)).Returns(ldapUser);
 
+            // Mock JWT service
             _mockJwtService.Setup(s => s.GetAccessTokenClaims(It.IsAny<JWTUser>())).Returns(new List<Claim>());
             _mockJwtService.Setup(s => s.GetRefreshTokenClaims(It.IsAny<string>())).Returns(new List<Claim>());
             _mockJwtService.Setup(s => s.GenerateAccessToken(It.IsAny<List<Claim>>())).Returns("access-token");
             _mockJwtService.Setup(s => s.GenerateRefreshToken(It.IsAny<List<Claim>>())).Returns("refresh-token");
+
+            // Mock unit of work user repository
+            var mockUserRepo = new Mock<IUserRepository>();
+            mockUserRepo.Setup(r => r.GetUserAsync(It.IsAny<Guid>()))
+                        .ReturnsAsync((FullUser)null); // simulate user not found
+            _mockUnitOfWork.Setup(u => u.User).Returns(mockUserRepo.Object);
+
+            // Inject JWTSettings via reflection
+            var jwtSettings = new JWTSettings
+            {
+                Roles = new Dictionary<string, string>
+                {
+                    { "Admin", "Admin" },
+                    { "User", "User" }
+                }
+            };
+            typeof(AuthController)
+                .GetField("_JWTSettings", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.SetValue(_controller, jwtSettings);
 
             // Act
             var result = await _controller.Login(login);
@@ -86,6 +117,7 @@ namespace UnitTests.Controllers
             Assert.Equal("access-token", response.AuthToken);
             Assert.Equal("refresh-token", response.RefreshToken);
         }
+
 
         [Fact]
         public async Task Login_InvalidCredentials_ReturnsUnauthorized()
@@ -102,42 +134,17 @@ namespace UnitTests.Controllers
             var unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
             Assert.Equal("Invalid credentials", unauthorized.Value);
         }
+       
         [Fact]
-        public async Task Login_LdapConnectionError_ReturnsInternalServerError()
+        public async Task Login_LdapConnectionError_Throws()
         {
-            // Arrange
             var login = new UserLogin { Username = "user", Password = "pass" };
 
-            // Throw a generic LdapException
             _mockAuthBridge.Setup(a => a.Authenticate(login.Username, login.Password))
-                .Throws(new LdapException()); 
+                .Throws(new LdapException("Connection failed", LdapException.ConnectError, null));
 
-            // Act
-            var result = await _controller.Login(login);
-
-            // Assert
-            var statusResult = Assert.IsType<StatusCodeResult>(result);
-            Assert.Equal(StatusCodes.Status500InternalServerError, statusResult.StatusCode);
+            await Assert.ThrowsAsync<LdapException>(() => _controller.Login(login));
         }
-
-
-        //[Fact]
-        //public async Task Login_LdapConnectionError_ReturnsInternalServerError()
-        //{
-        //    // Arrange
-        //    var login = new UserLogin { Username = "user", Password = "pass" };
-
-        //    // Throw a generic LdapException
-        //    _mockAuthBridge.Setup(a => a.Authenticate(login.Username, login.Password))
-        //        .Throws(new Novell.Directory.Ldap.LdapException());
-
-        //    // Act
-        //    var result = await _controller.Login(login);
-
-        //    // Assert
-        //    var statusResult = Assert.IsType<ObjectResult>(result);
-        //    Assert.Equal(StatusCodes.Status500InternalServerError, statusResult.StatusCode);
-        //}
 
         [Fact]
         public async Task Login_UserRoleCannotBeDetermined_ReturnsUnauthorized()
@@ -149,7 +156,9 @@ namespace UnitTests.Controllers
                 ObjectGUID = new LdapAttribute("objectGUID", Guid.NewGuid().ToByteArray()),
                 Name = new LdapAttribute("name", "Test User"),
                 Username = new LdapAttribute("sAMAccountName", "testuser"),
-                MemberOf = new LdapAttribute("memberOf", "Admin")
+                //MemberOf = new LdapAttribute("memberOf", "Admin")
+                MemberOf = new LdapAttribute("memberOf", "SomeRandomGroupThatDoesNotMatchAnyRole")
+
             };
 
 
