@@ -24,7 +24,7 @@
         </nav>
       }
       <!-- No Specific Role -->
-      @if (!userRole) {
+      @if (!userRole()) {
         <div class="text-center text-gray-600 flex-grow flex items-center justify-center">
           <p>No role found. Please contact support.</p>
         </div>

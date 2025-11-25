@@ -4,11 +4,15 @@
   </h3>
 
 
-  <div *ngIf="validationErrors.length > 0" #errorContainer class="p-4 bg-red-100 border-2 border-red-400 rounded-xl">
-    <ul class="list-disc pl-5 text-sm text-red-700">
-      <li *ngFor="let error of validationErrors">{{ error }}</li>
-    </ul>
-  </div>
+  @if (validationErrors.length > 0) {
+    <div #errorContainer class="p-4 bg-red-100 border-2 border-red-400 rounded-xl">
+      <ul class="list-disc pl-5 text-sm text-red-700">
+        @for (error of validationErrors; track error) {
+          <li>{{ error }}</li>
+        }
+      </ul>
+    </div>
+  }
 
   <div>
     <label class="block text-sm font-medium text-primary_dark_blue mb-2">
@@ -18,69 +22,74 @@
       class="block w-full px-4 py-2 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-gray-50"
       placeholder="{{ 'QUESTION_EDITOR.PLACEHOLDER_TITLE' | translate }}" />
 
-  </div>
+    </div>
 
-  <div class="flex items-center mb-4">
-    <input type="checkbox" id="custom-answer" [disabled]="readonly" [(ngModel)]="question.allowCustom"
-      class="h-4 w-4 text-primary_orange_1 focus:ring-primary_orange_1 border-primary_orange_1 rounded-xl" />
-    <label for="custom-answer" class="ml-2 text-sm font-medium text-primary_dark_blue">
-      {{ 'QUESTION_EDITOR.ALLOW_CUSTOM' | translate }}
-    </label>
-  </div>
+    <div class="flex items-center mb-4">
+      <input type="checkbox" id="custom-answer" [disabled]="readonly" [(ngModel)]="question.allowCustom"
+        class="h-4 w-4 text-primary_orange_1 focus:ring-primary_orange_1 border-primary_orange_1 rounded-xl" />
+        <label for="custom-answer" class="ml-2 text-sm font-medium text-primary_dark_blue">
+          {{ 'QUESTION_EDITOR.ALLOW_CUSTOM' | translate }}
+        </label>
+      </div>
 
-  <!-- Options -->
-  <div>
-    <h4 class="text-lg font-bold text-primary_dark_blue mb-4">
-      {{ 'QUESTION_EDITOR.OPTIONS' | translate }}
-    </h4>
-    <ul cdkDropList [cdkDropListData]="question.options" (cdkDropListDropped)="dropOption($event)" class="space-y-4">
-      <li *ngFor="let option of question.options; let i = index" cdkDrag
-        class="flex flex-col space-y-2 p-4 bg-gray-50 border-2 border-primary_orange_1 rounded-xl shadow-sm">
-        <div class="flex items-start justify-between gap-4 w-full">
-          <div class="flex items-center gap-3">
-            <!-- drag handle -->
-            <div cdkDragHandle class="cursor-grab p-1 text-gray-500 hover:text-primary_orange_1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-              </svg>
-            </div>
-
-            <div class="w-full sm:w-[600px] ">
-              <label class="block text-sm font-medium text-primary_dark_blue mb-2">Label:</label>
-              <textarea [(ngModel)]="option.displayText" [readOnly]="readonly"
-                class="block w-full px-4 py-3 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-white min-h-[30px]"></textarea>
-            </div>
-          </div>
-
-          <div class="flex-shrink-0 mt-2">
-            <button *ngIf="!readonly" (click)="deleteOption(option.id)"
-              class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 focus:ring-2 focus:ring-red-400">
-              {{ 'QUESTION_EDITOR.DELETE_OPTION' | translate }}
-            </button>
-          </div>
-        </div>
-      </li>
-    </ul>
-    <div class="text-center mt-6" *ngIf="!readonly">
+      <!-- Options -->
+      <div>
+        <h4 class="text-lg font-bold text-primary_dark_blue mb-4">
+          {{ 'QUESTION_EDITOR.OPTIONS' | translate }}
+        </h4>
+        <ul cdkDropList [cdkDropListData]="question.options" (cdkDropListDropped)="dropOption($event)" class="space-y-4">
+          @for (option of question.options; track option; let i = $index) {
+            <li cdkDrag
+              class="flex flex-col space-y-2 p-4 bg-gray-50 border-2 border-primary_orange_1 rounded-xl shadow-sm">
+              <div class="flex items-start justify-between gap-4 w-full">
+                <div class="flex items-center gap-3">
+                  <!-- drag handle -->
+                  <div cdkDragHandle class="cursor-grab p-1 text-gray-500 hover:text-primary_orange_1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                    </svg>
+                  </div>
+                  <div class="w-full sm:w-[600px] ">
+                    <label class="block text-sm font-medium text-primary_dark_blue mb-2">Label:</label>
+                    <textarea [(ngModel)]="option.displayText" [readOnly]="readonly"
+                    class="block w-full px-4 py-3 border-2 border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 sm:text-sm bg-white min-h-[30px]"></textarea>
+                  </div>
+                </div>
+                <div class="flex-shrink-0 mt-2">
+                  @if (!readonly) {
+                    <button (click)="deleteOption(option.id)"
+                      class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 focus:ring-2 focus:ring-red-400">
+                      {{ 'QUESTION_EDITOR.DELETE_OPTION' | translate }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+        @if (!readonly) {
+          <div class="text-center mt-6">
       <button (click)="addOption()" class="px-6 py-2 font-bold rounded-xl focus:ring-2
             bg-primary_orange_1 text-white hover:bg-primary_orange_light focus:ring-primary_orange_1
             disabled:bg-gray-400 disabled:text-gray-200 disabled:cursor-not-allowed" [disabled]="overOptionCount()">
-        {{ 'QUESTION_EDITOR.ADD_OPTION' | translate }}
-      </button>
+              {{ 'QUESTION_EDITOR.ADD_OPTION' | translate }}
+            </button>
+          </div>
+        }
+      </div>
 
+      <!-- Actions -->
+      <div class="flex justify-between flex-wrap gap-4">
+        @if (!readonly) {
+          <button (click)="onSave()"
+            class="px-4 py-2 bg-primary_orange_1 text-white rounded-xl hover:bg-primary_orange_light">
+            {{ 'QUESTION_EDITOR.SAVE' | translate }}
+          </button>
+        }
+        <button (click)="onCancel()"
+          class="px-4 py-2 bg-gray-300 text-primary_dark_blue rounded-xl hover:bg-gray-400 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none">
+          {{'COMMON.BUTTONS.CANCEL' | translate}}
+        </button>
+      </div>
     </div>
-  </div>
-
-  <!-- Actions -->
-  <div class="flex justify-between flex-wrap gap-4">
-    <button *ngIf="!readonly" (click)="onSave()"
-      class="px-4 py-2 bg-primary_orange_1 text-white rounded-xl hover:bg-primary_orange_light">
-      {{ 'QUESTION_EDITOR.SAVE' | translate }}
-    </button>
-    <button (click)="onCancel()"
-      class="px-4 py-2 bg-gray-300 text-primary_dark_blue rounded-xl hover:bg-gray-400 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none">
-      {{'COMMON.BUTTONS.CANCEL' | translate}}
-    </button>
-  </div>
-</div>

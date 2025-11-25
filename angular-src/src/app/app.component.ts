@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit, Renderer2 } from '@angular/core';
 import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 
@@ -8,7 +8,7 @@ import { LanguageSwitcherComponent } from './core/components/language-switcher/l
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, RouterModule, RouterOutlet, HeaderComponent],
+    imports: [RouterModule, RouterOutlet, HeaderComponent],
     templateUrl: 'app.component.html',
     styleUrls: ['app.component.css']
 })

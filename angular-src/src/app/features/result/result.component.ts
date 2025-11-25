@@ -16,7 +16,7 @@ import { Subject, takeUntil } from "rxjs";
 @Component({
     selector: "app-result",
     providers: [ResultService, PdfGenerationService],
-    imports: [AgCharts, RouterModule, FormsModule, TranslateModule, ShowResultComponent],
+    imports: [RouterModule, FormsModule, TranslateModule, ShowResultComponent],
     templateUrl: "./result.component.html",
     template: `
     <button (click)="updateChart('stacked')">Stacked</button>
