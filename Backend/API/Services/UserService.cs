@@ -6,10 +6,8 @@ using API.DTO.Responses.User;
 using API.Extensions;
 using API.Interfaces;
 using Database.DTO.ActiveQuestionnaire;
-using Database.DTO.User;
 using Database.Enums;
 using Database.Extensions;
-using System.Collections.Generic;
 
 namespace API.Services;
 

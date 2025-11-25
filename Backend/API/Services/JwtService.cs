@@ -1,7 +1,6 @@
 using API.DTO.Responses.Auth;
 using API.Enums;
 using API.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Settings.Models;
 using System.IdentityModel.Tokens.Jwt;

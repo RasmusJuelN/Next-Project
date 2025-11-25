@@ -1,10 +1,6 @@
 ﻿using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
 using Database.DTO.ActiveQuestionnaire;
-using Database.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace API.Interfaces
 {
