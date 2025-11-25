@@ -30,6 +30,10 @@
   "TMP_FAIL_LOAD_DETAIL": "Failed to load the full template details.",
   "TMP_DELETE_ERROR": "Error deleting template.",
   "TMP_UPDATE_ERROR": "Error updating template.",
+  "TMP_ERROR_TITLE": "Error",
+  "TMP_ERROR_DUPLICATE_TITLE": "A template with this name already exists. Please choose a different name.",
+  "TMP_ERROR_VALIDATION": "Validation error. Please check your inputs.",
+  "TMP_ERROR_SAVE": "Error saving template. Please try again.",
   "TMP_NO_ACTIVE_QUESTIONNAIRES": "There are no active questionnaires",
 
   "TMP_EDITOR_TITLE": "Template Editing",

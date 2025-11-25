@@ -46,6 +46,9 @@ export class ModalComponent {
   /** Label for the cancel button. */
   @Input() cancelText: string = 'No';
 
+  /** Whether to show the cancel button. */
+  @Input() showCancelButton: boolean = true;
+
   /** Emits when the user confirms the action. */
   @Output() confirm = new EventEmitter<void>();
 
