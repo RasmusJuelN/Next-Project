@@ -1,5 +1,5 @@
-<div class="flex flex-col items-center w-full min-h-full px-4">
-  <div class="flex flex-col w-full max-w-5xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
+<div class="flex flex-col items-center w-full min-h-full">
+  <div class="flex flex-col w-full max-w-7xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
     <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">
       <!-- Overview over active questionnaires. -->
       {{ 'TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES' | translate }}
@@ -129,49 +129,55 @@
                           @for (q of group.questionnaires; track q) {
                             <li
                               class="p-2 px-4 border border-primary_orange_1 rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                              <div class="min-w-0">
-                                <span class="block font-semibold text-gray-800 break-words">{{ q.title }}</span>
-                              </div>
-                              <div class="flex flex-col sm:flex-row sm:gap-6 gap-1">
-                                <span class="text-sm">
-                                  <strong>{{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }} </strong>
-                                  <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-extrabold': !q.studentCompletedAt}">
-                                    {{ q.student?.fullName }}
-                                  </span>
-                                </span>
-                                <span class="text-sm">
-                                  <strong>{{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }} </strong>
-                                  <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
-                                    {{ q.teacher?.fullName }}
-                                  </span>
-                                </span>
-                              </div>
-                              <div class="flex gap-2 items-center mt-3 sm:mt-0">
-                                @if (!q.studentCompletedAt) {
-                                  <button
-                                    (click)="copyAnswersUrl(q.id)"
-                                    class="ml-2 cursor-pointer text-sm text-primary_orange_1 font-normal hover:text-primary_orange_light underline underline-offset-2 transition"
-                                    >
-                                    {{'TMP_COPY_LINK' | translate}}
-                                  </button>
-                                }
-                                @if (!q.teacherCompletedAt) {
-                                  <button
-                                    [routerLink]="['/answer', q.id]"
-                                    class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
-                                    >
-                                    {{ 'TMP_ANSWER' | translate }}
-                                  </button>
-                                }
-                                @if (q.teacherCompletedAt && q.studentCompletedAt) {
-                                  <button
-                                    [routerLink]="['/results', q.id]"
-                                    class="px-4 py-2 text-sm bg-secondary_blue text-white rounded-md hover:bg-primary_orange focus:outline-none"
-                                    >
-                                    {{ 'TMP_VIEW_RESULTS' | translate }}
-                                  </button>
-                                }
-                              </div>
+                              <!-- ✅ Use CSS Grid with fixed columns -->
+          <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center w-full">
+            
+            <!-- Column 1: Title (flexible width) -->
+            <div class="min-w-0">
+              <span class="block font-semibold text-gray-800 break-words">{{ q.title }}</span>
+            </div>
+            
+            <!-- Column 2: Student (fixed 200px width) -->
+            <div class="flex items-center">
+              <span class="text-sm">
+                <strong>{{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }}: </strong>
+                <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-bold': !q.studentCompletedAt}">
+                  {{ q.student?.fullName }}
+                </span>
+              </span>
+            </div>
+            
+            <!-- Column 3: Teacher (fixed 200px width) -->
+            <div class="flex items-center">
+              <span class="text-sm">
+                <strong>{{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }}: </strong>
+                <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
+                  {{ q.teacher?.fullName }}
+                </span>
+              </span>
+            </div>
+            
+            <!-- Column 4: Actions (auto width) -->
+            <div class="flex gap-2 items-center justify-end">
+              @if (!q.teacherCompletedAt) {
+                <button
+                  [routerLink]="['/answer', q.id]"
+                  class="px-4 py-2 m-auto text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none whitespace-nowrap"
+                >
+                  {{ 'TMP_ANSWER' | translate }}
+                </button>
+              }
+              @if (q.teacherCompletedAt && q.studentCompletedAt) {
+                <button
+                  [routerLink]="['/results', q.id]"
+                  class="px-4 py-2 text-sm bg-secondary_blue text-white rounded-md hover:bg-primary_orange focus:outline-none whitespace-nowrap"
+                >
+                  {{ 'TMP_VIEW_RESULTS' | translate }}
+                </button>
+              }
+            </div>
+            
+          </div>
                             </li>
                           }
                         </ul>
