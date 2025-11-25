@@ -1,51 +1,86 @@
 @if (result) {
-  <div class="show-result-container"
-     [ngClass]="{
-       'bg-primary_background_white/80 p-4 mb-4 sm:p-6 max-w-7xl mx-auto shadow-xl rounded-2xl border-2 border-primary_orange_1 print:bg-white print:shadow-none print:p-0 print:overflow-visible': config.useCardStyling
-     }">
+  <div
+    class="show-result-container"
+    [ngClass]="{
+      'bg-primary_background_white/80 p-4 mb-4 sm:p-6 max-w-7xl mx-auto shadow-xl rounded-2xl border-2 border-primary_orange_1 print:bg-white print:shadow-none print:p-0 print:overflow-visible':
+        config.useCardStyling,
+    }"
+  >
     <!-- Optional Header Section -->
-    @if (config.showTemplate || config.showStudent || config.showTeacher || config.customHeaderTitle) {
-      <div
-        class="header-section mb-6 border-b print:border-gray-400 pb-4">
+    @if (
+      config.showTemplate ||
+      config.showStudent ||
+      config.showTeacher ||
+      config.customHeaderTitle
+    ) {
+      <div class="header-section mb-6 border-b print:border-gray-400 pb-4">
         <!-- Custom Header Title -->
         @if (config.customHeaderTitle) {
-          <h2 class="text-2xl sm:text-3xl font-bold text-primary_orange_1 print:text-black mb-4">
+          <h2
+            class="text-2xl sm:text-3xl font-bold text-primary_orange_1 print:text-black mb-4"
+          >
             {{ config.customHeaderTitle }}
           </h2>
         }
         <!-- Template Info -->
         @if (config.showTemplate && !config.hideTemplateName) {
           <div class="mb-3">
-            <h3 class="text-lg font-medium text-primary_dark_blue print:text-black">
-              {{ translate.instant('RESULT.TEMPLATE_TITLE') }} {{ result.title }}
+            <h3
+              class="text-lg font-medium text-primary_dark_blue print:text-black"
+            >
+              {{ translate.instant('RESULT.TEMPLATE_TITLE') }}
+              {{ result.title }}
             </h3>
-            <p class="text-sm text-gray-600 print:text-black">ID: {{ result.id }}</p>
+            <p class="text-sm text-gray-600 print:text-black">
+              ID: {{ result.id }}
+            </p>
           </div>
         }
         <!-- User Info Section - Only show if configured -->
         @if (config.showStudent || config.showTeacher) {
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Student Info -->
             @if (config.showStudent) {
-              <div class="info-item bg-white p-3 rounded-lg shadow-sm border border-primary_orange_1">
-                <span class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm">{{ translate.instant('RESULT.STUDENT_LABEL') }}</span>
-                <span class="block text-gray-900 print:text-black font-medium text-sm break-words">{{ result.student.user.fullName }}</span>
+              <div
+                class="info-item bg-white p-3 rounded-lg shadow-sm border border-primary_orange_1"
+              >
+                <span
+                  class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm"
+                  >{{ translate.instant('RESULT.STUDENT_LABEL') }}</span
+                >
+                <span
+                  class="block text-gray-900 print:text-black font-medium text-sm break-words"
+                  >{{ result.student.user.fullName }}</span
+                >
                 @if (config.showCompletionDates) {
-                  <span class="block text-xs text-gray-500 print:text-black break-words">
-                    {{ translate.instant('RESULT.COMPLETED_ON') }} {{ result.student.completedAt | date:'dd-MM-yyyy' }}
+                  <span
+                    class="block text-xs text-gray-500 print:text-black break-words"
+                  >
+                    {{ translate.instant('RESULT.COMPLETED_ON') }}
+                    {{ result.student.completedAt | date: 'dd-MM-yyyy' }}
                   </span>
                 }
               </div>
             }
             <!-- Teacher Info -->
             @if (config.showTeacher) {
-              <div class="info-item bg-white p-3 rounded-lg shadow-sm border border-primary_orange_1">
-                <span class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm">{{ translate.instant('RESULT.TEACHER_LABEL') }}</span>
-                <span class="block text-gray-900 print:text-black font-medium text-sm break-words">{{ result.teacher.user.fullName }}</span>
+              <div
+                class="info-item bg-white p-3 rounded-lg shadow-sm border border-primary_orange_1"
+              >
+                <span
+                  class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm"
+                  >{{ translate.instant('RESULT.TEACHER_LABEL') }}</span
+                >
+                <span
+                  class="block text-gray-900 print:text-black font-medium text-sm break-words"
+                  >{{ result.teacher.user.fullName }}</span
+                >
                 @if (config.showCompletionDates) {
-                  <span class="block text-xs text-gray-500 print:text-black break-words">
-                    {{ translate.instant('RESULT.COMPLETED_ON') }} {{ result.teacher.completedAt | date:'dd-MM-yyyy HH:mm' }}
+                  <span
+                    class="block text-xs text-gray-500 print:text-black break-words"
+                  >
+                    {{ translate.instant('RESULT.COMPLETED_ON') }}
+                    {{ result.teacher.completedAt | date: 'dd-MM-yyyy HH:mm' }}
                   </span>
                 }
               </div>
@@ -58,25 +93,55 @@
     @if (!isFullView) {
       <div class="questions-section space-y-6">
         @for (answer of result.answers; track answer; let i = $index) {
-          <div class="question-answer-pair print:break-inside-avoid bg-secondary_background_gray rounded-lg shadow-sm border border-primary_orange_1 p-3 sm:p-4">
-            <h3 class="text-sm sm:text-base font-semibold text-primary_dark_blue mb-3 print:text-black break-words">
+          <div
+            class="question-answer-pair print:break-inside-avoid bg-secondary_background_gray rounded-lg shadow-sm border border-primary_orange_1 p-3 sm:p-4"
+          >
+            <h3
+              class="text-sm sm:text-base font-semibold text-primary_dark_blue mb-3 print:text-black break-words"
+            >
               {{ i + 1 }}. {{ answer.question }}
             </h3>
-            <div class="answers-comparison grid grid-cols-1 lg:grid-cols-2 gap-3 print:grid-cols-1 print:border-b print:pb-3 print:mb-3">
+            <div
+              class="answers-comparison grid grid-cols-1 lg:grid-cols-2 gap-3 print:grid-cols-1 print:border-b print:pb-3 print:mb-3"
+            >
               <!-- Student Answer -->
-              <div class="answer-container bg-primary_background_white/80 p-2 sm:p-3 rounded-lg print:bg-transparent print:p-0 order-1 border border-primary_orange_1">
-                <span class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm">{{ translate.instant('RESULT.STUDENT_LABEL') }}:</span>
-                <p class="text-gray-900 print:text-black break-words mb-1 text-sm">{{ answer.studentResponse }}</p>
+              <div
+                class="answer-container bg-primary_background_white/80 p-2 sm:p-3 rounded-lg print:bg-transparent print:p-0 order-1 border border-primary_orange_1"
+              >
+                <span
+                  class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm"
+                  >{{ translate.instant('RESULT.STUDENT_LABEL') }}:</span
+                >
+                <p
+                  class="text-gray-900 print:text-black break-words mb-1 text-sm"
+                >
+                  {{ answer.studentResponse }}
+                </p>
                 @if (answer.isStudentResponseCustom) {
-                  <span class="inline-block text-xs bg-primary_orange_1 text-white px-2 py-1 rounded">{{ translate.instant('RESULT.CUSTOM_ANSWER') }}</span>
+                  <span
+                    class="inline-block text-xs bg-primary_orange_1 text-white px-2 py-1 rounded"
+                    >{{ translate.instant('RESULT.CUSTOM_ANSWER') }}</span
+                  >
                 }
               </div>
               <!-- Teacher Answer -->
-              <div class="answer-container bg-primary_background_white/80 p-2 sm:p-3 rounded-lg print:bg-transparent print:p-0 order-2 border border-primary_orange_1">
-                <span class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm">{{ translate.instant('RESULT.TEACHER_LABEL') }}:</span>
-                <p class="text-gray-900 print:text-black break-words mb-1 text-sm">{{ answer.teacherResponse }}</p>
+              <div
+                class="answer-container bg-primary_background_white/80 p-2 sm:p-3 rounded-lg print:bg-transparent print:p-0 order-2 border border-primary_orange_1"
+              >
+                <span
+                  class="block font-bold text-primary_dark_blue print:text-black mb-1 text-sm"
+                  >{{ translate.instant('RESULT.TEACHER_LABEL') }}:</span
+                >
+                <p
+                  class="text-gray-900 print:text-black break-words mb-1 text-sm"
+                >
+                  {{ answer.teacherResponse }}
+                </p>
                 @if (answer.isTeacherResponseCustom) {
-                  <span class="inline-block text-xs bg-primary_orange_1 text-white px-2 py-1 rounded">{{ translate.instant('RESULT.CUSTOM_ANSWER') }}</span>
+                  <span
+                    class="inline-block text-xs bg-primary_orange_1 text-white px-2 py-1 rounded"
+                    >{{ translate.instant('RESULT.CUSTOM_ANSWER') }}</span
+                  >
                 }
               </div>
             </div>
@@ -88,24 +153,36 @@
     @if (isFullView) {
       <div class="questions-section space-y-6">
         @for (answer of result.answers; track answer; let i = $index) {
-          <div class="question-block print:break-inside-avoid bg-white rounded-lg shadow-sm border border-primary_orange_1 p-3 sm:p-4">
-            <h3 class="text-sm sm:text-base font-semibold text-primary_dark_blue mb-3 print:text-black break-words">
+          <div
+            class="question-block print:break-inside-avoid bg-white rounded-lg shadow-sm border border-primary_orange_1 p-3 sm:p-4"
+          >
+            <h3
+              class="text-sm sm:text-base font-semibold text-primary_dark_blue mb-3 print:text-black break-words"
+            >
               {{ i + 1 }}. {{ answer.question }}
             </h3>
             @if (getTemplateQuestionOptions(answer.question); as options) {
               <!-- Matrix Table with horizontal scroll for mobile -->
-              @if (options.length > 0 && (!answer.isStudentResponseCustom || !answer.isTeacherResponseCustom)) {
-                <div
-                  class="matrix-table mb-3">
+              @if (
+                options.length > 0 &&
+                (!answer.isStudentResponseCustom ||
+                  !answer.isTeacherResponseCustom)
+              ) {
+                <div class="matrix-table mb-3">
                   <!-- Scrollable container for mobile -->
-                  <div class="overflow-x-auto border border-primary_orange_1 rounded">
+                  <div
+                    class="overflow-x-auto border border-primary_orange_1 rounded"
+                  >
                     <table class="min-w-full border-collapse">
                       <thead>
                         <tr class="bg-primary_orange_light/30">
-                          <th class="border border-primary_orange_1 p-2 text-left font-medium text-primary_dark_blue text-xs sticky left-0 bg-primary_orange_light/30 z-10"></th>
+                          <th
+                            class="border border-primary_orange_1 p-2 text-left font-medium text-primary_dark_blue text-xs sticky left-0 bg-primary_orange_light/30 z-10"
+                          ></th>
                           @for (option of options; track option) {
                             <th
-                              class="border border-primary_orange_1 p-2 text-center font-medium text-primary_dark_blue text-xs min-w-[100px] sm:min-w-[120px]">
+                              class="border border-primary_orange_1 p-2 text-center font-medium text-primary_dark_blue text-xs min-w-[100px] sm:min-w-[120px]"
+                            >
                               <div class="break-words leading-tight text-xs">
                                 {{ option.displayText }}
                               </div>
@@ -117,15 +194,32 @@
                         <!-- Student row (only if not custom) -->
                         @if (!answer.isStudentResponseCustom) {
                           <tr>
-                            <td class="border border-primary_orange_1 p-2 font-semibold bg-white sticky left-0 z-10 text-xs">
+                            <td
+                              class="border border-primary_orange_1 p-2 font-semibold bg-white sticky left-0 z-10 text-xs"
+                            >
                               {{ translate.instant('RESULT.STUDENT_LABEL') }}
                             </td>
-                            @for (option of options; track option; let optionIndex = $index) {
+                            @for (
+                              option of options;
+                              track option;
+                              let optionIndex = $index
+                            ) {
                               <td
-                                class="border border-primary_orange_1 p-2 text-center min-w-[100px] sm:min-w-[120px]">
-                                @if (isOptionSelected(answer.studentResponse, answer.isStudentResponseCustom, option, optionIndex, 'student')) {
+                                class="border border-primary_orange_1 p-2 text-center min-w-[100px] sm:min-w-[120px]"
+                              >
+                                @if (
+                                  isOptionSelected(
+                                    answer.studentResponse,
+                                    answer.isStudentResponseCustom,
+                                    option,
+                                    optionIndex,
+                                    'student'
+                                  )
+                                ) {
                                   <span
-                                  class="font-bold text-lg text-primary_orange_1">X</span>
+                                    class="font-bold text-lg text-primary_orange_1"
+                                    >X</span
+                                  >
                                 }
                               </td>
                             }
@@ -134,15 +228,32 @@
                         <!-- Teacher row (only if not custom) -->
                         @if (!answer.isTeacherResponseCustom) {
                           <tr>
-                            <td class="border border-primary_orange_1 p-2 font-semibold bg-white sticky left-0 z-10 text-xs">
+                            <td
+                              class="border border-primary_orange_1 p-2 font-semibold bg-white sticky left-0 z-10 text-xs"
+                            >
                               {{ translate.instant('RESULT.TEACHER_LABEL') }}
                             </td>
-                            @for (option of options; track option; let optionIndex = $index) {
+                            @for (
+                              option of options;
+                              track option;
+                              let optionIndex = $index
+                            ) {
                               <td
-                                class="border border-primary_orange_1 p-2 text-center min-w-[100px] sm:min-w-[120px]">
-                                @if (isOptionSelected(answer.teacherResponse, answer.isTeacherResponseCustom, option, optionIndex, 'teacher')) {
+                                class="border border-primary_orange_1 p-2 text-center min-w-[100px] sm:min-w-[120px]"
+                              >
+                                @if (
+                                  isOptionSelected(
+                                    answer.teacherResponse,
+                                    answer.isTeacherResponseCustom,
+                                    option,
+                                    optionIndex,
+                                    'teacher'
+                                  )
+                                ) {
                                   <span
-                                  class="font-bold text-lg text-primary_orange_1">X</span>
+                                    class="font-bold text-lg text-primary_orange_1"
+                                    >X</span
+                                  >
                                 }
                               </td>
                             }
@@ -155,24 +266,37 @@
               }
               <!-- No options note -->
               @if (options.length === 0) {
-                <div class="bg-primary_background_white/80 p-2 rounded border border-primary_orange_1 mb-3">
-                  <p class="text-xs text-primary_dark_blue italic">{{ translate.instant('RESULT.NO_OPTIONS_AVAILABLE') }}</p>
+                <div
+                  class="bg-primary_background_white/80 p-2 rounded border border-primary_orange_1 mb-3"
+                >
+                  <p class="text-xs text-primary_dark_blue italic">
+                    {{ translate.instant('RESULT.NO_OPTIONS_AVAILABLE') }}
+                  </p>
                 </div>
               }
             }
             <!-- Custom Responses Section -->
-            @if (answer.isStudentResponseCustom || answer.isTeacherResponseCustom) {
+            @if (
+              answer.isStudentResponseCustom || answer.isTeacherResponseCustom
+            ) {
               <div
-                class="custom-responses bg-primary_background_white/80 p-2 sm:p-3 rounded border border-primary_orange_1">
-                <h4 class="font-semibold text-primary_dark_blue mb-2 text-xs">{{ translate.instant('RESULT.CUSTOM_RESPONSES') }}</h4>
+                class="custom-responses bg-primary_background_white/80 p-2 sm:p-3 rounded border border-primary_orange_1"
+              >
+                <h4 class="font-semibold text-primary_dark_blue mb-2 text-xs">
+                  {{ translate.instant('RESULT.CUSTOM_RESPONSES') }}
+                </h4>
                 <!-- Student custom response -->
                 @if (answer.isStudentResponseCustom) {
                   <div class="custom-response mb-2 p-2 bg-white rounded">
                     <div class="flex flex-col sm:flex-row">
-                      <span class="font-medium text-primary_dark_light mb-1 sm:mb-0 sm:w-16 sm:flex-shrink-0 italic text-xs">
+                      <span
+                        class="font-medium text-primary_dark_light mb-1 sm:mb-0 sm:w-16 sm:flex-shrink-0 italic text-xs"
+                      >
                         {{ translate.instant('RESULT.STUDENT_LABEL') }}:
                       </span>
-                      <span class="text-gray-900 break-words text-xs">{{ answer.studentResponse }}</span>
+                      <span class="text-gray-900 break-words text-xs">{{
+                        answer.studentResponse
+                      }}</span>
                     </div>
                   </div>
                 }
@@ -180,10 +304,14 @@
                 @if (answer.isTeacherResponseCustom) {
                   <div class="custom-response p-2 bg-white rounded">
                     <div class="flex flex-col sm:flex-row">
-                      <span class="font-medium text-primary_dark_light mb-1 sm:mb-0 sm:w-16 sm:flex-shrink-0 italic text-xs">
+                      <span
+                        class="font-medium text-primary_dark_light mb-1 sm:mb-0 sm:w-16 sm:flex-shrink-0 italic text-xs"
+                      >
                         {{ translate.instant('RESULT.TEACHER_LABEL') }}:
                       </span>
-                      <span class="text-gray-900 break-words text-xs">{{ answer.teacherResponse }}</span>
+                      <span class="text-gray-900 break-words text-xs">{{
+                        answer.teacherResponse
+                      }}</span>
                     </div>
                   </div>
                 }
