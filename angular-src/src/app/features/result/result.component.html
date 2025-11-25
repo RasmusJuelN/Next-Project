@@ -1,75 +1,77 @@
-<div *ngIf="isLoading" class="text-center text-gray-700">Indlæser...</div>
-<div *ngIf="errorMessage" class="text-center text-red-500">{{ errorMessage }}</div>
+@if (isLoading) {
+  <div class="text-center text-gray-700">Indlæser...</div>
+}
+@if (errorMessage) {
+  <div class="text-center text-red-500">{{ errorMessage }}</div>
+}
 
-<div *ngIf="result" class="answer-session bg-primary_background_white/80 p-4 mb-4 sm:p-10 max-w-7xl mx-auto shadow-xl rounded-2xl border-2 border-primary_orange_1 print:bg-white print:shadow-none print:p-0 print:overflow-visible">
-  <!-- Action Buttons - Mobile friendly layout -->
-  <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-6 print:hidden gap-4">
-    <h2 class="text-2xl sm:text-3xl font-bold text-primary_orange_1 print:text-black order-2 sm:order-1">
-      {{ translate.instant('RESULT.TEMPLATE_TITLE') }} {{ result.title }}
-    </h2>
-    
-    <div class="flex flex-wrap gap-2 order-1 sm:order-2 w-full sm:w-auto">
-      <!-- Toggle View Button -->
-      <button
-        (click)="toggleView()"
-        class="bg-primary_dark_blue text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_dark_light hover:text-white flex-1 sm:flex-none min-w-0 transition"
-        [title]="translate.instant('RESULT.TOGGLE_VIEW_TOOLTIP')"
-      >
-        <span class="hidden sm:inline">{{ isFullView ? translate.instant('RESULT.COMPRESSED_VIEW') : translate.instant('RESULT.FULL_VIEW') }}</span>
-        <span class="sm:hidden">{{ isFullView ? translate.instant('RESULT.COMPRESSED_VIEW_SHORT') : translate.instant('RESULT.FULL_VIEW_SHORT') }}</span>
-      </button>
-      
-      <!-- PDF Buttons -->
-      <button
-        (click)="openPdf()"
-        class="bg-primary_orange_1 text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_orange_light flex-1 sm:flex-none transition"
-        [title]="translate.instant('RESULT.OPEN_PDF_TOOLTIP')"
-      >
-        <span class="hidden sm:inline">{{ translate.instant('RESULT.OPEN_PDF') }}</span>
-        <span class="sm:hidden">{{ translate.instant('RESULT.OPEN_PDF_SHORT') }}</span>
-      </button>
-      
-      <button
-        (click)="generatePdf()"
-        class="bg-blue-900 text-white px-3 py-2 text-sm rounded-xl hover:bg-blue-700 flex-1 sm:flex-none transition"
-        [title]="translate.instant('RESULT.DOWNLOAD_PDF_TOOLTIP')"
-      >
-        <span class="hidden sm:inline">{{ translate.instant('RESULT.DOWNLOAD_PDF') }}</span>
-        <span class="sm:hidden">{{ translate.instant('RESULT.DOWNLOAD_PDF_SHORT') }}</span>
-      </button>
-      <!-- Student Selection Dropdown -->
-  
+@if (result) {
+  <div class="answer-session bg-primary_background_white/80 p-4 mb-4 sm:p-10 max-w-7xl mx-auto shadow-xl rounded-2xl border-2 border-primary_orange_1 print:bg-white print:shadow-none print:p-0 print:overflow-visible">
+    <!-- Action Buttons - Mobile friendly layout -->
+    <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-6 print:hidden gap-4">
+      <h2 class="text-2xl sm:text-3xl font-bold text-primary_orange_1 print:text-black order-2 sm:order-1">
+        {{ translate.instant('RESULT.TEMPLATE_TITLE') }} {{ result.title }}
+      </h2>
+      <div class="flex flex-wrap gap-2 order-1 sm:order-2 w-full sm:w-auto">
+        <!-- Toggle View Button -->
+        <button
+          (click)="toggleView()"
+          class="bg-primary_dark_blue text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_dark_light hover:text-white flex-1 sm:flex-none min-w-0 transition"
+          [title]="translate.instant('RESULT.TOGGLE_VIEW_TOOLTIP')"
+          >
+          <span class="hidden sm:inline">{{ isFullView ? translate.instant('RESULT.COMPRESSED_VIEW') : translate.instant('RESULT.FULL_VIEW') }}</span>
+          <span class="sm:hidden">{{ isFullView ? translate.instant('RESULT.COMPRESSED_VIEW_SHORT') : translate.instant('RESULT.FULL_VIEW_SHORT') }}</span>
+        </button>
+        <!-- PDF Buttons -->
+        <button
+          (click)="openPdf()"
+          class="bg-primary_orange_1 text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_orange_light flex-1 sm:flex-none transition"
+          [title]="translate.instant('RESULT.OPEN_PDF_TOOLTIP')"
+          >
+          <span class="hidden sm:inline">{{ translate.instant('RESULT.OPEN_PDF') }}</span>
+          <span class="sm:hidden">{{ translate.instant('RESULT.OPEN_PDF_SHORT') }}</span>
+        </button>
+        <button
+          (click)="generatePdf()"
+          class="bg-blue-900 text-white px-3 py-2 text-sm rounded-xl hover:bg-blue-700 flex-1 sm:flex-none transition"
+          [title]="translate.instant('RESULT.DOWNLOAD_PDF_TOOLTIP')"
+          >
+          <span class="hidden sm:inline">{{ translate.instant('RESULT.DOWNLOAD_PDF') }}</span>
+          <span class="sm:hidden">{{ translate.instant('RESULT.DOWNLOAD_PDF_SHORT') }}</span>
+        </button>
+        <!-- Student Selection Dropdown -->
+      </div>
     </div>
-    
+    <div class=" flex items-center gap-3 float-end">
+      <label for="student-select" class="text-sm font-medium text-gray-700">
+        {{ 'RESULT.DROPDOWN_SELECT_STUDENT' | translate }}:
+      </label>
+      <select
+        id="student-select"
+        [(ngModel)]="selectedCompletionId"
+        (change)="onStudentSelect($event)"
+        class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        @for (student of completedStudents; track student) {
+          <option [value]="student.id">
+            {{ student.student.fullName }}{{ student.student.userName ? ' (' + student.student.userName + ')' : '' }}
+          </option>
+        }
+      </select>
+    </div>
+    <!-- Use the reusable ShowResultComponent without its own container -->
+    <app-show-result
+      [result]="result"
+      [isFullView]="isFullView"
+      [config]="resultConfig">
+    </app-show-result>
   </div>
-  <div class=" flex items-center gap-3 float-end">
-    <label for="student-select" class="text-sm font-medium text-gray-700">
-      {{ 'RESULT.DROPDOWN_SELECT_STUDENT' | translate }}:
-    </label>
-    <select 
-      id="student-select"
-      [(ngModel)]="selectedCompletionId"
-      (change)="onStudentSelect($event)"
-      class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-      <option *ngFor="let student of completedStudents" [value]="student.id">
-        {{ student.student.fullName }}{{ student.student.userName ? ' (' + student.student.userName + ')' : '' }}
-      </option>
-    </select>
-  </div>
-
-  <!-- Use the reusable ShowResultComponent without its own container -->
-  <app-show-result 
-    [result]="result"
-    [isFullView]="isFullView"
-    [config]="resultConfig">
-  </app-show-result>
-</div>
+}
 
 
 
 <!-- Chart Section (if present) -->
 <!-- <div class="flex justify-center mt-8 w-full max-w-7xl mx-auto" *ngIf="chartOptions">
-  <div class="flex justify-center">
-    <ag-charts class="w-[1000px] h-[500px]" [options]="chartOptions"></ag-charts>
-  </div>
+<div class="flex justify-center">
+  <ag-charts class="w-[1000px] h-[500px]" [options]="chartOptions"></ag-charts>
+</div>
 </div> -->

@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { GuideSection } from './models/user-guide.model';
 import { AuthService } from '../../core/services/auth.service';
@@ -11,7 +11,7 @@ import { Role } from '../../shared/models/user.model';
 @Component({
   selector: 'app-user-guide',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
   templateUrl: './user-guide.component.html',
   styleUrls: ['./user-guide.component.css']
 })

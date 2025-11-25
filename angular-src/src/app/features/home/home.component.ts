@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal, untracked } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { LoginComponent } from '../login/login.component';
 import { HomeService } from './services/home.service';
 import { catchError, map, of, switchMap, take } from 'rxjs';
@@ -21,7 +21,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
  */
 @Component({
     selector: 'app-home',
-    imports: [LoginComponent, CommonModule, TranslateModule],
+    imports: [LoginComponent, TranslateModule],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css']
 })

@@ -22,7 +22,7 @@ import { map } from 'rxjs';
  */
 @Component({
     selector: 'app-answer-questionnaire',
-    imports: [CommonModule, QuestionComponent, LoadingComponent, TranslateModule],
+    imports: [CommonModule, QuestionComponent, TranslateModule],
     templateUrl: './questionnaire.component.html',
     styleUrls: ['./questionnaire.component.css']
 })

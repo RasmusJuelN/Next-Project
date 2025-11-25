@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { Question, Template, TemplateStatus } from '../../../shared/models/template.model';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
@@ -22,7 +22,7 @@ import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-
  */
 @Component({
     selector: 'app-template-editor',
-    imports: [QuestionEditorComponent, CommonModule, FormsModule, ModalComponent, TranslateModule, DragDropModule],
+    imports: [QuestionEditorComponent, FormsModule, ModalComponent, TranslateModule, DragDropModule],
     templateUrl: './template-editor.component.html',
     styleUrl: './template-editor.component.css'
 })

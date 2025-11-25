@@ -7,7 +7,7 @@ import {
 } from "@angular/core";
 import { RouterLink, RouterLinkActive, Router } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
-import { CommonModule } from "@angular/common";
+
 import { MenuSvgComponent } from "../../../shared/components/menu-svg/menu-svg.component";
 import { Role } from "../../../shared/models/user.model";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -23,13 +23,12 @@ import { LanguageSwitcherComponent } from "../language-switcher/language-switche
 @Component({
     selector: "app-header",
     imports: [
-        RouterLink,
-        RouterLinkActive,
-        CommonModule,
-        MenuSvgComponent,
-        TranslateModule,
-        LanguageSwitcherComponent,
-    ],
+    RouterLink,
+    RouterLinkActive,
+    MenuSvgComponent,
+    TranslateModule,
+    LanguageSwitcherComponent
+],
     templateUrl: "./header.component.html",
     styleUrls: ["./header.component.css"]
 })
