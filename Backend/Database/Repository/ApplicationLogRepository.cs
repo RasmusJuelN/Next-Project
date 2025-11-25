@@ -34,6 +34,7 @@ public class ApplicationLogRepository(Context context, ILoggerFactory loggerFact
     public async Task AddAsync(ApplicationLog applicationLog)
     {
         await _genericRepository.AddAsync(applicationLog.ToModel());
+        await _context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -47,6 +48,7 @@ public class ApplicationLogRepository(Context context, ILoggerFactory loggerFact
     public async Task AddRangeAsync(List<ApplicationLog> applicationLogs)
     {
         await _genericRepository.AddRangeAsync([.. applicationLogs.Select(l => l.ToModel())]);
+        await _context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -60,5 +62,41 @@ public class ApplicationLogRepository(Context context, ILoggerFactory loggerFact
     public async Task<List<string>> GetLogCategoriesAsync()
     {
         return await _context.ApplicationLogs.Select(q => q.Category).Distinct().ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<EventId>> GetLogEventsAsync()
+    {
+        return await _context.ApplicationLogs.Where(log => !string.IsNullOrEmpty(log.EventDescription)).Select(log => new EventId(log.EventId, log.EventDescription)).Distinct().ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<ApplicationLog>> GetApplicationLogsAsync(ApplicationLogQuery logQuery)
+    {
+        IQueryable<ApplicationLogsModel> query = _genericRepository.GetAsQueryable();
+
+        query = query.Where(log => log.LogLevel >= logQuery.LogLevel);
+
+        if (logQuery.Categories.Count > 0)
+        {
+            query = query.Where(log => logQuery.Categories.Contains(log.Category));
+        }
+
+        if (logQuery.Events.Count > 0)
+        {
+            query = query.Where(log => logQuery.Events.Contains(log.EventId));
+        }
+
+        return await query.Select(log => new ApplicationLog()
+        {
+            Id = log.Id,
+            Message = log.Message,
+            LogLevel = log.LogLevel,
+            Timestamp = log.Timestamp,
+            EventId = log.EventId,
+            EventDescription = log.EventDescription,
+            Category = log.Category,
+            Exception = log.Exception
+        }).ToListAsync();
     }
 }

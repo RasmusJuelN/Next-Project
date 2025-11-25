@@ -1,5 +1,5 @@
 using System.Net;
-using API.DTO.LDAP;
+using API.DTO.User;
 using API.DTO.Requests.ActiveQuestionnaire;
 using API.DTO.Responses.ActiveQuestionnaire;
 using API.Exceptions;
@@ -123,8 +123,9 @@ public class ActiveQuestionnaireService : IActiveQuestionnaireService
         {
             GroupId = Guid.NewGuid(),
             TemplateId = request.TemplateId,
-            Name = request.Name,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Name = request.Name
+            
         };
         await _unitOfWork.QuestionnaireGroup.AddAsync(group);
 
@@ -157,56 +158,53 @@ public class ActiveQuestionnaireService : IActiveQuestionnaireService
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = questionnaireDtos
         };
     }
 
     /// <summary>
-    /// Retrieves a paginated list of questionnaire groups using keyset pagination and maps them
+    /// Retrieves a paginated list of questionnaire groups using offset pagination and maps them
     /// to lightweight DTOs for client consumption.
     /// </summary>
     /// <param name="request">
-    /// The <see cref="QuestionnaireGroupKeysetPaginationRequest"/> containing pagination parameters,
+    /// The <see cref="QuestionnaireGroupOffsetPaginationRequest"/> containing page number, page size,
     /// ordering preferences, and optional filters.
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous operation, containing a
-    /// <see cref="QuestionnaireGroupKeysetPaginationResult"/> with the requested page of results,
-    /// total count, and a continuation cursor for subsequent queries.
+    /// <see cref="QuestionnaireGroupOffsetPaginationResult"/> with the requested page of results,
+    /// current page number, total pages, and total count.
     /// </returns>
     /// <remarks>
-    /// Keyset pagination ensures efficient retrieval of large datasets by using a creation date
-    /// and group ID as the continuation marker. The resulting DTOs include group details,
-    /// associated template IDs, and nested questionnaire summaries.
+    /// Offset pagination provides direct page navigation by using page numbers and page size
+    /// to calculate result offsets. This allows users to jump to any page within the result set.
+    /// The resulting DTOs include group details, associated template IDs, nested questionnaire summaries,
+    /// and completion status for both students and teachers. Groups can be filtered by pending
+    /// student or teacher completions, and searched by title.
     /// </remarks>
-    public async Task<QuestionnaireGroupKeysetPaginationResult> FetchQuestionnaireGroupsWithKeysetPagination(QuestionnaireGroupKeysetPaginationRequest request)
+    /// <exception cref="ArgumentException">Thrown when request parameters are invalid.</exception>
+    public async Task<QuestionnaireGroupOffsetPaginationResult> FetchQuestionnaireGroupsWithOffsetPagination(QuestionnaireGroupOffsetPaginationRequest request)
     {
-        DateTime? cursorCreatedAt = null;
-        Guid? cursorId = null;
-
-        if (!string.IsNullOrEmpty(request.QueryCursor))
-        {
-            cursorCreatedAt = DateTime.Parse(request.QueryCursor.Split('_')[0]);
-            cursorId = Guid.Parse(request.QueryCursor.Split('_')[1]);
-        }
 
         (List<QuestionnaireGroupModel> groups, int totalCount) = await _unitOfWork.QuestionnaireGroup
             .PaginationQueryWithKeyset(
-                request.PageSize,
-                request.Order,
-                cursorId,
-                cursorCreatedAt,
-                request.Title,
-                request.GroupId,
-                request.PendingStudent,
-                request.PendingTeacher
-            );
+            request.PageSize,
+            request.Order,
+            titleQuery: request.Title,
+            groupId: request.GroupId,
+            pendingStudent: request.PendingStudent,
+            pendingTeacher: request.PendingTeacher,
+            teacherFK: null,
+            pageNumber: request.PageNumber
+        );
 
         var results = groups.Select(group => new QuestionnaireGroupResult
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = group.Questionnaires.Select(q => new ActiveQuestionnaireAdminBase
             {
@@ -229,18 +227,13 @@ public class ActiveQuestionnaireService : IActiveQuestionnaireService
             }).ToList()
         }).ToList();
 
-        QuestionnaireGroupModel? lastGroup = groups.Count > 0 ? groups.Last() : null;
+        int totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
 
-        string? queryCursor = null;
-        if (lastGroup is not null)
-        {
-            queryCursor = $"{lastGroup.CreatedAt:O}_{lastGroup.GroupId}";
-        }
-
-        return new QuestionnaireGroupKeysetPaginationResult
+        return new QuestionnaireGroupOffsetPaginationResult
         {
             Groups = results,
-            QueryCursor = queryCursor,
+            CurrentPage = request.PageNumber,  // Return the requested page number
+            TotalPages = totalPages,
             TotalCount = totalCount
         };
     }
@@ -294,6 +287,7 @@ public class ActiveQuestionnaireService : IActiveQuestionnaireService
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = questionnaireDtos
         };
@@ -582,13 +576,13 @@ public class ActiveQuestionnaireService : IActiveQuestionnaireService
     private UserAdd GenerateStudent(Guid id)
     {
         BasicUserInfo? ldapStudent = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Student not found in LDAP.");
-        string studentRole = _JWTSettings.Roles.FirstOrDefault(x => ldapStudent.MemberOf.StringValue.Contains(x.Value)).Key;
+        string studentRole = _JWTSettings.Roles.First(x => ldapStudent.MemberOf.Any(y => y.Contains(x.Value, StringComparison.OrdinalIgnoreCase))).Key;
 
         return new()
         {
             Guid = id,
-            UserName = ldapStudent.Username.StringValue,
-            FullName = ldapStudent.Name.StringValue,
+            UserName = ldapStudent.Username,
+            FullName = ldapStudent.Name,
             PrimaryRole = (UserRoles)Enum.Parse(typeof(UserRoles), studentRole, true),
             Permissions = (UserPermissions)Enum.Parse(typeof(UserPermissions), studentRole, true)
         };
@@ -615,18 +609,48 @@ public class ActiveQuestionnaireService : IActiveQuestionnaireService
     private UserAdd GenerateTeacher(Guid id)
     {
         BasicUserInfo? ldapTeacher = _authenticationBridge.SearchId<BasicUserInfo>(id.ToString()) ?? throw new HttpResponseException(HttpStatusCode.NotFound, "Teacher not found in LDAP.");
-        string teacherRole = _JWTSettings.Roles.FirstOrDefault(x => ldapTeacher.MemberOf.StringValue.Contains(x.Value)).Key;
+        string teacherRole = _JWTSettings.Roles.First(x => ldapTeacher.MemberOf.Any(y => y.Contains(x.Value, StringComparison.OrdinalIgnoreCase))).Key;
 
         return new()
         {
             Guid = id,
-            UserName = ldapTeacher.Username.StringValue,
-            FullName = ldapTeacher.Name.StringValue,
+            UserName = ldapTeacher.Username,
+            FullName = ldapTeacher.Name,
             PrimaryRole = (UserRoles)Enum.Parse(typeof(UserRoles), teacherRole, true),
             Permissions = (UserPermissions)Enum.Parse(typeof(UserPermissions), teacherRole, true)
         };
     }
 
+    /// <summary>
+    /// Retrieves the response history for a specific student and questionnaire template.
+    /// </summary>
+    /// <param name="studentId">The unique identifier of the student whose response history to retrieve.</param>
+    /// <param name="teacherId">The unique identifier of the teacher making the request.</param>
+    /// <param name="templateId">The unique identifier of the questionnaire template.</param>
+    /// <returns>
+    /// A <see cref="StudentResultHistory"/> object containing the student's response history for the specified template,
+    /// or null if no history is found.
+    /// </returns>
+    /// <remarks>
+    /// This method retrieves all historical responses from a student for a specific questionnaire template,
+    /// providing teachers with insight into student progress over time.
+    /// </remarks>
+    public async Task<StudentResultHistory?> GetResponseHistoryAsync(Guid studentId, Guid teacherId, Guid templateId)
+    {
+        return await _unitOfWork.ActiveQuestionnaire.GetResponseHistoryAsync(studentId, teacherId, templateId);
+    }
+
+    public async Task<IEnumerable<CompletedStudentDto>> GetCompletedStudentsByGroup(Guid activeQuestionnaireId)
+    {
+        var questionnaires = await _unitOfWork.ActiveQuestionnaire
+            .GetCompletedQuestionnairesByGroupAsync(activeQuestionnaireId);
+
+        return questionnaires.Select(q => new CompletedStudentDto
+        {
+            Id = q.Id,
+            Student = q.Student ?? new UserBase { UserName = "", FullName = "" }
+        });
+    }
 
 }
 // Add the missing CreatedAt property to the QuestionnaireGroupResult class

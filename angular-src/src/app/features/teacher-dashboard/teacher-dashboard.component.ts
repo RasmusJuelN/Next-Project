@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard'; 
 import { PageChangeEvent, PaginationComponent } from '../../shared/components/pagination/pagination.component';
-import { ActiveQuestionnaireBase, ActiveQuestionnaireResponse } from './models/dashboard.model';
+import { ActiveQuestionnaireBase, QuestionnaireGroup} from './models/dashboard.model';
 import { TeacherService } from './services/teacher.service';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,20 +23,18 @@ import { TranslateModule } from '@ngx-translate/core';
  * - Navigation to answer/results when applicable.
  */
 @Component({
-  selector: 'app-teacher-dashboard',
-  standalone: true,
-  imports: [ClipboardModule,FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule],
-  templateUrl: './teacher-dashboard.component.html',
-  styleUrls: ['./teacher-dashboard.component.css']
+    selector: 'app-teacher-dashboard',
+    imports: [ClipboardModule, FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule],
+    templateUrl: './teacher-dashboard.component.html',
+    styleUrls: ['./teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent implements OnInit {
   private teacherService = inject(TeacherService);
   private clipboard = inject(Clipboard); // For copying active questionaire id
+  private searchSubject = new Subject<string>();
+
   // Search state
   searchTerm: string = '';
-  // "name" will search by student name; "id" will search by active questionnaire ID.
-  searchType: 'name' | 'id' = 'name';
-  private searchSubject = new Subject<string>();
 
   // Pagination state
   currentPage: number = 1;
@@ -45,123 +43,120 @@ export class TeacherDashboardComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
-  // Cache cursors by page number; page 1 starts with a null cursor.
-  cachedCursors: { [pageNumber: number]: string | null } = { 1: null };
-
   // Filters
   filterStudentCompleted = false;
   filterTeacherCompleted = false;
 
   // Data to display
-  displayedQuestionnaires: ActiveQuestionnaireBase[] = [];
+  displayedGroups: QuestionnaireGroup[] = [];
+  groupCollapsed: { [groupId: string]: boolean } = {};
 
+  // UI state
   isLoading = false;
   errorMessage: string | null = null;
 
   ngOnInit(): void {
-    // Debounce search input to reduce API calls.
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((term) => {
         this.searchTerm = term;
-        this.currentPage = 1;
-        this.cachedCursors = { 1: null };
+        this.currentPage = 1; // Reset to first page on search
         this.updateDisplay();
       });
 
-    // Initial load.
     this.updateDisplay();
   }
 
-  /**
-   * Loads questionnaires using current search, filters, and pagination.
-   * Updates displayed items, total counts, total pages, and next-page cursor cache.
-   */
   private updateDisplay(): void {
     this.isLoading = true;
     this.errorMessage = null;
-
-    // Get the cursor for the current page (or null for first page).
-    const queryCursor = this.cachedCursors[this.currentPage] ?? null;
-
     this.teacherService
-      .getQuestionnaires(
-        this.searchTerm,
-        this.searchType,
-        queryCursor,
+      .getQuestionnaireGroups(
+        this.currentPage,
         this.pageSize,
+        this.searchTerm,
         this.filterStudentCompleted,
         this.filterTeacherCompleted
       )
       .subscribe({
-        next: (response: ActiveQuestionnaireResponse) => {
-          // Update the displayed items and pagination state.
-          this.displayedQuestionnaires = response.activeQuestionnaireBases;
-          this.totalItems = response.totalCount;
-          this.totalPages = Math.ceil(response.totalCount / this.pageSize);
+        next: (res) => {
+          const groups = res.groups ?? [];
+          this.displayedGroups = groups.map((g: any) => ({
+            groupId: g.groupId,
+            groupName: g.groupName ?? g.name ?? 'Ungrouped',
+            createdAt: g.createdAt ?? g.CreatedAt ?? null,
+            templateId: g.templateId ?? g.TemplateId ?? null,
+            questionnaires: (g.questionnaires ?? []).map((q: any) => ({
+              id: q.id,
+              title: q.title,
+              description: q.description,
+              activatedAt: new Date(q.activatedAt),
+              studentCompletedAt: q.studentCompletedAt ? new Date(q.studentCompletedAt) : null,
+              teacherCompletedAt: q.teacherCompletedAt ? new Date(q.teacherCompletedAt) : null,
+              student: q.student,
+              teacher: q.teacher,
+              templateId: q.templateId ?? q.TemplateId ?? null
+            }))
+          }));
 
-          // Cache the cursor for the next page if provided.
-          if (response.queryCursor !== null) {
-            this.cachedCursors[this.currentPage + 1] = response.queryCursor;
-          } else {
-            this.cachedCursors[this.currentPage + 1] = null;
-          }
+          // Initialize collapse state
+          this.displayedGroups.forEach(g => {
+            if (this.groupCollapsed[g.groupId] === undefined) {
+              this.groupCollapsed[g.groupId] = true;
+            }
+          });
+
+          this.totalItems = res.totalCount ?? 0;
+          this.totalPages = res.totalPages ?? Math.ceil(this.totalItems / this.pageSize);
+
           this.isLoading = false;
         },
-        error: (err) => {
+        error: () => {
           this.errorMessage = 'Failed to load data. Please try again.';
           this.isLoading = false;
         }
       });
   }
 
-  /** Emits a new search term into the debounced search stream. */
   onSearchChange(term: string): void {
     this.searchSubject.next(term);
   }
 
-  /** Changes the search type ('name' | 'id'), resets pagination, and reloads data. */
-  onSearchTypeChange(newType: string): void {
-    this.searchType = newType as 'name' | 'id';
-    this.currentPage = 1;
-    this.cachedCursors = { 1: null };
-    this.updateDisplay();
-  }
-  
-  /** Toggles completion filters for active questionnaire, resets pagination, and reloads data. */
   onCompletionFilterChange(): void {
     this.currentPage = 1;
-    this.cachedCursors = { 1: null };
-    this.updateDisplay();
-  }
-  
-  /** Updates page size, resets pagination, and reloads data. */
-  onPageSizeChange(newSize: string): void {
-    this.pageSize = parseInt(newSize, 10);
-    this.currentPage = 1;
-    this.cachedCursors = { 1: null };
     this.updateDisplay();
   }
 
-  /** Returns true if the provided size equals the current page size. */
+  onPageSizeChange(newSize: string): void {
+    this.pageSize = parseInt(newSize, 10);
+    this.currentPage = 1;
+    this.updateDisplay();
+  }
+
   isSelectedPageSize(size: number): boolean {
     return size === this.pageSize;
   }
 
-  /** Moves to the given page and reloads data. */
   onPageChange(event: PageChangeEvent): void {
-    this.currentPage = event.page;
+    this.currentPage = event.page;  // Jump to any page directly!
     this.updateDisplay();
+    console.log('Page changed to:', this.currentPage);
   }
-
-  /**
-   * Copies a direct answer URL for the given questionnaire id to the clipboard.
-   * @param id active questionnaire id
-   */
 
   copyAnswersUrl(id: string): void {
     const url = `${window.location.origin}/answer/${id}`;
     this.clipboard.copy(url);
-    console.log(`URL ${url} copied to clipboard!`);
+  }
+
+  toggleGroupCollapse(groupId: string) {
+    this.groupCollapsed[groupId] = !this.groupCollapsed[groupId];
+  }
+
+  getAnsweredCount(questionnaires: ActiveQuestionnaireBase[] = [], role: 'student' | 'teacher'): number {
+    if (!questionnaires || questionnaires.length === 0) return 0;
+    return role === 'student'
+      ? questionnaires.filter(q => !!q.studentCompletedAt).length
+      : questionnaires.filter(q => !!q.teacherCompletedAt).length;
+
   }
 }

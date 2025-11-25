@@ -35,19 +35,18 @@ enum TemplateModalType {
  * - Uses translation keys for all labels and default values.
  */
 @Component({
-  selector: 'app-template-manager',
-  standalone: true,
-  imports: [
-    TemplateEditorComponent,
-    FormsModule,
-    CommonModule,
-    PaginationComponent,
-    LoadingComponent,
-    TranslateModule,
-    ModalComponent
-  ],
-  templateUrl: './template-manager.component.html',
-  styleUrls: ['./template-manager.component.css'],
+    selector: 'app-template-manager',
+    imports: [
+        TemplateEditorComponent,
+        FormsModule,
+        CommonModule,
+        PaginationComponent,
+        LoadingComponent,
+        TranslateModule,
+        ModalComponent
+    ],
+    templateUrl: './template-manager.component.html',
+    styleUrls: ['./template-manager.component.css']
 })
 export class TemplateManagerComponent {
   private templateService = inject(TemplateService);
@@ -233,6 +232,7 @@ onFinalizeTemplate(tmpl: Template): void {
           prompt: this.translate.instant('TMP_NEW_QUESTION'), //Default Question
           allowCustom: true,
           options: [],
+          sortOrder: 0
         },
       ],
     };
@@ -324,7 +324,7 @@ get modalTitle(): string {
         ? this.translate.instant('TMP_DELETE_CONFIRM_TITLE')
         : this.translate.instant('TMP_DELETE_CONFIRM_WARN');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_LOCKED_TITLE');
+      return this.translate.instant('TMP_COPY_TITLE');
     default:
       return '';
   }
@@ -337,7 +337,7 @@ get modalText(): string {
         ? this.translate.instant('TEMPLATES.DELETE.MSG')
         : this.translate.instant('TMP_DELETE_FINAL_WARN_MSG');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_LOCKED_MSG');
+      return this.translate.instant('TMP_COPY_MSG');
     default:
       return '';
   }
@@ -348,7 +348,7 @@ get confirmText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
       return this.deleteConfirmStep === 0
-        ? this.translate.instant('COMMON.BUTTONS.CONTINUE')
+        ? this.translate.instant('TMP_DELETE')
         : this.translate.instant('TMP_DELETE');
     case TemplateModalType.Copy:
       return this.translate.instant('COMMON.BUTTONS.COPY');
@@ -441,9 +441,11 @@ private deepCopyAsNewTemplate(template: Template): Template {
   clone.questions = clone.questions.map((q, qIndex) => ({
     ...q,
     id: -1 * (qIndex + 1), // new negative ID
+    sortOrder: qIndex,
     options: q.options.map((o, oIndex) => ({
       ...o,
-      id: -1 * (oIndex + 1) // new negative ID
+      id: -1 * (oIndex + 1),// new negative ID
+      sortOrder: oIndex
     }))
   }));
 

@@ -45,6 +45,7 @@ public static class QuestionnaireTemplateAddMapper
         {
             Prompt = question.Prompt,
             AllowCustom = question.AllowCustom,
+            SortOrder = question.SortOrder,
             Options = [.. question.Options.Select(o => o.ToModel())]
         };
     }
@@ -64,7 +65,8 @@ public static class QuestionnaireTemplateAddMapper
         return new()
         {
             OptionValue = option.OptionValue,
-            DisplayText = option.DisplayText
+            DisplayText = option.DisplayText,
+            SortOrder = option.SortOrder
         };
     }
 }

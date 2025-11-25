@@ -1,147 +1,202 @@
-<div class="flex flex-col items-center w-full ">
-  <div class="flex flex-col bg-primary_background_white/80 shadow-xl rounded-2xl border-2 border-primary_orange_1 sm:p-10 sm:max-w-[1100px] mx-auto">
-  <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center">
-
+<div class="flex flex-col items-center w-full min-h-full px-4">
+  <div class="flex flex-col w-full max-w-5xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
+    <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">
       <!-- Overview over active questionnaires. -->
-       {{ 'TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES' | translate }}
+      {{ 'TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES' | translate }}
     </h2>
 
     <!-- Search & Filters Row -->
     <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
       <!-- Search & Filters -->
       <div class="flex flex-col sm:flex-row w-full gap-3">
-        <select
-          #searchSelect
-          (change)="onSearchTypeChange(searchSelect.value)"
-          class="w-full sm:w-auto min-w-0 border border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50"
-        >
-          <option value="name" selected>{{'TMP_SEARCH_BY_STUDENT_NAME'| translate}}</option> 
-          <option value="id">{{'TMP_SEARCH_BY_QUESTIONNAIRE_ID'| translate}}</option>
-        </select>
 
         <input
           #searchInput
           type="text"
           (input)="onSearchChange(searchInput.value)"
-          placeholder="Search..."
+          placeholder="{{'TMP_SEARCH_GROUP_PLACEHOLDER' | translate}}"
           class="px-4 py-2 border border-primary_orange rounded-lg shadow-sm focus:ring-primary_orange focus:border-primary_orange text-sm w-full sm:flex-grow min-w-0 bg-primary_background_white/80"
-        />
-      </div>
-
-      <!-- Completion Filters -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <label class="flex items-center gap-2 text-primary_dark_light">
-          <input
-            type="checkbox"
-            [(ngModel)]="filterStudentCompleted"
-            (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">{{'TMP_STUDENT_DONE'| translate}}</span>
-        </label>
-        <label class="flex items-center gap-2 text-primary_dark_light">
-          <input
-            type="checkbox"
-            [(ngModel)]="filterTeacherCompleted"
-            (change)="onCompletionFilterChange()"
-          />
-          <span class="text-sm">{{'TMP_TEACHER_DONE'| translate}}</span>
-        </label>
-      </div>
+        </div>
 
-      <!-- Page Size Selector -->
-      <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2 items-center">
-        <label for="pageSize" class="text-primary_dark_light font-medium"> {{'TMP_ITEMS_PER_PAGE'| translate}}</label>
-        <select
-          #pageSize
-          id="pageSize"
-          (change)="onPageSizeChange(pageSize.value)"
-          class="w-full sm:w-auto min-w-0 border border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50"
-        >
-          <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">
-            {{ size }}
-          </option>
-        </select>
-      </div>
-    </div>
+        <!-- Completion Filters -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <label class="flex items-center gap-2 text-primary_dark_blue">
+            <input
+              type="checkbox"
+              [(ngModel)]="filterStudentCompleted"
+              (change)="onCompletionFilterChange()"
+              />
+              <span class="text-sm">{{'FILTER_STUDENT_PENDING'| translate}}</span>
+            </label>
+            <label class="flex items-center gap-2 text-primary_dark_blue">
+              <input
+                type="checkbox"
+                [(ngModel)]="filterTeacherCompleted"
+                (change)="onCompletionFilterChange()"
+                />
+                <span class="text-sm">{{'FILTER_TEACHER_PENDING'| translate}}</span>
+              </label>
+            </div>
 
-    <div class="flex justify-center items-center min-h-[150px]" *ngIf="isLoading">
-      <app-loading></app-loading>
-    </div>
+            <!-- Page Size Selector -->
+            <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2 items-center">
+              <label for="pageSize" class="text-primary_dark_light font-medium"> {{'TMP_ITEMS_PER_PAGE'| translate}}</label>
+              <select
+                #pageSize
+                id="pageSize"
+                (change)="onPageSizeChange(pageSize.value)"
+                class="w-full sm:w-auto min-w-0 border border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50"
+                >
+                @for (size of pageSizeOptions; track size) {
+                  <option [value]="size" [selected]="isSelectedPageSize(size)">
+                    {{ size }}
+                  </option>
+                }
+              </select>
+            </div>
+          </div>
 
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="text-center p-4">
-      <p class="text-accent_red font-semibold text-lg">{{ errorMessage }}</p>
-    </div>
+          @if (isLoading) {
+            <div class="flex justify-center items-center min-h-[150px]">
+              <app-loading></app-loading>
+            </div>
+          }
 
-    <ul class="space-y-6 mt-8" *ngIf="!isLoading && !errorMessage">
-      <li
-  *ngFor="let questionnaire of displayedQuestionnaires"
-  class="mb-8 border p-4 bg-gray-50 rounded-xl border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover transition-colors"
->
-  <div class="flex items-center justify-between w-full">
-    <!-- Left side: questionnaire info -->
-    <div class="flex flex-col gap-3">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-        <span class="font-bold text-primary_dark text-lg">{{ questionnaire.title }}</span>
-        <span class="text-sm text-secondary_gray">
-          ID: {{ questionnaire.id }}
-          <button
-            *ngIf="!questionnaire.teacherCompletedAt || !questionnaire.studentCompletedAt"
-            (click)="copyAnswersUrl(questionnaire.id)"
-            class="ml-2 cursor-pointer text-orange-600 font-medium hover:text-orange-700 underline underline-offset-2 transition"
-          >
-            {{'TMP_COPY_LINK' | translate}}
-          </button>
-        </span>
-      </div>
-      <div *ngIf="questionnaire.student" class="flex flex-col sm:flex-row gap-2">
-        <span class="text-sm text-primary_dark_light">
-          {{'TMP_STUDENT_NAME'| translate}} <span class="font-bold">{{ questionnaire.student.fullName }} ({{questionnaire.student.userName}})</span>
-        </span>
-      </div>
-      <div class="flex flex-col sm:flex-row gap-2">
-        <span
-          class="px-3 py-1 rounded-full text-sm font-medium text-white"
-          [ngClass]="questionnaire.studentCompletedAt ? 'bg-accent_green' : 'bg-accent_red'"
-        >
-          {{'TMP_STUDENT'| translate}} {{ questionnaire.studentCompletedAt ? ('TMP_COMPLETED' | translate) : ('TMP_PENDING' | translate) }}
-        </span>
-        <span
-          class="px-3 py-1 rounded-full text-sm font-medium text-white"
-          [ngClass]="questionnaire.teacherCompletedAt ? 'bg-accent_green' : 'bg-accent_red'"
-        >
-          {{'TMP_TEACHER'|translate}} {{ questionnaire.teacherCompletedAt ? ('TMP_COMPLETED' | translate) : ('TMP_PENDING' | translate) }}
-        </span>
-      </div>
-    </div>
-    <!-- Right side: buttons -->
-    <div class="flex gap-2 items-center">
-      <button
-        *ngIf="!questionnaire.teacherCompletedAt"
-        [routerLink]="['/answer', questionnaire.id]"
-        class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
-      >
-        {{ 'TMP_ANSWER' | translate }}
-      </button>
-      <button
-        *ngIf="questionnaire.teacherCompletedAt && questionnaire.studentCompletedAt"
-        [routerLink]="['/results', questionnaire.id]"
-        class="px-4 py-2 text-sm bg-secondary_blue text-white rounded-md hover:bg-primary_orange focus:outline-none"
-      >
-        {{ 'TMP_VIEW_RESULTS' | translate }}
-      </button>
-    </div>
-  </div>
-</li>
-    </ul>
+          <!-- Error Message -->
+          @if (errorMessage) {
+            <div class="text-center p-4">
+              <p class="text-accent_red font-semibold text-lg">{{ errorMessage }}</p>
+            </div>
+          }
 
-    <app-pagination
-      *ngIf="!isLoading && !errorMessage"
-      [currentPage]="currentPage"
-      [totalPages]="totalPages"
-      (pageChange)="onPageChange($event)"
-      class="mt-8"
-    >
-    </app-pagination>
-  </div>
-</div>
+          <!-- Grouped list (matches admin ActiveList styling) -->
+          @if (!isLoading && !errorMessage) {
+            <div class="mt-8 w-full">
+              @for (group of displayedGroups; track group) {
+                <div class="mb-4 p-2 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover transition-colors">
+                  <button
+                    type="button"
+                    class="w-full text-left p-2"
+                    (click)="toggleGroupCollapse(group.groupId)"
+                    [attr.aria-expanded]="!groupCollapsed[group.groupId]"
+                    [attr.aria-controls]="'group-panel-' + group.groupId">
+                    <!-- Group header: name, status (left) and arrow (right) -->
+                    <div class="flex justify-between">
+                      <div class="flex flex-col sm:flex-col">
+                        <h3 class="text-lg sm:text-xl font-bold text-primary_dark_blue leading-snug">
+                          {{ group.groupName }}
+                        </h3>
+                        <span class="text-gray-500 font-normal text-sm">
+                          {{ group.createdAt | date:'dd-MM-yyyy HH:mm' }}
+                        </span>
+                      </div>
+                      <div class="flex flex-row flex-wrap gap-2 text-xs sm:text-sm text-gray-600 items-center">
+                        <span>
+                          {{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }}
+                          <span
+                    [ngClass]="{
+                      'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === 0,
+                      'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'student') > 0 && getAnsweredCount(group.questionnaires, 'student') < group.questionnaires.length,
+                      'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'student') === group.questionnaires.length
+                    }">
+                            {{ getAnsweredCount(group.questionnaires, 'student') }}
+                          </span>
+                          /
+                          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+                        </span>
+                        <span>
+                          {{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }}
+                          <span
+                    [ngClass]="{
+                      'text-red-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === 0,
+                      'text-yellow-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') > 0 && getAnsweredCount(group.questionnaires, 'teacher') < group.questionnaires.length,
+                      'text-green-600 font-bold': getAnsweredCount(group.questionnaires, 'teacher') === group.questionnaires.length
+                    }">
+                            {{ getAnsweredCount(group.questionnaires, 'teacher') }}
+                          </span>
+                          /
+                          <span class="text-gray-800">{{ group.questionnaires.length }}</span>
+                        </span>
+                        <span [class.rotate-180]="!groupCollapsed[group.groupId]" class="transition-transform duration-300 text-lg ml-4">▼</span>
+                      </div>
+                      <!-- Collapse arrow on the right -->
+                    </div>
+                    <!-- Questionnaires list -->
+                    @if (!groupCollapsed[group.groupId]) {
+                      <div class="mt-3 sm:mt-4" id="{{ 'group-panel-' + group.groupId }}">
+                        <ul class="space-y-3 sm:space-y-4">
+                          @for (q of group.questionnaires; track q) {
+                            <li
+                              class="p-2 px-4 border border-primary_orange_1 rounded-lg shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                              <div class="min-w-0">
+                                <span class="block font-semibold text-gray-800 break-words">{{ q.title }}</span>
+                              </div>
+                              <div class="flex flex-col sm:flex-row sm:gap-6 gap-1">
+                                <span class="text-sm">
+                                  <strong>{{ 'ACTIVE_LIST.GROUP_STUDENT' | translate }} </strong>
+                                  <span [ngClass]="{'text-green-600 font-bold': q.studentCompletedAt, 'text-red-600 font-extrabold': !q.studentCompletedAt}">
+                                    {{ q.student?.fullName }}
+                                  </span>
+                                </span>
+                                <span class="text-sm">
+                                  <strong>{{ 'ACTIVE_LIST.GROUP_TEACHER' | translate }} </strong>
+                                  <span [ngClass]="{'text-green-600 font-bold': q.teacherCompletedAt, 'text-red-600 font-bold': !q.teacherCompletedAt}">
+                                    {{ q.teacher?.fullName }}
+                                  </span>
+                                </span>
+                              </div>
+                              <div class="flex gap-2 items-center mt-3 sm:mt-0">
+                                @if (!q.studentCompletedAt) {
+                                  <button
+                                    (click)="copyAnswersUrl(q.id)"
+                                    class="ml-2 cursor-pointer text-sm text-primary_orange_1 font-normal hover:text-primary_orange_light underline underline-offset-2 transition"
+                                    >
+                                    {{'TMP_COPY_LINK' | translate}}
+                                  </button>
+                                }
+                                @if (!q.teacherCompletedAt) {
+                                  <button
+                                    [routerLink]="['/answer', q.id]"
+                                    class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
+                                    >
+                                    {{ 'TMP_ANSWER' | translate }}
+                                  </button>
+                                }
+                                @if (q.teacherCompletedAt && q.studentCompletedAt) {
+                                  <button
+                                    [routerLink]="['/results', q.id]"
+                                    class="px-4 py-2 text-sm bg-secondary_blue text-white rounded-md hover:bg-primary_orange focus:outline-none"
+                                    >
+                                    {{ 'TMP_VIEW_RESULTS' | translate }}
+                                  </button>
+                                }
+                              </div>
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                  </button>
+                </div>
+              }
+              <!-- Fallback when no groups -->
+              @if (displayedGroups.length === 0) {
+                <div class="text-center p-6 text-gray-600">
+                  {{ 'TMP_NO_ACTIVE_QUESTIONNAIRES' | translate }}
+                </div>
+              }
+            </div>
+          }
+
+          @if (!isLoading && !errorMessage) {
+            <app-pagination
+              [currentPage]="currentPage"
+              [totalPages]="totalPages"
+              (pageChange)="onPageChange($event)"
+              class="mt-8"
+              >
+            </app-pagination>
+          }
+        </div>
+      </div>

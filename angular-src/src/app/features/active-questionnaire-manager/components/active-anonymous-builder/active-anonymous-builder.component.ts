@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-active-anonymous-builder',
-  standalone: true,
-  imports: [],
-  templateUrl: './active-anonymous-builder.component.html',
-  styleUrl: './active-anonymous-builder.component.css'
+    selector: 'app-active-anonymous-builder',
+    imports: [],
+    templateUrl: './active-anonymous-builder.component.html',
+    styleUrl: './active-anonymous-builder.component.css'
 })
 export class ActiveAnonymousBuilderComponent {
 participants: any[] = []; // Load all users (students, teachers, etc.)

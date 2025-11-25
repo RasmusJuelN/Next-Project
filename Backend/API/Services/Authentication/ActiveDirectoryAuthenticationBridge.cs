@@ -1,9 +1,8 @@
 using System.Net;
-using System.Reflection;
-using API.Attributes;
 using API.DTO.LDAP;
+using API.DTO.User;
 using API.Exceptions;
-using API.Interfaces;
+using API.FieldMappers;
 using Novell.Directory.Ldap;
 using Novell.Directory.Ldap.Controls;
 using Settings.Models;
@@ -15,7 +14,7 @@ public class ActiveDirectoryAuthenticationBridge(
     IConfiguration configuration,
     CacheService sessionCacheService,
     LdapConnection? ldapConnection = null,
-    string? sessionId = null) : IAuthenticationBridge
+    string? sessionId = null) : BaseAuthenticationBridge(new LDAPFieldMappingProvider())
 {
     private readonly ILogger<ActiveDirectoryAuthenticationBridge> _Logger = logger;
     private readonly LDAPSettings _LdapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
@@ -24,10 +23,22 @@ public class ActiveDirectoryAuthenticationBridge(
     private LdapConnection? _Connection = ldapConnection;
     private string? _SessionId = sessionId;
 
-    public void Authenticate(string username, string password)
+    public override void Authenticate(string username, string password)
     {
         _Logger.LogInformation("Starting LDAP authentication for user: {Username}", username);
-        
+
+        int port;
+        LdapConnectionOptions connectionOptions = new();
+        if (_LdapSettings.UseSSL)
+        {
+            connectionOptions.UseSsl();
+            port = _LdapSettings.SSLPort;
+        }
+        else
+        {
+            port = _LdapSettings.Port;
+        }
+
         try
         {
             if (_Connection is not null && _Connection.Connected)
@@ -45,13 +56,13 @@ public class ActiveDirectoryAuthenticationBridge(
             else
             {
                 _Logger.LogDebug("Creating new LDAP connection to {Host}:{Port}", _LdapSettings.Host, _LdapSettings.Port);
-                _Connection = CreateConnection();
+                _Connection = CreateConnection(connectionOptions);
                 LdapSearchConstraints constraints = new();
                 constraints.ReferralFollowing = true;
                 _Connection.Constraints = constraints;
             }
 
-            _Connection.Connect(_LdapSettings.Host, _LdapSettings.Port);
+            _Connection.Connect(_LdapSettings.Host, port);
 
             BindWithSimple(username, password);
             _Logger.LogInformation("LDAP authentication successful for user: {Username}", username);
@@ -60,7 +71,7 @@ public class ActiveDirectoryAuthenticationBridge(
         catch (LdapException ex)
         {
             _Logger.LogError(ex, "LDAP authentication failed for user: {Username} with result code: {ResultCode}", username, ex.ResultCode);
-            
+
             // https://ldap.com/ldap-result-code-reference/
             throw ex.ResultCode switch
             {
@@ -73,7 +84,7 @@ public class ActiveDirectoryAuthenticationBridge(
         }
     }
 
-    public TUser? SearchUser<TUser>(string username) where TUser : new()
+    public override TUser? SearchUser<TUser>(string username) where TUser : default
     {
         _Logger.LogDebug("Starting user search for: {Username}", username);
         
@@ -100,7 +111,7 @@ public class ActiveDirectoryAuthenticationBridge(
         return userSearch;
     }
 
-    public TGroup? SearchGroup<TGroup>(string groupName) where TGroup : new()
+    public override TGroup? SearchGroup<TGroup>(string groupName) where TGroup : default
     {
         _Logger.LogDebug("Starting group search for: {GroupName}", groupName);
         
@@ -133,7 +144,7 @@ public class ActiveDirectoryAuthenticationBridge(
         }
     }
 
-    public TEntity? SearchId<TEntity>(string Id) where TEntity : new()
+    public override TEntity? SearchId<TEntity>(string Id) where TEntity : default
     {
         EnsureBoundConnection();
 
@@ -167,7 +178,7 @@ public class ActiveDirectoryAuthenticationBridge(
         return ldapObject;
     }
 
-    public (List<TLdapUser>, string, bool) SearchUserPagination<TLdapUser>(string username, string? userRole, int pageSize, string? sessionId) where TLdapUser : new()
+    public override (List<TLdapUser>, string, bool) SearchUserPagination<TLdapUser>(string username, string? userRole, int pageSize, string? sessionId) where TLdapUser : default
     {
         _Logger.LogInformation("Starting paginated user search - Username: {Username}, UserRole: {UserRole}, PageSize: {PageSize}, SessionId: {SessionId}", 
             username, userRole, pageSize, sessionId);
@@ -227,8 +238,8 @@ public class ActiveDirectoryAuthenticationBridge(
             userRole = matchedRole.Value.Value;
             _Logger.LogDebug("Mapped internal role to LDAP role: {LdapRole}", userRole);
             
-            GroupDistinguishedName? group = SearchGroup<GroupDistinguishedName>(userRole) ?? throw new HttpResponseException(HttpStatusCode.NotFound, $"Group '{userRole}' not found.");
-            searchFilter = $"(&{searchFilter}(memberOf={group.DistinguishedName.StringValue}))";
+            BasicGroupInfo? group = SearchGroup<BasicGroupInfo>(userRole) ?? throw new HttpResponseException(HttpStatusCode.NotFound, $"Group '{userRole}' not found.");
+            searchFilter = $"(&{searchFilter}(memberOf={group.GroupName}))";
             _Logger.LogDebug("Final search filter with role: {SearchFilter}", searchFilter);
         }
 
@@ -236,7 +247,7 @@ public class ActiveDirectoryAuthenticationBridge(
             _LdapSettings.BaseDN,
             LdapConnection.ScopeSub,
             searchFilter,
-            IAuthenticationBridge.GetEntriesToQuery<TLdapUser>(),
+            GetEntriesToQuery<TLdapUser>(),
             false,
             constraints
         );
@@ -246,7 +257,7 @@ public class ActiveDirectoryAuthenticationBridge(
         while (searchResult.HasMore())
         {
             LdapEntry entry = searchResult.Next();
-            ldapUsers.Add(MapEntry<TLdapUser>(entry));
+            ldapUsers.Add(MapToModel<TLdapUser>(ConvertLdapEntryToDictionary(entry)));
         }
 
         foreach (LdapControl control in searchResult?.ResponseControls ?? [])
@@ -301,7 +312,7 @@ public class ActiveDirectoryAuthenticationBridge(
         
         EnsureBoundConnection();
 
-        string[] attributes = IAuthenticationBridge.GetEntriesToQuery<TLdapResult>();
+        string[] attributes = GetEntriesToQuery<TLdapResult>();
         _Logger.LogDebug("Requesting attributes: {Attributes}", string.Join(", ", attributes));
 
         ILdapSearchResults searchResults = _Connection!.Search(
@@ -318,7 +329,7 @@ public class ActiveDirectoryAuthenticationBridge(
         {
             LdapEntry entry = searchResults.Next();
 
-            mappedLdapResults.Add(MapEntry<TLdapResult>(entry));
+            mappedLdapResults.Add(MapToModel<TLdapResult>(ConvertLdapEntryToDictionary(entry)));
         }
 
         _Logger.LogDebug("LDAP search completed - Found {ResultCount} entries", mappedLdapResults.Count);
@@ -330,13 +341,13 @@ public class ActiveDirectoryAuthenticationBridge(
     /// </summary>
     /// <seealso cref="LdapConnection.Disconnect()"/>
     /// <seealso cref="LdapConnection.Dispose()"/>
-    public void Dispose()
+    public override void Dispose()
     {
         _Connection?.Disconnect();
         _Connection?.Dispose();
     }
 
-    public bool IsConnected() => _Connection is not null && _Connection.Bound;
+    public override bool IsConnected() => _Connection is not null && _Connection.Bound;
 
     /// <summary>
     /// Escapes special characters in an LDAP search filter.
@@ -402,41 +413,6 @@ public class ActiveDirectoryAuthenticationBridge(
             _Logger.LogDebug("Connection is null or not bound, establishing service account connection");
             Authenticate(_LdapSettings.SA, _LdapSettings.SAPassword);
         }
-    }
-
-    /// <summary>
-    /// Maps the properties of a <typeparamref name="MappedEntity"/> to the corresponding values from the provided LDAP entry.
-    /// </summary>
-    /// <typeparam name="MappedEntity">
-    /// The type of the entity to map to. Must have a parameterless constructor.
-    /// </typeparam>
-    /// <param name="entry">
-    /// The LDAP entry object to map from. Must be of type <c>LdapEntry</c>.
-    /// </param>
-    /// <returns>
-    /// An instance of <typeparamref name="MappedEntity"/> with properties set from the LDAP entry attributes.
-    /// </returns>
-    /// <exception cref="ArgumentException">
-    /// Thrown if the provided <paramref name="entry"/> is not of type <c>LdapEntry</c>.
-    /// </exception>
-    public MappedEntity MapEntry<MappedEntity>(object entry) where MappedEntity : new()
-    {
-        if (entry is not LdapEntry ldapEntry)
-        {
-            throw new ArgumentException("The provided entry must be of type LdapEntry.");
-        }
-
-        MappedEntity mappedEntity = new();
-
-        foreach (PropertyInfo prop in typeof(MappedEntity).GetProperties())
-        {
-            foreach (AuthenticationMapping attr in prop.GetCustomAttributes<AuthenticationMapping>())
-            {
-                prop.SetValue(mappedEntity, ldapEntry.GetAttribute(attr.EntryName));
-            }
-        }
-
-        return mappedEntity;
     }
 
     /// <summary>
@@ -516,5 +492,16 @@ public class ActiveDirectoryAuthenticationBridge(
         _Logger.LogDebug("Retrieving cached session connection for session: {SessionId}", sessionId);
         SessionData? data = _cache.Get<SessionData>(sessionId) ?? throw new InvalidOperationException("No cached session found for the provided session ID.");
         return data.Connection;
+    }
+
+    private static Dictionary<string, object> ConvertLdapEntryToDictionary(LdapEntry entry)
+    {
+        var dict = new Dictionary<string, object>();
+        LdapAttributeSet attributeSet = entry.GetAttributeSet();
+        foreach (LdapAttribute attribute in attributeSet)
+        {
+            dict[attribute.Name] = attribute;
+        }
+        return dict;
     }
 }

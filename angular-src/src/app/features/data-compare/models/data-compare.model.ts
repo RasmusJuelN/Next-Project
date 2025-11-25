@@ -7,11 +7,15 @@ export interface DataCompare {
   title: string;
   description?: string | null;
   studentCompletedAt: Date;
-  answers: Answer[];
 }
 
-export interface Answer {
+export type AnswerCounts = Record<string, { count: number; dates: string[] }>;
+
+export interface ChartBuildInput {
   question: string;
-  studentResponse: string;
-  isStudentResponseCustom: boolean;
+  year: string;
+  answers: AnswerCounts;
 }
+
+export type ChartType = 'pie' | 'bar';
+

@@ -146,5 +146,23 @@ public interface IActiveQuestionnaireRepository
     Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid);
     Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid);
 
+    /// <summary>
+    /// Retrieves the response history for a specific student and questionnaire template.
+    /// </summary>
+    /// <param name="studentId">The unique identifier of the student whose response history to retrieve.</param>
+    /// <param name="teacherId">The unique identifier of the teacher making the request.</param>
+    /// <param name="templateId">The unique identifier of the questionnaire template.</param>
+    /// <returns>
+    /// A <see cref="StudentResultHistory"/> object containing the student's response history for the specified template,
+    /// or null if no history is found.
+    /// </returns>
+    /// <remarks>
+    /// This method retrieves all historical responses from a student for a specific questionnaire template,
+    /// providing teachers with insight into student progress over time.
+    /// </remarks>
+    Task<StudentResultHistory?> GetResponseHistoryAsync(Guid studentId, Guid teacherId, Guid templateId);
+
     Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups);
+
+    Task<List<ActiveQuestionnaireBase>> GetCompletedQuestionnairesByGroupAsync(Guid activeQuestionnaireId);
 }

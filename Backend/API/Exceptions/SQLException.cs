@@ -39,21 +39,31 @@ public class SQLException
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemNotFound"/> class.
         /// </summary>
-        public ItemNotFound() {}
-        
+        public ItemNotFound() { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemNotFound"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
         public ItemNotFound(string message)
-            : base(message) {}
-            
+            : base(message) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemNotFound"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="inner">The exception that is the cause of the current exception.</param>
         public ItemNotFound(string message, Exception inner)
-            : base(message, inner) {}
+            : base(message, inner) { }
+    }
+    public class NotValidated : Exception
+    {
+        public NotValidated() { }
+
+        public NotValidated(string message)
+            : base(message) { }
+
+        public NotValidated(string message, Exception inner)
+            : base(message, inner) { }
     }
 }

@@ -4,80 +4,88 @@
   </h3>
   <div class="options grid grid-cols-1 gap-4">
     <!-- Standard Options -->
-    <label
-      *ngFor="let option of question.options"
-      class="option bg-secondary_background_gray border border-primary_orange_1 rounded-xl p-4 flex items-center space-x-4 cursor-pointer transition-all duration-300  hover:border-primary_orange_1 hover:bg-gradient-to-r hover:from-orange-200  hover:to-orange-200"
-    style="will-change: transform;"
-  [ngClass]="{'hover:scale-[1.01]': true}"
-      >
-      <input
-    type="radio"
-    name="option"
-    class="sr-only"
-    [checked]="answer?.optionId === option.id"
-    (change)="onOptionSelect(option.id)"
-  >
-  <span
-    class="w-6 h-6 flex items-center justify-center rounded-full border border-primary_orange_1 bg-white mr-3"
+    @for (option of question.options; track option) {
+      <label
+        class="option bg-secondary_background_gray border border-primary_orange_1 rounded-xl p-4 flex items-center space-x-4 cursor-pointer transition-all duration-300  hover:border-primary_orange_1 hover:bg-gradient-to-r hover:from-orange-200  hover:to-orange-200"
+        style="will-change: transform;"
+        [ngClass]="{'hover:scale-[1.01]': true}"
+        >
+        <input
+          type="radio"
+          name="option"
+          class="sr-only"
+          [checked]="answer?.optionId === option.id"
+          (change)="onOptionSelect(option.id)"
+          >
+          <span
+            class="w-6 h-6 flex items-center justify-center rounded-full border border-primary_orange_1 bg-white mr-3"
     [ngClass]="{
       'bg-orange-100 border-orange-600': answer?.optionId === option.id
     }"
-  >
-    <span
-      *ngIf="answer?.optionId === option.id"
-      class="w-2 h-2 rotate-45 bg-orange-600 block"
-    ></span>
-  </span>
-  <span class="text-primary_dark_blue font-semibold tracking-wide">{{ option.displayText }}</span>
-</label>
+            >
+            @if (answer?.optionId === option.id) {
+              <span
+                class="w-2 h-2 rotate-45 bg-orange-600 block"
+              ></span>
+            }
+          </span>
+          <span class="text-primary_dark_blue font-semibold tracking-wide">{{ option.displayText }}</span>
+        </label>
+      }
 
-    <!-- Custom Answer -->
-    <label
-      *ngIf="question.allowCustom"
-      class="option bg-secondary_background_gray border border-primary_orange_1 rounded-xl p-4 flex items-center space-x-4 cursor-pointer transition-all duration-300  hover:border-primary_orange_1 hover:bg-gradient-to-r hover:from-orange-200  hover:to-orange-200"
-    style="will-change: transform;"
-  [ngClass]="{'hover:scale-[1.01]': true}" 
-      >
-      <input
-    type="radio"
-    name="option"
-    class="sr-only"
-    [checked]="isCustomAnswerSelected"
-    (change)="onCustomAnswerSelect()"
-  >
-  <span
-    class="w-6 h-6 flex items-center justify-center rounded-full border border-primary_orange_1 bg-white mr-3"
+      <!-- Custom Answer -->
+      @if (question.allowCustom) {
+        <label
+          class="option bg-secondary_background_gray border border-primary_orange_1 rounded-xl p-4 flex items-center space-x-4 cursor-pointer transition-all duration-300  hover:border-primary_orange_1 hover:bg-gradient-to-r hover:from-orange-200  hover:to-orange-200"
+          style="will-change: transform;"
+          [ngClass]="{'hover:scale-[1.01]': true}"
+          >
+          <input
+            type="radio"
+            name="option"
+            class="sr-only"
+            [checked]="isCustomAnswerSelected"
+            (change)="onCustomAnswerSelect()"
+            >
+            <span
+              class="w-6 h-6 flex items-center justify-center rounded-full border border-primary_orange_1 bg-white mr-3"
     [ngClass]="{
       'bg-orange-100 border-orange-600': isCustomAnswerSelected
     }"
-  >
-    <span
-      *ngIf="isCustomAnswerSelected"
-      class="w-2 h-2 rotate-45 bg-orange-600 block"
-    ></span>
-  </span>
-  <span class="text-primary_dark_blue font-semibold tracking-wide">Other (Please specify)</span>
-</label>
-  </div>
+              >
+              @if (isCustomAnswerSelected) {
+                <span
+                  class="w-2 h-2 rotate-45 bg-orange-600 block"
+                ></span>
+              }
+            </span>
+            <span class="text-primary_dark_blue font-semibold tracking-wide">Other (Please specify)</span>
+          </label>
+        }
+      </div>
 
-  <!-- Custom Answer Textarea -->
-  <div *ngIf="isCustomAnswerSelected" class="custom-answer mt-6">
-    <label for="custom-answer" class="block text-primary_dark_blue font-bold mb-2">
-      Your Custom Answer:
-    </label>
-    <textarea
-      id="custom-answer"
-      class="w-full h-24 sm:h-32 border-2 border-primary_orange_1 bg-secondary_background_gray text-primary_dark_blue rounded-xl p-3"
-      placeholder="Type your answer here..."
-      [(ngModel)]="customAnswer"
-      [maxlength]="500"
-      (input)="onCustomAnswerChange()"
-    ></textarea>
-    <div class="text-sm text-primary_dark_blue mt-1">
-      {{ customAnswer.length }} / 500 {{ 'QUESTIONAIRE.CUSTOM_ANSWER_CHARACTER_COUNT' | translate }}
+      <!-- Custom Answer Textarea -->
+      @if (isCustomAnswerSelected) {
+        <div class="custom-answer mt-6">
+          <label for="custom-answer" class="block text-primary_dark_blue font-bold mb-2">
+            Your Custom Answer:
+          </label>
+          <textarea
+            id="custom-answer"
+            class="w-full h-24 sm:h-32 border-2 border-primary_orange_1 bg-secondary_background_gray text-primary_dark_blue rounded-xl p-3"
+            placeholder="Type your answer here..."
+            [(ngModel)]="customAnswer"
+            [maxlength]="500"
+            (input)="onCustomAnswerChange()"
+          ></textarea>
+          <div class="text-sm text-primary_dark_blue mt-1">
+            {{ customAnswer.length }} / 500 {{ 'QUESTIONAIRE.CUSTOM_ANSWER_CHARACTER_COUNT' | translate }}
+          </div>
+          @if (ToFewCharacters) {
+            <div class="text-red-500 text-sm mt-1">
+              {{ 'QUESTIONAIRE.CUSTOM_ANSWER_ERROR' | translate }}
+            </div>
+          }
+        </div>
+      }
     </div>
-    <div *ngIf="ToFewCharacters" class="text-red-500 text-sm mt-1">
-      {{ 'QUESTIONAIRE.CUSTOM_ANSWER_ERROR' | translate }}
-    </div>
-  </div>
-</div>
