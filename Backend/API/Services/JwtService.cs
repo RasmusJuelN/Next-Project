@@ -27,7 +27,6 @@ namespace API.Services;
 
 public class JwtService : IJwtService
 {
-    //private readonly JWTSettings _JWTSettings;
 
     private readonly JWTSettings _JWTSettings;
     public JwtService(IConfiguration configuration)
