@@ -23,10 +23,6 @@ namespace API.Services;
 /// </list>
 /// It provides a unified interface for user operations while maintaining security boundaries.
 /// </remarks>
-//public class UserService(IAuthenticationBridge authenticationBridge, IUnitOfWork unitOfWork)
-//{
-//    private readonly IAuthenticationBridge _authenticationBridge = authenticationBridge;
-//    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 public class UserService : IUserService
 {
     private readonly IAuthenticationBridge _authenticationBridge;
