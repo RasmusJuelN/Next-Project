@@ -24,9 +24,6 @@ namespace API.Services;
 /// </list>
 /// All tokens use HMAC-SHA256 signing and include comprehensive validation to prevent token tampering.
 /// </remarks>
-//public class JwtService(IConfiguration configuration)
-//{
-//    private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
 public class JwtService : IJwtService
 {
     //private readonly JWTSettings _JWTSettings;
