@@ -77,6 +77,8 @@
   "TMP_PUBLISH": "Publish",
   "TMP_VIEW_MODE": "Template View",
   "TMP_EDIT_MODE": "Template Editing",
+  "TMP_CONFIRM_SUBMIT_TITLE":" Confirm Submission",
+  "TMP_CONFIRM_SUBMIT_TEXT":" Are you sure you want to submit your answers? You won't be able to change them later.",
 
   "COMMON": {
     "BUTTONS": {

@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { QuestionComponent } from './question/question.component';
@@ -8,6 +8,7 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
 import { Role, User } from '../../shared/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { map } from 'rxjs';
 
 
@@ -22,7 +23,7 @@ import { map } from 'rxjs';
  */
 @Component({
     selector: 'app-answer-questionnaire',
-    imports: [CommonModule, QuestionComponent, TranslateModule],
+    imports: [CommonModule, QuestionComponent, TranslateModule, ModalComponent],
     templateUrl: './questionnaire.component.html',
     styleUrls: ['./questionnaire.component.css']
 })
@@ -51,6 +52,59 @@ export class QuestionnaireComponent {
 
   isLoading = true;
   errorMessage: string | null = null;
+
+  // Confirmation modal state
+  showSubmitConfirmModal = false;
+
+ @HostListener('window:keydown', ['$event'])
+handleKeyboardEvent(event: KeyboardEvent): void {
+  // Don't handle keyboard events if user is typing in a textarea
+  const target = event.target as HTMLElement;
+  if (target.tagName === 'TEXTAREA') {
+    return;
+  }
+
+  switch (event.key) {
+    case 'ArrowRight':
+    case 'Enter':
+      event.preventDefault();
+      if (this.state.currentQuestionIndex === this.state.template.questions.length - 1) {
+        // Last question - submit if all answered
+        if (this.allQuestionsAnswered) {
+          this.submitQuestionnaire();
+        }
+      } else if (this.isAnswered) {
+        // Not last question - go to next if current is answered
+        this.nextQuestion();
+      }
+      break;
+
+    case 'ArrowLeft':
+    case 'Backspace':
+      event.preventDefault();
+      this.previousQuestion();
+      break;
+
+    case 'ArrowUp':
+      event.preventDefault();
+      this.selectPreviousOption();
+      break;
+
+    case 'ArrowDown':
+      event.preventDefault();
+      this.selectNextOption();
+      break;
+
+    case 'Escape':
+      event.preventDefault();
+      if (confirm('Are you sure you want to leave? Your progress will be lost.')) {
+        this.router.navigate(['/']);
+      }
+      break;
+  }
+}
+
+
 
   ngOnInit() {
     const u = this.user(); 
@@ -177,24 +231,36 @@ export class QuestionnaireComponent {
  * On success, marks as completed and navigates home.
  */
   submitQuestionnaire(): void {
-    if (this.allQuestionsAnswered) {
-      const submission: AnswerSubmission = { answers: this.state.answers };
-      this.answerService.submitAnswers(this.state.template.id, submission).subscribe({
-        next: () => {
-          this.state.isCompleted = true;
-          alert('Questionnaire submitted successfully!');
-          // Navigate to root after submission
-          this.router.navigate(['/']);
-        },
-        error: (error) => {
-          console.error('Error submitting questionnaire:', error);
-          alert('There was an error submitting your questionnaire. Please try again later.');
-        }
-      });
-    } else {
+    if (!this.allQuestionsAnswered) {
       alert('Please answer all questions before submitting.');
+      return;
     }
+    this.showSubmitConfirmModal = true;
   }
+
+  // ✅ Simple confirm handler
+  onConfirmSubmit(): void {
+    this.showSubmitConfirmModal = false;
+    
+    const submission: AnswerSubmission = { answers: this.state.answers };
+    this.answerService.submitAnswers(this.state.template.id, submission).subscribe({
+      next: () => {
+        this.state.isCompleted = true;
+        alert('Questionnaire submitted successfully!');
+        this.router.navigate(['/']);
+      },
+      error: (error) => {
+        console.error('Error submitting questionnaire:', error);
+        alert('There was an error submitting your questionnaire. Please try again later.');
+      }
+    });
+  }
+
+  // ✅ Simple cancel handler
+  onCancelSubmit(): void {
+    this.showSubmitConfirmModal = false;
+  }
+
 
   /** Recomputes progress percentage based on index and whether the current question is answered. */
   private updateProgress(): void {
@@ -205,7 +271,59 @@ export class QuestionnaireComponent {
     this.state.progress = Math.min(progressForCurrent + progressForAnswer, 100);
   }
 
+  /** Select previous option in current question (wraps around) */
+  private selectPreviousOption(): void {
+    const question = this.currentQuestion;
+    if (!question || question.options.length === 0) return;
 
+    const currentAnswer = this.currentAnswer;
+    let currentIndex = -1;
+
+    if (currentAnswer?.optionId) {
+      currentIndex = question.options.findIndex(opt => opt.id === currentAnswer.optionId);
+    }
+
+    // Move to previous option (wrap around to last if at first)
+    const newIndex = currentIndex <= 0 
+      ? question.options.length - 1 
+      : currentIndex - 1;
+
+    const selectedOption = question.options[newIndex];
+    
+    // Reuse onAnswerChange
+    this.onAnswerChange({
+      questionId: question.id,
+      optionId: selectedOption.id,
+      customAnswer: undefined
+    });
+  }
+
+  /** Select next option in current question (wraps around) */
+  private selectNextOption(): void {
+    const question = this.currentQuestion;
+    if (!question || question.options.length === 0) return;
+
+    const currentAnswer = this.currentAnswer;
+    let currentIndex = -1;
+
+    if (currentAnswer?.optionId) {
+      currentIndex = question.options.findIndex(opt => opt.id === currentAnswer.optionId);
+    }
+
+    // Move to next option (wrap around to first if at last)
+    const newIndex = currentIndex >= question.options.length - 1 
+      ? 0 
+      : currentIndex + 1;
+
+    const selectedOption = question.options[newIndex];
+    
+    // Reuse onAnswerChange
+    this.onAnswerChange({
+      questionId: question.id,
+      optionId: selectedOption.id,
+      customAnswer: undefined
+    });
+  }
   /**
  * Returns collaborator display text based on the viewer's role:
  * - Student sees teacher, teacher sees student.

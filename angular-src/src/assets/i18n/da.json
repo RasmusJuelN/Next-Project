@@ -76,7 +76,8 @@
   "TMP_PUBLISH": "Udgiv",
   "TMP_VIEW_MODE": "Skabelonvisning",
   "TMP_EDIT_MODE": "Skabelonredigering",
-
+  "TMP_CONFIRM_SUBMIT_TITLE":" Bekræft Indsendelse",
+  "TMP_CONFIRM_SUBMIT_TEXT":" Er du sikker på, at du vil indsende dine svar? Du kan ikke redigere dem efter indsendelse.",
   "NAV" : {
     "TOGGLE_MENU": "Åbn/luk menu",
     "LOG_OUT": "Log ud",
