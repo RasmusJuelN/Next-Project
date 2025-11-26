@@ -10,16 +10,16 @@ namespace Database.Extensions;
 public static class UserSpecificActiveQuestionnaireMapper
 {
     /// <summary>
-    /// Converts an ActiveQuestionnaireModel to a StudentSpecificActiveQuestionnaire DTO from the student's perspective.
+    /// Converts an StandardActiveQuestionnaireModel to a StudentSpecificActiveQuestionnaire DTO from the student's perspective.
     /// </summary>
-    /// <param name="activeQuestionnaire">The ActiveQuestionnaireModel from the database.</param>
+    /// <param name="activeQuestionnaire">The StandardActiveQuestionnaireModel from the database.</param>
     /// <returns>A StudentSpecificActiveQuestionnaire DTO showing the questionnaire state as seen by the student.</returns>
     /// <remarks>
     /// This method creates a student-focused view of the active questionnaire, showing the student's completion status.
     /// The completion timestamp reflects when the student finished their portion of the questionnaire.
     /// Used to display questionnaire status to students in their personal dashboard.
     /// </remarks>
-    public static StudentSpecificActiveQuestionnaire ToBaseDTOAsStudent(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static StudentSpecificActiveQuestionnaire ToBaseDTOAsStudent(this StandardActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {
@@ -32,9 +32,9 @@ public static class UserSpecificActiveQuestionnaireMapper
     }
 
     /// <summary>
-    /// Converts an ActiveQuestionnaireModel to a TeacherSpecificActiveQuestionnaire DTO from the teacher's perspective.
+    /// Converts an StandardActiveQuestionnaireModel to a TeacherSpecificActiveQuestionnaire DTO from the teacher's perspective.
     /// </summary>
-    /// <param name="activeQuestionnaire">The ActiveQuestionnaireModel from the database.</param>
+    /// <param name="activeQuestionnaire">The StandardActiveQuestionnaireModel from the database.</param>
     /// <returns>A TeacherSpecificActiveQuestionnaire DTO showing the questionnaire state with both student and teacher completion status.</returns>
     /// <remarks>
     /// This method creates a teacher-focused view of the active questionnaire, including both the student's completion status
@@ -42,7 +42,7 @@ public static class UserSpecificActiveQuestionnaireMapper
     /// tracking when students completed their responses and when teachers completed their review or assessment.
     /// Used to display questionnaire status to teachers in their assessment dashboard.
     /// </remarks>
-    public static TeacherSpecificActiveQuestionnaire ToBaseDTOAsTeacher(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static TeacherSpecificActiveQuestionnaire ToBaseDTOAsTeacher(this StandardActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {

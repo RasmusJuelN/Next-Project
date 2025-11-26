@@ -94,7 +94,7 @@ public class UserBaseModel
     /// Virtual property enables lazy loading of questionnaire associations when needed.
     /// Used for dashboard displays and workflow management.
     /// </remarks>
-    public virtual ICollection<ActiveQuestionnaireModel> ActiveQuestionnaires { get; set; } = [];
+    public virtual ICollection<StandardActiveQuestionnaireModel> ActiveQuestionnaires { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the collection of refresh tokens issued to this user for authentication.

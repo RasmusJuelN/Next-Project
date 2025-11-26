@@ -85,7 +85,7 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
     /// </remarks>
     public async Task<Guid?> GetIdOfOldestActiveQuestionnaire(Guid id)
     {
-        return await _context.ActiveQuestionnaires
+        return await _context.StandardActiveQuestionnaires
             .Where(a => (a.Student != null && a.Student.Guid == id && !a.StudentCompletedAt.HasValue) || 
                        (a.Teacher != null && a.Teacher.Guid == id && !a.TeacherCompletedAt.HasValue))
             .OrderBy(a => a.ActivatedAt)
@@ -176,7 +176,7 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
 
         studentUsernameQuery = studentUsernameQuery.Trim();
         // Find students that have active questionnaires with this teacher and match the username query
-        var students = await _context.ActiveQuestionnaires
+        var students = await _context.StandardActiveQuestionnaires
             .Where(aq => aq.Teacher != null && aq.Teacher.Guid == teacherId &&
                         aq.Student != null && (aq.Student.UserName.Contains(studentUsernameQuery) || 
                          (aq.Student.FullName != null && aq.Student.FullName.Contains(studentUsernameQuery))))

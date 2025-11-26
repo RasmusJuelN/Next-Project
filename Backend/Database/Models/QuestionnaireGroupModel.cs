@@ -62,7 +62,7 @@ namespace Database.Models
         /// This navigation property represents the one-to-many relationship between
         /// the group and its questionnaires.
         /// </remarks>
-        public ICollection<ActiveQuestionnaireModel> Questionnaires { get; set; }
+        public ICollection<StandardActiveQuestionnaireModel> Questionnaires { get; set; }
     }
 
 }

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Database.Seeders;
 
-public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDataSeeder<ActiveQuestionnaireModel>
+public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDataSeeder<StandardActiveQuestionnaireModel>
 {
     public void InitializeData()
     {
-        List<ActiveQuestionnaireModel> seededActiveQuestionnaires = IDataSeeder<ActiveQuestionnaireModel>.LoadSeed(CreateModels());
+        List<StandardActiveQuestionnaireModel> seededActiveQuestionnaires = IDataSeeder<StandardActiveQuestionnaireModel>.LoadSeed(CreateModels());
         if (seededActiveQuestionnaires is not null && seededActiveQuestionnaires.Count > 0)
         {
             bool studentSeeded = false;
@@ -17,7 +17,7 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
             bool groupSeeded = false;
             bool templateSeeded = false;
 
-            foreach (ActiveQuestionnaireModel activeQuestionnaire in seededActiveQuestionnaires)
+            foreach (StandardActiveQuestionnaireModel activeQuestionnaire in seededActiveQuestionnaires)
             {
                 if (!studentSeeded)
                 {
@@ -63,12 +63,12 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
                 activeQuestionnaire.StudentAnswers = [];
                 activeQuestionnaire.TeacherAnswers = [];
 
-                modelBuilder.Entity<ActiveQuestionnaireModel>().HasData(activeQuestionnaire);
+                modelBuilder.Entity<StandardActiveQuestionnaireModel>().HasData(activeQuestionnaire);
             }
         }
     }
 
-    private static List<ActiveQuestionnaireModel> CreateModels()
+    private static List<StandardActiveQuestionnaireModel> CreateModels()
     {
         // Questionnaire Template
         Guid templateId = Guid.Parse("69088ed6-4fa5-4e85-8d80-18334b7bfabf");
@@ -211,11 +211,11 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
         UserPermissions studentPermissions = UserPermissions.Student;
         UserPermissions teacherPermissions = UserPermissions.Teacher;
 
-        List<ActiveQuestionnaireModel> activeQuestionnaires = [];
+        List<StandardActiveQuestionnaireModel> activeQuestionnaires = [];
         for (int i = 0; i < activeQuestionnaireIds.Count; i++)
         {
             activeQuestionnaires.Add(
-                new ActiveQuestionnaireModel()
+                new StandardActiveQuestionnaireModel()
                 {
                     Id = activeQuestionnaireIds[i],
                     Title = templateTitle,
@@ -246,6 +246,7 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
                         PrimaryRole = teacherRole,
                         Permissions = teacherPermissions
                     },
+                    ParticipantIds = [],
                     QuestionnaireTemplate = new QuestionnaireTemplateModel()
                     {
                         Id = templateId,

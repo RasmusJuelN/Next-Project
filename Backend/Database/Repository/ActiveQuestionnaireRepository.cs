@@ -24,7 +24,7 @@ namespace Database.Repository;
 public class ActiveQuestionnaireRepository(Context context, ILoggerFactory loggerFactory) : IActiveQuestionnaireRepository
 {
     private readonly Context _context = context;
-    private readonly GenericRepository<ActiveQuestionnaireModel> _genericRepository = new(context, loggerFactory);
+    private readonly GenericRepository<StandardActiveQuestionnaireModel> _genericRepository = new(context, loggerFactory);
 
     /// <summary>
     /// Retrieves basic information about an active questionnaire.
@@ -38,7 +38,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     /// </remarks>
     public async Task<ActiveQuestionnaireBase> GetActiveQuestionnaireBaseAsync(Guid id)
     {
-        ActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
+        StandardActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
             query => query.Include(a => a.Student).Include(a => a.Teacher)) ?? throw new Exception("Active questionnaire not found.");
 
         return activeQuestionnaire.ToBaseDto();
@@ -56,7 +56,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     /// </remarks>
     public async Task<ActiveQuestionnaire> GetFullActiveQuestionnaireAsync(Guid id)
     {
-        ActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
+        StandardActiveQuestionnaireModel activeQuestionnaire = await _genericRepository.GetSingleAsync(a => a.Id == id,
             query => query.Include(a => a.Student).Include(a => a.Teacher).Include(a => a.QuestionnaireTemplate.Questions).ThenInclude(q => q.Options)) ?? throw new Exception("Active questionnaire not found.");
 
         return activeQuestionnaire.ToDto();
@@ -81,7 +81,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .SingleAsync(t => t.Id == questionnaireTemplateId);
 
         // Create questionnaire and set groupId
-        ActiveQuestionnaireModel activeQuestionnaire = new()
+        StandardActiveQuestionnaireModel activeQuestionnaire = new()
         {
             Title = questionnaireTemplate.Title,
             Description = questionnaireTemplate.Description,
@@ -89,6 +89,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             Teacher = teacher,
             QuestionnaireTemplate = questionnaireTemplate,
             GroupId = groupId,
+            ParticipantIds = [],
             QuestionnaireType = activeQuestionnaireType
         };
 
@@ -114,7 +115,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         bool pendingTeacher = false,
         ActiveQuestionnaireType? questionnaireType = null)
     {
-        IQueryable<ActiveQuestionnaireModel> query = _genericRepository.GetAsQueryable();
+        IQueryable<StandardActiveQuestionnaireModel> query = _genericRepository.GetAsQueryable();
 
         query = sortOrder.ApplyQueryOrdering(query);
         if (!string.IsNullOrEmpty(titleQuery))
@@ -179,7 +180,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             }
         }
 
-        List<ActiveQuestionnaireModel> questionnaireTemplates = await query.Include(q => q.Student).Include(q => q.Teacher).Take(amount).ToListAsync();
+        List<StandardActiveQuestionnaireModel> questionnaireTemplates = await query.Include(q => q.Student).Include(q => q.Teacher).Take(amount).ToListAsync();
         List<ActiveQuestionnaireBase> questionnaireTemplateBases = [.. questionnaireTemplates.Select(t => t.ToBaseDto())];
 
         return (questionnaireTemplateBases, totalCount);
@@ -201,7 +202,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     /// </remarks>
     public async Task AddAnswers(Guid activeQuestionnaireId, Guid userId, AnswerSubmission submission)
     {
-        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires.FirstAsync(a => a.Id == activeQuestionnaireId);
+        StandardActiveQuestionnaireModel activeQuestionnaire = await _context.StandardActiveQuestionnaires.FirstAsync(a => a.Id == activeQuestionnaireId);
         UserBaseModel user = await _context.Users.OfType<UserBaseModel>().SingleAsync(u => u.Guid == userId);
 
         if (user.GetType().Equals(typeof(StudentModel)))
@@ -249,7 +250,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     public async Task<bool> HasUserSubmittedAnswer(Guid userId, Guid activeQuestionnaireId)
     {
         UserBaseModel user = await _context.Users.SingleAsync(u => u.Guid == userId);
-        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires.SingleAsync(a => a.Id == activeQuestionnaireId);
+        StandardActiveQuestionnaireModel activeQuestionnaire = await _context.StandardActiveQuestionnaires.SingleAsync(a => a.Id == activeQuestionnaireId);
 
         if (user.GetType().Equals(typeof(StudentModel)))
         {
@@ -277,7 +278,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     /// </remarks>
     public async Task<bool> IsActiveQuestionnaireComplete(Guid activeQuestionnaireId)
     {
-        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires.SingleAsync(a => a.Id == activeQuestionnaireId);
+        StandardActiveQuestionnaireModel activeQuestionnaire = await _context.StandardActiveQuestionnaires.SingleAsync(a => a.Id == activeQuestionnaireId);
 
         return activeQuestionnaire.StudentCompletedAt.HasValue && activeQuestionnaire.TeacherCompletedAt.HasValue;
     }
@@ -295,7 +296,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     /// </remarks>
     public async Task<bool> IsActiveQuestionnaireComplete(Guid activeQuestionnaireId, Guid userId)
     {
-        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires.SingleAsync(a => a.Id == activeQuestionnaireId && (a.Student.Guid == userId || a.Teacher.Guid == userId));
+        StandardActiveQuestionnaireModel activeQuestionnaire = await _context.StandardActiveQuestionnaires.SingleAsync(a => a.Id == activeQuestionnaireId && (a.Student.Guid == userId || a.Teacher.Guid == userId));
 
         return activeQuestionnaire.StudentCompletedAt.HasValue && activeQuestionnaire.TeacherCompletedAt.HasValue;
     }
@@ -314,7 +315,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     /// </remarks>
     public async Task<FullResponse> GetFullResponseAsync(Guid id)
     {
-        ActiveQuestionnaireModel activeQuestionnaire = await _context.ActiveQuestionnaires
+        StandardActiveQuestionnaireModel activeQuestionnaire = await _context.StandardActiveQuestionnaires
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Question)
             .ThenInclude(q => q.Options)
@@ -352,14 +353,14 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     public async Task<List<ActiveQuestionnaireBase>> GetPendingActiveQuestionnaires(Guid userId)
     {
         UserBaseModel user = await _context.Users.SingleOrDefaultAsync(u => u.Guid == userId) ?? throw new InvalidOperationException("User not found.");
-        List<ActiveQuestionnaireModel> activeQuestionnaireBases;
+        List<StandardActiveQuestionnaireModel> activeQuestionnaireBases;
         if (user.GetType().Equals(typeof(StudentModel)))
         {
-            activeQuestionnaireBases = await _context.ActiveQuestionnaires.Include(a => a.Teacher).Where(a => a.Student.Guid == userId && !a.StudentCompletedAt.HasValue).ToListAsync();
+            activeQuestionnaireBases = await _context.StandardActiveQuestionnaires.Include(a => a.Teacher).Where(a => a.Student.Guid == userId && !a.StudentCompletedAt.HasValue).ToListAsync();
         }
         else if (user.GetType().Equals(typeof(TeacherModel)))
         {
-            activeQuestionnaireBases = await _context.ActiveQuestionnaires.Include(a => a.Student).Where(a => a.Teacher.Guid == userId && !a.TeacherCompletedAt.HasValue).ToListAsync();
+            activeQuestionnaireBases = await _context.StandardActiveQuestionnaires.Include(a => a.Student).Where(a => a.Teacher.Guid == userId && !a.TeacherCompletedAt.HasValue).ToListAsync();
         }
         else
         {
@@ -384,7 +385,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
 
 
         //get all activae questionares where it's id is equal to templateId AND studentid
-        List<ActiveQuestionnaireModel> activeQuestionnaires = await _context.ActiveQuestionnaires
+        List<StandardActiveQuestionnaireModel> activeQuestionnaires = await _context.StandardActiveQuestionnaires
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Question)
             .Include(a => a.StudentAnswers)
@@ -407,7 +408,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             throw new Exception("The requested Template Questionnaire does not exsist.");
         }
 
-        List<ActiveQuestionnaireModel> activeQuestionnaires = await _context.ActiveQuestionnaires
+        List<StandardActiveQuestionnaireModel> activeQuestionnaires = await _context.StandardActiveQuestionnaires
             .Include(a => a.StudentAnswers)
             .ThenInclude(a => a.Question)
             .Include(a => a.StudentAnswers)
@@ -518,7 +519,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     public async Task<StudentResultHistory?> GetResponseHistoryAsync(Guid studentId, Guid teacherId, Guid templateId)
     {
         // Get all active questionnaires for the specific student, teacher, and template combination
-        var questionnaires = await _context.ActiveQuestionnaires
+        var questionnaires = await _context.StandardActiveQuestionnaires
             .Include(aq => aq.Student)
             .Include(aq => aq.Teacher)
             .Include(aq => aq.QuestionnaireTemplate)
@@ -613,7 +614,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
     /// </summary>
     public async Task<List<ActiveQuestionnaireBase>> GetCompletedQuestionnairesByGroupAsync(Guid activeQuestionnaireId)
     {
-        var sourceQuestionnaire = await _context.Set<ActiveQuestionnaireModel>()
+        var sourceQuestionnaire = await _context.Set<StandardActiveQuestionnaireModel>()
             .Where(aq => aq.Id == activeQuestionnaireId)
             .Select(aq => new { aq.GroupId })
             .FirstOrDefaultAsync();
@@ -621,7 +622,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
         if (sourceQuestionnaire == null)
             return new List<ActiveQuestionnaireBase>();
 
-        var completedQuestionnaires = await _context.Set<ActiveQuestionnaireModel>()
+        var completedQuestionnaires = await _context.Set<StandardActiveQuestionnaireModel>()
             .Where(aq => aq.GroupId == sourceQuestionnaire.GroupId
                       && aq.StudentCompletedAt != null
                       && aq.TeacherCompletedAt != null)
@@ -634,7 +635,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
 
     public async Task<bool> IsActiveQuestionnaireAnonymous(Guid activeQuestionnaireId)
     {
-        return await _context.Set<ActiveQuestionnaireModel>()
+        return await _context.Set<StandardActiveQuestionnaireModel>()
             .Where(a => a.Id == activeQuestionnaireId)
             .Select(a => a.QuestionnaireType)
             .SingleOrDefaultAsync() == ActiveQuestionnaireType.Anonymous;

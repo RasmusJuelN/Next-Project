@@ -223,7 +223,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
 
         if (existingTemplate.ActiveQuestionnaires.Count != 0)
         {
-            _context.ActiveQuestionnaires.RemoveRange(existingTemplate.ActiveQuestionnaires);
+            _context.StandardActiveQuestionnaires.RemoveRange(existingTemplate.ActiveQuestionnaires);
         }
 
         _genericRepository.Delete(existingTemplate);
@@ -378,7 +378,7 @@ public class QuestionnaireTemplateRepository(Context context, ILoggerFactory log
             throw new ArgumentException("Teacher ID cannot be empty", nameof(teacherId));
 
         // Find all templates for which both the student and teacher have completed their active questionnaires
-        var templates = await _context.ActiveQuestionnaires
+        var templates = await _context.StandardActiveQuestionnaires
             .Where(aq => aq.Student != null && aq.Student.Guid == studentId && 
                         aq.Teacher != null && aq.Teacher.Guid == teacherId &&
                         aq.StudentCompletedAt.HasValue && aq.TeacherCompletedAt.HasValue &&

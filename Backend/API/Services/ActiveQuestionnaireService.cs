@@ -248,7 +248,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
     /// related entities (students and teachers) to lightweight <see cref="UserBase"/> DTOs
     /// to prevent serialization issues and maintain API contract consistency.
     /// </remarks>
-    public async Task<QuestionnaireGroupResult?> GetQuestionnaireGroup(Guid groupId)
+    public async Task<OmniQuestionnaireGroupResult?> GetQuestionnaireGroup(Guid groupId)
     {
         // Fetch group from repository
         var group = await _unitOfWork.QuestionnaireGroup.GetByIdAsync(groupId);
@@ -256,9 +256,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             return null;
 
         // Fetch questionnaires for this group
-        var questionnaires = group.Questionnaires ?? new List<ActiveQuestionnaireModel>();
+        var questionnaires = group.Questionnaires ?? new List<StandardActiveQuestionnaireModel>();
         // Fix for CS0029: Explicitly map TeacherModel to UserBase
-        var questionnaireDtos = questionnaires.Select(q => new ActiveQuestionnaireAdminBase
+        var questionnaireDtos = questionnaires.Select(q => new OmniActiveQuestionnaireAdminBase
         {
             Id = q.Id,
             Title = q.Title,
@@ -276,10 +276,12 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
             },
             StudentCompletedAt = q.StudentCompletedAt,
             TeacherCompletedAt = q.TeacherCompletedAt,
+            ParticipantCount = 0,
+            CompletedParticipantCount = 0,
             QuestionnaireType = q.QuestionnaireType
         }).ToList();
 
-        return new QuestionnaireGroupResult
+        return new OmniQuestionnaireGroupResult
         {
             GroupId = group.GroupId,
             Name = group.Name,

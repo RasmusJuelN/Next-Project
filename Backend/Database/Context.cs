@@ -1,4 +1,5 @@
-﻿using Database.Models;
+﻿using Database.Enums;
+using Database.Models;
 using Database.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,11 +33,7 @@ public class Context : DbContext
             .OnDelete(DeleteBehavior.Cascade);
             
             // Delete active questionnaires that reference the deleted questionnaire
-            e.HasMany(q => q.ActiveQuestionnaires)
-            .WithOne(a => a.QuestionnaireTemplate)
-            .HasPrincipalKey(q => q.Id)
-            .HasForeignKey(a => a.QuestionnaireTemplateFK)
-            .OnDelete(DeleteBehavior.Cascade);
+            // Relationship is configured in the StandardActiveQuestionnaireModel configuration
         });
 
         // QuestionnaireTemplateQuestion
@@ -48,11 +45,20 @@ public class Context : DbContext
             .OnDelete(DeleteBehavior.Cascade);
         });
         
-        // ActiveQuestionnaireModel
-        modelBuilder.Entity<ActiveQuestionnaireModel>(e => {
+        // ActiveQuestionnaireModel - Configure base model first
+        modelBuilder.Entity<AnonymousActiveQuestionnaireModel>(e => {
             e.Property(a => a.ActivatedAt)
             .HasDefaultValueSql("SYSUTCDATETIME()");
-            
+
+            e.HasDiscriminator<ActiveQuestionnaireType>(nameof(AnonymousActiveQuestionnaireModel.QuestionnaireType))
+                .HasValue<AnonymousActiveQuestionnaireModel>(ActiveQuestionnaireType.Anonymous)
+                .HasValue<StandardActiveQuestionnaireModel>(ActiveQuestionnaireType.Standard);
+
+
+        });
+
+        // StandardActiveQuestionnaireModel - Configure derived model
+        modelBuilder.Entity<StandardActiveQuestionnaireModel>(e => {
             // We don't wanna delete users since they might have other active questionnaires assigned
             e.HasOne(a => a.Student)
             .WithMany(u => u.ActiveQuestionnaires)
@@ -72,7 +78,7 @@ public class Context : DbContext
             .HasForeignKey(a => a.QuestionnaireTemplateFK)
             .OnDelete(DeleteBehavior.NoAction);
             
-            // No reason to keep the answers if we're deleting the active questionnaire
+            // Configure the collections - responses point to this questionnaire
             e.HasMany(a => a.StudentAnswers)
             .WithOne(r => r.ActiveQuestionnaire)
             .HasPrincipalKey(a => a.Id)
@@ -122,7 +128,8 @@ public class Context : DbContext
     internal DbSet<QuestionnaireTemplateModel> QuestionnaireTemplates { get; set; }
     internal DbSet<QuestionnaireQuestionModel> QuestionnaireQuestions { get; set; }
     internal DbSet<QuestionnaireOptionModel> QuestionnaireOptions { get; set; }
-    internal DbSet<ActiveQuestionnaireModel> ActiveQuestionnaires { get; set; }
+    internal DbSet<StandardActiveQuestionnaireModel> StandardActiveQuestionnaires { get; set; }
+    internal DbSet<AnonymousActiveQuestionnaireModel> AnonymousActiveQuestionnaires { get; set; }
     internal DbSet<ActiveQuestionnaireResponseBaseModel> ActiveQuestionnaireResponses { get; set; }
     internal DbSet<ActiveQuestionnaireStudentResponseModel> ActiveQuestionnaireStudentResponses { get; set; }
     internal DbSet<ActiveQuestionnaireTeacherResponseModel> ActiveQuestionnaireTeacherResponses { get; set; }

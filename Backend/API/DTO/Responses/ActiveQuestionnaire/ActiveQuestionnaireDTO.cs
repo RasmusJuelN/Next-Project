@@ -67,6 +67,19 @@ public record class ActiveQuestionnaireAdminBase : ActiveQuestionnaireUserSpecif
     public required ActiveQuestionnaireType QuestionnaireType { get; set; }
 }
 
+public record class OmniActiveQuestionnaireAdminBase : ActiveQuestionnaireUserSpecificBase
+{
+    public required UserBase Student { get; set; }
+    public required UserBase Teacher { get; set; }
+    public required DateTime? StudentCompletedAt { get; set; }
+    public required DateTime? TeacherCompletedAt { get; set; }
+
+    public required int ParticipantCount { get; set; }
+    public required int CompletedParticipantCount { get; set; }
+
+    public required ActiveQuestionnaireType QuestionnaireType { get; set; }
+}
+
 //###################################################//
 
 /// <summary>

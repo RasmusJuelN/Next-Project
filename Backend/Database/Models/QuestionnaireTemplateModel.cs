@@ -97,7 +97,7 @@ public class QuestionnaireTemplateModel
     /// queries the database to check for active questionnaire relationships.
     /// Requires a database context to be provided for accurate calculation.
     /// </remarks>
-    public bool IsLocked => _context?.Set<ActiveQuestionnaireModel>().Where(q => Id == q.QuestionnaireTemplateFK).Any() ?? false;
+    public bool IsLocked => _context?.Set<StandardActiveQuestionnaireModel>().Where(q => Id == q.QuestionnaireTemplateFK).Any() ?? false;
     public TemplateStatus TemplateStatus { get; set; } = TemplateStatus.Draft;
 
     /// <summary>
@@ -116,5 +116,5 @@ public class QuestionnaireTemplateModel
     /// Contains all active questionnaire instances that were created using this template.
     /// Used track template usage. Virtual property enables lazy loading of active questionnaires when needed.
     /// </remarks>
-    public virtual ICollection<ActiveQuestionnaireModel> ActiveQuestionnaires { get; set; } = [];
+    public virtual ICollection<StandardActiveQuestionnaireModel> ActiveQuestionnaires { get; set; } = [];
 }

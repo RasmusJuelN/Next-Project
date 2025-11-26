@@ -71,17 +71,17 @@ public static class QuestionnaireTemplateMapper
     }
 
     /// <summary>
-    /// Converts a QuestionnaireTemplate DTO to an ActiveQuestionnaireModel.
+    /// Converts a QuestionnaireTemplate DTO to an StandardActiveQuestionnaireModel.
     /// </summary>
     /// <param name="questionnaire">The QuestionnaireTemplate DTO containing the template data.</param>
     /// <param name="questionnaireModel">The persisted QuestionnaireTemplateModel from the database.</param>
     /// <param name="student">The StudentModel who will complete the questionnaire.</param>
     /// <param name="teacher">The TeacherModel who will complete the questionnaire.</param>
-    /// <returns>An ActiveQuestionnaireModel.</returns>
+    /// <returns>An StandardActiveQuestionnaireModel.</returns>
     /// <remarks>
-    /// This method creates a new ActiveQuestionnaireModel instance based on the provided template and associated student and teacher.
+    /// This method creates a new StandardActiveQuestionnaireModel instance based on the provided template and associated student and teacher.
     /// </remarks>
-    public static ActiveQuestionnaireModel ToActiveQuestionnaire(this QuestionnaireTemplate questionnaire, QuestionnaireTemplateModel questionnaireModel, StudentModel student, TeacherModel teacher, ActiveQuestionnaireType questionnaireType)
+    public static StandardActiveQuestionnaireModel ToActiveQuestionnaire(this QuestionnaireTemplate questionnaire, QuestionnaireTemplateModel questionnaireModel, StudentModel student, TeacherModel teacher, ActiveQuestionnaireType questionnaireType)
     {
         return new()
         {
@@ -89,6 +89,7 @@ public static class QuestionnaireTemplateMapper
             Description = questionnaire.Description,
             Student = student,
             Teacher = teacher,
+            ParticipantIds = [],
             QuestionnaireTemplate = questionnaireModel,
             QuestionnaireType = questionnaireType
         };

@@ -88,6 +88,5 @@ public class ActiveQuestionnaireResponseBaseModel
     /// Virtual property enables lazy loading of questionnaire details when needed.
     /// </remarks>
     [Required]
-    [ForeignKey(nameof(ActiveQuestionnaireFK))]
-    public virtual ActiveQuestionnaireModel? ActiveQuestionnaire { get; set; }
+    public virtual StandardActiveQuestionnaireModel? ActiveQuestionnaire { get; set; }
 }

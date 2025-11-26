@@ -205,7 +205,7 @@ namespace API.Controllers
         /// </summary>
         /// <param name="groupId">The GUID of the questionnaire group to retrieve.</param>
         /// <returns>
-        /// An <see cref="ActionResult{QuestionnaireGroupResult}"/> containing the group details if found,
+        /// An <see cref="ActionResult{OmniQuestionnaireGroupResult}"/> containing the group details if found,
         /// <c>NotFound()</c> if the group does not exist, or an error response if an exception occurs.
         /// </returns>
         /// <remarks>
@@ -214,7 +214,7 @@ namespace API.Controllers
         /// </remarks>
         [HttpGet("{groupId}/getGroup")]
         [Authorize(AuthenticationSchemes = "AccessToken")]
-        public async Task<ActionResult<QuestionnaireGroupResult>> GetGroup(Guid groupId)
+        public async Task<ActionResult<OmniQuestionnaireGroupResult>> GetGroup(Guid groupId)
         {
             try
             {

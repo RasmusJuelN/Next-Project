@@ -4,15 +4,15 @@ using Database.Models;
 namespace Database.Extensions;
 
 /// <summary>
-/// Provides extension methods for mapping ActiveQuestionnaireModel entities to various DTO representations.
+/// Provides extension methods for mapping StandardActiveQuestionnaireModel entities to various DTO representations.
 /// This class handles the conversion between database models and data transfer objects for active questionnaires.
 /// </summary>
 public static class ActiveQuestionnaireMapper
 {
     /// <summary>
-    /// Converts an ActiveQuestionnaireModel to an ActiveQuestionnaireBase DTO containing basic questionnaire information.
+    /// Converts an StandardActiveQuestionnaireModel to an ActiveQuestionnaireBase DTO containing basic questionnaire information.
     /// </summary>
-    /// <param name="activeQuestionnaire">The ActiveQuestionnaireModel entity to convert.</param>
+    /// <param name="activeQuestionnaire">The StandardActiveQuestionnaireModel entity to convert.</param>
     /// <returns>
     /// An ActiveQuestionnaireBase DTO containing essential questionnaire data including ID, title, description,
     /// activation timestamp, and basic student and teacher information.
@@ -22,7 +22,7 @@ public static class ActiveQuestionnaireMapper
     /// and scenarios where detailed question data is not required. It includes completion timestamps for
     /// both student and teacher participants.
     /// </remarks>
-    public static ActiveQuestionnaireBase ToBaseDto(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static ActiveQuestionnaireBase ToBaseDto(this StandardActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {
@@ -41,9 +41,9 @@ public static class ActiveQuestionnaireMapper
     }
 
     /// <summary>
-    /// Converts an ActiveQuestionnaireModel to a complete ActiveQuestionnaire DTO including all questions.
+    /// Converts an StandardActiveQuestionnaireModel to a complete ActiveQuestionnaire DTO including all questions.
     /// </summary>
-    /// <param name="activeQuestionnaire">The ActiveQuestionnaireModel entity to convert.</param>
+    /// <param name="activeQuestionnaire">The StandardActiveQuestionnaireModel entity to convert.</param>
     /// <returns>
     /// An ActiveQuestionnaire DTO containing complete questionnaire data including ID, title, description,
     /// activation timestamp, student and teacher information, completion timestamps, and all associated questions.
@@ -53,7 +53,7 @@ public static class ActiveQuestionnaireMapper
     /// question hierarchy from the associated questionnaire template. Use this method when you need access
     /// to the complete questionnaire structure for display or processing purposes.
     /// </remarks>
-    public static ActiveQuestionnaire ToDto(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static ActiveQuestionnaire ToDto(this StandardActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {
@@ -72,9 +72,9 @@ public static class ActiveQuestionnaireMapper
     }
 
     /// <summary>
-    /// Converts an ActiveQuestionnaireModel to a FullResponse DTO containing complete questionnaire data with answers.
+    /// Converts an StandardActiveQuestionnaireModel to a FullResponse DTO containing complete questionnaire data with answers.
     /// </summary>
-    /// <param name="activeQuestionnaire">The ActiveQuestionnaireModel entity to convert, must include student and teacher answers.</param>
+    /// <param name="activeQuestionnaire">The StandardActiveQuestionnaireModel entity to convert, must include student and teacher answers.</param>
     /// <returns>
     /// A FullResponse DTO containing the questionnaire metadata, participant information with completion timestamps,
     /// and a comprehensive list of question-answer pairs from both student and teacher perspectives.
@@ -88,7 +88,7 @@ public static class ActiveQuestionnaireMapper
     /// <exception cref="ArgumentNullException">
     /// Thrown when the activeQuestionnaire parameter is null or when required completion timestamps are null.
     /// </exception>
-    public static FullResponse ToFullResponseAll(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static FullResponse ToFullResponseAll(this StandardActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {
@@ -113,7 +113,7 @@ public static class ActiveQuestionnaireMapper
             })]
         };
     }
-    public static FullStudentRespondsDate ToFullStudentRespondsDate(this ActiveQuestionnaireModel activeQuestionnaire)
+    public static FullStudentRespondsDate ToFullStudentRespondsDate(this StandardActiveQuestionnaireModel activeQuestionnaire)
     {
         return new()
         {

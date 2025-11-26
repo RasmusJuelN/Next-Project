@@ -78,7 +78,7 @@ public static class IQueryableExtensions
     /// </summary>
     /// <param name="query">The queryable collection of active questionnaire models to order.</param>
     /// <returns>An ordered queryable collection sorted by title ascending, then by ID ascending.</returns>
-    public static IQueryable<ActiveQuestionnaireModel> OrderByTitleAsc(this IQueryable<ActiveQuestionnaireModel> query)
+    public static IQueryable<StandardActiveQuestionnaireModel> OrderByTitleAsc(this IQueryable<StandardActiveQuestionnaireModel> query)
     {
         return query.OrderBy(a => a.Title).ThenBy(a => a.Id);
     }
@@ -89,7 +89,7 @@ public static class IQueryableExtensions
     /// </summary>
     /// <param name="query">The queryable collection of ActiveQuestionnaireModel to order.</param>
     /// <returns>An ordered queryable collection with questionnaires sorted by title (Z-A), then by ID (ascending).</returns>
-    public static IQueryable<ActiveQuestionnaireModel> OrderByTitleDesc(this IQueryable<ActiveQuestionnaireModel> query)
+    public static IQueryable<StandardActiveQuestionnaireModel> OrderByTitleDesc(this IQueryable<StandardActiveQuestionnaireModel> query)
     {
         return query.OrderByDescending(q => q.Title).ThenBy(q => q.Id);
     }
@@ -105,7 +105,7 @@ public static class IQueryableExtensions
     /// This method provides chronological ordering of active questionnaires from earliest to latest activation.
     /// The secondary sort by ID ensures deterministic ordering when activation timestamps are identical.
     /// </remarks>
-    public static IQueryable<ActiveQuestionnaireModel> OrderByActivatedAtAsc(this IQueryable<ActiveQuestionnaireModel> query)
+    public static IQueryable<StandardActiveQuestionnaireModel> OrderByActivatedAtAsc(this IQueryable<StandardActiveQuestionnaireModel> query)
     {
         return query.OrderBy(q => q.ActivatedAt).ThenBy(q => q.Id);
     }
@@ -121,7 +121,7 @@ public static class IQueryableExtensions
     /// This method provides reverse chronological ordering of active questionnaires from latest to earliest activation.
     /// The secondary sort by ID ensures deterministic ordering when activation timestamps are identical.
     /// </remarks>
-    public static IQueryable<ActiveQuestionnaireModel> OrderByActivatedAtDesc(this IQueryable<ActiveQuestionnaireModel> query)
+    public static IQueryable<StandardActiveQuestionnaireModel> OrderByActivatedAtDesc(this IQueryable<StandardActiveQuestionnaireModel> query)
     {
         return query.OrderByDescending(q => q.ActivatedAt).ThenBy(q => q.Id);
     }

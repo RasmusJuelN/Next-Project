@@ -32,4 +32,11 @@ namespace API.DTO.Responses.ActiveQuestionnaire
         public List<ActiveQuestionnaireAdminBase> Questionnaires { get; set; }
         public required ActiveQuestionnaireType QuestionnaireType { get; set; }
     }
+
+    public class OmniQuestionnaireGroupResult : QuestionnaireGroupBasicResult
+    {
+        public Guid TemplateId { get; set; }
+        public List<OmniActiveQuestionnaireAdminBase> Questionnaires { get; set; }
+        public required ActiveQuestionnaireType QuestionnaireType { get; set; }
+    }
 }

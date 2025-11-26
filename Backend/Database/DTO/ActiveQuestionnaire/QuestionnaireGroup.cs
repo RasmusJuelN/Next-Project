@@ -15,6 +15,6 @@ namespace Database.DTO.ActiveQuestionnaire
         /// <summary>
         /// Gets or sets the collection of active questionnaires associated with the group.
         /// </summary>
-        public List<ActiveQuestionnaireModel> Questionnaires { get; set; } = new();
+        public List<StandardActiveQuestionnaireModel> Questionnaires { get; set; } = new();
     }
 }
