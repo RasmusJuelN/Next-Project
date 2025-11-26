@@ -1,4 +1,6 @@
 
+//using Newtonsoft.Json;
+
 namespace Database.Utils;
 
 /// <summary>
@@ -21,12 +23,18 @@ public interface IDataSeeder<T>
     public static T? LoadSeed(string path)
     {
         T? seed;
+        var options = new JsonSerializerOptions()
+        {
+            PropertyNameCaseInsensitive = true
+
+        };
         string json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, path));
-        seed = JsonSerializer.Deserialize<T>(json);
+
+        seed = JsonSerializer.Deserialize<T>(json, options);
 
         return seed;
     }
-
+   
     public static T LoadSeed(T model)
     {
         return model;
