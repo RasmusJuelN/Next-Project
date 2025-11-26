@@ -2,8 +2,7 @@
 global using System.Collections.Concurrent;
 global using Database.DTO.ApplicationLog;
 global using Microsoft.Extensions.Logging;
-global using Settings.Default;
-
+global using Settings.Models;
 global using System.Runtime.Versioning;
 global using Database.Interfaces;
 global using Microsoft.Extensions.DependencyInjection;
