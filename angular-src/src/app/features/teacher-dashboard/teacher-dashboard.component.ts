@@ -9,6 +9,7 @@ import { ActiveQuestionnaireBase, QuestionnaireGroup} from './models/dashboard.m
 import { TeacherService } from './services/teacher.service';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { UtcToLocalTimePipe } from '../../shared/pipes/UtcToLocalTimePipe';
 
 /**
  * Teacher dashboard component.
@@ -24,7 +25,7 @@ import { TranslateModule } from '@ngx-translate/core';
  */
 @Component({
     selector: 'app-teacher-dashboard',
-    imports: [ClipboardModule, FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule],
+    imports: [ClipboardModule, FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule, UtcToLocalTimePipe],
     templateUrl: './teacher-dashboard.component.html',
     styleUrls: ['./teacher-dashboard.component.css']
 })
