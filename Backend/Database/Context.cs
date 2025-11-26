@@ -100,6 +100,13 @@ public class Context : DbContext
             .OnDelete(DeleteBehavior.NoAction);
         });
 
+        modelBuilder.Entity<AnonymousQuestionnaireResponseModel>(e => {
+            e.HasOne(ar => ar.Question)
+            .WithMany()
+            .HasForeignKey(ar => ar.QuestionFK)
+            .OnDelete(DeleteBehavior.NoAction);
+        });
+
         // UserModel
         modelBuilder.Entity<UserBaseModel>(e => {
             e.Property(u => u.PrimaryRole)
@@ -133,6 +140,7 @@ public class Context : DbContext
     internal DbSet<ActiveQuestionnaireResponseBaseModel> ActiveQuestionnaireResponses { get; set; }
     internal DbSet<ActiveQuestionnaireStudentResponseModel> ActiveQuestionnaireStudentResponses { get; set; }
     internal DbSet<ActiveQuestionnaireTeacherResponseModel> ActiveQuestionnaireTeacherResponses { get; set; }
+    internal DbSet<AnonymousQuestionnaireResponseModel> AnonymousQuestionnaireResponses { get; set; }
     internal DbSet<UserBaseModel> Users { get; set; }
     internal DbSet<StudentModel> Students { get; set; }
     internal DbSet<TeacherModel> Teachers { get; set; }
