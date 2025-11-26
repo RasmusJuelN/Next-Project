@@ -16,7 +16,7 @@ module.exports = {
         primary_orange_darker: "#260700",
 
         primary_dark_blue: '#000c2e', //dark blue
-        primary_dark_light: '#1a2240', // lighter dark
+        primary_dark_light: '#283361', // lighter dark
         primary_dark_dark: '#00061a', // even darker
 
         secondary_blue: '#2563eb', // accent blue

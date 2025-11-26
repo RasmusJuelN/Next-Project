@@ -1,4 +1,11 @@
-﻿
+﻿using Database;
+using Database.DTO.ApplicationLog;
+using Database.Models;
+using Database.Repository;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace UnitTests.Repositories
 {
     public class ApplicationLogRepositoryTest

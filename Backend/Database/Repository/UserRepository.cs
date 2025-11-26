@@ -80,7 +80,8 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
     public async Task<Guid?> GetIdOfOldestActiveQuestionnaire(Guid id)
     {
         return await _context.ActiveQuestionnaires
-            .Where(a => a.Student.Guid == id && !a.StudentCompletedAt.HasValue || a.Teacher.Guid == id && !a.TeacherCompletedAt.HasValue)
+            .Where(a => (a.Student != null && a.Student.Guid == id && !a.StudentCompletedAt.HasValue) || 
+                       (a.Teacher != null && a.Teacher.Guid == id && !a.TeacherCompletedAt.HasValue))
             .OrderBy(a => a.ActivatedAt)
             .Select(a => (Guid?)a.Id)
             .FirstOrDefaultAsync();
@@ -144,5 +145,47 @@ public class UserRepository(Context context, ILoggerFactory loggerFactory) : IUs
     public async Task AddTeacherAsync(UserAdd teacher)
     {
         await _genericRepository.AddAsync(teacher.ToTeacherModel());
+    }
+
+    /// <summary>
+    /// Searches for students related to a specific teacher by student username.
+    /// </summary>
+    /// <param name="teacherId">The unique identifier (GUID) of the teacher.</param>
+    /// <param name="studentUsernameQuery">The student username or partial username to search for.</param>
+    /// <returns>A list of UserBase DTOs representing students related to the teacher that match the username query.</returns>
+    /// <exception cref="ArgumentException">Thrown when teacherId is empty or studentUsernameQuery is null/empty.</exception>
+    /// <remarks>
+    /// This method finds students who have active questionnaires assigned to the specified teacher
+    /// and whose username contains the search query. This ensures that teachers can only search
+    /// for students they are working with through questionnaires. Returns full user DTOs
+    /// for efficient display and selection purposes with complete user information. The search is case-insensitive and uses partial matching.
+    /// </remarks>
+    public async Task<List<FullUser>> SearchStudentsRelatedToTeacherAsync(Guid teacherId, string studentUsernameQuery)
+    {
+        if (teacherId == Guid.Empty)
+            throw new ArgumentException("Teacher ID cannot be empty", nameof(teacherId));
+
+        if (string.IsNullOrWhiteSpace(studentUsernameQuery))
+            throw new ArgumentException("Student username query cannot be null or empty", nameof(studentUsernameQuery));
+
+        studentUsernameQuery = studentUsernameQuery.Trim();
+        // Find students that have active questionnaires with this teacher and match the username query
+        var students = await _context.ActiveQuestionnaires
+            .Where(aq => aq.Teacher != null && aq.Teacher.Guid == teacherId &&
+                        aq.Student != null && (aq.Student.UserName.Contains(studentUsernameQuery) || 
+                         (aq.Student.FullName != null && aq.Student.FullName.Contains(studentUsernameQuery))))
+            .Select(aq => aq.Student!)
+            .Distinct()
+            .ToListAsync();
+
+        return students.Select(s => s.ToDto()).ToList();
+    }
+    
+    public Task<int?> GetIdByGuidAsync(Guid guid)
+    {
+        return _context.Set<TeacherModel>()
+            .Where(t => t.Guid == guid)
+            .Select(t => (int?)t.Id)
+            .FirstOrDefaultAsync();
     }
 }

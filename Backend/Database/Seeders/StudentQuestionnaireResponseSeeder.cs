@@ -249,16 +249,18 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
                         CreatedAt = templateCreatedAt,
                         LastUpated = templateLastUpdated,
                         TemplateStatus = TemplateStatus.Finalized,
-                        Questions = [.. questions.Select(q => new QuestionnaireQuestionModel()
+                        Questions = [.. questions.Select((q, questionIndex) => new QuestionnaireQuestionModel()
                         {
                             Id = q.Key,
                             Prompt = q.Value,
                             AllowCustom = false,
+                            SortOrder = questionIndex,
                             QuestionnaireTemplateFK = templateId,
-                            Options = [.. options[q.Key].Select(option => new QuestionnaireOptionModel(){
+                            Options = [.. options[q.Key].Select((option, optionIndex) => new QuestionnaireOptionModel(){
                                 Id = option.Key,
                                 OptionValue = option.Key,
                                 DisplayText = option.Value,
+                                SortOrder = optionIndex,
                                 QuestionFK = q.Key
                             })]
                         })]
@@ -270,21 +272,21 @@ public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDa
                         Name = groupName,
                         CreatedAt = groupCreatedAt
                     },
-                    StudentAnswers = [.. questions.Keys.Select((questionFK, questionIndex) =>
+                    StudentAnswers = [.. questions.Keys.Select((questionFK, responseIndex) =>
                         new ActiveQuestionnaireStudentResponseModel()
                         {
                             Id = responseIdCounter--,
                             QuestionFK = questionFK,
-                            OptionFK = options[questionFK].Keys.ElementAt(studentResponsePattern[i][questionIndex]),
+                            OptionFK = options[questionFK].Keys.ElementAt(studentResponsePattern[i][responseIndex]),
                             ActiveQuestionnaireFK = activeQuestionnaireIds[i],
                             CustomResponse = null
                         })],
-                    TeacherAnswers = [.. questions.Keys.Select((questionFK, questionIndex) =>
+                    TeacherAnswers = [.. questions.Keys.Select((questionFK, responseIndex) =>
                         new ActiveQuestionnaireTeacherResponseModel()
                         {
                             Id = responseIdCounter--,
                             QuestionFK = questionFK,
-                            OptionFK = options[questionFK].Keys.ElementAt(teacherResponsePattern[i][questionIndex]),
+                            OptionFK = options[questionFK].Keys.ElementAt(teacherResponsePattern[i][responseIndex]),
                             ActiveQuestionnaireFK = activeQuestionnaireIds[i],
                             CustomResponse = null
                         })]

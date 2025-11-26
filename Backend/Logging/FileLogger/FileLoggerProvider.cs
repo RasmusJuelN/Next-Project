@@ -6,12 +6,12 @@ namespace Logging.FileLogger;
 public sealed class FileLoggerProvider : ILoggerProvider
 {
     private readonly IDisposable? _onChangeToken;
-    private DefaultFileLogger _currentConfig;
+    private FileLoggerSettings _currentConfig;
     private readonly ConcurrentDictionary<string, FileLogger> _loggers = 
         new(StringComparer.OrdinalIgnoreCase);
     private readonly StreamWriter _writer;
 
-    public FileLoggerProvider(IOptionsMonitor<DefaultFileLogger> config)
+    public FileLoggerProvider(IOptionsMonitor<FileLoggerSettings> config)
     {
         _currentConfig = config.CurrentValue;
         _onChangeToken = config.OnChange(updatedConfig => _currentConfig = updatedConfig);
@@ -21,7 +21,7 @@ public sealed class FileLoggerProvider : ILoggerProvider
     public ILogger CreateLogger(string categoryName) =>
         _loggers.GetOrAdd(categoryName, name => new FileLogger(name, _writer, GetCurrentConfig));
 
-    private DefaultFileLogger GetCurrentConfig() => _currentConfig;
+    private FileLoggerSettings GetCurrentConfig() => _currentConfig;
 
     public void Dispose()
     {

@@ -34,6 +34,11 @@ public record class ApplicationLog
     /// Gets or sets the event identifier associated with the log entry. This property is required.
     /// </summary>
     public required int EventId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the description of the event associated with the log entry. This property is required.
+    /// </summary>
+    public required string EventDescription { get; set; }
     
     /// <summary>
     /// Gets or sets the category or source of the log entry. This property is required.

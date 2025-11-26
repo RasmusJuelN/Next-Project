@@ -79,7 +79,7 @@ namespace API.Controllers
         /// Retrieves a paginated list of questionnaire groups using keyset pagination.
         /// </summary>
         /// <param name="request">
-        /// The <see cref="QuestionnaireGroupKeysetPaginationRequest"/> containing pagination,
+        /// The <see cref="QuestionnaireGroupOffsetPaginationRequest"/> containing pagination,
         /// ordering, and optional filtering parameters.
         /// </param>
         /// <returns>
@@ -92,11 +92,11 @@ namespace API.Controllers
         /// </remarks>
         [HttpGet("groups/paginated")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<QuestionnaireGroupKeysetPaginationResult>> GetGroupsPaginated([FromQuery] QuestionnaireGroupKeysetPaginationRequest request)
+        public async Task<ActionResult<QuestionnaireGroupOffsetPaginationResult>> GetGroupsPaginated([FromQuery] QuestionnaireGroupOffsetPaginationRequest request)
         {
             try
             {
-                var result = await _questionnaireService.FetchQuestionnaireGroupsWithKeysetPagination(request);
+                var result = await _questionnaireService.FetchQuestionnaireGroupsWithOffsetPagination(request);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -142,7 +142,7 @@ namespace API.Controllers
         /// Retrieves all questionnaire groups including their active questionnaires and participants.
         /// </summary>
         /// <returns>
-        /// An <see cref="ActionResult{List{QuestionnaireGroupResult}}"/> containing all questionnaire groups,
+        /// An <see cref="List{QuestionnaireGroupResult}"/> containing all questionnaire groups,
         /// or an error response if an exception occurs.
         /// </returns>
         /// <remarks>
@@ -358,6 +358,32 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("responseHistory")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<ActionResult<StudentResultHistory>> GetResponseHistory([FromQuery] Guid studentId, [FromQuery] Guid templateId)
+        {
+            Guid teacherId;
+            try
+            {
+                teacherId = Guid.Parse(User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error parsing teacher ID from claims: {Message}", e.Message);
+                return Unauthorized();
+            }
+
+            StudentResultHistory? responseHistory = await _questionnaireService.GetResponseHistoryAsync(studentId, teacherId, templateId);
+
+            if (responseHistory == null)
+            {
+                _logger.LogWarning("No response history found for teacher {TeacherId}, student {StudentId}, and template {TemplateId}", teacherId, studentId, templateId);
+                return NotFound();
+            }
+
+            return Ok(responseHistory);
+        }
+
         /// <summary>
         /// Checks if the authenticated user has already answered a specific questionnaire.
         /// </summary>
@@ -503,5 +529,21 @@ namespace API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpGet("{id:guid}/completedStudentsByGroup")]
+        [Authorize(AuthenticationSchemes = "AccessToken", Policy = "TeacherOnly")]
+        public async Task<IActionResult> GetCompletedStudentsByGroup(Guid id)
+        {
+            try
+            {
+                var students = await _questionnaireService.GetCompletedStudentsByGroup(id);
+                return Ok(students);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to fetch completed students", error = ex.Message });
+            }
+        }
     }
+
 }

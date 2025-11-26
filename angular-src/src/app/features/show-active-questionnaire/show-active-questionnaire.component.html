@@ -1,42 +1,43 @@
 <div class="flex flex-col items-center w-full">
-  <div class="flex flex-col w-full max-w-full sm:max-w-4xl bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border-2 border-primary_orange_1">
-    <h2 class="text-3xl font-bold text-primary_orange mb-6 text-center">{{ 'TMP_ACTIVE_SURVEYS' | translate }}</h2>
+  <div class="flex flex-col w-full max-w-full sm:max-w-7xl bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border-2 border-primary_orange_1">
+    <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">{{ 'TMP_ACTIVE_SURVEYS' | translate }}</h2>
 
     <!-- Show list or fallback -->
-    <ng-container *ngIf="activeQuestionnaires.length > 0; else noData">
+    @if (activeQuestionnaires.length > 0) {
       <ul class="space-y-4">
-        <li *ngFor="let questionnaire of activeQuestionnaires"
+        @for (questionnaire of activeQuestionnaires; track questionnaire) {
+          <li
             class="p-4 bg-secondary_background_gray rounded-xl shadow-sm border border-primary_orange_1 hover:bg-secondary_background_hover transition-colors flex items-center justify-between">
-          
-          <!-- Questionnaire Info -->
-          <div class="flex flex-col gap-2"> 
-            <h3 class="text-xl font-semibold text-gray-800">{{ questionnaire.title }}</h3>
-            <p class="text-gray-600">{{ questionnaire.description }}</p>
-            <p class="text-sm text-gray-500">
-              {{ 'TMP_SETUP_AT' | translate }}
-              <span class="font-medium text-gray-700">{{ questionnaire.activatedAt | date: 'short' }}</span>
-            </p>
-          </div>
-
-          <!-- Answer Button -->
-          <div *ngIf="shouldShowAnswerButton(questionnaire)">
-            <button
-              [routerLink]="['/answer', questionnaire.id]"
-              class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
-            >
-              {{ 'TMP_ANSWER' | translate }}
-            </button>
-          </div>
-        </li>
+            <!-- Questionnaire Info -->
+            <div class="flex flex-col gap-2">
+              <h3 class="text-xl font-semibold text-gray-800">{{ questionnaire.title }}</h3>
+              <p class="text-gray-600">{{ questionnaire.description }}</p>
+              <p class="text-sm text-gray-500">
+                {{ 'TMP_SETUP_AT' | translate }}
+                <span class="font-medium text-gray-700">{{ questionnaire.activatedAt | date: 'short' }}</span>
+              </p>
+            </div>
+            <!-- Answer Button -->
+            @if (shouldShowAnswerButton(questionnaire)) {
+              <div>
+                <button
+                  [routerLink]="['/answer', questionnaire.id]"
+                  class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
+                  >
+                  {{ 'TMP_ANSWER' | translate }}
+                </button>
+              </div>
+            }
+          </li>
+        }
       </ul>
-    </ng-container>
-
-    <!-- No Data Fallback -->
-    <ng-template #noData>
+    } @else {
       <div class="p-4 text-center">
         <p class="text-gray-600">{{ 'NO_ACTIVE_QUESTIONNAIRE' | translate }}</p>
         <!-- Or fallback message like: Der er ingen aktive spørgeskemaer tilgængelige lige nu. -->
       </div>
-    </ng-template>
+    }
+
+    <!-- No Data Fallback -->
   </div>
 </div>

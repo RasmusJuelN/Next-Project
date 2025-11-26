@@ -2,14 +2,14 @@
 namespace API.Extensions;
 
 /// <summary>
-/// Provides extension methods for converting <see cref="BasicUserInfoWithObjectGuid"/> objects to other data transfer objects.
+/// Provides extension methods for converting <see cref="BasicUserInfoWithUserID"/> objects to other data transfer objects.
 /// </summary>
 public static class BasicUserInfoWithObjectGuidExtensions
 {
     /// <summary>
-    /// Converts a <see cref="BasicUserInfoWithObjectGuid"/> instance to a <see cref="LdapUserBase"/> data transfer object.
+    /// Converts a <see cref="BasicUserInfoWithUserID"/> instance to a <see cref="LdapUserBase"/> data transfer object.
     /// </summary>
-    /// <param name="user">The <see cref="BasicUserInfoWithObjectGuid"/> instance to convert.</param>
+    /// <param name="user">The <see cref="BasicUserInfoWithUserID"/> instance to convert.</param>
     /// <returns>A new <see cref="LdapUserBase"/> instance populated with data from the input user object.</returns>
     /// <remarks>
     /// This method maps the following properties:
@@ -19,13 +19,13 @@ public static class BasicUserInfoWithObjectGuidExtensions
     /// <item><description>Username.StringValue to UserName</description></item>
     /// </list>
     /// </remarks>
-    public static LdapUserBase ToUserBaseDto(this BasicUserInfoWithObjectGuid user)
+    public static LdapUserBase ToUserBaseDto(this BasicUserInfoWithUserID user)
     {
         return new()
         {
-            Id = new(user.ObjectGUID.ByteValue),
-            FullName = user.Name.StringValue,
-            UserName = user.Username.StringValue
+            Id = new(user.UserId),
+            FullName = user.Name,
+            UserName = user.Username
         };
     }
 }

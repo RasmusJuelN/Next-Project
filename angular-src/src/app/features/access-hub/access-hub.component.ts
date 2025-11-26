@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { Role } from '../../shared/models/user.model';
 
@@ -13,11 +13,10 @@ import { Role } from '../../shared/models/user.model';
  * - Provides different navigation options for Students, Teachers, and Admins.
  */
 @Component({
-  selector: 'app-access-hub',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './access-hub.component.html',
-  styleUrls: ['./access-hub.component.css']
+    selector: 'app-access-hub',
+    imports: [RouterModule],
+    templateUrl: './access-hub.component.html',
+    styleUrls: ['./access-hub.component.css']
 })
 export class AccessHubComponent {
   private authService = inject(AuthService);

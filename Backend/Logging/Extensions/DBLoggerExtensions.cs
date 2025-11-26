@@ -12,14 +12,14 @@ public static class DBLoggerExtensions
             ServiceDescriptor.Singleton<ILoggerProvider, DBLoggerProvider>());
         
         LoggerProviderOptions.RegisterProviderOptions
-            <DefaultDBLogger, DBLoggerProvider>(builder.Services);
+            <DBLoggerSettings, DBLoggerProvider>(builder.Services);
 
         return builder;
     }
 
     public static ILoggingBuilder AddDBLogger(
         this ILoggingBuilder builder,
-        Action<DefaultDBLogger> configure)
+        Action<DBLoggerSettings> configure)
         {
             builder.AddDBLogger();
             builder.Services.Configure(configure);

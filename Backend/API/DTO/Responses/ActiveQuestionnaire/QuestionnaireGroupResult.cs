@@ -12,6 +12,7 @@ namespace API.DTO.Responses.ActiveQuestionnaire
     {
         public Guid GroupId { get; set; }
         required public string Name { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 
     /// <summary>

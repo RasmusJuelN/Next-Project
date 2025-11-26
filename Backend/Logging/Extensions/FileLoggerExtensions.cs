@@ -12,14 +12,14 @@ public static class FileLoggerExtensions
             ServiceDescriptor.Singleton<ILoggerProvider, FileLoggerProvider>());
 
         LoggerProviderOptions.RegisterProviderOptions
-            <DefaultFileLogger, FileLoggerProvider>(builder.Services);
+            <DBLoggerSettings, FileLoggerProvider>(builder.Services);
 
         return builder;
     }
 
     public static ILoggingBuilder AddFileLogger(
         this ILoggingBuilder builder,
-        Action<DefaultFileLogger> configure)
+        Action<DBLoggerSettings> configure)
         {
             builder.AddFileLogger();
             builder.Services.Configure(configure);

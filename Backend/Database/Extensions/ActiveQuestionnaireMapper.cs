@@ -25,6 +25,8 @@ public static class ActiveQuestionnaireMapper
         return new()
         {
             Id = activeQuestionnaire.Id,
+            GroupId = activeQuestionnaire.GroupId,
+            TemplateId = activeQuestionnaire.QuestionnaireTemplateFK,
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
@@ -53,6 +55,7 @@ public static class ActiveQuestionnaireMapper
         return new()
         {
             Id = activeQuestionnaire.Id,
+            GroupId = activeQuestionnaire.GroupId,
             Title = activeQuestionnaire.Title,
             Description = activeQuestionnaire.Description,
             ActivatedAt = activeQuestionnaire.ActivatedAt,
@@ -95,7 +98,14 @@ public static class ActiveQuestionnaireMapper
                 StudentResponse = a.First.CustomResponse ?? a.First.Option!.DisplayText,
                 IsStudentResponseCustom = a.First.CustomResponse is not null,
                 TeacherResponse = a.Second.CustomResponse ?? a.Second.Option!.DisplayText,
-                IsTeacherResponseCustom = a.Second.CustomResponse is not null
+                IsTeacherResponseCustom = a.Second.CustomResponse is not null,
+                Options = a.First.Question!.Options?.Select(option => new QuestionOption
+                {
+                    DisplayText = option.DisplayText,
+                    OptionValue = option.OptionValue.ToString(),
+                    IsSelectedByStudent = a.First.Option?.Id == option.Id,
+                    IsSelectedByTeacher = a.Second.Option?.Id == option.Id
+                }).ToList()
             })]
         };
     }
@@ -115,4 +125,5 @@ public static class ActiveQuestionnaireMapper
             })]
         };
     }
+
 }

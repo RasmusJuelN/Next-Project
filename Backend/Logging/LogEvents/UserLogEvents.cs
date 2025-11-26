@@ -1,7 +1,7 @@
 
 namespace Logging.LogEvents;
 
-public static class UserLogEvents
+public class UserLogEvents : LogEventsBase
 {
     public static readonly EventId UserLogIn = new(100, "UserLogIn");
     public static readonly EventId UserLogOut = new(101, "UserLogOut");

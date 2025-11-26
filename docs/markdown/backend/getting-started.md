@@ -78,6 +78,8 @@ The application will automatically create a `config.json` file on first run with
   "LDAP": {
     "Host": "your-ldap-server",
     "Port": 389,
+    "SSLPort": 636,
+    "UseSSL": true,
     "FQDN": "your.domain.com",
     "BaseDN": "OU=Users,DC=your,DC=domain,DC=com",
     "SA": "admin-user",
@@ -235,6 +237,8 @@ The application uses `config.json` for all runtime configuration. This file is a
   "LDAP": {
     "Host": "ldap-server-address",
     "Port": 389,
+    "SSLPort": 636,
+    "UseSSL": true,
     "FQDN": "domain.com",
     "BaseDN": "OU=Users,DC=domain,DC=com",
     "SA": "service-account",
@@ -244,6 +248,12 @@ The application uses `config.json` for all runtime configuration. This file is a
 ```
 > [!NOTE]
 > `Host` can be a domain name or IP.
+>
+> `Port` is the standard LDAP port (typically 389 for unencrypted connections).
+>
+> `SSLPort` is the port used for SSL/TLS encrypted LDAP connections (typically 636 for LDAPS).
+>
+> `UseSSL` enables SSL/TLS encryption for LDAP connections. When set to `true`, the connection will use the `SSLPort` instead of the standard `Port`.
 >
 > `FQDN` is the fully qualified domain name of the machine. If the server is an Active Directory server, this is most likely the name of the machine that hosts the AD + forest domain (e.g., `adserver.domain.com`).
 >

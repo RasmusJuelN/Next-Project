@@ -54,6 +54,12 @@ namespace Database.Repository
         {
             return await _context.Set<QuestionnaireGroupModel>().FindAsync(groupId);
         }
+        public async Task<List<QuestionnaireGroupModel>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _context.Set<QuestionnaireGroupModel>()
+                .Where(g => ids.Contains(g.GroupId))
+                .ToListAsync();
+        }
 
         /// <summary>
         /// Retrieves all questionnaire groups with their related questionnaires,
@@ -104,13 +110,13 @@ namespace Database.Repository
         /// </remarks>
         public async Task<(List<QuestionnaireGroupModel>, int)> PaginationQueryWithKeyset(
             int amount,
-            QuestionnaireGroupOrderingOptions sortOrder,
-            Guid? cursorIdPosition = null,
-            DateTime? cursorCreatedAtPosition = null,
-            string? titleQuery = null,
-            Guid? groupId = null,
-            bool? pendingStudent = false,
-            bool? pendingTeacher = false)
+                    QuestionnaireGroupOrderingOptions sortOrder,
+                    string? titleQuery = null,
+                    Guid? groupId = null,
+                    bool? pendingStudent = false,
+                    bool? pendingTeacher = false,
+                    int? teacherFK = null,
+                    int? pageNumber = 1)
         {
             IQueryable<QuestionnaireGroupModel> query = _genericRepository.GetAsQueryable();
 
@@ -127,37 +133,40 @@ namespace Database.Repository
             }
 
             if (pendingStudent == true)
-            query = query.Where(g => g.Questionnaires.Any(q => !q.StudentCompletedAt.HasValue));
-            
+                query = query.Where(g => g.Questionnaires.Any(q => !q.StudentCompletedAt.HasValue));
+
             if (pendingTeacher == true)
-            query = query.Where(g => g.Questionnaires.Any(q => !q.TeacherCompletedAt.HasValue));
+                query = query.Where(g => g.Questionnaires.Any(q => !q.TeacherCompletedAt.HasValue));
+
+            if (teacherFK.HasValue)
+            {
+                query = query.Where(g => g.Questionnaires.Any(q => q.TeacherFK == teacherFK.Value));
+            }
 
             int totalCount = await query.CountAsync();
 
-            if (cursorIdPosition is not null && cursorCreatedAtPosition is not null)
-            {
-                if (sortOrder == QuestionnaireGroupOrderingOptions.CreatedAtAsc)
-                {
-                    query = query.Where(g =>
-                        g.CreatedAt > cursorCreatedAtPosition
-                        || (g.CreatedAt == cursorCreatedAtPosition && g.GroupId > cursorIdPosition));
-                }
-                else
-                {
-                    query = query.Where(g =>
-                        g.CreatedAt < cursorCreatedAtPosition
-                        || (g.CreatedAt == cursorCreatedAtPosition && g.GroupId < cursorIdPosition));
-                }
-            }
+
+            // Offset-based pagination
+            int skip = (pageNumber.Value - 1) * amount;
+            query = query.Skip(skip).Take(amount);
 
             List<QuestionnaireGroupModel> groupEntities = await query
-                .Include(g => g.Template)
-                .Include(g => g.Questionnaires)
-                    .ThenInclude(q => q.Student)
-                .Include(g => g.Questionnaires)
-                    .ThenInclude(q => q.Teacher)
-                .Take(amount)
-                .ToListAsync();
+        .Include(g => g.Template)
+        .Include(g => g.Questionnaires)
+            .ThenInclude(q => q.Student)
+        .Include(g => g.Questionnaires)
+            .ThenInclude(q => q.Teacher)
+        .ToListAsync();
+
+            if (teacherFK.HasValue)
+            {
+                foreach (var grp in groupEntities)
+                {
+                    grp.Questionnaires = grp.Questionnaires
+                        .Where(q => q.TeacherFK == teacherFK.Value)
+                        .ToList();
+                }
+            }
 
             return (groupEntities, totalCount);
         }

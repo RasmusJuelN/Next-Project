@@ -1,0 +1,262 @@
+<div class="px-4">
+  <div class="bg-primary_background_white/80 p-4 mb-4 sm:p-10 max-w-7xl mx-auto shadow-xl rounded-2xl border-2 border-primary_orange_1 print:bg-white print:shadow-none print:p-0 print:overflow-visible ">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-primary_dark_blue">{{ 'RESULT_HISTORY.TITLE' | translate }}</h1>
+    </div>
+
+    <!-- Search Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+      <!-- Student Search -->
+      <div class="space-y-2">
+        <label class="block text-sm font-medium text-primary_dark_blue">
+          {{ 'RESULT_HISTORY.SELECT_STUDENT' | translate }}
+        </label>
+        <div class="relative" data-search="student">
+          <input
+            type="text"
+            [value]="student.query"
+            (input)="onInputChange(searchEnum.Student, $any($event.target).value)"
+            (focus)="showDropdown[searchEnum.Student] = true"
+            placeholder="{{ 'RESULT_HISTORY.SEARCH_STUDENTS' | translate }}"
+            class="w-full px-3 py-2 border border-primary_orange_1/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 transition-colors duration-150"
+            />
+
+            <!-- Selected Student Chip -->
+            @if (student.selected) {
+              <div class="mt-2">
+                <div class="flex items-center justify-between bg-primary_orange_light/20 border border-primary_orange_1 p-2 rounded-lg">
+                  <span class="text-sm font-medium text-primary_dark_blue">{{ student.selected.fullName }}</span>
+                  <button
+                    (click)="clearSelected(searchEnum.Student)"
+                  class="text-red-500 hover:text-red-700 ml-2">×</button>
+                </div>
+              </div>
+            }
+
+            <!-- Dropdown Results -->
+            @if (showDropdown[searchEnum.Student] && student.results.length) {
+              <div
+                class="absolute z-10 w-full mt-1 bg-primary_background_white border border-primary_orange_1 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                @for (user of student.results; track user) {
+                  <div
+                    (click)="select(searchEnum.Student, user)"
+                    class="px-3 py-2 hover:bg-primary_orange_light/10 cursor-pointer border-b border-primary_orange_1/20 last:border-b-0 transition-colors duration-150">
+                    <div class="font-medium text-primary_dark_blue">{{ user.fullName }}</div>
+                    <div class="text-sm text-gray-600">{{ user.userName }}</div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Template Search -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-primary_dark_blue">
+            {{ 'RESULT_HISTORY.SELECT_QUESTIONNAIRE' | translate }}
+          </label>
+
+          <!-- Helper text when no student selected -->
+          @if (!student.selected) {
+            <div class="text-sm text-gray-600 bg-secondary_background_gray/50 border border-primary_orange_1/30 p-3 rounded-lg">
+              <span class="font-medium text-primary_dark_blue">{{ 'RESULT_HISTORY.SELECT_STUDENT_FIRST' | translate }}</span>
+              <br>{{ 'RESULT_HISTORY.SELECT_STUDENT_FIRST_DESC' | translate }}
+              </div>
+            }
+
+            <!-- Template selection when student is selected -->
+            @if (student.selected) {
+              <div class="relative" data-search="template">
+                <!-- Available templates info -->
+                @if (template.results.length > 0) {
+                  <div class="text-sm text-primary_dark_blue bg-primary_orange_light/20 border border-primary_orange_1 p-2 rounded-lg mb-2">
+                    <span class="font-medium">{{ template.results.length }}</span> {{ 'RESULT_HISTORY.SHARED_QUESTIONNAIRES_AVAILABLE' | translate }} <span class="font-medium">{{ student.selected.fullName }}</span>
+                  </div>
+                }
+                <!-- No shared templates message -->
+                @if (template.error) {
+                  <div class="text-sm text-orange-700 bg-orange-50 border border-orange-200 p-2 rounded-lg mb-2">
+                    {{ template.error }}
+                  </div>
+                }
+                <!-- Template loading -->
+                @if (template.loading) {
+                  <div class="text-sm text-gray-600 bg-secondary_background_gray/50 border border-primary_orange_1/30 p-2 rounded-lg mb-2 flex items-center">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary_orange_1 mr-2"></div>
+                    {{ 'RESULT_HISTORY.LOADING_SHARED_QUESTIONNAIRES' | translate }}
+                  </div>
+                }
+                <!-- Selected Template Chip -->
+                @if (template.selected) {
+                  <div class="mt-2">
+                    <div class="flex items-center justify-between bg-primary_orange_1 text-white p-2 rounded-lg">
+                      <span class="text-sm font-medium">{{ template.selected.title }}</span>
+                      <button
+                        (click)="clearSelected(searchEnum.Template)"
+                      class="text-white/80 hover:text-white ml-2">×</button>
+                    </div>
+                  </div>
+                }
+                <!-- Available Templates List -->
+                @if (!template.selected && template.results.length > 0) {
+                  <div
+                    class="space-y-2 max-h-60 overflow-y-auto border border-primary_orange_1 rounded-lg bg-primary_background_white">
+                    <div class="p-2 bg-primary_orange_light/20 text-sm font-medium text-primary_dark_blue border-b border-primary_orange_1/30">
+                      {{ 'RESULT_HISTORY.SELECT_SHARED_QUESTIONNAIRE' | translate }}
+                    </div>
+                    @for (tmpl of template.results; track tmpl) {
+                      <div
+                        (click)="select(searchEnum.Template, tmpl)"
+                        class="px-3 py-2 hover:bg-primary_orange_light/10 cursor-pointer border-b border-primary_orange_1/20 last:border-b-0 transition-colors duration-150">
+                        <div class="font-medium text-primary_dark_blue">{{ tmpl.title }}</div>
+                        <div class="text-sm text-gray-600">{{ 'RESULT_HISTORY.SHARED_COMPLETION_WITH' | translate }} {{ student.selected.fullName }}</div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Loading -->
+        @if (isLoading) {
+          <div class="flex justify-center items-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary_orange_1"></div>
+            <span class="ml-2 text-primary_dark_blue">{{ 'COMMON.LOADING' | translate }}</span>
+          </div>
+        }
+
+        <!-- Error -->
+        @if (errorMessage) {
+          <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-6">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <!-- Attempts Section -->
+        @if (canShowAttempts()) {
+          <div class="space-y-6">
+            <!-- attempt navigation / header -->
+            <div class="bg-gray-50 p-4 rounded-lg flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <!-- left side: nav & counter -->
+              <div class="flex flex-col w-full sm:w-auto sm:flex-row sm:items-center sm:space-x-4">
+                <!-- nav buttons + counter -->
+                <div class="flex flex-col w-full gap-3 sm:flex-row sm:items-center sm:gap-4 sm:w-auto">
+                  <!-- prev / counter / next row -->
+                  <div class="flex w-full items-stretch text-center sm:w-auto sm:items-center sm:space-x-4 sm:text-left">
+                    <!-- Prev button -->
+                    <button
+                      (click)="prevAttempt()"
+                      [disabled]="currentAttemptIndex === 0"
+              class="flex-1 sm:flex-none px-3 py-2 rounded-lg text-white font-medium
+                     disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed
+                     bg-blue-500 hover:bg-blue-600 transition-colors text-sm sm:text-base">
+                      ← {{ 'COMMON.BUTTONS.PREVIOUS' | translate }}
+                    </button>
+                    <!-- counter -->
+                    <span class="px-3 flex items-center justify-center text-sm font-medium text-gray-700 sm:px-0 sm:w-auto w-16">
+                      {{ currentAttemptIndex + 1 }}
+                      <span class="mx-1">{{ 'COMMON.OF' | translate }}</span>
+                      {{ getAttempts().length }}
+                    </span>
+                    <!-- Next button -->
+                    <button
+                      (click)="nextAttempt()"
+                      [disabled]="currentAttemptIndex === getAttempts().length - 1"
+              class="flex-1 sm:flex-none px-3 py-2 rounded-lg text-white font-medium
+                     disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed
+                     bg-blue-500 hover:bg-blue-600 transition-colors text-sm sm:text-base">
+                      {{ 'COMMON.BUTTONS.NEXT' | translate }} →
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- right side: info + actions -->
+              <div class="w-full sm:w-auto flex flex-col items-center sm:items-end text-center sm:text-right gap-3">
+                <!-- meta info -->
+                @if (getCurrentAttempt(); as attempt) {
+                  <div class="text-sm sm:text-base font-medium text-gray-700">
+                    <div>
+                      @if (attempt.studentCompletedAt) {
+                        <span>
+                          {{ attempt.studentCompletedAt | date:'medium' }}
+                        </span>
+                      }
+                    </div>
+                    <div class="text-xs text-gray-500 sm:text-xs mt-1">
+                      {{ getTemplateTitle() }}
+                    </div>
+                  </div>
+                }
+                <!-- action buttons + view toggle -->
+                <div class="flex flex-wrap justify-center sm:justify-end gap-2 w-full sm:w-auto">
+                  <!-- Open PDF -->
+                  @if (hasResult()) {
+                    <button
+                      (click)="openPdf()"
+      class="bg-primary_orange_1 text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_orange_light 
+             flex-1 sm:flex-none transition font-medium shadow-sm"
+                      >
+                      <span class="hidden sm:inline">{{ 'RESULT_HISTORY.OPEN_PDF' | translate }}</span>
+                      <span class="sm:hidden">{{ 'RESULT_HISTORY.OPEN_PDF_SHORT' | translate }}</span>
+                    </button>
+                  }
+                  <!-- Download PDF -->
+                  @if (hasResult()) {
+                    <button
+                      (click)="downloadPdf()"
+      class="bg-blue-900 text-white px-3 py-2 text-sm rounded-xl hover:bg-blue-700 
+             flex-1 sm:flex-none transition font-medium shadow-sm"
+                      >
+                      <span class="hidden sm:inline">{{ 'RESULT_HISTORY.DOWNLOAD_PDF' | translate }}</span>
+                      <span class="sm:hidden">{{ 'RESULT_HISTORY.DOWNLOAD_PDF_SHORT' | translate }}</span>
+                    </button>
+                  }
+                  <!-- Toggle Compact / Full View -->
+                  <button
+                    (click)="isFullView = !isFullView"
+                    class="bg-primary_dark_blue text-white px-3 py-2 text-sm rounded-xl hover:bg-primary_dark_light hover:text-white flex-1 sm:flex-none min-w-0 transition"
+                    >
+                    <span class="hidden sm:inline">{{ isFullView ? ('RESULT_HISTORY.COMPACT_VIEW' | translate) : ('RESULT_HISTORY.FULL_VIEW' | translate) }}</span>
+                    <span class="sm:hidden">{{ isFullView ? ('RESULT_HISTORY.COMPACT_VIEW_SHORT' | translate) : ('RESULT_HISTORY.FULL_VIEW_SHORT' | translate) }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- canonical rendering of the current attempt -->
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+              <app-show-result
+                [result]="getCurrentResultLikeResult()"
+                [isFullView]="true"
+                [isFullView]="isFullView"
+                [config]="resultConfig">
+              </app-show-result>
+            </div>
+          </div>
+        }
+
+        <!-- Empty State -->
+        @if (!canShowAttempts() && !isLoading && student.selected && template.selected) {
+          <div
+            class="text-center py-12"
+            >
+            <div class="text-gray-500 text-lg mb-2">{{ 'RESULT_HISTORY.NO_RESULTS' | translate }}</div>
+            <div class="text-gray-400 text-sm">{{ 'RESULT_HISTORY.NO_RESULTS_DESC' | translate }}</div>
+          </div>
+        }
+
+        <!-- Instructions -->
+        @if (!canShowAttempts() && !isLoading && (!student.selected || !template.selected)) {
+          <div
+            class="text-center py-12"
+            >
+            <div class="text-gray-500 text-lg mb-2">{{ 'RESULT_HISTORY.INSTRUCTIONS' | translate }}</div>
+            <div class="text-gray-400 text-sm">{{ 'RESULT_HISTORY.INSTRUCTIONS_DESC' | translate }}</div>
+          </div>
+        }
+      </div>
+    </div>

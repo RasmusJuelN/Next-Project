@@ -3,5 +3,6 @@
 public enum TemplateStatus
 {
     Draft,
-    Finalized
+    Finalized,
+    Deleted
 }

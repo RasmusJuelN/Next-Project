@@ -132,7 +132,60 @@ public record TeacherAnswer : StudentAnswer
 }
 
 /// <summary>
+/// Represents a question option with selection status for both student and teacher.
+/// </summary>
+/// <remarks>
+/// This record contains the display text and value of a question option,
+/// along with boolean flags indicating whether it was selected by the student and/or teacher.
+/// </remarks>
+public record QuestionOption
+{
+    public required string DisplayText { get; set; }
+    public required string OptionValue { get; set; }
+    public required bool IsSelectedByStudent { get; set; }
+    public required bool IsSelectedByTeacher { get; set; }
+}
+
+/// <summary>
 /// Represents a complete answer in an active questionnaire, containing all answer details.
 /// Inherits from TeacherAnswer to provide full answer functionality.
 /// </summary>
-public record FullAnswer : TeacherAnswer { };
+public record FullAnswer : TeacherAnswer 
+{
+    /// <summary>
+    /// Gets or sets the collection of question options with selection status.
+    /// This property contains all available options for the question along with
+    /// indicators of which options were selected by the student and teacher.
+    /// </summary>
+    public List<QuestionOption>? Options { get; set; }
+};
+
+
+
+
+    public class StudentResultHistory
+    {
+        public required UserBase Student { get; set; }
+        public required UserBase Teacher { get; set; }
+        public required QuestionnaireTemplate.QuestionnaireTemplate Template { get; set; }
+        public required List<AnswerInfo> AnswersInfo { get; set; }
+    }
+
+    public class AnswerInfo
+{
+        public required Guid activeQuestionnaireId { get; set; }
+        public required DateTime? StudentCompletedAt { get; set; }
+        public required DateTime? TeacherCompletedAt { get; set; }
+        public required List<AnswerDetails> Answers { get; set; }
+    }
+
+    public class AnswerDetails
+    {
+        public required string QuestionId { get; set; }
+        public required string? StudentResponse { get; set; }
+        public required bool IsStudentResponseCustom { get; set; }
+        public required List<int> SelectedOptionIdsByStudent { get; set; }
+        public required string? TeacherResponse { get; set; }
+        public required bool IsTeacherResponseCustom { get; set; }
+        public required List<int> SelectedOptionIdsByTeacher { get; set; }
+    }

@@ -43,6 +43,16 @@ public class QuestionnaireQuestionModel
     public required bool AllowCustom { get; set; }
     
     /// <summary>
+    /// Gets or sets the sort order for this question within the questionnaire template.
+    /// </summary>
+    /// <remarks>
+    /// Used to control the display order of questions in the frontend. Lower values appear first.
+    /// Enables drag and drop reordering functionality in the user interface.
+    /// </remarks>
+    [Required]
+    public required int SortOrder { get; set; }
+    
+    /// <summary>
     /// Gets or sets the foreign key reference to the questionnaire template this question belongs to.
     /// </summary>
     /// <remarks>

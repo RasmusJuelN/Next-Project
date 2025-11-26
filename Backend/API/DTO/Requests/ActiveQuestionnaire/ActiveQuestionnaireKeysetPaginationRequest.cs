@@ -10,6 +10,7 @@ namespace API.DTO.Requests.ActiveQuestionnaire;
 /// </remarks>
 public record class ActiveQuestionnaireKeysetPaginationRequestBase
 {
+
     [DefaultValue(5)]
     public required int PageSize { get; set; }
     

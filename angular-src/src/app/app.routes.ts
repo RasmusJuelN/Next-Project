@@ -10,10 +10,11 @@ import { TemplateManagerComponent } from './features/template-manager/template-m
 import { ActiveQuestionnaireManagerComponent } from './features/active-questionnaire-manager/active-questionnaire-manager.component';
 import { TeacherDashboardComponent } from './features/teacher-dashboard/teacher-dashboard.component';
 import { roleGuard } from './core/guards and interceptors/role-guard.guard';
-import { ResultHistoryComponent } from './features/misc/result-history/result-history.component';
 import { Role } from './shared/models/user.model';
 import { ShowActiveQuestionnaireComponent } from './features/show-active-questionnaire/show-active-questionnaire.component';
 import { DataCompareComponent } from './features/data-compare/data-compare.component';
+import { ResultHistoryComponent } from './features/result-history/result-history.component';
+import { UserGuideComponent } from './features/user-guide/user-guide.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -29,10 +30,6 @@ export const routes: Routes = [
     component: ShowActiveQuestionnaireComponent,
     canActivate: [authGuard],
     data: { roles: [Role.Teacher, Role.Student, Role.Admin] },
-  },
-  { // WIP FOR LATER
-    path: 'result-history',
-    component: ResultHistoryComponent,
   },
   {
     path: 'answer/:id',
@@ -63,6 +60,17 @@ export const routes: Routes = [
     component: DataCompareComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: [Role.Teacher] },
+  },
+  {
+    path: 'result-history',
+    component: ResultHistoryComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.Teacher] },
+  },
+  {
+    path: 'user-guide',
+    component: UserGuideComponent,
+    canActivate: [authGuard]
   },
   { path: '**', component: PageNotFoundComponent }
 ];

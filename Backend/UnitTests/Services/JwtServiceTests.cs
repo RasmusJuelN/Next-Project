@@ -1,4 +1,8 @@
-﻿
+﻿using API.DTO.Responses.Auth;
+using API.Services;
+using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
+
 namespace UnitTests.Services
 {
     public class JwtServiceTests

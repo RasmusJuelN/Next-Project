@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -32,11 +32,10 @@ export interface PageChangeEvent {
  * ```
  */
 @Component({
-  selector: 'app-pagination',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  templateUrl: './pagination.component.html',
-  styleUrls: ['./pagination.component.css']
+    selector: 'app-pagination',
+    imports: [TranslateModule],
+    templateUrl: './pagination.component.html',
+    styleUrls: ['./pagination.component.css']
 })
 export class PaginationComponent {
   @Input() currentPage: number = 1;

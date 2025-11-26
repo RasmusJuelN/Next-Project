@@ -1,3 +1,5 @@
+using API.Attributes;
+
 namespace Database.DTO.QuestionnaireTemplate;
 
 /// <summary>
@@ -13,6 +15,7 @@ public record class QuestionnaireOptionPatch
     public int Id { get; set; }
     public int? OptionValue { get; set; }
     public string? DisplayText { get; set; }
+    public int? SortOrder { get; set; }
 }
 
 /// <summary>
@@ -28,6 +31,9 @@ public record class QuestionnaireQuestionPatch
     public int Id { get; set; }
     public string? Prompt { get; set; }
     public bool? AllowCustom { get; set; }
+    public int? SortOrder { get; set; }
+    
+    [MaxQuestionOptions]
     public List<QuestionnaireOptionPatch>? Options { get; set; }
 }
 

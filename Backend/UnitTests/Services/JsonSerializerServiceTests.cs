@@ -1,4 +1,5 @@
-﻿
+﻿using API.Services;
+
 namespace UnitTests.Services
 {
 

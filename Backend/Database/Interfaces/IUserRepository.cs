@@ -97,4 +97,20 @@ public interface IUserRepository
     /// The GUID should typically come from an external identity provider like Active Directory.
     /// </remarks>
     Task AddTeacherAsync(UserAdd teacher);
+
+    /// <summary>
+    /// Searches for students related to a specific teacher by student username.
+    /// </summary>
+    /// <param name="teacherId">The unique identifier (GUID) of the teacher.</param>
+    /// <param name="studentUsernameQuery">The student username or partial username to search for.</param>
+    /// <returns>A list of UserBase DTOs representing students related to the teacher that match the username query.</returns>
+    /// <remarks>
+    /// This method finds students who have active questionnaires assigned to the specified teacher
+    /// and whose username contains the search query. This ensures that teachers can only search
+    /// for students they are working with through questionnaires. Returns full user DTOs
+    /// for efficient display and selection purposes with complete user information including Guid.
+    /// </remarks>
+    Task<List<FullUser>> SearchStudentsRelatedToTeacherAsync(Guid teacherId, string studentUsernameQuery);
+    
+    Task<int?> GetIdByGuidAsync(Guid guid);
 }

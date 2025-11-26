@@ -48,6 +48,7 @@ export interface ActiveQuestionnaire {
 export interface QuestionnaireGroupResult {
   groupId: string;
   name: string;
+  createdAt: string;
   templateId: string;
   questionnaires: QuestionnaireBase[];
 }
@@ -62,10 +63,11 @@ export interface QuestionnaireBase {
   studentCompletedAt?: string; // or Date
   teacherCompletedAt?: string; // or Date
 }
-// Response DTO for keyset pagination
-export interface QuestionnaireGroupKeysetPaginationResult {
+// Response DTO for offset pagination
+export interface QuestionnaireGroupOffsetPaginationResult {
   groups: QuestionnaireGroupResult[];
-  queryCursor?: string;
+  currentPage: number;  
+  totalPages: number;    
   totalCount: number;
 }
 

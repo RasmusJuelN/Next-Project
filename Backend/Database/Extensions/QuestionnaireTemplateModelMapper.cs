@@ -52,7 +52,7 @@ public static class QuestionnaireTemplateModelMapper
             LastUpdated = questionnaire.LastUpated,
             IsLocked = questionnaire.IsLocked,
             TemplateStatus = questionnaire.TemplateStatus,
-            Questions = [.. questionnaire.Questions.Select(q => q.ToDto())]
+            Questions = [.. questionnaire.Questions.OrderBy(q => q.SortOrder).Select(q => q.ToDto())]
         };
     }
 
@@ -72,7 +72,8 @@ public static class QuestionnaireTemplateModelMapper
             Id = question.Id,
             Prompt = question.Prompt,
             AllowCustom = question.AllowCustom,
-            Options = [.. question.Options.Select(o => o.ToDto())]
+            SortOrder = question.SortOrder,
+            Options = [.. question.Options.OrderBy(o => o.SortOrder).Select(o => o.ToDto())]
         };
     }
 
@@ -91,7 +92,8 @@ public static class QuestionnaireTemplateModelMapper
         {
             Id = option.Id,
             OptionValue = option.OptionValue,
-            DisplayText = option.DisplayText
+            DisplayText = option.DisplayText,
+            SortOrder = option.SortOrder
         };
     }
 }

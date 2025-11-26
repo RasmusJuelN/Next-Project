@@ -21,11 +21,10 @@ import { map } from 'rxjs';
  * - Submitting answers when all questions are completed.
  */
 @Component({
-  selector: 'app-answer-questionnaire',
-  standalone: true,
-  imports: [CommonModule, QuestionComponent, LoadingComponent, TranslateModule],
-  templateUrl: './questionnaire.component.html',
-  styleUrls: ['./questionnaire.component.css'],
+    selector: 'app-answer-questionnaire',
+    imports: [CommonModule, QuestionComponent, TranslateModule],
+    templateUrl: './questionnaire.component.html',
+    styleUrls: ['./questionnaire.component.css']
 })
 export class QuestionnaireComponent {
   private answerService = inject(AnswerService);

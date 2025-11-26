@@ -9,8 +9,8 @@ namespace API.Utils;
 public class SettingsHelper(string settingsFile)
 {
     private readonly string _settingsFile = settingsFile;
-    private DefaultSettings _defaultSettings = new();
-    private JsonSerializerService _serializer = new();
+    private readonly RootSettings _defaultSettings = new();
+    private readonly JsonSerializerOptions _jsonSerializerOptions = JsonSerializerUtility.ConfigureJsonSerializerSettings();
 
     /// <summary>
     /// Determines whether the settings file exists on the file system.
@@ -34,8 +34,8 @@ public class SettingsHelper(string settingsFile)
     /// </remarks>
     public void CreateDefault()
     {
-        string json = _serializer.Serialize(_defaultSettings);
-        File.WriteAllText(_settingsFile, json);
+        string json = JsonSerializer.Serialize(_defaultSettings, _jsonSerializerOptions);
+        Write(_settingsFile, json);
 
         // TODO: Maybe check if the required settings are actually set before allowing the user to continue?
         Console.WriteLine(@"
@@ -47,5 +47,66 @@ public class SettingsHelper(string settingsFile)
         // Visual Studio Code can, depending on its configuration, redirect everything to the debug console. This catches that.
         if (Console.IsInputRedirected) Console.Read();
         else Console.ReadKey(true);
+    }
+
+    public void CheckSettingsVersion()
+    {
+        RootSettings currentSettings = JsonSerializer.Deserialize<RootSettings>(Read(_settingsFile), _jsonSerializerOptions) ?? throw new InvalidOperationException("Failed to deserialize settings file.");
+        RootSettings defaultSettings = new();
+        if (currentSettings.Version == defaultSettings.Version)
+        {
+            return;
+        }
+        else if (currentSettings.Version > defaultSettings.Version)
+        {
+            Console.WriteLine($@"
+            The current settings file version ({currentSettings.Version}) is newer than the application supports ({defaultSettings.Version}).
+            Unkown settings and values will be ignored.
+            Press Enter to continue.
+            ");
+
+            if (Console.IsInputRedirected) Console.Read();
+            else Console.ReadKey(true);
+        }
+        else
+        {
+            Console.WriteLine($@"
+            The current settings file version ({currentSettings.Version}) is older than the application supports ({defaultSettings.Version}).
+            An attempt will be made to automatically upgrade the settings file.
+            Press Enter to continue.
+            ");
+
+            if (Console.IsInputRedirected) Console.Read();
+            else Console.ReadKey(true);
+
+            Upgrade();
+        }
+    }
+
+    public void Upgrade()
+    {
+        RootSettings currentSettings = JsonSerializer.Deserialize<RootSettings>(Read(_settingsFile), _jsonSerializerOptions) ?? throw new InvalidOperationException("Failed to deserialize settings file.");
+        RootSettings defaultSettings = new();
+
+        Upgrade(currentSettings, defaultSettings);
+    }
+    
+    public void Upgrade(RootSettings currentSettings, RootSettings defaultSettings)
+    {
+        currentSettings.MergeWith(defaultSettings);
+        currentSettings.Version = defaultSettings.Version;
+
+        string json = JsonSerializer.Serialize(currentSettings, _jsonSerializerOptions);
+        Write(_settingsFile, json);
+    }
+
+    private static void Write(string path, string data)
+    {
+        File.WriteAllText(path, data);
+    }
+
+    private static string Read(string path)
+    {
+        return File.ReadAllText(path);
     }
 }

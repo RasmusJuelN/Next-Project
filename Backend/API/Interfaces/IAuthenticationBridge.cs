@@ -121,24 +121,5 @@ public interface IAuthenticationBridge
     /// <returns>
     /// An array of entry names extracted from the <see cref="AuthenticationMapping"/> attributes applied to the properties of <typeparamref name="MappedEntity"/>.
     /// </returns>
-    protected static string[] GetEntriesToQuery<MappedEntity>()
-    {
-        return [.. typeof(MappedEntity).GetProperties()
-            .SelectMany(prop => prop.GetCustomAttributes<AuthenticationMapping>())
-            .Select(attr => attr.EntryName)];
-    }
-
-    /// <summary>
-    /// Maps the specified <paramref name="entry"/> object to a new instance of type <typeparamref name="TMappedEntity"/>.
-    /// </summary>
-    /// <typeparam name="TMappedEntity">
-    /// The type to which the <paramref name="entry"/> will be mapped. Must have a parameterless constructor.
-    /// </typeparam>
-    /// <param name="entry">
-    /// The source object to be mapped to the <typeparamref name="TMappedEntity"/> type.
-    /// </param>
-    /// <returns>
-    /// A new instance of <typeparamref name="TMappedEntity"/> with values mapped from <paramref name="entry"/>.
-    /// </returns>
-    TMappedEntity MapEntry<TMappedEntity>(object entry) where TMappedEntity : new();
+    string[] GetEntriesToQuery<MappedEntity>();
 }
