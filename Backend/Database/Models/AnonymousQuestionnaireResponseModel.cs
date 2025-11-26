@@ -3,6 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Database.Models;
 
+/// <summary>
+/// Represents an anonymous response to a questionnaire question in the database.
+/// </summary>
+/// <remarks>
+/// This model stores individual responses to questionnaire questions without identifying the respondent,
+/// maintaining anonymity while preserving response data. Each record links to a specific question
+/// and may reference a predefined option or contain custom response data. The model supports
+/// tracking response counts for analytics while maintaining user privacy.
+/// 
+/// The entity is mapped to the "AnonymousQuesionnaireResponse" table and includes navigation
+/// properties for related entities such as questions, options, and active questionnaires.
+/// </remarks>
 [Table("AnonymousQuesionnaireResponse")]
 public class AnonymousQuestionnaireResponseModel
 {
@@ -20,7 +32,7 @@ public class AnonymousQuestionnaireResponseModel
     /// </remarks>
     [Required]
     public int QuestionFK { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the optional foreign key reference to the selected predefined option.
     /// </summary>
