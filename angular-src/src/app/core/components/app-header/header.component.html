@@ -64,11 +64,17 @@
       </div>
     </nav>
   }
+
   <!-- Desktop Nav -->
-  <!-- Desktop Nav -->
+   <div class="mx-4">
+
+   
   <nav
-    class="hidden sm:grid fixed z-50 top-4 h-16 w-[90vw] max-w-7xl left-1/2 -translate-x-1/2
-         grid-cols-[1fr_auto_1fr] items-center gap-4 bg-primary_background_white/80 rounded-xl shadow-lg px-6 print:hidden border-2 border-primary_orange_1">
+    class="hidden sm:grid fixed z-50 top-4 h-16 
+         left-4 right-4 max-w-7xl mx-auto
+         grid-cols-[1fr_auto_1fr] items-center gap-4 
+         bg-primary_background_white/80 rounded-xl shadow-lg px-6 
+         print:hidden border-2 border-primary_orange_1">
     <!-- Left -->
     <a [routerLink]="'/'" class="justify-self-start">
       <img src="assets/images/next_logo.png" class="h-8 w-auto cursor-pointer" />
@@ -112,4 +118,5 @@
         }
       </div>
     </nav>
+    </div>
   }
