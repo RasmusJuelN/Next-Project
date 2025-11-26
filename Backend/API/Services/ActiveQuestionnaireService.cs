@@ -26,14 +26,6 @@ public class ActiveQuestionnaireService : IActiveQuestionnaireService
         _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
     }
 
-    public ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationBridge authenticationBridge, IConfiguration configuration)
-    {
-        _unitOfWork = unitOfWork;
-        _authenticationBridge = authenticationBridge;
-        _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
-        _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
-    }
-
     /// <summary>
     /// Retrieves a paginated list of active questionnaire base information for administrative purposes.
     /// </summary>
