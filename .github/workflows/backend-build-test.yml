@@ -5,11 +5,11 @@ name: Backend build test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev2" ]
     paths:
       - 'Backend/**'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "dev2" ]
     paths:
       - 'Backend/**'
 
