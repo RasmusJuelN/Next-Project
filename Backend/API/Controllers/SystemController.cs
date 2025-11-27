@@ -1,12 +1,3 @@
-using API.DTO.Requests.Settings;
-using API.DTO.Responses.Settings;
-using API.DTO.Responses.Settings.SettingsSchema;
-using API.Services;
-using Database.DTO.ApplicationLog;
-using Database.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Settings.Models;
 
 namespace API.Controllers
 {

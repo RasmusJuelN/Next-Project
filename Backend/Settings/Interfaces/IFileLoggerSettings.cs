@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace Settings.Interfaces;
 

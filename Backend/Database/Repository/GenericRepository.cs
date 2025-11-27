@@ -1,7 +1,3 @@
-using System.Linq.Expressions;
-using Database.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
@@ -15,7 +11,7 @@ namespace Database.Repository;
 /// promoting code reuse and standardizing database interaction patterns. Includes logging infrastructure
 /// and query optimization features while maintaining the abstraction benefits of the repository pattern.
 /// </remarks>
-internal class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
 {
     // TODO: Create custom exceptions and include logging
     private readonly Context _context;

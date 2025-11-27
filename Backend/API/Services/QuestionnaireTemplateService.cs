@@ -1,10 +1,3 @@
-using API.DTO.Requests.QuestionnaireTemplate;
-using API.Exceptions;
-using API.Interfaces;
-using Database.DTO.QuestionnaireTemplate;
-using Database.Models;
-using API.DTO.Responses.QuestionnaireTemplate;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
@@ -23,9 +16,15 @@ namespace API.Services;
 /// </list>
 /// All operations are performed through the Unit of Work pattern to ensure transactional consistency.
 /// </remarks>
-public class QuestionnaireTemplateService(IUnitOfWork unitOfWork)
+
+public class QuestionnaireTemplateService : IQuestionnaireTemplateService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public QuestionnaireTemplateService(IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+    }
 
 
     /// <summary>

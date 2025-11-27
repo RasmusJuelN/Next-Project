@@ -1,5 +1,3 @@
-using Database.DTO.ApplicationLog;
-using Microsoft.Extensions.Logging;
 
 namespace Database.Interfaces;
 

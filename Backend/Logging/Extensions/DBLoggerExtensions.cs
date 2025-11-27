@@ -1,9 +1,3 @@
-using Logging.DBLogger;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Configuration;
-using Settings.Models;
 
 namespace Logging.Extensions;
 

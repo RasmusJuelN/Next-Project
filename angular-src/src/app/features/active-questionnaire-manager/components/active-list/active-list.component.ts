@@ -8,12 +8,13 @@ import { QuestionnaireGroupResult, QuestionnaireGroupOffsetPaginationResult } fr
 import { PageChangeEvent, PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { UtcToLocalTimePipe } from '../../../../shared/pipes/UtcToLocalTimePipe';
 
 
 
 @Component({
     selector: 'app-active-list',
-    imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent, TranslateModule],
+    imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent, TranslateModule, UtcToLocalTimePipe],
     templateUrl: './active-list.component.html',
     styleUrls: ['./active-list.component.css']
 })

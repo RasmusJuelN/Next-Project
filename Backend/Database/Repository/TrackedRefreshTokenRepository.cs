@@ -1,6 +1,3 @@
-using Database.Interfaces;
-using Database.Models;
-using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
