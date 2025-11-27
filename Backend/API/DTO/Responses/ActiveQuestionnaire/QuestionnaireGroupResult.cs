@@ -1,5 +1,4 @@
 ﻿
-
 namespace API.DTO.Responses.ActiveQuestionnaire
 {
     /// <summary>

@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace API.Services;
 

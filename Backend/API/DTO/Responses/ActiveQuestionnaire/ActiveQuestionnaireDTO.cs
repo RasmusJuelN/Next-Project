@@ -1,5 +1,3 @@
-using Database.DTO.QuestionnaireTemplate;
-using Database.DTO.User;
 
 namespace API.DTO.Responses.ActiveQuestionnaire;
 

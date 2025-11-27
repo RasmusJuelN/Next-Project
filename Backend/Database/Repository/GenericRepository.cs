@@ -1,7 +1,3 @@
-using System.Linq.Expressions;
-using Database.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Database.Repository;
 
