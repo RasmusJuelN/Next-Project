@@ -298,7 +298,12 @@
     "OPEN_PDF": "Åbn PDF",
     "DOWNLOAD_PDF": "Download PDF",
     "OPEN_PDF_SHORT": "Åbn",
-    "DOWNLOAD_PDF_SHORT": "Download"
+    "DOWNLOAD_PDF_SHORT": "Download",
+    "NO_COMPLETED_SHARED_QUESTIONNAIRES": "Ingen færdige delte spørgeskemaer fundet med denne elev. Både du og eleven skal færdiggøre jeres svar før resultaterne bliver tilgængelige.",
+    "FAILED_TO_LOAD_TEMPLATES": "Fejl ved indlæsning af tilgængelige skabeloner.",
+    "NO_RESULTS_INCOMPLETE_RESPONSES": "Ingen resultater tilgængelige. Både du og eleven skal færdiggøre jeres spørgeskema-svar før historikken kan vises.",
+    "FAILED_TO_LOAD_HISTORY": "Fejl ved indlæsning af elevens resultathistorik.",
+    "FAILED_TO_LOAD_STUDENTS": "Fejl ved indlæsning af relaterede elever."
   },
 
   "ACTIVE_BUILDER": {
