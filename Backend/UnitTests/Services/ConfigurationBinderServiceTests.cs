@@ -1,8 +1,4 @@
-﻿using API.Services;
-using Microsoft.Extensions.Configuration;
-using Settings.Models;
-
-namespace UnitTests.Services
+﻿namespace UnitTests.Services
 {
     public class ConfigurationBinderServiceTests
     {

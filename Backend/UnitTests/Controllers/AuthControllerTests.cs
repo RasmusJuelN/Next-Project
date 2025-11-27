@@ -1,4 +1,6 @@
-﻿namespace UnitTests.Controllers
+﻿using API.DTO.User;
+
+namespace UnitTests.Controllers
 {
     public class AuthControllerTests
     {
@@ -49,17 +51,17 @@
             // Arrange
             var login = new UserLogin { Username = "user", Password = "pass" };
 
-            var ldapUser = new BasicUserInfoWithObjectGuid
+            var ldapUser = new BasicUserInfoWithUserID
             {
-                ObjectGUID = new LdapAttribute("objectGUID", Guid.NewGuid().ToByteArray()),
-                Name = new LdapAttribute("name", "Test User"),
-                Username = new LdapAttribute("sAMAccountName", "user"),
-                MemberOf = new LdapAttribute("memberOf", "Admin")
+                UserId = Guid.NewGuid().ToString(),
+                Name = "Test User",
+                Username = "user",
+                MemberOf = ["Admin"],
             };
 
             _mockAuthBridge.Setup(a => a.Authenticate(login.Username, login.Password)).Verifiable();
             _mockAuthBridge.Setup(a => a.IsConnected()).Returns(true);
-            _mockAuthBridge.Setup(a => a.SearchUser<BasicUserInfoWithObjectGuid>(login.Username)).Returns(ldapUser);
+            _mockAuthBridge.Setup(a => a.SearchUser<BasicUserInfoWithUserID>(login.Username)).Returns(ldapUser);
 
             // Mock JWT service
             _mockJwtService.Setup(s => s.GetAccessTokenClaims(It.IsAny<JWTUser>())).Returns(new List<Claim>());
@@ -129,20 +131,19 @@
         {
             // Arrange
             var login = new UserLogin { Username = "user", Password = "pass" };
-            var ldapUser = new BasicUserInfoWithObjectGuid
+            var ldapUser = new BasicUserInfoWithUserID
             {
-                ObjectGUID = new LdapAttribute("objectGUID", Guid.NewGuid().ToByteArray()),
-                Name = new LdapAttribute("name", "Test User"),
-                Username = new LdapAttribute("sAMAccountName", "testuser"),
-                //MemberOf = new LdapAttribute("memberOf", "Admin")
-                MemberOf = new LdapAttribute("memberOf", "SomeRandomGroupThatDoesNotMatchAnyRole")
+                UserId = Guid.NewGuid().ToString(),
+                Name = "Test User",
+                Username = "testuser",
+                MemberOf = ["SomeRandomGroupThatDoesNotMatchAnyRole"]
 
             };
 
 
             _mockAuthBridge.Setup(a => a.Authenticate(login.Username, login.Password));
             _mockAuthBridge.Setup(a => a.IsConnected()).Returns(true);
-            _mockAuthBridge.Setup(a => a.SearchUser<BasicUserInfoWithObjectGuid>(login.Username))
+            _mockAuthBridge.Setup(a => a.SearchUser<BasicUserInfoWithUserID>(login.Username))
                            .Returns(ldapUser);
 
             // Act

@@ -58,7 +58,8 @@ namespace UnitTests.Repos
                 questionnaireTemplateId: template.Id,
                 studentId: student.Guid,
                 teacherId: teacher.Guid,
-                groupId: groupId
+                groupId: groupId,
+                activeQuestionnaireType: ActiveQuestionnaireType.Standard
             );
             // 
             var unitOfWork = new UnitOfWork(_context, null, _repo, null, null, null); // inject other repos as needed
@@ -75,7 +76,7 @@ namespace UnitTests.Repos
 
 
             // Assert persistence in database
-            var dbCheck = await _context.ActiveQuestionnaires
+            var dbCheck = await _context.StandardActiveQuestionnaires
                 .Include(a => a.Student)
                 .Include(a => a.Teacher)
                 .Include(a => a.QuestionnaireTemplate)
@@ -115,18 +116,19 @@ namespace UnitTests.Repos
                 Questions = new List<QuestionnaireQuestionModel>()
 
             };
-            var activeQ = new ActiveQuestionnaireModel
+            var activeQ = new StandardActiveQuestionnaireModel
             {
                 Title = "Q1",
                 Student = student,
                 Teacher = teacher,
                 QuestionnaireTemplate = template,
-                ActivatedAt = DateTime.UtcNow
+                ActivatedAt = DateTime.UtcNow,
+                ParticipantIds = []
             };
 
             _context.Users.AddRange(student, teacher);
-            _context.ActiveQuestionnaires.Add(activeQ);
-            _context.ActiveQuestionnaires.Add(activeQ);
+            _context.StandardActiveQuestionnaires.Add(activeQ);
+            _context.StandardActiveQuestionnaires.Add(activeQ);
 
             await _context.SaveChangesAsync();
 
@@ -156,7 +158,7 @@ namespace UnitTests.Repos
                 Description = "Test Template",
                 Questions = new List<QuestionnaireQuestionModel>()
             };
-            var activeQ = new ActiveQuestionnaireModel
+            var activeQ = new StandardActiveQuestionnaireModel
             {
 
                 Title = "Q1",
@@ -164,10 +166,11 @@ namespace UnitTests.Repos
                 Teacher = teacher,
                 QuestionnaireTemplate = template,
                 ActivatedAt = DateTime.UtcNow,
-                StudentCompletedAt = DateTime.UtcNow // mark student as completed
+                StudentCompletedAt = DateTime.UtcNow, // mark student as completed
+                ParticipantIds = [],
             };
             _context.Users.AddRange(student, teacher);
-            _context.ActiveQuestionnaires.Add(activeQ);
+            _context.StandardActiveQuestionnaires.Add(activeQ);
             await _context.SaveChangesAsync();
 
             // Act & Assert

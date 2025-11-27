@@ -70,7 +70,8 @@
             {
                 TemplateId = Guid.NewGuid(),
                 StudentIds = new List<Guid> { Guid.NewGuid() },
-                TeacherIds = new List<Guid> { Guid.NewGuid() }
+                TeacherIds = new List<Guid> { Guid.NewGuid() },
+                QuestionnaireType = ActiveQuestionnaireType.Standard
             };
 
             var fake = new List<ActiveQuestionnaire>
@@ -80,6 +81,8 @@
                     Id = Guid.NewGuid(),
                     Title = "Test Questionnaire",
                     Description = "Demo questionnaire for testing",
+                    QuestionnaireType = ActiveQuestionnaireType.Standard,
+                    GroupId = Guid.NewGuid(),
                     Student = new UserBase
                     {
                         UserName = "student1",
@@ -100,19 +103,22 @@
                             Id = 1,
                             Prompt = "Sample question?",
                             AllowCustom = true,
+                            SortOrder = 1,
                             Options = new List<QuestionnaireTemplateOption>
                             {
                                 new QuestionnaireTemplateOption
                                 {
                                     Id = 1,
                                     OptionValue = 10,
-                                    DisplayText = "Option 1"
+                                    DisplayText = "Option 1",
+                                    SortOrder = 1,
                                 },
                                 new QuestionnaireTemplateOption
                                 {
                                     Id = 2,
                                     OptionValue = 20,
-                                    DisplayText = "Option 2"
+                                    DisplayText = "Option 2",
+                                    SortOrder = 2,
                                 }
                             }
                         }
@@ -138,7 +144,7 @@
         {
             var gid = Guid.NewGuid();
             _mockService.Setup(s => s.GetQuestionnaireGroup(gid))
-                        .ReturnsAsync((QuestionnaireGroupResult?)null);
+                        .ReturnsAsync((OmniQuestionnaireGroupResult?)null);
 
             var result = await _controller.GetGroup(gid);
 
@@ -149,9 +155,10 @@
         public async Task GetGroup_ReturnsOk_WhenFound()
         {
             var gid = Guid.NewGuid();
-            var fake = new QuestionnaireGroupResult
+            var fake = new OmniQuestionnaireGroupResult
             {
-                Name = "Group 1"
+                Name = "Group 1",
+                QuestionnaireType = ActiveQuestionnaireType.Standard
             };
 
             _mockService.Setup(s => s.GetQuestionnaireGroup(gid)).ReturnsAsync(fake);

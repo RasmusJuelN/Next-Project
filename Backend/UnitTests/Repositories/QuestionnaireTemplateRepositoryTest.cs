@@ -1,11 +1,4 @@
-﻿using Database;
-using Database.DTO.QuestionnaireTemplate;
-using Database.Models;
-using Database.Repository;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Abstractions;
-
-namespace UnitTests.Repositories
+﻿namespace UnitTests.Repositories
 {
     public class QuestionnaireTemplateRepositoryTest
     {
@@ -71,9 +64,9 @@ namespace UnitTests.Repositories
                 LastUpated = DateTime.UtcNow,
                 Questions = new List<QuestionnaireQuestionModel>
                 {
-                    new() { Id = 1, Prompt = "Q1", AllowCustom = true, Options = new List<QuestionnaireOptionModel>
+                    new() { Id = 1, Prompt = "Q1", AllowCustom = true, SortOrder = 1, Options = new List<QuestionnaireOptionModel>
                         {
-                            new() { Id = 1, OptionValue = 1, DisplayText = "Option 1" }
+                            new() { Id = 1, OptionValue = 1, DisplayText = "Option 1", SortOrder = 1}
                         }
                     }
                 }
@@ -95,7 +88,36 @@ namespace UnitTests.Repositories
         }
 
         [Fact]
-        public async Task DeleteAsync_ShouldRemoveTemplate()
+        public async Task HardDeleteAsync_ShouldRemoveTemplate()
+        {
+            // Arrange
+            var context = new Context(_options);
+            var template = new QuestionnaireTemplateModel
+            {
+                Id = Guid.NewGuid(),
+                Title = "Template 3",
+                Description = "Test",
+                CreatedAt = DateTime.UtcNow,
+                LastUpated = DateTime.UtcNow
+            };
+            context.QuestionnaireTemplates.Add(template);
+            await context.SaveChangesAsync();
+
+            // var repo = CreateRepo();
+            var repo = new QuestionnaireTemplateRepository(context, NullLoggerFactory.Instance);
+
+
+            // Act
+            await repo.HardDeleteAsync(template.Id);
+            await context.SaveChangesAsync(); //  simulate UnitOfWork.SaveChangesAsync()
+
+            // Assert
+            var exists = await context.QuestionnaireTemplates.FindAsync(template.Id);
+            Assert.Null(exists);
+        }
+
+        [Fact]
+        public async Task SoftDeleteAsync_ShouldMarkTemplateAsDeleted()
         {
             // Arrange
             var context = new Context(_options);
@@ -120,7 +142,8 @@ namespace UnitTests.Repositories
 
             // Assert
             var exists = await context.QuestionnaireTemplates.FindAsync(template.Id);
-            Assert.Null(exists);
+            Assert.NotNull(exists);
+            Assert.Equal(TemplateStatus.Deleted,exists.TemplateStatus);
         }
 
         [Fact]

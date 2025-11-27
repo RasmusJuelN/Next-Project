@@ -1,12 +1,4 @@
-﻿using API.DTO.LDAP;
-using API.DTO.Requests.ActiveQuestionnaire;
-using API.DTO.Requests.User;
-using API.Interfaces;
-using API.Services;
-using Database.DTO.ActiveQuestionnaire;
-using Database.DTO.User;
-using Database.Enums;
-using Moq;
+﻿using API.DTO.User;
 
 namespace UnitTests.Services
 {
@@ -36,20 +28,20 @@ namespace UnitTests.Services
                 SessionId = null
             };
 
-            var ldapUsers = new List<BasicUserInfoWithObjectGuid>
+            var ldapUsers = new List<BasicUserInfoWithUserID>
             {
-                 new BasicUserInfoWithObjectGuid
+                 new BasicUserInfoWithUserID
                 {
-                    ObjectGUID = new Novell.Directory.Ldap.LdapAttribute("objectGUID", Guid.NewGuid().ToByteArray()),
-                    Name = new Novell.Directory.Ldap.LdapAttribute("name", "Alice Wonderland"),
-                    Username = new Novell.Directory.Ldap.LdapAttribute("sAMAccountName", "alice123")
+                    UserId = Guid.NewGuid().ToString(),
+                    Name = "Alice Wonderland",
+                    Username = "alice123"
                 }
             };
             string sessionId = "session1";
             bool hasMore = false;
 
             _authBridgeMock
-                .Setup(a => a.SearchUserPagination<BasicUserInfoWithObjectGuid>(
+                .Setup(a => a.SearchUserPagination<BasicUserInfoWithUserID>(
                     request.User,
                     request.Role.ToString(),
                     request.PageSize,
@@ -84,7 +76,7 @@ namespace UnitTests.Services
             // Create required Student and Teacher DTOs
             var studentDto = new UserBase
             {
-                
+
                 UserName = "student1",
                 FullName = "Student One",
                 //PrimaryRole = UserRoles.Student,
@@ -94,50 +86,55 @@ namespace UnitTests.Services
 
             var teacherDto = new UserBase
             {
-                
+
                 UserName = "teacher1",
                 FullName = "Teacher One"
-              
+
             };
             var activeQuestionnaires = new List<ActiveQuestionnaireBase>
             {
-                new ActiveQuestionnaireBase
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Test Q1",
-                    ActivatedAt = DateTime.UtcNow,
-                    Student = studentDto,
-                     Teacher = teacherDto,
-                    TeacherCompletedAt = DateTime.UtcNow,  
-                    StudentCompletedAt = DateTime.UtcNow
-                },
-                new ActiveQuestionnaireBase
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Test Q2",
-                    ActivatedAt = DateTime.UtcNow,
-                   Student = studentDto,
-                     Teacher = teacherDto,
-                    TeacherCompletedAt = DateTime.UtcNow,   
-                    StudentCompletedAt = DateTime.UtcNow
-                }
+            new ActiveQuestionnaireBase
+            {
+                Id = Guid.NewGuid(),
+                GroupId = Guid.NewGuid(),
+                QuestionnaireType = ActiveQuestionnaireType.Standard,
+                Title = "Test Q1",
+                ActivatedAt = DateTime.UtcNow,
+                Student = studentDto,
+                Teacher = teacherDto,
+                TeacherCompletedAt = DateTime.UtcNow,
+                StudentCompletedAt = DateTime.UtcNow
+            },
+            new ActiveQuestionnaireBase
+            {
+                Id = Guid.NewGuid(),
+                GroupId = Guid.NewGuid(),
+                QuestionnaireType = ActiveQuestionnaireType.Standard,
+                Title = "Test Q2",
+                ActivatedAt = DateTime.UtcNow,
+                Student = studentDto,
+                Teacher = teacherDto,
+                TeacherCompletedAt = DateTime.UtcNow,
+                StudentCompletedAt = DateTime.UtcNow
+            }
             };
 
             _unitOfWorkMock
           .Setup(u => u.ActiveQuestionnaire.PaginationQueryWithKeyset(
-              request.PageSize,                 // amount
-              request.Order,                    // sortOrder
+              It.IsAny<int>(),                  // amount
+              It.IsAny<ActiveQuestionnaireOrderingOptions>(), // sortOrder
               It.IsAny<Guid?>(),                // cursorIdPosition
               It.IsAny<DateTime?>(),            // cursorActivatedAtPosition
-              request.Title,                    // titleQuery
-              null,                             // student
-              null,                             // teacher
-              null,                             // idQuery
-              userId,                           // userId
-              request.FilterStudentCompleted,   // onlyStudentCompleted
-              false,                            // onlyTeacherCompleted
-              false,                            // pendingStudent
-              false                             // pendingTeacher
+              It.IsAny<string?>(),              // titleQuery
+              It.IsAny<string?>(),              // student
+              It.IsAny<string?>(),              // teacher
+              It.IsAny<Guid?>(),                // idQuery
+              It.IsAny<Guid?>(),                // userId
+              It.IsAny<bool>(),                 // onlyStudentCompleted
+              It.IsAny<bool>(),                 // onlyTeacherCompleted
+              It.IsAny<bool>(),                 // pendingStudent
+              It.IsAny<bool>(),                 // pendingTeacher
+              It.IsAny<ActiveQuestionnaireType>()  // questionnaireType
           ))
           .ReturnsAsync((activeQuestionnaires, activeQuestionnaires.Count));
 
@@ -177,6 +174,8 @@ namespace UnitTests.Services
         new ActiveQuestionnaireBase
         {
             Id = Guid.NewGuid(),
+            GroupId = Guid.NewGuid(),
+            QuestionnaireType = ActiveQuestionnaireType.Standard,
             Title = "Pending Q1",
             ActivatedAt = DateTime.UtcNow,
             Student = dummyStudent,

@@ -1,9 +1,4 @@
-﻿using API.Services;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Moq;
-
-namespace UnitTests.Services
+﻿namespace UnitTests.Services
 {
     public class CacheServiceTests
     {

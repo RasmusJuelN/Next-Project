@@ -92,13 +92,17 @@ public class UserService : IUserService
             cursorId,
             cursorActivatedAt,
             request.Title,
-            student: request.Teacher,
+            student: null,
+            teacher: request.Teacher,
             idQuery: request.ActiveQuestionnaireId,
             userId: userId,
             onlyStudentCompleted: request.FilterStudentCompleted,
-            questionnaireType: request.QuestionnaireType);
+            onlyTeacherCompleted: false,
+            pendingStudent: !request.FilterStudentCompleted,
+            pendingTeacher: false,
+            questionnaireType: request.QuestionnaireType ?? ActiveQuestionnaireType.Standard);
         
-        ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases.Count != 0 ? activeQuestionnaireBases.Last() : null;
+        ActiveQuestionnaireBase? lastActiveQuestionnaire = activeQuestionnaireBases?.Count > 0 ? activeQuestionnaireBases.Last() : null;
 
         string? queryCursor = null;
         if (lastActiveQuestionnaire is not null)
@@ -108,7 +112,7 @@ public class UserService : IUserService
 
         return new()
         {
-            ActiveQuestionnaireBases = [.. activeQuestionnaireBases.Select(a => a.ToActiveQuestionnaireStudentDTO())],
+            ActiveQuestionnaireBases = [.. (activeQuestionnaireBases ?? new List<ActiveQuestionnaireBase>()).Select(a => a.ToActiveQuestionnaireStudentDTO())],
             QueryCursor = queryCursor,
             TotalCount = totalCount
         };

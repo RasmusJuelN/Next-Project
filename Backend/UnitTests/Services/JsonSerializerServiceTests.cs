@@ -1,6 +1,4 @@
-﻿using API.Services;
-
-namespace UnitTests.Services
+﻿namespace UnitTests.Services
 {
 
     // Sample DTO for testing

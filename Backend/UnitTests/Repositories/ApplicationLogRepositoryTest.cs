@@ -22,9 +22,10 @@
             {
                 Message = "Test log",
                 Category = "Test",
-                LogLevel = LogLevel.Information,   
-                EventId = 1,                      
-                Timestamp = DateTime.UtcNow         
+                LogLevel = LogLevel.Information,
+                EventId = 1,
+                EventDescription = "Test event",
+                Timestamp = DateTime.UtcNow
             };
 
             // Act
@@ -51,6 +52,7 @@
             Category = "Cat1",
             LogLevel = LogLevel.Information,  // required
             EventId = 1,                      // required
+            EventDescription = "Cat event 1",   // required
             Timestamp = DateTime.UtcNow       // required, not CreatedAt
         },
         new ApplicationLog
@@ -59,6 +61,7 @@
             Category = "Cat2",
             LogLevel = LogLevel.Warning,
             EventId = 2,
+            EventDescription = "Cat event 2",
             Timestamp = DateTime.UtcNow
         }
     };
@@ -85,6 +88,7 @@
                     Category = "Cat1",
                     LogLevel = LogLevel.Information,
                     EventId = 1,
+                    EventDescription = "Cat event 1",
                     Timestamp = DateTime.UtcNow
                 },
                 new ApplicationLogsModel
@@ -93,6 +97,7 @@
                     Category = "Cat2",
                     LogLevel = LogLevel.Warning,
                     EventId = 2,
+                    EventDescription = "Cat event 2",
                     Timestamp = DateTime.UtcNow
                 },
                 new ApplicationLogsModel
@@ -101,6 +106,7 @@
                     Category = "Cat1", // duplicate category
                     LogLevel = LogLevel.Error,
                     EventId = 3,
+                    EventDescription = "Cat event 3",
                     Timestamp = DateTime.UtcNow
                 }
             );

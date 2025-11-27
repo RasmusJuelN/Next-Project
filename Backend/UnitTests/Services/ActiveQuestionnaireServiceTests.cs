@@ -1,15 +1,4 @@
-﻿using API.DTO.LDAP;
-using API.DTO.Requests.ActiveQuestionnaire;
-using API.Exceptions;
-using API.Interfaces;
-using API.Services;
-using Database.DTO.ActiveQuestionnaire;
-using Database.DTO.QuestionnaireTemplate;
-using Database.DTO.User;
-using Database.Enums;
-using Microsoft.Extensions.Configuration;
-using Moq;
-using Novell.Directory.Ldap;
+﻿using API.DTO.User;
 
 namespace UnitTests.Services
 {
@@ -46,9 +35,9 @@ namespace UnitTests.Services
             _authMock.Setup(a => a.SearchId<BasicUserInfo>(It.IsAny<string>()))
                 .Returns((string id) => new BasicUserInfo
                 {
-                    Username = new LdapAttribute("username", $"user_{id}"),
-                    Name = new LdapAttribute("name", $"User {id}"),
-                    MemberOf = new LdapAttribute("memberof", "Student")
+                    Username = $"user_{id}",
+                    Name = $"User {id}",
+                    MemberOf = ["Student"]
                 });
 
             _service = new ActiveQuestionnaireService(_unitOfWorkMock.Object, _authMock.Object, _config);
@@ -59,45 +48,49 @@ namespace UnitTests.Services
         {
             var request = new ActiveQuestionnaireKeysetPaginationRequestFull
             {
-                PageSize = 5,
-                Order = ActiveQuestionnaireOrderingOptions.TitleAsc
+            PageSize = 5,
+            Order = ActiveQuestionnaireOrderingOptions.TitleAsc,
+            QuestionnaireType = ActiveQuestionnaireType.Standard
             };
 
             var fakeQ = new List<ActiveQuestionnaireBase>
             {
-                new()
+            new()
+            {
+                Id = Guid.NewGuid(),
+                GroupId = Guid.NewGuid(),
+                QuestionnaireType = ActiveQuestionnaireType.Standard,
+                Title = "Q1",
+                ActivatedAt = DateTime.UtcNow,
+                Student = new UserBase
                 {
-                    Id = Guid.NewGuid(),
-                    Title = "Q1",
-                    ActivatedAt = DateTime.UtcNow,
-                    Student = new UserBase
-                    {
-                        UserName = "student1",
-                        FullName = "Student One"
-                    },
-                    Teacher = new UserBase
-                    {
-                        UserName = "teacher1",
-                        FullName = "Teacher One"
-                    },
-                    StudentCompletedAt = null,
-                    TeacherCompletedAt = null
-                }
+                UserName = "student1",
+                FullName = "Student One"
+                },
+                Teacher = new UserBase
+                {
+                UserName = "teacher1",
+                FullName = "Teacher One"
+                },
+                StudentCompletedAt = null,
+                TeacherCompletedAt = null
+            }
             };
             _unitOfWorkMock.Setup(u => u.ActiveQuestionnaire.PaginationQueryWithKeyset(
-                It.IsAny<int>(),                                  // amount
-                It.IsAny<ActiveQuestionnaireOrderingOptions>(),   // sortOrder
-                It.IsAny<Guid?>(),                                // cursorIdPosition
-                It.IsAny<DateTime?>(),                            // cursorActivatedAtPosition
-                It.IsAny<string>(),                               // titleQuery
-                It.IsAny<string>(),                               // student
-                It.IsAny<string>(),                               // teacher
-                It.IsAny<Guid?>(),                                // idQuery
-                It.IsAny<Guid?>(),                                // userId
-                It.IsAny<bool>(),                                 // onlyStudentCompleted
-                It.IsAny<bool>(),                                 // onlyTeacherCompleted
-                It.IsAny<bool>(),                                 // pendingStudent
-                It.IsAny<bool>()                                  // pendingTeacher
+            It.IsAny<int>(),                                  // amount
+            It.IsAny<ActiveQuestionnaireOrderingOptions>(),   // sortOrder
+            It.IsAny<Guid?>(),                                // cursorIdPosition
+            It.IsAny<DateTime?>(),                            // cursorActivatedAtPosition
+            It.IsAny<string>(),                               // titleQuery
+            It.IsAny<string>(),                               // student
+            It.IsAny<string>(),                               // teacher
+            It.IsAny<Guid?>(),                                // idQuery
+            It.IsAny<Guid?>(),                                // userId
+            It.IsAny<bool>(),                                 // onlyStudentCompleted
+            It.IsAny<bool>(),                                 // onlyTeacherCompleted
+            It.IsAny<bool>(),                                 // pendingStudent
+            It.IsAny<bool>(),                                  // pendingTeacher
+            It.IsAny<ActiveQuestionnaireType>()
             )).ReturnsAsync((fakeQ, fakeQ.Count));
 
             var result = await _service.FetchActiveQuestionnaireBases(request);
@@ -114,7 +107,8 @@ namespace UnitTests.Services
             {
                 TemplateId = Guid.NewGuid(),
                 StudentIds = new List<Guid> { Guid.NewGuid() },
-                TeacherIds = new List<Guid> { Guid.NewGuid() }
+                TeacherIds = new List<Guid> { Guid.NewGuid() },
+                QuestionnaireType = ActiveQuestionnaireType.Standard
             };
 
             _unitOfWorkMock.Setup(u => u.User.UserExists(It.IsAny<Guid>())).Returns(false);
@@ -125,27 +119,29 @@ namespace UnitTests.Services
             _authMock.Setup(a => a.SearchId<BasicUserInfo>(It.Is<string>(id => request.StudentIds.Contains(Guid.Parse(id)))))
                 .Returns((string id) => new BasicUserInfo
                 {
-                    Username = new LdapAttribute("username", $"user_{id}"),
-                    Name = new LdapAttribute("name", $"Student {id}"),
-                    MemberOf = new LdapAttribute("memberof", "Student")
+                    Username = $"user_{id}",
+                    Name = $"Student {id}",
+                    MemberOf = ["Student"]
                 });
 
             // Mock teacher
             _authMock.Setup(a => a.SearchId<BasicUserInfo>(It.Is<string>(id => request.TeacherIds.Contains(Guid.Parse(id)))))
                 .Returns((string id) => new BasicUserInfo
                 {
-                    Username = new LdapAttribute("username", $"user_{id}"),
-                    Name = new LdapAttribute("name", $"Teacher {id}"),
-                    MemberOf = new LdapAttribute("memberof", "Teacher")
+                    Username = $"user_{id}",
+                    Name = $"Teacher {id}",
+                    MemberOf = ["Teacher"]
                 });
 
             // Mock questionnaire activation
             _unitOfWorkMock.Setup(u => u.ActiveQuestionnaire.ActivateQuestionnaireAsync(
-                It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .Returns((Guid templateId, Guid studentId, Guid teacherId, Guid groupId) =>
+                It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ActiveQuestionnaireType>()))
+                .Returns((Guid templateId, Guid studentId, Guid teacherId, Guid groupId, ActiveQuestionnaireType questionnaireType) =>
                     Task.FromResult(new ActiveQuestionnaire
                     {
                         Id = Guid.NewGuid(),
+                        GroupId = Guid.NewGuid(),
+                        QuestionnaireType = ActiveQuestionnaireType.Standard,
                         Title = "Activated Q",
                         ActivatedAt = DateTime.UtcNow,
                         Student = new UserBase { UserName = "student1", FullName = "Student One" },
@@ -159,10 +155,11 @@ namespace UnitTests.Services
                         Id = 1,
                         Prompt = "Sample question",
                         AllowCustom = false,
+                        SortOrder = 1,
                         Options = new List<QuestionnaireTemplateOption>
                         {
-                            new QuestionnaireTemplateOption { Id = 1, OptionValue = 1, DisplayText = "" },
-                            new QuestionnaireTemplateOption { Id = 2, OptionValue = 2, DisplayText = "Option 2" }
+                            new QuestionnaireTemplateOption { Id = 1, OptionValue = 1, DisplayText = "", SortOrder = 1},
+                            new QuestionnaireTemplateOption { Id = 2, OptionValue = 2, DisplayText = "Option 2", SortOrder = 2}
                         }
                     }
                         }

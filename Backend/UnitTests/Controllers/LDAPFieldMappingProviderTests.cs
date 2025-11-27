@@ -2,10 +2,9 @@ using API.FieldMappers;
 
 namespace UnitTests.API;
 
-[TestClass]
 public class LDAPFieldMappingProviderTests
 {
-    [TestMethod]
+    [Fact]
     public void TestAllMappingsHaveAConverter()
     {
         LDAPFieldMappingProvider provider = new();
@@ -17,7 +16,7 @@ public class LDAPFieldMappingProviderTests
         {
             foreach (var ldapAttribute in mapping.Value.Values)
             {
-                Assert.IsTrue(
+                Assert.True(
                     converters.ContainsKey(ldapAttribute),
                     $"No converter found for LDAP attribute '{ldapAttribute}' in mapping for type '{mapping.Key.Name}'."
                 );
