@@ -1,9 +1,4 @@
-﻿using API.Controllers;
-using Database.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-
-namespace UnitTests.Controllers
+﻿namespace UnitTests.Controllers
 {
     public class LogsControllerTests
     {

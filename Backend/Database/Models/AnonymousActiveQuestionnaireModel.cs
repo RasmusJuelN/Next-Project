@@ -1,8 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Database.Enums;
-using Microsoft.EntityFrameworkCore;
-
 namespace Database.Models;
 
 [Index(nameof(Title))]

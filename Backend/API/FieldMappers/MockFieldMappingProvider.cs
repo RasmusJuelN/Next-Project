@@ -1,7 +1,3 @@
-using API.DTO.User;
-using API.Interfaces;
-using Database.Enums;
-
 namespace API.FieldMappers;
 
 public class MockFieldMappingProvider : IFieldMappingProvider

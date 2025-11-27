@@ -1,8 +1,4 @@
-﻿using API.DTO.Requests.QuestionnaireTemplate;
-using API.DTO.Responses.QuestionnaireTemplate;
-using Database.DTO.QuestionnaireTemplate;
-
-namespace API.Interfaces
+﻿namespace API.Interfaces
 {
     public interface IQuestionnaireTemplateService
     {

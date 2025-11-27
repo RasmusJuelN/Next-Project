@@ -1,16 +1,4 @@
-﻿using API.Controllers;
-using API.DTO.Requests.User;
-using API.DTO.Responses.ActiveQuestionnaire;
-using API.DTO.Responses.User;
-using Database.DTO.ActiveQuestionnaire;
-using Database.DTO.User;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using System.Security.Claims;
-using API.Extensions;
-
-namespace UnitTests.Controllers
+﻿namespace UnitTests.Controllers
 {
     public class UserControllerTests
     {

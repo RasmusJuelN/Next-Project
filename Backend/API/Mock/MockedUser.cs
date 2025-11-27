@@ -1,5 +1,3 @@
-using Database.Enums;
-
 namespace API.Mock;
 
 public class MockedUser

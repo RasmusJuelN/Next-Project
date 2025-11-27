@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Database.DTO.ApplicationLog;
 
 public record class ApplicationLogQuery

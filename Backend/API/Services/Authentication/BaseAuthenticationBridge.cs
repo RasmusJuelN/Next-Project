@@ -1,5 +1,3 @@
-using API.Interfaces;
-
 namespace API.Services.Authentication;
 
 public abstract class BaseAuthenticationBridge(IFieldMappingProvider fieldMappingProvider) : IAuthenticationBridge

@@ -1,7 +1,3 @@
-using API.DTO.User;
-using API.Interfaces;
-using Novell.Directory.Ldap;
-
 namespace API.FieldMappers;
 
 public class LDAPFieldMappingProvider : IFieldMappingProvider

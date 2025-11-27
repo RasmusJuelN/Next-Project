@@ -1,8 +1,4 @@
-﻿using API.DTO.Requests.ActiveQuestionnaire;
-using API.DTO.Responses.ActiveQuestionnaire;
-using Database.DTO.ActiveQuestionnaire;
-
-namespace API.Interfaces
+﻿namespace API.Interfaces
 {
     public interface IActiveQuestionnaireService
     {

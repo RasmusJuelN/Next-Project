@@ -1,21 +1,4 @@
-﻿using API.Controllers;
-using API.DTO.LDAP;
-using API.DTO.Requests.Auth;
-using API.DTO.Responses.Auth;
-using API.Interfaces;
-using Database.DTO.User;
-using Database.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Novell.Directory.Ldap;
-using Settings.Models;
-using System.Reflection;
-using System.Security.Claims;
-
-namespace UnitTests.Controllers
+﻿namespace UnitTests.Controllers
 {
     public class AuthControllerTests
     {

@@ -1,21 +1,9 @@
-using API.Services;
-using Database;
-using Microsoft.EntityFrameworkCore;
-using Settings.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using API.Utils;
 using Microsoft.OpenApi.Models;
 using Logging.Extensions;
-using Database.Repository;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using System.Reflection;
-using Database.Interfaces;
-using API.Interfaces;
-using System.Net;
 using API.Services.Authentication;
-using System.Text.Json.Serialization;
 using Serilog;
 
 const string settingsFile = "config.json";

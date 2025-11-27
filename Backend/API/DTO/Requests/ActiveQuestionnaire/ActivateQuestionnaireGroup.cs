@@ -1,6 +1,4 @@
-﻿using Database.Enums;
-
-namespace API.DTO.Requests.ActiveQuestionnaire
+﻿namespace API.DTO.Requests.ActiveQuestionnaire
 {
     /// <summary>
     /// Represents the request payload for creating and activating a new questionnaire group
