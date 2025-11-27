@@ -1,11 +1,3 @@
-using System.Net;
-using API.DTO.LDAP;
-using API.DTO.User;
-using API.Exceptions;
-using API.FieldMappers;
-using Novell.Directory.Ldap;
-using Novell.Directory.Ldap.Controls;
-using Settings.Models;
 
 namespace API.Services.Authentication;
 
@@ -55,7 +47,7 @@ public class ActiveDirectoryAuthenticationBridge(
             }
             else
             {
-                _Logger.LogDebug("Creating new LDAP connection to {Host}:{Port}", _LdapSettings.Host, port);
+                _Logger.LogDebug("Creating new LDAP connection to {Host}:{Port}", _LdapSettings.Host, _LdapSettings.Port);
                 _Connection = CreateConnection(connectionOptions);
                 LdapSearchConstraints constraints = new();
                 constraints.ReferralFollowing = true;

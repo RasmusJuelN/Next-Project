@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 
 namespace API.DTO.Requests.User;
 

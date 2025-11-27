@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { LoginErrorCode } from '../home/models/login.model';
@@ -24,11 +24,10 @@ const ERROR_I18N: Record<LoginErrorCode, string> = {
 };
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule, LanguageSwitcherComponent, TrackCapsDirective],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+    selector: 'app-login',
+    imports: [FormsModule, TranslateModule, LanguageSwitcherComponent, TrackCapsDirective],
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   private authService = inject(AuthService);

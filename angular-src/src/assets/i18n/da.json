@@ -23,11 +23,17 @@
   "TMP_DELETE_FINAL_WARN_MSG": "Advarsel: Denne handling kan ikke fortrydes. Sletning af denne skabelon vil permanent fjerne alle relaterede data. Er du helt sikker på, at du vil fortsætte?",
   "TMP_LOCKED_TITLE": "Skabelonen er i brug",
   "TMP_LOCKED_MSG": "Denne skabelon kan ikke redigeres, da den har været brugt.",
+  "TMP_COPY_TITLE": "Kopiér Skabelon",
+  "TMP_COPY_MSG": "Opret en redigerbar kopi af denne skabelon. Kopien vil blive gemt som en ny udkast skabelon.",
   "TMP_BUTTON_CLOSE": "Luk",
   "TMP_FAIL_LOAD_LIST": "Indlæsning af skabeloner mislykkedes. Prøv igen.",
   "TMP_FAIL_LOAD_DETAIL": "Indlæsning af skabelondetaljer mislykkedes.",
   "TMP_DELETE_ERROR": "Fejl ved sletning af skabelon.",
   "TMP_UPDATE_ERROR": "Fejl ved opdatering af skabelon.",
+  "TMP_ERROR_TITLE": "Fejl",
+  "TMP_ERROR_DUPLICATE_TITLE": "En skabelon med dette navn eksisterer allerede. Vælg venligst et andet navn.",
+  "TMP_ERROR_VALIDATION": "Valideringsfejl. Kontroller venligst dine indtastninger.",
+  "TMP_ERROR_SAVE": "Fejl ved gemning af skabelon. Prøv igen.",
   "TMP_NO_ACTIVE_QUESTIONNAIRES": "Der er ingen aktive spørgeskemaer",
 
   "TMP_EDITOR_TITLE": "Skabelonredigering",
@@ -79,7 +85,48 @@
     "RESULT_HISTORY": "Resultat Historik",
     "OVERVIEW": "Oversigt",
     "TEMPLATES": "Skabeloner",
-    "HOME" : "Hjem"
+    "HOME" : "Hjem",
+    "USER_GUIDE": "Brugervejledning"
+  },
+
+  "USER_GUIDE": {
+    "TITLE": "Brugervejledning",
+    "STUDENT": {
+      "ANSWERING_QUESTIONNAIRES": {
+        "TITLE": "Besvarelse af spørgeskemaer",
+        "CONTENT": "Gå til 'Aktive spørgeskemaer' og klik 'Besvar'. Tre spørgsmålstyper: \"Multiple Choice\", \"Custom Answer\", eller \"Mixed\". Fremgang gemmes automatisk."
+      },
+      "VIEWING_RESULTS": {
+        "TITLE": "Din rolle",
+        "CONTENT": "Du giver svar men kan ikke se dine indsendte besvarelser. Lærere kan se og analysere alle svar til undervisningsformål."
+      }
+    },
+    "TEACHER": {
+      "DASHBOARD": {
+        "TITLE": "Oversigt dashboard",
+        "CONTENT": "Se aktive spørgeskemaer og fuldførselsstatus. Overvåg dine tildelte spørgeskemaer og se resultater fra gennemførte."
+      },
+      "RESULT_HISTORY": {
+        "TITLE": "Resultathistorik",
+        "CONTENT": "Spor hvordan individuelle studenters svar ændrer sig over tid. Se progression når studenter gennemfører samme spørgeskema flere gange."
+      }
+    },
+    "ADMIN": {
+      "TEMPLATE_MANAGEMENT": {
+        "TITLE": "Skabeloner",
+        "CONTENT": "Opret spørgeskemaplaner med tre spørgsmålstyper: \"Multiple Choice\", \"Custom Answer\", eller \"Mixed\". Skabeloner skal \"finalized\" før brug og kan ikke redigeres efter. Kopier skabeloner for at lave ændringer."
+      },
+      "ACTIVE_QUESTIONNAIRES": {
+        "TITLE": "Aktive spørgeskemaer",
+        "CONTENT": "Opret grupper fra \"finalized\" skabeloner. Vælg én lærer, én skabelon, og flere studerende. Separate spørgeskemaer genereres for hver studerende-lærer kombination."
+      }
+    },
+    "GENERAL": {
+      "NAVIGATION": {
+        "TITLE": "Navigation",
+        "CONTENT": "Navigationsmuligheder afhænger af din rolle. Brug profil-dropdownen (øverst til højre) til logud eller sprogskift."
+      }
+    }
   },
 
 
@@ -281,6 +328,7 @@
     "SELECTED_STUDENTS": "Valgte Elever:",
     "SELECTED_TEACHERS": "Valgte Instruktører:",
     "SELECTED_TEMPLATES": "Valgte Skabeloner:",
+    "NOTHING_SELECTED": "Intet er valgt",
     "REMOVE": "Fjern",
     "CLEAR_ALL": "Ryd Alle",
     "CREATE_QUESTIONNAIRE_NAME": "Opret navn på spørgeskema:",

@@ -1,5 +1,5 @@
 <!-- Header navigation: responsive (mobile drawer + desktop bar), role-based links, translation support -->
-<ng-container *ngIf="isAuthenticated()">
+@if (isAuthenticated()) {
   <!-- Hamburger -->
   <button type="button"
     class="fixed top-4 left-4 z-50 sm:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white bg-transparent print:hidden"
@@ -7,88 +7,89 @@
     <!-- <span class="sr-only">Toggle menu</span> -->
     <span class="sr-only">{{'NAV.TOGGLE_MENU' | translate}} </span>
     <app-menu-svg [logoType]="isMenuOpen ? 'close' : 'menu'"></app-menu-svg>
-
   </button>
-
-
   <!-- Mobile Nav Drawer -->
-  <nav *ngIf="isMenuOpen"
-    class="fixed top-0 left-0 z-40 h-full  bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16 print:hidden">
-    <!-- Profile Dropdown Button (Mobile) -->
-    <div class="absolute right-4 top-4 flex items-center gap-2 z-50">
-      <button (click)="toggleProfileDropdown()"
-        class="profile-dropdown-trigger flex items-center px-2 py-2 rounded-full border-2 border-primary_orange_1 bg-white hover:bg-primary_orange_light focus:outline-none">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-          class="w-6 h-6 text-primary_orange_1">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M5.121 17.804A9.001 9.001 0 0112 15c2.21 0 4.21.805 5.879 2.146M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </button>
-      <!-- Dropdown Menu (Mobile) -->
-      <div *ngIf="showProfileDropdown"
-        class="profile-dropdown-menu absolute right-0 top-12 mt-2 w-48 bg-white border border-primary_orange_1 rounded-xl shadow-lg z-50 flex flex-col py-2">
-        <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ username() }}</p>
-        <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ userRole() }}</p>
-        <hr class="border-primary_orange_1">
-        <app-language-switcher class="px-2 py-2"></app-language-switcher>
-        <button (click)="logout()"
-          class="px-4 py-2 text-primary_orange_1 hover:text-primary_orange_light text-left w-full shadow-black">
-          {{ 'NAV.LOG_OUT' | translate }}
-        </button>
+  @if (isMenuOpen) {
+    <nav
+      class="fixed top-0 left-0 z-40 h-full  bg-primary_dark_blue shadow-lg w-fit min-w-[180px] max-w-[80vw] sm:hidden flex flex-col pl-4 pr-8 pt-16 print:hidden">
+      <!-- Profile Dropdown Button (Mobile) -->
+      <div class="absolute right-4 top-4 flex items-center gap-2 z-50">
+        <button (click)="toggleProfileDropdown()"
+          class="profile-dropdown-trigger flex items-center px-2 py-2 rounded-full border-2 border-primary_orange_1 bg-white hover:bg-primary_orange_light focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            class="w-6 h-6 text-primary_orange_1">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5.121 17.804A9.001 9.001 0 0112 15c2.21 0 4.21.805 5.879 2.146M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+          <!-- Dropdown Menu (Mobile) -->
+          @if (showProfileDropdown) {
+            <div
+              class="profile-dropdown-menu absolute right-0 top-12 mt-2 w-48 bg-white border border-primary_orange_1 rounded-xl shadow-lg z-50 flex flex-col py-2">
+              <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ username() }}</p>
+              <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ userRole() }}</p>
+              <hr class="border-primary_orange_1">
+              <app-language-switcher class="px-2 py-2"></app-language-switcher>
+              <button (click)="logout()"
+                class="px-4 py-2 text-primary_orange_1 hover:text-primary_orange_light text-left w-full shadow-black">
+                {{ 'NAV.LOG_OUT' | translate }}
+              </button>
+            </div>
+          }
+        </div>
+        <div class="flex flex-col flex-1 gap-1">
+          <a [routerLink]="'/'" routerLinkActive="router-link-active" [routerLinkActiveOptions]="{ exact: true }"
+            class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
+            (click)="toggleMenu()">
+            {{ 'NAV.HOME' | translate : {} : 'Home' }}
+          </a>
+          <!-- Global Links -->
+          <!-- <a
+          *ngFor="let link of globalNavLinks"
+          [routerLink]="link.route"
+          class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
+          (click)="toggleMenu()"
+          >
+          {{ link.name }}
+        </a> -->
+        <!-- Role-Specific Links -->
+        @for (link of navLinksForUser(); track link) {
+          <a [routerLink]="link.route"
+            class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
+            (click)="toggleMenu()">
+            {{ link.name | translate }}
+          </a>
+        }
+        <!-- Translate button code -->
       </div>
-    </div>
-    <div class="flex flex-col flex-1 gap-1">
-      <a [routerLink]="'/'" routerLinkActive="router-link-active" [routerLinkActiveOptions]="{ exact: true }"
-        class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
-        (click)="toggleMenu()">
-        {{ 'NAV.HOME' | translate : {} : 'Home' }}
-      </a>
-
-      <!-- Global Links -->
-      <!-- <a
-        *ngFor="let link of globalNavLinks"
-        [routerLink]="link.route"
-        class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
-        (click)="toggleMenu()"
-      >
-        {{ link.name }}
-      </a> -->
-      <!-- Role-Specific Links -->
-      <a *ngFor="let link of navLinksForUser()" [routerLink]="link.route"
-        class="rounded-md px-3 py-2 text-base font-medium text-primary_orange_light hover:bg-primary_orange_light hover:text-primary_dark_blue"
-        (click)="toggleMenu()">
-        {{ link.name | translate }}
-      </a>
-
-
-      <!-- Translate button code -->
-
-    </div>
-  </nav>
+    </nav>
+  }
 
   <!-- Desktop Nav -->
-  <!-- Desktop Nav -->
+   <div class="mx-4">
+
+   
   <nav
-    class="hidden sm:grid fixed z-50 top-4 h-16 w-[90vw] max-w-7xl left-1/2 -translate-x-1/2
-         grid-cols-[1fr_auto_1fr] items-center gap-4 bg-primary_background_white/80 rounded-xl shadow-lg px-6 print:hidden border-2 border-primary_orange_1">
-
+    class="hidden sm:grid fixed z-50 top-4 h-16 
+         left-4 right-4 max-w-7xl mx-auto
+         grid-cols-[1fr_auto_1fr] items-center gap-4 
+         bg-primary_background_white/80 rounded-xl shadow-lg px-6 
+         print:hidden border-2 border-primary_orange_1">
     <!-- Left -->
     <a [routerLink]="'/'" class="justify-self-start">
       <img src="assets/images/next_logo.png" class="h-8 w-auto cursor-pointer" />
     </a>
-
-
-
     <!-- Center -->
     <div class="relative col-start-2 min-w-0 overflow-x-auto scrollbar-none" appDragScroll>
       <div class="flex gap-6 justify-center w-max mx-auto">
-        <a *ngFor="let link of navLinksForUser()" [routerLink]="link.route" routerLinkActive="active-underline"
-          class="nav-underline px-1 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue">
-          {{ link.name | translate }}
-        </a>
+        @for (link of navLinksForUser(); track link) {
+          <a [routerLink]="link.route" routerLinkActive="active-underline"
+            class="nav-underline px-1 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue">
+            {{ link.name | translate }}
+          </a>
+        }
       </div>
     </div>
-
     <!-- Right -->
     <div class="col-start-3 justify-self-end flex items-center gap-4 shrink-0 relative">
       <!-- Profile Dropdown Button -->
@@ -99,21 +100,23 @@
           class="w-6 h-6 text-primary_orange_1 ">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M5.121 17.804A9.001 9.001 0 0112 15c2.21 0 4.21.805 5.879 2.146M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </button>
-      <!-- Dropdown Menu -->
-      <div *ngIf="showProfileDropdown" #profileMenu
-        class="profile-dropdown-menu absolute right-0 top-12 mt-2 w-48 bg-white border border-primary_orange_1 rounded-xl shadow-lg z-50 flex flex-col py-2">
-        <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ username() }}</p>
-        <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ userRole() }}</p>
-        <hr class="border-primary_orange_1">
-        <app-language-switcher class="px-2 py-2"></app-language-switcher>
-        <button (click)="logout()"
-          class=" py-2 mx-2 text-white bg-primary_orange_1 hover:bg-primary_orange_light text-center rounded-md shadow-black">
-          {{ 'NAV.LOG_OUT' | translate }}
+          </svg>
         </button>
+        <!-- Dropdown Menu -->
+        @if (showProfileDropdown) {
+          <div #profileMenu
+            class="profile-dropdown-menu absolute right-0 top-12 mt-2 w-48 bg-white border border-primary_orange_1 rounded-xl shadow-lg z-50 flex flex-col py-2">
+            <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ username() }}</p>
+            <p class="px-2 py-2 whitespace-nowrap text-base font-medium text-primary_dark_blue"> {{ userRole() }}</p>
+            <hr class="border-primary_orange_1">
+            <app-language-switcher class="px-2 py-2"></app-language-switcher>
+            <button (click)="logout()"
+              class=" py-2 mx-2 text-white bg-primary_orange_1 hover:bg-primary_orange_light text-center rounded-md shadow-black">
+              {{ 'NAV.LOG_OUT' | translate }}
+            </button>
+          </div>
+        }
       </div>
+    </nav>
     </div>
-  </nav>
-
-</ng-container>
+  }

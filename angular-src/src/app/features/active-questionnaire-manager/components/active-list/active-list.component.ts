@@ -3,18 +3,20 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActiveService } from '../../services/active.service';
-import { QuestionnaireGroupResult, QuestionnaireGroupKeysetPaginationResult } from '../../models/active.models';
+import { QuestionnaireGroupResult, QuestionnaireGroupOffsetPaginationResult } from '../../models/active.models';
 
 import { PageChangeEvent, PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { LoadingComponent } from '../../../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { UtcToLocalTimePipe } from '../../../../shared/pipes/UtcToLocalTimePipe';
+
+
 
 @Component({
-  selector: 'app-active-list',
-  standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent, TranslateModule],
-  templateUrl: './active-list.component.html',
-  styleUrls: ['./active-list.component.css']
+    selector: 'app-active-list',
+    imports: [CommonModule, FormsModule, PaginationComponent, LoadingComponent, TranslateModule, UtcToLocalTimePipe],
+    templateUrl: './active-list.component.html',
+    styleUrls: ['./active-list.component.css']
 })
 export class ActiveListComponent implements OnInit {
   private activeService = inject(ActiveService);

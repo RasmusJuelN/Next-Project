@@ -9,6 +9,7 @@ import { ActiveQuestionnaireBase, QuestionnaireGroup} from './models/dashboard.m
 import { TeacherService } from './services/teacher.service';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { UtcToLocalTimePipe } from '../../shared/pipes/UtcToLocalTimePipe';
 
 /**
  * Teacher dashboard component.
@@ -23,11 +24,10 @@ import { TranslateModule } from '@ngx-translate/core';
  * - Navigation to answer/results when applicable.
  */
 @Component({
-  selector: 'app-teacher-dashboard',
-  standalone: true,
-  imports: [ClipboardModule,FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule],
-  templateUrl: './teacher-dashboard.component.html',
-  styleUrls: ['./teacher-dashboard.component.css']
+    selector: 'app-teacher-dashboard',
+    imports: [ClipboardModule, FormsModule, CommonModule, PaginationComponent, RouterLink, LoadingComponent, TranslateModule, UtcToLocalTimePipe],
+    templateUrl: './teacher-dashboard.component.html',
+    styleUrls: ['./teacher-dashboard.component.css']
 })
 export class TeacherDashboardComponent implements OnInit {
   private teacherService = inject(TeacherService);
@@ -85,6 +85,7 @@ export class TeacherDashboardComponent implements OnInit {
           this.displayedGroups = groups.map((g: any) => ({
             groupId: g.groupId,
             groupName: g.groupName ?? g.name ?? 'Ungrouped',
+            createdAt: g.createdAt ?? g.CreatedAt ?? null,
             templateId: g.templateId ?? g.TemplateId ?? null,
             questionnaires: (g.questionnaires ?? []).map((q: any) => ({
               id: q.id,

@@ -1,5 +1,3 @@
-using Database.DTO.User;
-using Database.Models;
 
 namespace Database.Extensions;
 

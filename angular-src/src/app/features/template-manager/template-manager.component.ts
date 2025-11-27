@@ -16,7 +16,8 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
 enum TemplateModalType {
   None = 'none',
   Delete = 'delete',
-  Copy = 'copy'
+  Copy = 'copy',
+  Error = 'error'
 }
 
 /**
@@ -35,19 +36,18 @@ enum TemplateModalType {
  * - Uses translation keys for all labels and default values.
  */
 @Component({
-  selector: 'app-template-manager',
-  standalone: true,
-  imports: [
-    TemplateEditorComponent,
-    FormsModule,
-    CommonModule,
-    PaginationComponent,
-    LoadingComponent,
-    TranslateModule,
-    ModalComponent
-  ],
-  templateUrl: './template-manager.component.html',
-  styleUrls: ['./template-manager.component.css'],
+    selector: 'app-template-manager',
+    imports: [
+        TemplateEditorComponent,
+        FormsModule,
+        CommonModule,
+        PaginationComponent,
+        LoadingComponent,
+        TranslateModule,
+        ModalComponent
+    ],
+    templateUrl: './template-manager.component.html',
+    styleUrls: ['./template-manager.component.css']
 })
 export class TemplateManagerComponent {
   private templateService = inject(TemplateService);
@@ -69,7 +69,6 @@ export class TemplateManagerComponent {
   pageSizeOptions: number[] = [5, 10, 15, 20];
 
   isLoading = false;
-  errorMessage: string | null = null;
   private searchSubject = new Subject<string>();
   TemplateModalType = TemplateModalType;
 
@@ -83,6 +82,7 @@ export class TemplateManagerComponent {
   activeModalType: TemplateModalType = TemplateModalType.None;
   activeModalTemplateId: string | null = null;
   deleteConfirmStep = 0;
+  modalErrorMessage: string = '';
 
  /**
  * Wire up debounced search and load the first page.
@@ -140,7 +140,6 @@ export class TemplateManagerComponent {
   /** Fetch a page of template bases. */
   private fetchTemplateBases(): void {
     this.isLoading = true;
-    this.errorMessage = null;
     const nextCursor = this.cachedCursors[this.currentPage] ?? undefined;
     this.templateService
       .getTemplateBases(this.pageSize, nextCursor, this.searchTerm, this.searchType)
@@ -160,7 +159,8 @@ export class TemplateManagerComponent {
         },
         error: (err) => {
           console.error('Error fetching templates:', err);
-          this.errorMessage = 'TMP_FAIL_LOAD_LIST';
+          this.modalErrorMessage = 'TMP_FAIL_LOAD_LIST';
+          this.showModal(TemplateModalType.Error);
         },
       });
   }
@@ -196,7 +196,8 @@ selectTemplate(id: string): void {
       },
       error: err => {
         console.error('Error fetching template:', err);
-        this.errorMessage = 'TMP_FAIL_LOAD_LIST';
+        this.modalErrorMessage = 'TMP_FAIL_LOAD_DETAIL';
+        this.showModal(TemplateModalType.Error);
       }
     });
 }
@@ -277,9 +278,10 @@ openDeleteModal(templateId: string): void {
           this.resetData();
           this.fetchTemplateBases();
         },
-        error: () => {
-          console.error('Error adding template');
+        error: (err) => {
+          console.error('Error adding template:', err);
           updatedTemplate.id = undefined;
+          this.handleSaveError(err);
         },
       });
     } else {
@@ -289,9 +291,29 @@ openDeleteModal(templateId: string): void {
           this.selectedTemplate = null;
           this.fetchTemplateBases();
         },
-        error: (err) => console.error('Error updating template:', err),
+        error: (err) => {
+          console.error('Error updating template:', err);
+          this.handleSaveError(err);
+        },
       });
     }
+  }
+
+  private handleSaveError(err: any): void {
+    let errorKey: string;
+    if (err.status === 409) {
+      // Conflict - duplicate title - always show user-friendly message
+      errorKey = 'TMP_ERROR_DUPLICATE_TITLE';
+    } else if (err.status === 400) {
+      // Bad request - validation error
+      errorKey = 'TMP_ERROR_VALIDATION';
+    } else {
+      // General error
+      errorKey = 'TMP_ERROR_SAVE';
+    }
+    
+    this.modalErrorMessage = errorKey;
+    this.showModal(TemplateModalType.Error);
   }
 
   onCancelEdit(): void {
@@ -310,11 +332,24 @@ hideModal() {
   this.activeModalType = TemplateModalType.None;
   this.activeModalTemplateId = null;
   this.deleteConfirmStep = 0;
+  this.modalErrorMessage = '';
 }
 
 /** True when any modal is visible (used by <app-modal>). */
 get isModalOpen(): boolean { 
   return this.activeModalType !== TemplateModalType.None; 
+}
+
+/** Whether to show cancel button based on modal type. */
+get showCancelButton(): boolean {
+  switch (this.activeModalType) {
+    case TemplateModalType.Error:
+      return false;
+    case TemplateModalType.Delete:
+    case TemplateModalType.Copy:
+    default:
+      return true;
+  }
 }
 
 /** Title text resolved from i18n depending on modal type/step. */
@@ -325,7 +360,9 @@ get modalTitle(): string {
         ? this.translate.instant('TMP_DELETE_CONFIRM_TITLE')
         : this.translate.instant('TMP_DELETE_CONFIRM_WARN');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_LOCKED_TITLE');
+      return this.translate.instant('TMP_COPY_TITLE');
+    case TemplateModalType.Error:
+      return this.translate.instant('TMP_ERROR_TITLE');
     default:
       return '';
   }
@@ -338,7 +375,9 @@ get modalText(): string {
         ? this.translate.instant('TEMPLATES.DELETE.MSG')
         : this.translate.instant('TMP_DELETE_FINAL_WARN_MSG');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_LOCKED_MSG');
+      return this.translate.instant('TMP_COPY_MSG');
+    case TemplateModalType.Error:
+      return this.translate.instant(this.modalErrorMessage);
     default:
       return '';
   }
@@ -353,6 +392,8 @@ get confirmText(): string {
         : this.translate.instant('TMP_DELETE');
     case TemplateModalType.Copy:
       return this.translate.instant('COMMON.BUTTONS.COPY');
+    case TemplateModalType.Error:
+      return this.translate.instant('COMMON.BUTTONS.CLOSE');
     default:
       return this.translate.instant('COMMON.BUTTONS.CLOSE');
   }
@@ -362,10 +403,10 @@ get confirmText(): string {
 get cancelText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
-      return this.translate.instant('COMMON.BUTTONS.CANCEL');
     case TemplateModalType.Copy:
+      return this.translate.instant('COMMON.BUTTONS.CANCEL');
     default:
-      return this.translate.instant('COMMON.BUTTONS.CLOSE');       // already in your JSON
+      return this.translate.instant('COMMON.BUTTONS.CLOSE');
   }
 }
 
@@ -373,8 +414,14 @@ get cancelText(): string {
  * confirm handler:
  * - Delete: two-step confirm; on final confirm calls delete API.
  * - Copy: loads source template, deep-copies it into a new local draft and opens editor.
+ * - Error: simply closes the modal.
  */
 onModalConfirm(): void {
+  if (this.activeModalType === TemplateModalType.Error) {
+    this.hideModal();
+    return;
+  }
+
   const id = this.activeModalTemplateId ?? undefined;
   if (!id) return;
 

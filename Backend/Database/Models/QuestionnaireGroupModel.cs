@@ -1,4 +1,3 @@
-﻿using System.ComponentModel.DataAnnotations;
 
 namespace Database.Models
 {

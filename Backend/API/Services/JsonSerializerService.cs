@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace API.Services;
 
@@ -40,7 +38,11 @@ public class JsonSerializerService
         };
         s_readOptions = new()
         {
-            AllowTrailingCommas = true
+            AllowTrailingCommas = true,
+            //  Add JsonStringEnumConverter to allow converting string values in JSON to enum types.
+            // Ensures that camelCase strings like "active" correctly map to TestEnum.Active.
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } 
+
         };
     }
 

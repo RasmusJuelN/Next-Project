@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal, untracked } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { LoginComponent } from '../login/login.component';
 import { HomeService } from './services/home.service';
 import { catchError, map, of, switchMap, take } from 'rxjs';
@@ -20,11 +20,10 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
  * - Managing login/logout flows and error states.
  */
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [LoginComponent, CommonModule, TranslateModule],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
+    selector: 'app-home',
+    imports: [LoginComponent, TranslateModule],
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
   private authService = inject(AuthService);

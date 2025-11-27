@@ -1,4 +1,5 @@
-﻿namespace Database.DTO.ActiveQuestionnaire
+
+namespace Database.DTO.ActiveQuestionnaire
 {
 
     /// <summary>

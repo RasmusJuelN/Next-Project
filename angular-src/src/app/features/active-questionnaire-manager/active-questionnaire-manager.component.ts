@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActiveQuestionnaire } from './models/active.models';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ActiveListComponent } from './components/active-list/active-list.component';
 import { ActiveBuilderComponent } from './components/active-builder/active-builder.component';
@@ -10,11 +10,10 @@ import { ActiveBuilderComponent } from './components/active-builder/active-build
  * Switching between the list view and builder view
  */
 @Component({
-  selector: 'app-active-questionnaire-manager',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ActiveListComponent, ActiveBuilderComponent],
-  templateUrl: './active-questionnaire-manager.component.html',
-  styleUrl: './active-questionnaire-manager.component.css'
+    selector: 'app-active-questionnaire-manager',
+    imports: [FormsModule, ActiveListComponent, ActiveBuilderComponent],
+    templateUrl: './active-questionnaire-manager.component.html',
+    styleUrl: './active-questionnaire-manager.component.css'
 })
 export class ActiveQuestionnaireManagerComponent {
   searchStudent: string = '';

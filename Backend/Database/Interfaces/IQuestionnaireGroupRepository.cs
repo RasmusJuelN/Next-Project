@@ -1,5 +1,3 @@
-﻿using Database.Enums;
-using Database.Models;
 
 namespace Database.Interfaces
 {

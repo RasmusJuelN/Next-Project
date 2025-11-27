@@ -1,12 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using API.DTO.Requests.QuestionnaireTemplate;
-using API.DTO.Responses.QuestionnaireTemplate;
-using API.Exceptions;
-using API.Services;
-using Database.DTO.QuestionnaireTemplate;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
@@ -28,9 +19,9 @@ namespace API.Controllers
     [ApiController]
     public class QuestionnaireTemplateController : ControllerBase
     {
-        private readonly QuestionnaireTemplateService _questionnaireTemplateService;
+        private readonly IQuestionnaireTemplateService _questionnaireTemplateService;
 
-        public QuestionnaireTemplateController(QuestionnaireTemplateService questionnaireTemplateService)
+        public QuestionnaireTemplateController(IQuestionnaireTemplateService questionnaireTemplateService)
         {
             _questionnaireTemplateService = questionnaireTemplateService;
         }
@@ -85,9 +76,9 @@ namespace API.Controllers
                 template = await _questionnaireTemplateService.AddTemplate(questionnaireTemplate);
 
             }
-            catch (SQLException.ItemAlreadyExists)
+            catch (SQLException.ItemAlreadyExists ex)
             {
-                return Conflict();
+                return Conflict(ex.Message);
             }
 
             return CreatedAtRoute("", template.Id, template);
@@ -157,6 +148,10 @@ namespace API.Controllers
             catch (SQLException.ItemNotFound)
             {
                 return NotFound();
+            }
+            catch (SQLException.ItemAlreadyExists ex)
+            {
+                return Conflict(ex.Message);
             }
             catch (SQLException.NotValidated)
             {

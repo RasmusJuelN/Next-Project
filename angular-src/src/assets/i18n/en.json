@@ -23,11 +23,17 @@
   "TMP_DELETE_FINAL_WARN_MSG": "Warning: This action cannot be undone. Deleting this template will permanently remove all related data. Are you sure you want to continue?",
   "TMP_LOCKED_TITLE": "Template In Use",
   "TMP_LOCKED_MSG": "This template cannot be edited because it has been used.",
+  "TMP_COPY_TITLE": "Copy Template",
+  "TMP_COPY_MSG": "Create an editable copy of this template. The copy will be saved as a new draft template.",
   "TMP_BUTTON_CLOSE": "Close",
   "TMP_FAIL_LOAD_LIST": "Failed to load templates. Please try again.",
   "TMP_FAIL_LOAD_DETAIL": "Failed to load the full template details.",
   "TMP_DELETE_ERROR": "Error deleting template.",
   "TMP_UPDATE_ERROR": "Error updating template.",
+  "TMP_ERROR_TITLE": "Error",
+  "TMP_ERROR_DUPLICATE_TITLE": "A template with this name already exists. Please choose a different name.",
+  "TMP_ERROR_VALIDATION": "Validation error. Please check your inputs.",
+  "TMP_ERROR_SAVE": "Error saving template. Please try again.",
   "TMP_NO_ACTIVE_QUESTIONNAIRES": "There are no active questionnaires",
 
   "TMP_EDITOR_TITLE": "Template Editing",
@@ -128,8 +134,52 @@
     "RESULT_HISTORY": "Result History",
     "OVERVIEW": "Overview",
     "TEMPLATES": "Templates",
-    "HOME": "Home"
+    "HOME": "Home",
+    "USER_GUIDE": "User Guide"
   },
+
+"USER_GUIDE": {
+  "TITLE": "User Guide",
+  "STUDENT": {
+    "ANSWERING_QUESTIONNAIRES": {
+      "TITLE": "Answering Questionnaires",
+      "CONTENT": "Go to 'Active Questionnaires' and click 'Answer' to begin. Three question types: Multiple Choice, Custom Answer Only, or Mixed. Progress saves automatically."
+    },
+    "VIEWING_RESULTS": {
+      "TITLE": "Your Role",
+      "CONTENT": "You provide responses but cannot view your submitted answers. Teachers can see and analyze all responses for educational insights."
+    }
+  },
+  "TEACHER": {
+    "DASHBOARD": {
+      "TITLE": "Overview Dashboard",
+      "CONTENT": "View active questionnaires and completion status. Monitor your assigned questionnaires and view results from completed ones."
+    },
+    "RESULT_HISTORY": {
+      "TITLE": "Result History",
+      "CONTENT": "Track how individual students' answers change over time. See progression when students complete the same questionnaire multiple times."
+    }
+  },
+  "ADMIN": {
+    "TEMPLATE_MANAGEMENT": {
+      "TITLE": "Templates",
+      "CONTENT": "Create questionnaire blueprints with three question types: Multiple Choice, Custom Answer, or Mixed. Templates must be finalized before use and cannot be edited after. Copy templates to make changes."
+    },
+    "ACTIVE_QUESTIONNAIRES": {
+      "TITLE": "Active Questionnaires",
+      "CONTENT": "Create groups from finalized templates. Select one teacher, one template, and multiple students. Separate questionnaires are generated for each student-teacher pair."
+    }
+  },
+  "GENERAL": {
+    "NAVIGATION": {
+      "TITLE": "Navigation",
+      "CONTENT": "Navigation options depend on your role. Use the profile dropdown (top right) to logout or switch language."
+    }
+  }
+},
+
+
+
 
   "HOME" : {
     "ANSWER_QUESTIONNAIRE" :"A questionnaire can be answered",
@@ -278,6 +328,7 @@
     "SELECTED_STUDENTS": "Selected Students:",
     "SELECTED_TEACHERS": "Selected Teachers:",
     "SELECTED_TEMPLATES": "Selected Templates:",
+    "NOTHING_SELECTED": "Nothing is selected",
     "REMOVE": "Remove",
     "CLEAR_ALL": "Clear All",
     "CREATE_QUESTIONNAIRE_NAME": "Create questionnaire name:",

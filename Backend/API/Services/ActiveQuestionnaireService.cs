@@ -1,14 +1,3 @@
-using System.Net;
-using API.DTO.Requests.ActiveQuestionnaire;
-using API.DTO.Responses.ActiveQuestionnaire;
-using API.DTO.User;
-using API.Exceptions;
-using API.Interfaces;
-using Database.DTO.ActiveQuestionnaire;
-using Database.DTO.User;
-using Database.Enums;
-using Database.Models;
-using Settings.Models;
 
 namespace API.Services;
 
@@ -22,12 +11,20 @@ namespace API.Services;
 /// systems to provide comprehensive questionnaire management functionality. It supports
 /// role-based access control and integrates with LDAP for user verification.
 /// </remarks>
-public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationBridge authenticationBridge, IConfiguration configuration)
+public class ActiveQuestionnaireService : IActiveQuestionnaireService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IAuthenticationBridge _authenticationBridge = authenticationBridge;
-    private readonly LDAPSettings _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
-    private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuthenticationBridge _authenticationBridge;
+    private readonly LDAPSettings _ldapSettings;
+    private readonly JWTSettings _JWTSettings;
+
+    public ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationBridge authenticationBridge, IConfiguration configuration)
+    {
+        _unitOfWork = unitOfWork;
+        _authenticationBridge = authenticationBridge;
+        _ldapSettings = ConfigurationBinderService.Bind<LDAPSettings>(configuration);
+        _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
+    }
 
     /// <summary>
     /// Retrieves a paginated list of active questionnaire base information for administrative purposes.
@@ -116,8 +113,9 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         {
             GroupId = Guid.NewGuid(),
             TemplateId = request.TemplateId,
-            Name = request.Name,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Name = request.Name
+            
         };
         await _unitOfWork.QuestionnaireGroup.AddAsync(group);
 
@@ -151,6 +149,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = questionnaireDtos,
             QuestionnaireType = questionnaireDtos.Select(a => a.QuestionnaireType).FirstOrDefault()
@@ -198,6 +197,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = group.Questionnaires.Select(q => new ActiveQuestionnaireAdminBase
             {
@@ -285,6 +285,7 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         {
             GroupId = group.GroupId,
             Name = group.Name,
+            CreatedAt = group.CreatedAt,
             TemplateId = group.TemplateId,
             Questionnaires = questionnaireDtos,
             QuestionnaireType = questionnaireDtos.Select(a => a.QuestionnaireType).FirstOrDefault()
@@ -540,21 +541,21 @@ public class ActiveQuestionnaireService(IUnitOfWork unitOfWork, IAuthenticationB
         }
     }
 
-    internal async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateAsync(Guid studentid, Guid templateid)
     {
 
         return await _unitOfWork.ActiveQuestionnaire.GetResponsesFromStudentAndTemplateAsync(studentid, templateid);
 
     }
 
-    internal async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
+    public async Task<List<FullStudentRespondsDate>> GetResponsesFromStudentAndTemplateWithDateAsync(Guid studentid, Guid templateid)
     {
 
         return await _unitOfWork.ActiveQuestionnaire.GetResponsesFromStudentAndTemplateWithDateAsync(studentid, templateid);
 
     }
 
-    internal async Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups)
+    public async Task<SurveyResponseSummary> GetAnonymisedResponses(Guid templateId, List<Guid> users, List<Guid> groups)
     {
         return await _unitOfWork.ActiveQuestionnaire.GetAnonymisedResponses(templateId, users, groups);
     }

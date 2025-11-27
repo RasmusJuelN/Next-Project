@@ -7,7 +7,7 @@ import {
 } from "@angular/core";
 import { RouterLink, RouterLinkActive, Router } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
-import { CommonModule } from "@angular/common";
+
 import { MenuSvgComponent } from "../../../shared/components/menu-svg/menu-svg.component";
 import { Role } from "../../../shared/models/user.model";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -21,18 +21,16 @@ import { LanguageSwitcherComponent } from "../language-switcher/language-switche
  * - Supporting multi-language navigation labels via `@ngx-translate/core`.
  */
 @Component({
-  selector: "app-header",
-  standalone: true,
-  imports: [
+    selector: "app-header",
+    imports: [
     RouterLink,
     RouterLinkActive,
-    CommonModule,
     MenuSvgComponent,
     TranslateModule,
-    LanguageSwitcherComponent,
-  ],
-  templateUrl: "./header.component.html",
-  styleUrls: ["./header.component.css"],
+    LanguageSwitcherComponent
+],
+    templateUrl: "./header.component.html",
+    styleUrls: ["./header.component.css"]
 })
 export class HeaderComponent {
   /**
@@ -77,6 +75,7 @@ export class HeaderComponent {
   /** Global navigation links visible to all users. */
   globalNavLinks: { name: string; route: string }[] = [
     { name: "NAV.HOME", route: "/" },
+    { name: "NAV.USER_GUIDE", route: "/user-guide" },
   ];
 
   /** Role-specific navigation links (labels use translation keys). */
@@ -86,6 +85,7 @@ export class HeaderComponent {
         name: "NAV.ACTIVE_QUESTIONNAIRES",
         route: "/show-active-questionnaires",
       },
+      { name: "NAV.USER_GUIDE", route: "/user-guide" }
     ],
     [Role.Teacher]: [
       //{ name: 'Overview', route: '/hub' },
@@ -96,11 +96,13 @@ export class HeaderComponent {
       },
       { name: "NAV.DATA_COMPARE", route: "/data-compare" },
       { name: "NAV.RESULT_HISTORY", route: "/result-history" },
+      { name: "NAV.USER_GUIDE", route: "/user-guide" }
     ],
     [Role.Admin]: [
       //{ name: 'Overview', route: '/hub' },
       { name: "NAV.TEMPLATES", route: "/templates" },
       { name: "NAV.ACTIVE_QUESTIONNAIRES", route: "/active-questionnaire" },
+      { name: "NAV.USER_GUIDE", route: "/user-guide" }
     ],
   };
 

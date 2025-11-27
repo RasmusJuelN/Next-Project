@@ -1,10 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using API.Enums;
-using Microsoft.IdentityModel.Tokens;
-using Settings.Models;
-using API.DTO.Responses.Auth;
 
 namespace API.Services;
 
@@ -21,10 +14,18 @@ namespace API.Services;
 /// </list>
 /// All tokens use HMAC-SHA256 signing and include comprehensive validation to prevent token tampering.
 /// </remarks>
-public class JwtService(IConfiguration configuration)
+
+public class JwtService : IJwtService
 {
-    private readonly JWTSettings _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
-    
+
+    private readonly JWTSettings _JWTSettings;
+    public JwtService(IConfiguration configuration)
+    {
+        _JWTSettings = ConfigurationBinderService.Bind<JWTSettings>(configuration);
+    }
+
+
+
     /// <summary>
     /// Generates a short-lived access token containing the specified claims.
     /// </summary>
@@ -45,6 +46,18 @@ public class JwtService(IConfiguration configuration)
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
         JwtSecurityToken jwtSecurityToken = new(
+            //added issuer and audience 
+            // IMPORTANT: Token validation checks both the issuer ("iss") and audience ("aud") fields
+            // against what is configured in TokenValidationParameters. 
+            // If you only include these values as claims, the validator will fail:
+            //   - TokenIsValid() returns false
+            //   - GetPrincipalFromExpiredToken() throws SecurityTokenInvalidAudienceException
+            // By passing issuer and audience to the JwtSecurityToken constructor,
+            // the JWT contains the correct header/payload fields and validation passes.
+            // This is why the test now succeeds.
+            issuer: _JWTSettings.Issuer,       
+            audience: _JWTSettings.Audience,
+
             claims: claims,
             notBefore: DateTime.UtcNow,
             expires: DateTime.UtcNow.AddMinutes(_JWTSettings.TokenTTLMinutes),
@@ -134,8 +147,7 @@ public class JwtService(IConfiguration configuration)
             new(JwtRegisteredClaimNames.Sub, userId),
         ];
     }
-
-    public static JwtSecurityTokenHandler GetTokenHandler()
+    public JwtSecurityTokenHandler GetTokenHandler()
     {
         return new()
         {

@@ -8,7 +8,7 @@ import {
   OnChanges,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { CommonModule } from "@angular/common";
+
 import { Question, Option } from "../../../../shared/models/template.model";
 import { TranslateModule } from "@ngx-translate/core";
 import {
@@ -30,11 +30,10 @@ import {
  * - Disabling edits when in readonly mode.
  */
 @Component({
-  selector: "app-question-editor",
-  standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule, DragDropModule],
-  templateUrl: "./question-editor.component.html",
-  styleUrls: ["./question-editor.component.css"],
+    selector: 'app-question-editor',
+    imports: [FormsModule, TranslateModule, DragDropModule, DragDropModule],
+    templateUrl: './question-editor.component.html',
+    styleUrls: ['./question-editor.component.css']
 })
 export class QuestionEditorComponent implements OnChanges {
   @Input() question!: Question;
