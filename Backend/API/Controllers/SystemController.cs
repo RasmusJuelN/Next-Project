@@ -11,10 +11,10 @@ namespace API.Controllers
     /// </remarks>
     [Route("api/[controller]")]
     [ApiController]
-    public class SystemController(IApplicationLogRepository ApplicationLogsRepository, SystemControllerService systemControllerService) : ControllerBase
+    public class SystemController(IApplicationLogRepository ApplicationLogsRepository, ISystemControllerService systemControllerService) : ControllerBase
     {
         private readonly IApplicationLogRepository _ApplicationLogsRepository = ApplicationLogsRepository;
-        private readonly SystemControllerService _SystemControllerService = systemControllerService;
+        private readonly ISystemControllerService _SystemControllerService = systemControllerService;
 
         /// <summary>
         /// Health check endpoint that responds to HEAD requests to verify the API is running.
@@ -62,7 +62,7 @@ namespace API.Controllers
         /// </remarks>
         [HttpGet("logs/db/categories")]
         [Authorize(AuthenticationSchemes = "AccessToken", Policy = "AdminOnly")]
-        public async Task<ActionResult<string>> GetDatabaseLogCategories()
+        public async Task<ActionResult<List<string>>> GetDatabaseLogCategories()
         {
             return Ok(await _ApplicationLogsRepository.GetLogCategoriesAsync());
         }
