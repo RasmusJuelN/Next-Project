@@ -11,7 +11,7 @@ module.exports = {
         secondary_background_hover: '#EBEBEB', // hover effect for gray backgrounds
         
         primary_orange_1: '#e94f2d',
-        primary_orange_light: '#ff7a50', // lighter orange
+        primary_orange_light: '#FF6B3D', // lighter orange
         primary_orange_dark: '#b32d13', // darker orange'
         primary_orange_darker: "#260700",
 

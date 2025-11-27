@@ -60,7 +60,7 @@ export class QuestionnaireComponent {
 handleKeyboardEvent(event: KeyboardEvent): void {
   // Don't handle keyboard events if user is typing in a textarea
   const target = event.target as HTMLElement;
-  if (target.tagName === 'TEXTAREA') {
+  if (target.tagName === 'TEXTAREA' || this.showSubmitConfirmModal === true) {
     return;
   }
 
