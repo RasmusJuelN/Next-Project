@@ -80,6 +80,12 @@ public class AnonymousActiveQuestionnaireModel
     /// An <see cref="ActiveQuestionnaireType"/> enumeration value that specifies the questionnaire type.
     /// This property is required and must be set when creating an instance of the model.
     /// </value>
+    /// <remarks>
+    /// The QuestionnaireType property is the discriminating factor in the table-per-hierarchy (TPH)
+    /// inheritance strategy used for active questionnaires. It determines which derived class
+    /// (e.g., AnonymousActiveQuestionnaireModel or StandardActiveQuestionnaireModel) the
+    /// database record corresponds to.
+    /// </remarks>
     public ActiveQuestionnaireType QuestionnaireType { get; set; }
 
     [Required]
@@ -90,6 +96,8 @@ public class AnonymousActiveQuestionnaireModel
     public List<UserBaseModel> Users { get; set; } = [];
 
     public List<Guid> CompletedParticipantIds { get; set; } = [];
+
+    public List<AnonymousQuestionnaireResponseModel> AnonymousQuestionnaireResponses { get; set; } = [];
 
     public async Task MarkParticipantCompletedAsync(Guid participantId)
     {
