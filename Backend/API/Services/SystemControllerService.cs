@@ -2,7 +2,7 @@ using API.DTO.Responses.Settings.SettingsSchema.Bases;
 
 namespace API.Services;
 
-public class SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger, IHostApplicationLifetime hostApplicationLifetime)
+public class SystemControllerService(IConfiguration configuration, ILogger<SystemControllerService> logger, IHostApplicationLifetime hostApplicationLifetime) : ISystemControllerService
 {
     private readonly RootSettings _RootSettings = ConfigurationBinderService.Bind<RootSettings>(configuration);
     private readonly RootSettings _DefaultSettings = new();
@@ -27,7 +27,7 @@ public class SystemControllerService(IConfiguration configuration, ILogger<Syste
     public async Task<FileResult> ExportSettings()
     {
         string jsonString = JsonSerializer.Serialize(_RootSettings, _SerializerOptions);
-        var fileBytes = System.Text.Encoding.UTF8.GetBytes(jsonString);
+        var fileBytes = Encoding.UTF8.GetBytes(jsonString);
         var contentType = "application/json";
         var currentDate = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
         var fileName = $"settings_export_{currentDate}.json";
