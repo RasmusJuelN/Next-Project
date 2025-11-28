@@ -1,8 +1,3 @@
-using API.Interfaces;
-using Database;
-using Database.Interfaces;
-using Database.Repository;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace API.Services;
 

@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ActiveService } from '../../services/active.service';
@@ -8,6 +8,7 @@ import { User } from '../../../../shared/models/user.model';
 import { SearchEntity } from '../../models/searchEntity.model';
 import { TemplateBase } from '../../../../shared/models/template.model';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { CommonModule } from '@angular/common';
 
 
 // Extend the SearchEntity type for users to include sessionId and hasMore
@@ -24,10 +25,11 @@ interface TemplateSearchEntity extends SearchEntity<TemplateBase> {
 type SearchType = 'student' | 'teacher' | 'template';
 
 @Component({
-    selector: 'app-active-questionnaire-builder',
-    imports: [CommonModule, FormsModule, TranslateModule, ModalComponent],
-    templateUrl: './active-builder.component.html',
-    styleUrls: ['./active-builder.component.css']
+  selector: 'app-active-questionnaire-builder',
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslateModule, ModalComponent],
+  templateUrl: './active-builder.component.html',
+  styleUrls: ['./active-builder.component.css']
 })
 export class ActiveBuilderComponent implements OnInit {
   private activeService = inject(ActiveService);
@@ -89,7 +91,7 @@ export class ActiveBuilderComponent implements OnInit {
   // Set the page size (10 results per search)
   searchAmount = 10;
 
-  // Confirmation modal state
+   // Confirmation modal state
   public showConfirmationModal = false;
   public confirmationTitle = '';
   public confirmationText = '';
@@ -213,17 +215,28 @@ private handleDocumentClick = (event: MouseEvent) => {
   }
 
   // Add or remove user from selected array
-  select(entity: SearchType, item: any): void {
-    const state = this.getState(entity);
-    if (!Array.isArray(state.selected)) {
-      state.selected = [];
-    }
-    const idx = state.selected.findIndex((u: any) => u.id === item.id);
+select(entity: SearchType, item: any): void {
+  const state = this.getState(entity);
+  if (!Array.isArray(state.selected)) {
+    state.selected = [];
+  }
+  
+   const idx = state.selected.findIndex((u: any) => u.id === item.id);
+    
     if (idx === -1) {
-      state.selected.push(item);
+      // Adding new item
+      if (entity === 'teacher' || entity === 'template') {
+        // For teacher and template, only allow one selection - replace existing
+        state.selected = [item];
+      } else {
+        // For students, allow multiple selections
+        state.selected.push(item);
+      }
     } else {
+      // Removing existing item (deselecting)
       state.selected.splice(idx, 1);
     }
+    
     // Clear search input and hide search results
     state.searchInput = '';
     
@@ -236,13 +249,13 @@ private handleDocumentClick = (event: MouseEvent) => {
       this.showTemplateResults = false;
     }
   }
+  
+    clearSelected(entity: SearchType): void {
+      const state = this.getState(entity);
+      state.selected = [];
+    }
 
-  clearSelected(entity: SearchType): void {
-    const state = this.getState(entity);
-    state.selected = [];
-  }
-
-  /** Show confirmation modal before creating questionnaire */
+     /** Show confirmation modal before creating questionnaire */
   showCreateConfirmation(): void {
     if (this.isAnonymousMode) {
       this.confirmationTitle = 'ACTIVE_BUILDER.CONFIRM_ANONYMOUS_TITLE';
@@ -266,8 +279,8 @@ private handleDocumentClick = (event: MouseEvent) => {
   onCancelCreate(): void {
     this.showConfirmationModal = false;
   }
-
-  createActiveQuestionnaire(): void {
+  
+    createActiveQuestionnaire(): void {
     if (this.isAnonymousMode) {
       // Anonymous mode: only participants and template
       if (
@@ -289,7 +302,7 @@ private handleDocumentClick = (event: MouseEvent) => {
       return;
     }
 
-  this.groupNameError = '';
+    this.groupNameError = '';
   this.studentError = '';
   this.teacherError = '';
   this.templateError = '';
@@ -302,14 +315,22 @@ private handleDocumentClick = (event: MouseEvent) => {
     hasError = true;
   }
   if (!Array.isArray(this.teacher.selected) || this.teacher.selected.length === 0) {
-    this.teacherError = 'Du skal vælge mindst én lærer.';
+    this.teacherError = 'Du skal vælge en lærer.';
+    hasError = true;
+  }
+  if (this.teacher.selected.length > 1) {
+    this.teacherError = 'Du kan kun vælge én lærer.';
     hasError = true;
   }
   if (!Array.isArray(this.template.selected) || this.template.selected.length === 0) {
     this.templateError = 'Du skal vælge en skabelon.';
     hasError = true;
   }
-  if (!this.template.selected[0].id) {
+  if (this.template.selected.length > 1) {
+    this.templateError = 'Du kan kun vælge én skabelon.';
+    hasError = true;
+  }
+  if (this.template.selected.length > 0 && !this.template.selected[0].id) {
     this.templateError = 'Den valgte skabelon mangler et ID.';
     hasError = true;
   }
@@ -320,10 +341,6 @@ private handleDocumentClick = (event: MouseEvent) => {
   if (hasError) {
     return;
   }
-  if (this.template.selected.length > 1) {
-    alert('Der kan kun tildeles én skabelon ad gangen.');
-    return;
-    }
     
     const newGroup = {
       name: this.groupName,

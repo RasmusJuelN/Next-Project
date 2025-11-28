@@ -1,11 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using API.DTO.Requests.ActiveQuestionnaire;
-using API.DTO.Responses.ActiveQuestionnaire;
-using API.Exceptions;
-using API.Services;
-using Database.DTO.ActiveQuestionnaire;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
@@ -33,10 +25,10 @@ namespace API.Controllers
     [ApiController]
     public class ActiveQuestionnaireController : ControllerBase
     {
-        private readonly ActiveQuestionnaireService _questionnaireService;
+        private readonly IActiveQuestionnaireService _questionnaireService;
         private readonly ILogger _logger;
 
-        public ActiveQuestionnaireController(ActiveQuestionnaireService questionnaireService, ILoggerFactory loggerFactory)
+        public ActiveQuestionnaireController(IActiveQuestionnaireService questionnaireService, ILoggerFactory loggerFactory)
         {
             _questionnaireService = questionnaireService;
             _logger = loggerFactory.CreateLogger(GetType());
@@ -381,15 +373,16 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            StudentResultHistory? responseHistory = await _questionnaireService.GetResponseHistoryAsync(studentId, teacherId, templateId);
-
-            if (responseHistory == null)
+            try
             {
-                _logger.LogWarning("No response history found for teacher {TeacherId}, student {StudentId}, and template {TemplateId}", teacherId, studentId, templateId);
-                return NotFound();
+                StudentResultHistory? responseHistory = await _questionnaireService.GetResponseHistoryAsync(studentId, teacherId, templateId);
+                return Ok(responseHistory);
             }
-
-            return Ok(responseHistory);
+            catch (HttpResponseException ex)
+            {
+                _logger.LogWarning("Unable to retrieve response history for teacher {TeacherId}, student {StudentId}, and template {TemplateId}: {Message}", teacherId, studentId, templateId, ex.Message);
+                return StatusCode((int)ex.StatusCode, ex.Message);
+            }
         }
 
         /// <summary>

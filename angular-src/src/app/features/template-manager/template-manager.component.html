@@ -1,14 +1,12 @@
 <!-- Template List Section -->
-<div class="flex flex-col items-center w-full min-h-full px-4">
-  <div class="flex flex-col w-full max-w-5xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
+<div class="flex flex-col items-center w-full min-h-full">
+  <div class="flex flex-col w-full max-w-7xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
 
-    <ng-container *ngIf="!selectedTemplate; else editor">
-
+    @if (!selectedTemplate) {
       <!-- Title -->
         <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">
         {{ 'TEMPLATE.LIST.TITLE_ADMINISTER_TEMPLATES' | translate }}
       </h2>
-
       <!-- Actions -->
       <div class="grid grid-cols-1 gap-4 w-full">
         <button
@@ -17,15 +15,12 @@
           {{ 'TEMPLATE.LIST.BUTTON_CREATE_NEW' | translate }}
         </button>
       </div>
-
       <!-- Template List Title -->
       <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 flex items-center justify-between">
         {{ 'TEACHER.TITLE_TEMPLATE_LIST' | translate }}
       </h2>
-
       <!-- Filters -->
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full mb-4">
-
         <!-- Search Type -->
         <select
           #searchType
@@ -34,7 +29,6 @@
           <option value="name" selected>{{ 'TEMPLATE.LIST.SEARCH_BY_NAME' | translate }}</option>
           <option value="id">{{ 'TEMPLATE.LIST.SEARCH_BY_ID' | translate }}</option>
         </select>
-
         <!-- Search Input -->
         <input
           #search
@@ -42,44 +36,39 @@
           (input)="onSearchChange(search.value)"
           placeholder="{{ 'TEMPLATE.LIST.SEARCH_GROUP_PLACEHOLDER' | translate }}"
           class="w-full sm:w-64 px-4 py-2 border-primary_orange_1 rounded-lg focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80" />
-
-        <!-- Page Size Selector -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
-          <label for="pageSize" class="text-primary_dark_blue font-medium text-sm sm:text-base">
-            {{ 'TEMPLATE.LIST.ITEMS_PER_PAGE' | translate }}
-          </label>
-          <select
-            #pageSize
-            id="pageSize"
-            (change)="onPageSizeChange(pageSize.value)"
-            class="w-full sm:w-auto border border-primary_orange_1 rounded-lg px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80 text-left">
-            <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="isSelectedPageSize(size)">{{ size }}</option>
-          </select>
+          <!-- Page Size Selector -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
+            <label for="pageSize" class="text-primary_dark_blue font-medium text-sm sm:text-base">
+              {{ 'TEMPLATE.LIST.ITEMS_PER_PAGE' | translate }}
+            </label>
+            <select
+              #pageSize
+              id="pageSize"
+              (change)="onPageSizeChange(pageSize.value)"
+              class="w-full sm:w-auto border border-primary_orange_1 rounded-lg px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80 text-left">
+              @for (size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="isSelectedPageSize(size)">{{ size }}</option>
+              }
+            </select>
+          </div>
         </div>
-      </div>
-
-      <!-- Loading -->
-      <div *ngIf="isLoading" class="flex justify-center items-center min-h-[150px]">
-        <app-loading></app-loading>
-      </div>
-
-      <!-- Error Message -->
-      <div *ngIf="errorMessage" class="text-center p-4">
-        <p class="text-red-500 font-semibold text-lg">{{ errorMessage | translate }}</p>
-      </div>
-
-      <!-- Template List -->
-      <ul *ngIf="!isLoading && !errorMessage" class="space-y-4 mt-4">
-
-        <li
-          *ngFor="let template of templateBases"
-          class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover transition-colors">
-
-          <!-- Title + Status -->
-          <span class="w-full sm:w-auto flex items-center gap-2 text-gray-800 font-medium break-words">
-            {{ template.title }}
-            <span
-              class="px-2 py-0.5 rounded text-xs font-semibold"
+        <!-- Loading -->
+        @if (isLoading) {
+          <div class="flex justify-center items-center min-h-[150px]">
+            <app-loading></app-loading>
+          </div>
+        }
+        <!-- Template List -->
+        @if (!isLoading) {
+          <ul class="space-y-4 mt-4">
+            @for (template of templateBases; track template) {
+              <li
+                class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover transition-colors">
+                <!-- Title + Status -->
+                <span class="w-full sm:w-auto flex items-center gap-2 text-gray-800 font-medium break-words">
+                  {{ template.title }}
+                  <span
+                    class="px-2 py-0.5 rounded text-xs font-semibold"
               [ngClass]="{
                 'bg-yellow-100 text-yellow-800': template.templateStatus === templateStatus.Draft,
                 'bg-green-100 text-green-800': template.templateStatus === templateStatus.Finalized
@@ -131,16 +120,17 @@
       </app-template-editor>
     </ng-template>
 
-    <!-- Modal -->
-    <app-modal
-      [isOpen]="isModalOpen"
-      [title]="modalTitle"
-      [text]="modalText"
-      [confirmText]="confirmText"
-      [cancelText]="cancelText"
-      (confirm)="onModalConfirm()"
-      (cancel)="onModalCancel()">
-    </app-modal>
+      <!-- Modal -->
+      <app-modal
+        [isOpen]="isModalOpen"
+        [title]="modalTitle"
+        [text]="modalText"
+        [confirmText]="confirmText"
+        [cancelText]="cancelText"
+        [showCancelButton]="showCancelButton"
+        (confirm)="onModalConfirm()"
+        (cancel)="onModalCancel()">
+      </app-modal>
 
+    </div>
   </div>
-</div>

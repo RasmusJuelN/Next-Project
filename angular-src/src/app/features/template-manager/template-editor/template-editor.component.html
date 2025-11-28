@@ -28,23 +28,27 @@
   </div>
   <!--  placeholder="Indtast skabelon beskrivelse" -->
 
-  <!-- Save and Cancel Buttons -->
-  <div class="flex flex-col sm:flex-row justify-end sm:space-x-4 space-y-2 sm:space-y-0">
-    <button type="button" (click)="onCancel()"
-      class="px-4 py-2 bg-gray-500 text-white rounded-xl shadow-sm hover:bg-gray-600 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none">
-      <!-- Annuller -->
-      {{ 'COMMON.BUTTONS.CANCEL' | translate }}
-    </button>
-    <button *ngIf="!readonly" type="button" (click)="onSave()"
-      class="px-4 py-2 bg-green-500 text-white rounded-xl shadow-sm hover:bg-green-600 focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors">
-      {{ 'TEMPLATE.EDITOR.SAVE_TEMPLATE' | translate }}
-    </button>
-    <button *ngIf="!readonly && template?.id" type="button" (click)="openFinalizeModal()"
-      class="px-4 py-2 bg-purple-500 text-white rounded-lg shadow-sm hover:bg-purple-600 focus:ring-2 focus:ring-purple-400 focus:outline-none">
-      {{ 'TEMPLATE.FINALIZE.CONFIRM_BUTTON' | translate }}
-    </button>
-  </div>
-</form>
+    <!-- Save and Cancel Buttons -->
+    <div class="flex flex-col sm:flex-row justify-end sm:space-x-4 space-y-2 sm:space-y-0">
+      <button type="button" (click)="onCancel()"
+        class="px-4 py-2 bg-gray-500 text-white rounded-xl shadow-sm hover:bg-gray-600 focus:ring-2 focus:ring-primary_dark_blue focus:outline-none">
+        <!-- Annuller -->
+        {{ 'COMMON.BUTTONS.CANCEL' | translate }}
+      </button>
+      @if (!readonly) {
+        <button type="button" (click)="onSave()"
+          class="px-4 py-2 bg-green-500 text-white rounded-xl shadow-sm hover:bg-green-600 focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors">
+          {{ 'TEMPLATE.EDITOR.SAVE_TEMPLATE' | translate }}
+        </button>
+      }
+      @if (!readonly && template.id) {
+        <button type="button" (click)="openFinalizeModal()"
+          class="px-4 py-2 bg-purple-500 text-white rounded-lg shadow-sm hover:bg-purple-600 focus:ring-2 focus:ring-purple-400 focus:outline-none">
+          {{ 'TEMPLATE.FINALIZE.CONFIRM_BUTTON' | translate }}
+        </button>
+      }
+    </div>
+  </form>
 
 <!-- Question List -->
 <div class="mt-6 sm:mt-8 mb-3">
@@ -52,55 +56,58 @@
     {{ 'TEMPLATE.EDITOR.QUESTIONS' | translate }}
   </h3>
 
-  <!-- Add cdkDropList here -->
-  <ul cdkDropList [cdkDropListData]="template.questions" class="space-y-4" (cdkDropListDropped)="drop($event)">
-    <ng-container *ngFor="let question of template.questions; let i = index">
-      <li cdkDrag
-        class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover">
-        <div class="flex items-center gap-3 w-full">
-          <!-- Drag handle (optional) -->
-          <div cdkDragHandle class="cursor-grab p-1 text-gray-500 hover:text-primary_orange_1">
-            <!-- small icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-            </svg>
+    <!-- Add cdkDropList here -->
+    <ul cdkDropList [cdkDropListData]="template.questions" class="space-y-4" (cdkDropListDropped)="drop($event)">
+      @for (question of template.questions; track question; let i = $index) {
+        <li cdkDrag
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-xl border border-primary_orange_1 shadow-sm hover:bg-secondary_background_hover">
+          <div class="flex items-center gap-3 w-full">
+            <!-- Drag handle (optional) -->
+            <div cdkDragHandle class="cursor-grab p-1 text-gray-500 hover:text-primary_orange_1">
+              <!-- small icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+              </svg>
+            </div>
+            <span class="text-primary_dark_blue font-semibold flex-1">{{ question.prompt }}</span>
           </div>
+          <div class="flex space-x-2 mt-2 sm:mt-0">
+            <button
+              class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
+              (click)="editQuestion(question)">
+              {{ readonly ? ('COMMON.BUTTONS.VIEW' | translate) : ('COMMON.BUTTONS.EDIT' | translate) }}
+            </button>
+            @if (!readonly) {
+              <button
+                class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                (click)="deleteQuestion(question)" [disabled]="readonly">
+                {{ 'COMMON.BUTTONS.DELETE' | translate }}
+              </button>
+            }
+          </div>
+        </li>
+        <!-- Inline editor inserted directly below the question when selected -->
+        @if (selectedQuestion?.id === question.id) {
+          <li class="p-0">
+            <div class="mt-4">
+              <app-question-editor [question]="selectedQuestion!" [readonly]="readonly" (save)="onSaveQuestion($event)" (cancel)="onCancelEdit()"></app-question-editor>
+            </div>
+          </li>
+        }
+      }
+    </ul>
 
-          <span class="text-primary_dark_blue font-semibold flex-1">{{ question.prompt }}</span>
-        </div>
-
-        <div class="flex space-x-2 mt-2 sm:mt-0">
-          <button
-            class="px-4 py-1 text-sm bg-yellow-500 text-black rounded-xl hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
-            (click)="editQuestion(question)">
-            {{ readonly ? ('COMMON.BUTTONS.VIEW' | translate) : ('COMMON.BUTTONS.EDIT' | translate) }}
-          </button>
-          <button *ngIf="!readonly"
-            class="px-4 py-1 text-sm bg-red-500 text-white rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
-            (click)="deleteQuestion(question)" [disabled]="readonly">
-            {{ 'COMMON.BUTTONS.DELETE' | translate }}
-          </button>
-        </div>
-      </li>
-
-      <!-- Inline editor inserted directly below the question when selected -->
-      <li *ngIf="selectedQuestion?.id === question.id" class="p-0">
-        <div class="mt-4">
-          <app-question-editor [question]="selectedQuestion!" [readonly]="readonly" (save)="onSaveQuestion($event)" (cancel)="onCancelEdit()"></app-question-editor>
-        </div>
-      </li>
-    </ng-container>
-  </ul>
-
-  <!-- Add Question Button -->
-  <div class="mt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
-    <button *ngIf="!readonly"
-      class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none  transition-colors"
-      (click)="addQuestion()">
-      {{ 'TEMPLATE.EDITOR.ADD_QUESTION' | translate }}
-    </button>
+    <!-- Add Question Button -->
+    <div class="mt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+      @if (!readonly) {
+        <button
+          class="px-6 py-2 bg-primary_orange_1 text-white font-bold rounded-xl hover:bg-primary_orange_light focus:ring-2 focus:ring-primary_orange_1 focus:outline-none  transition-colors"
+          (click)="addQuestion()">
+          {{ 'TEMPLATE.EDITOR.ADD_QUESTION' | translate }}
+        </button>
+      }
+    </div>
   </div>
-</div>
 
 <app-modal [isOpen]="finalizeModalOpen" [title]="'TEMPLATE.FINALIZE.CONFIRM_TITLE' | translate"
   [text]="'TEMPLATE.FINALIZE.CONFIRM_TEXT' | translate" [confirmText]="'TEMPLATE.FINALIZE.CONFIRM_BUTTON' | translate"

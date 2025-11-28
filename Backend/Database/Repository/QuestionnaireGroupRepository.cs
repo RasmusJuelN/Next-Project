@@ -1,14 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Database.DTO.ActiveQuestionnaire;
-using Database.Enums;
-using Database.Extensions;
-using Database.Interfaces;
-using Database.Models;
-using Microsoft.EntityFrameworkCore;
-using Database.Enums;
-using Microsoft.Extensions.Logging;
-
+﻿
 namespace Database.Repository
 {
     /// <summary>

@@ -1,5 +1,5 @@
 // Angular component for comparing anonymised questionnaire data
-import { CommonModule } from "@angular/common";
+
 import {
   Component,
   ElementRef,
@@ -55,7 +55,7 @@ type SearchType = "student" | "template";
 
 @Component({
     selector: "app-data-compare",
-    imports: [TranslateModule, CommonModule, FormsModule, AgCharts],
+    imports: [TranslateModule, FormsModule, AgCharts],
     templateUrl: "./data-compare.component.html",
     styleUrl: "./data-compare.component.css"
 })

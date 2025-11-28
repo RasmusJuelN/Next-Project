@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { Role } from '../../shared/models/user.model';
 
@@ -14,7 +14,7 @@ import { Role } from '../../shared/models/user.model';
  */
 @Component({
     selector: 'app-access-hub',
-    imports: [CommonModule, RouterModule],
+    imports: [RouterModule],
     templateUrl: './access-hub.component.html',
     styleUrls: ['./access-hub.component.css']
 })

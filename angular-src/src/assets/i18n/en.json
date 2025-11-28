@@ -298,7 +298,12 @@
     "OPEN_PDF": "Open PDF",
     "DOWNLOAD_PDF": "Download PDF",
     "OPEN_PDF_SHORT": "Open",
-    "DOWNLOAD_PDF_SHORT": "Download"
+    "DOWNLOAD_PDF_SHORT": "Download",
+    "NO_COMPLETED_SHARED_QUESTIONNAIRES": "No completed shared questionnaires found with this student. Both you and the student must complete your responses before results become available.",
+    "FAILED_TO_LOAD_TEMPLATES": "Failed to load available templates.",
+    "NO_RESULTS_INCOMPLETE_RESPONSES": "No results available. Both you and the student must complete your questionnaire responses before viewing the results history.",
+    "FAILED_TO_LOAD_HISTORY": "Failed to load student result history.",
+    "FAILED_TO_LOAD_STUDENTS": "Failed to load related students."
   },
 
   "ACTIVE_BUILDER": {
@@ -322,6 +327,7 @@
     "SELECTED_STUDENTS": "Selected Students:",
     "SELECTED_TEACHERS": "Selected Teachers:",
     "SELECTED_TEMPLATES": "Selected Templates:",
+    "NOTHING_SELECTED": "Nothing is selected",
     "REMOVE": "Remove",
     "CLEAR_ALL": "Clear All",
     "CREATE_QUESTIONNAIRE_NAME": "Create questionnaire name:",
