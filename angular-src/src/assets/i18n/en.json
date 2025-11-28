@@ -23,6 +23,10 @@
 
   "TEMPLATE": {
 
+    "ERROR": {
+      "TITLE": "Error"
+    },
+
     "NEW": {
       "TITLE": "New Template",
       "DESC": "Description of the new template",
@@ -74,6 +78,16 @@
     "ADMIN": {
       "LOCKED_TITLE": "Template In Use",
       "LOCKED_MSG": "This template cannot be edited because it has been used."
+    },
+
+    "MISC": {
+      "COPY_TITLE": "Copy Template",
+      "COPY_MSG": "Create an editable copy of this template. The copy will be saved as a new draft template.",
+      "ERROR_TITLE": "Error",
+      "ERROR_DUPLICATE_TITLE": "A template with this name already exists. Please choose a different name.",
+      "ERROR_VALIDATION": "Validation Error",
+      "ERROR_SAVE": "Error saving template. Please try again."
+
     }
   },
 

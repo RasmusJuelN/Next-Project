@@ -119,6 +119,16 @@
     "ADMIN": {
       "LOCKED_TITLE": "Skabelonen er i brug",
       "LOCKED_MSG": "Denne skabelon kan ikke redigeres, da den har været brugt."
+    },
+
+    "MISC": {
+      "COPY_TITLE": "Kopiér Skabelon",
+      "COPY_MSG": "Opret en redigerbar kopi af denne skabelon. Kopien vil blive gemt som en ny udkast skabelon.",
+      "ERROR_TITLE": "Fejl",
+      "ERROR_DUPLICATE_TITLE": "En skabelon med dette navn eksisterer allerede. Vælg venligst et andet navn.",
+      "ERROR_VALIDATION": "Valideringsfejl. Kontroller venligst dine indtastninger.",
+      "ERROR_SAVE": "Fejl ved gemning af skabelon. Prøv igen."
+
     }
 
   },

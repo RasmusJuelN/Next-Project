@@ -303,13 +303,13 @@ openDeleteModal(templateId: string): void {
     let errorKey: string;
     if (err.status === 409) {
       // Conflict - duplicate title - always show user-friendly message
-      errorKey = 'TMP_ERROR_DUPLICATE_TITLE';
+      errorKey = 'TEMPLATE.MISC.ERROR_DUPLICATE_TITLE';
     } else if (err.status === 400) {
       // Bad request - validation error
-      errorKey = 'TMP_ERROR_VALIDATION';
+      errorKey = 'TEMPLATE.MISC.ERROR_VALIDATION';
     } else {
       // General error
-      errorKey = 'TMP_ERROR_SAVE';
+      errorKey = 'TEMPLATE.MISC.ERROR_SAVE';
     }
     
     this.modalErrorMessage = errorKey;
@@ -360,9 +360,9 @@ get modalTitle(): string {
         ? this.translate.instant('TEMPLATE.DELETE.CONFIRM_TITLE')
         : this.translate.instant('TEMPLATE.DELETE.CONFIRM_WARN');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_COPY_TITLE');
+      return this.translate.instant('TEMPLATE.MISC.COPY_TITLE');
     case TemplateModalType.Error:
-      return this.translate.instant('TMP_ERROR_TITLE');
+      return this.translate.instant('TEMPLATE.MISC.ERROR_TITLE');
     default:
       return '';
   }
@@ -375,7 +375,7 @@ get modalText(): string {
         ? this.translate.instant('TEMPLATE.DELETE.MSG')
         : this.translate.instant('TEMPLATE.DELETE.FINAL_WARN_MSG');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_COPY_MSG');
+      return this.translate.instant('TEMPLATE.MISC.COPY_MSG');
     case TemplateModalType.Error:
       return this.translate.instant(this.modalErrorMessage);
     default:

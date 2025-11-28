@@ -98,39 +98,40 @@
             </button>
           </div>
         </li>
+        }
       </ul>
 
       <!-- Pagination -->
       <app-pagination
-        *ngIf="!isLoading && !errorMessage"
+        *ngIf="!isLoading"
         [currentPage]="currentPage"
         [totalPages]="totalPages"
         (pageChange)="handlePageChange($event)"
         [showPageNumbers]="false">
       </app-pagination>
-    </ng-container>
+    }
 
-    <!-- Template Editor -->
-    <ng-template #editor>
+    } @else {
+      <!-- Template Editor -->
       <app-template-editor
         [template]="selectedTemplate!"
         (saveTemplate)="onSaveTemplate($event)"
         (finalizeDraft)="onFinalizeTemplate($event)"
         (cancelEdit)="onCancelEdit()">
       </app-template-editor>
-    </ng-template>
+    }
 
-      <!-- Modal -->
-      <app-modal
-        [isOpen]="isModalOpen"
-        [title]="modalTitle"
-        [text]="modalText"
-        [confirmText]="confirmText"
-        [cancelText]="cancelText"
-        [showCancelButton]="showCancelButton"
-        (confirm)="onModalConfirm()"
-        (cancel)="onModalCancel()">
-      </app-modal>
+    <!-- Modal -->
+    <app-modal
+      [isOpen]="isModalOpen"
+      [title]="modalTitle"
+      [text]="modalText"
+      [confirmText]="confirmText"
+      [cancelText]="cancelText"
+      [showCancelButton]="showCancelButton"
+      (confirm)="onModalConfirm()"
+      (cancel)="onModalCancel()">
+    </app-modal>
 
-    </div>
   </div>
+</div>
