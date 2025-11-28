@@ -1,4 +1,3 @@
-using Database.Models;
 
 namespace Database.Interfaces;
 

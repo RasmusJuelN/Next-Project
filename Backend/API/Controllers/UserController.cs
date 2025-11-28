@@ -1,14 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using API.DTO.Requests.ActiveQuestionnaire;
-using API.DTO.Requests.User;
-using API.DTO.Responses.ActiveQuestionnaire;
-using API.DTO.Responses.User;
-using API.Exceptions;
-using API.Extensions;
-using API.Interfaces;
-using Database.DTO.ActiveQuestionnaire;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {

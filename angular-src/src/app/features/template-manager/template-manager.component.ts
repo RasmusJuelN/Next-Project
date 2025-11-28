@@ -159,7 +159,7 @@ export class TemplateManagerComponent {
         },
         error: (err) => {
           console.error('Error fetching templates:', err);
-          this.modalErrorMessage = 'TMP_FAIL_LOAD_LIST';
+          this.modalErrorMessage = 'TEMPLATE.LIST.FAIL_LOAD_LIST';
           this.showModal(TemplateModalType.Error);
         },
       });
@@ -194,9 +194,9 @@ selectTemplate(id: string): void {
       next: tmpl => {
         this.selectedTemplate = tmpl;
       },
-      error: err => {
+        error: err => {
         console.error('Error fetching template:', err);
-        this.modalErrorMessage = 'TMP_FAIL_LOAD_DETAIL';
+        this.modalErrorMessage = 'TEMPLATE.LIST.FAIL_LOAD_DETAIL';
         this.showModal(TemplateModalType.Error);
       }
     });
@@ -226,12 +226,12 @@ onFinalizeTemplate(tmpl: Template): void {
     this.selectedTemplate = {
       id: '',
       templateStatus: TemplateStatus.Draft,
-       title: this.translate.instant('TMP_NEW_TITLE'), //  New Template
-       description: this.translate.instant('TMP_NEW_DESC'), //Description for the new template
+      title: this.translate.instant('TEMPLATE.NEW.TITLE'), //  New Template
+      description: this.translate.instant('TEMPLATE.NEW.DESC'), //Description for the new template
       questions: [
         {
           id: -1,
-          prompt: this.translate.instant('TMP_NEW_QUESTION'), //Default Question
+          prompt: this.translate.instant('TEMPLATE.NEW.STANDARD_NEW_QUESTION'), //Default Question
           allowCustom: true,
           options: [],
           sortOrder: 0
@@ -303,13 +303,13 @@ openDeleteModal(templateId: string): void {
     let errorKey: string;
     if (err.status === 409) {
       // Conflict - duplicate title - always show user-friendly message
-      errorKey = 'TMP_ERROR_DUPLICATE_TITLE';
+      errorKey = 'TEMPLATE.MISC.ERROR_DUPLICATE_TITLE';
     } else if (err.status === 400) {
       // Bad request - validation error
-      errorKey = 'TMP_ERROR_VALIDATION';
+      errorKey = 'TEMPLATE.MISC.ERROR_VALIDATION';
     } else {
       // General error
-      errorKey = 'TMP_ERROR_SAVE';
+      errorKey = 'TEMPLATE.MISC.ERROR_SAVE';
     }
     
     this.modalErrorMessage = errorKey;
@@ -357,12 +357,12 @@ get modalTitle(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
       return this.deleteConfirmStep === 0
-        ? this.translate.instant('TMP_DELETE_CONFIRM_TITLE')
-        : this.translate.instant('TMP_DELETE_CONFIRM_WARN');
+        ? this.translate.instant('TEMPLATE.DELETE.CONFIRM_TITLE')
+        : this.translate.instant('TEMPLATE.DELETE.CONFIRM_WARN');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_COPY_TITLE');
+      return this.translate.instant('TEMPLATE.MISC.COPY_TITLE');
     case TemplateModalType.Error:
-      return this.translate.instant('TMP_ERROR_TITLE');
+      return this.translate.instant('TEMPLATE.MISC.ERROR_TITLE');
     default:
       return '';
   }
@@ -372,10 +372,10 @@ get modalText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
       return this.deleteConfirmStep === 0
-        ? this.translate.instant('TEMPLATES.DELETE.MSG')
-        : this.translate.instant('TMP_DELETE_FINAL_WARN_MSG');
+        ? this.translate.instant('TEMPLATE.DELETE.MSG')
+        : this.translate.instant('TEMPLATE.DELETE.FINAL_WARN_MSG');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_COPY_MSG');
+      return this.translate.instant('TEMPLATE.MISC.COPY_MSG');
     case TemplateModalType.Error:
       return this.translate.instant(this.modalErrorMessage);
     default:
@@ -388,8 +388,8 @@ get confirmText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
       return this.deleteConfirmStep === 0
-        ? this.translate.instant('TMP_DELETE')
-        : this.translate.instant('TMP_DELETE');
+        ? this.translate.instant('COMMON.BUTTONS.DELETE')
+        : this.translate.instant('COMMON.BUTTONS.DELETE');
     case TemplateModalType.Copy:
       return this.translate.instant('COMMON.BUTTONS.COPY');
     case TemplateModalType.Error:

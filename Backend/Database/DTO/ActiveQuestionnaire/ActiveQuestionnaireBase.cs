@@ -1,4 +1,3 @@
-using Database.DTO.User;
 
 namespace Database.DTO.ActiveQuestionnaire;
 

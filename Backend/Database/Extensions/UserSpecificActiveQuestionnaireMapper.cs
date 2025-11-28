@@ -1,5 +1,3 @@
-using Database.DTO.ActiveQuestionnaire;
-using Database.Models;
 
 namespace Database.Extensions;
 

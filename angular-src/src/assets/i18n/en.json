@@ -1,84 +1,95 @@
 {
-  "NO_ACTIVE_QUESTIONNAIRE": "There are no active questionnaires",
-  "TMP_NEW_TITLE": "New Template",
-  "TMP_NEW_DESC": "Description for the new template",
-  "TMP_NEW_QUESTION": "Default Question",
 
-  "TMP_TITLE_ADMINISTER_TEMPLATES": "Manage Templates",
-  "TMP_DATA_COMPARE_TITLE": "Data Compare",
-  "TMP_BUTTON_CREATE_NEW": "Create New Template",
-  "TMP_SEARCH_BY_NAME": "Search by Name",
-  "TMP_SEARCH_BY_ID": "Search by ID",
-  "TMP_SEARCH_GROUP_PLACEHOLDER": "Search by Group...",
-  "TMP_ITEMS_PER_PAGE": "Items per page:",
-  "TMP_LOADING": "Loading...",
-  "TMP_BUTTON_EDIT": "Edit",
-  "TMP_BUTTON_DELETE": "Delete",
-  "TMP_DELETE": "Delete",
-  "TMP_DELETE_PERMANENT": "Delete Permanently",
-  "TMP_CANCEL": "Cancel",
-  "TMP_DELETE_CONFIRM_TITLE": "Confirm Delete",
-  "TMP_DELETE_CONFIRM_WARN": "Final Warning",
-  "TMP_DELETE_CONFIRM_MSG": "Are you sure you want to delete this template? This will delete related data.",
-  "TMP_DELETE_FINAL_WARN_MSG": "Warning: This action cannot be undone. Deleting this template will permanently remove all related data. Are you sure you want to continue?",
-  "TMP_LOCKED_TITLE": "Template In Use",
-  "TMP_LOCKED_MSG": "This template cannot be edited because it has been used.",
-  "TMP_COPY_TITLE": "Copy Template",
-  "TMP_COPY_MSG": "Create an editable copy of this template. The copy will be saved as a new draft template.",
-  "TMP_BUTTON_CLOSE": "Close",
-  "TMP_FAIL_LOAD_LIST": "Failed to load templates. Please try again.",
-  "TMP_FAIL_LOAD_DETAIL": "Failed to load the full template details.",
-  "TMP_DELETE_ERROR": "Error deleting template.",
-  "TMP_UPDATE_ERROR": "Error updating template.",
-  "TMP_ERROR_TITLE": "Error",
-  "TMP_ERROR_DUPLICATE_TITLE": "A template with this name already exists. Please choose a different name.",
-  "TMP_ERROR_VALIDATION": "Validation error. Please check your inputs.",
-  "TMP_ERROR_SAVE": "Error saving template. Please try again.",
-  "TMP_NO_ACTIVE_QUESTIONNAIRES": "There are no active questionnaires",
+  "TEACHER" : {
+    "ANSWER": "Answer",
+    "OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview of active questionnaires",
+    "COPY_LINK": "Copy link for answer",
+    "VIEW_RESULTS": "View results",
+    "TITLE_TEMPLATE_LIST": "Template list",
+    "FILTER_STUDENT_PENDING": "Student pending",
+    "FILTER_TEACHER_PENDING": "Teacher pending"
+  },
 
-  "TMP_EDITOR_TITLE": "Template Editing",
-  "TMP_TEMPLATE_TITLE": "Template Title",
-  "TMP_TEMPLATE_DESCRIPTION": "Description",
-  "TMP_QUESTIONS": "Questions",
-  "TMP_SAVE_TEMPLATE": "Save Template",
-  "TMP_NEWQUESTION": "New Question",
-  "TMP_ADD_QUESTION": "Add New Question",
+  "PAGINATION": {
+    "NEXT": "Next",
+    "PREVIOUS": "Previous"
+  },
 
-  "TMP_NEXT": "Next",
-  "TMP_PREVIOUS": "Previous",
+  "SHOW_ACTIVE" : {
+    "ACTIVE_SURVEYS": "Active surveys",
+    "ANSWER": "Answer",
+    "SETUP_AT": "Setup at:"
+  },
 
-  "TMP_ACTIVE_SURVEYS": "Active surveys",
-  "TMP_ANSWER": "Answer",
-  "TMP_SETUP_AT": "Setup at:",
+  "TEMPLATE": {
 
-  "TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES": "Overview over active questionnaires",
-  "TMP_SEARCH_BY_STUDENT_NAME": "Search by Student Name",
-  "TMP_SEARCH_BY_QUESTIONNAIRE_ID": "Search by Active Questionnaire ID",
-  "TMP_SEARCHPLACEHOLDER": "Search...",
-  "TMP_STUDENT_DONE": "Student is done",
-  "TMP_TEACHER_DONE": "Teacher is done",
-  "TMP_COPY_LINK": "Copy link for answer",
-  "TMP_STUDENT_NAME": " Student Name:",
-  "TMP_STUDENT": "Student:",
-  "TMP_TEACHER": "Teacher:",
-  "TMP_COMPLETED": "Completed",
-  "TMP_PENDING": "Pending",
-  "TMP_VIEW_RESULTS": "View Results",
-  "TMP_TITLE_TEMPLATE_LIST": "Template List",
-  "FILTER_STUDENT_PENDING": "Student pending",
-  "FILTER_TEACHER_PENDING": "Teacher pending",
+    "ERROR": {
+      "TITLE": "Error"
+    },
 
-  "TEMPLATES.DELETE.TITLE": "Confirm Deletion",
-  "TEMPLATES.DELETE.MSG": "Are you sure you want to delete this template? This action will delete related data.",
+    "NEW": {
+      "TITLE": "New Template",
+      "DESC": "Description of the new template",
+      "STANDARD_NEW_QUESTION": "Default Question",
+      "NEW_QUESTION": "New Question"
+    },
 
-  "TMP_FINALIZE_TITLE": "Publish template?",
-  "TMP_FINALIZE_TEXT": "When a template is published, it becomes read-only. <br/>Are you sure you want to publish?",
-  "TMP_FINALIZE_CONFIRM": "Publish",
-  "TMP_PUBLISH": "Publish",
-  "TMP_VIEW_MODE": "Template View",
-  "TMP_EDIT_MODE": "Template Editing",
-  "TMP_CONFIRM_SUBMIT_TITLE":" Confirm Submission",
-  "TMP_CONFIRM_SUBMIT_TEXT":" Are you sure you want to submit your answers? You won't be able to change them later.",
+    "LIST": {
+      "FAIL_LOAD_LIST": "Failed to load templates. Please try again.",
+      "NO_ACTIVE_QUESTIONNAIRES": "There are no active questionnaires",
+      "ITEMS_PER_PAGE": "Items per page:",
+      "SEARCH_GROUP_PLACEHOLDER": "Search by Group...",
+      "SEARCH_BY_ID": "Search by ID",
+      "SEARCH_BY_NAME": "Search by Name",
+      "BUTTON_CREATE_NEW": "Create New Template",
+      "TITLE_ADMINISTER_TEMPLATES": "Manage Templates"
+    },
+
+    "EDITOR": {
+      "TITLE": "Template Editor",
+      "TEMPLATE_TITLE": "Template Title",
+      "TEMPLATE_DESCRIPTION": "Description",
+      "QUESTIONS": "Questions",
+      "SAVE_TEMPLATE": "Save Template",
+      "ADD_QUESTION": "Add New Question"
+    },
+
+    "FINALIZE": {
+      "FINALIZE_TEMPLATE": "Publish Template",
+      "CONFIRM_TITLE": "Publish template?",
+      "CONFIRM_TEXT": "When a template is published, it becomes read-only. Are you sure you want to publish?",
+      "CONFIRM_BUTTON": "Publish"
+    },
+
+    "DELETE": {
+      "TITLE": "Confirm Deletion",
+      "MSG": "Are you sure you want to delete this template? This action will delete related data.",
+      "CONFIRM_TITLE": "Confirm Delete",
+      "CONFIRM_WARN": "Final Warning",
+      "CONFIRM_MSG": "Are you sure you want to delete this template? This will delete related data.",
+      "FINAL_WARN_MSG": "Warning: This action cannot be undone. Deleting this template will permanently remove all related data. Are you sure you want to continue?"
+    },
+
+    "VIEW": {
+      "VIEW_MODE": "Template View",
+      "EDIT_MODE": "Template Editing"
+    },
+
+    "ADMIN": {
+      "LOCKED_TITLE": "Template In Use",
+      "LOCKED_MSG": "This template cannot be edited because it has been used."
+    },
+
+    "MISC": {
+      "COPY_TITLE": "Copy Template",
+      "COPY_MSG": "Create an editable copy of this template. The copy will be saved as a new draft template.",
+      "ERROR_TITLE": "Error",
+      "ERROR_DUPLICATE_TITLE": "A template with this name already exists. Please choose a different name.",
+      "ERROR_VALIDATION": "Validation Error",
+      "ERROR_SAVE": "Error saving template. Please try again."
+
+    }
+  },
 
   "COMMON": {
     "BUTTONS": {
@@ -90,7 +101,8 @@
       "CLOSE": "Close",
       "PREVIOUS": "Previous",
       "NEXT": "Next",
-      "SUBMIT" : "Submit"
+      "SUBMIT" : "Submit",
+      "DELETE": "Delete"
     },
     "GREETING": "Hello {{username}}!",
     "ROLES": {
@@ -140,7 +152,7 @@
     "USER_GUIDE": "User Guide"
   },
 
-"USER_GUIDE": {
+  "USER_GUIDE": {
   "TITLE": "User Guide",
   "STUDENT": {
     "ANSWERING_QUESTIONNAIRES": {
@@ -178,10 +190,7 @@
       "CONTENT": "Navigation options depend on your role. Use the profile dropdown (top right) to logout or switch language."
     }
   }
-},
-
-
-
+  },
 
   "HOME" : {
     "ANSWER_QUESTIONNAIRE" :"A questionnaire can be answered",
@@ -199,6 +208,8 @@
     "GROUP_STUDENT": "Student",
     "GROUP_TEACHER": "Teacher"
   },
+  
+
 
   "QUESTION_EDITOR": {
     "TITLE": "Edit Question",
@@ -216,6 +227,7 @@
     "CUSTOM_ANSWER_CHARACTER_COUNT": "characters"
   },
   "DATA_COMPARE" : {
+    "TITLE": "Data Compare",
     "SEARCH_STUDENT_LABEL": "Search for student or group:",
     "SEARCH_STUDENT_PLACEHOLDER": "Enter student or group name...",
     "LOADING_STUDENTS": "Loading students...",
@@ -300,7 +312,12 @@
     "OPEN_PDF": "Open PDF",
     "DOWNLOAD_PDF": "Download PDF",
     "OPEN_PDF_SHORT": "Open",
-    "DOWNLOAD_PDF_SHORT": "Download"
+    "DOWNLOAD_PDF_SHORT": "Download",
+    "NO_COMPLETED_SHARED_QUESTIONNAIRES": "No completed shared questionnaires found with this student. Both you and the student must complete your responses before results become available.",
+    "FAILED_TO_LOAD_TEMPLATES": "Failed to load available templates.",
+    "NO_RESULTS_INCOMPLETE_RESPONSES": "No results available. Both you and the student must complete your questionnaire responses before viewing the results history.",
+    "FAILED_TO_LOAD_HISTORY": "Failed to load student result history.",
+    "FAILED_TO_LOAD_STUDENTS": "Failed to load related students."
   },
 
   "ACTIVE_BUILDER": {

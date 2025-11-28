@@ -1,12 +1,3 @@
-using Database.DTO.ActiveQuestionnaire;
-using Database.DTO.QuestionnaireTemplate;
-using Database.Enums;
-using Database.Extensions;
-using Database.Interfaces;
-using Database.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Database.Repository;
 
@@ -550,7 +541,7 @@ public class ActiveQuestionnaireRepository(Context context, ILoggerFactory logge
             .Where(aq => aq.Student!.Guid == studentId && 
                          aq.Teacher!.Guid == teacherId && 
                          aq.QuestionnaireTemplateFK == templateId &&
-                         (aq.StudentCompletedAt != null || aq.TeacherCompletedAt != null)) // Only include questionnaires with at least one completion
+                         aq.StudentCompletedAt != null && aq.TeacherCompletedAt != null) // Only include questionnaires where both parties have completed
             .OrderBy(aq => aq.ActivatedAt)
             .ToListAsync();
 

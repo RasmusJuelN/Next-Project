@@ -1,11 +1,3 @@
-using System.Net;
-using API.DTO.LDAP;
-using API.DTO.User;
-using API.Exceptions;
-using API.FieldMappers;
-using Novell.Directory.Ldap;
-using Novell.Directory.Ldap.Controls;
-using Settings.Models;
 
 namespace API.Services.Authentication;
 

@@ -1,5 +1,3 @@
-using Database.DTO.ActiveQuestionnaire;
-using Database.Enums;
 
 namespace Database.Interfaces;
 
