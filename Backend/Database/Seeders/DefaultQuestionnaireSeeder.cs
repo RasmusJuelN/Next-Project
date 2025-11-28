@@ -1,6 +1,7 @@
 
 namespace Database.Seeders;
 
+[SeederOrder(0)]
 public class DefaultQuestionnaireSeeder(ModelBuilder modelBuilder) : IDataSeeder<QuestionnaireTemplateModel>
 {
     /// <summary>

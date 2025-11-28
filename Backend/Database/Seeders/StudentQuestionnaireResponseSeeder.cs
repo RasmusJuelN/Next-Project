@@ -1,6 +1,7 @@
 
 namespace Database.Seeders;
 
+[SeederOrder(1)]
 public class StudentQuestionnaireResponseSeeder(ModelBuilder modelBuilder) : IDataSeeder<StandardActiveQuestionnaireModel>
 {
     public void InitializeData()
