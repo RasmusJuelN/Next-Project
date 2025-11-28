@@ -1,4 +1,4 @@
-namespace API.Mock;
+namespace Database.DTO.User;
 
 public class MockedUser
 {
