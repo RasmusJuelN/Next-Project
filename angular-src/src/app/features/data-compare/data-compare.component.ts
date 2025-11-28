@@ -68,6 +68,8 @@ export class DataCompareComponent implements OnInit, OnDestroy {
   public currentQuestionIndex: number = 0;
   // List of all questions found in the dataset
   public questions: string[] = [];
+  // Optional stable identifiers for questions (when backend provides them)
+  private questionIds: Array<string | null> = [];
   // All datasets returned from the API (used for aggregation)
   private allAnswers: any[] = [];
   // List of all years found in the dataset
@@ -349,16 +351,69 @@ export class DataCompareComponent implements OnInit, OnDestroy {
       groupId
     ).subscribe({
       next: (apiData) => {
+        // DEBUG: log raw API response to help debug duplicate/merged questions
+        // Remove or disable these logs after debugging
+        console.debug('DataCompare: raw apiData', apiData);
         const datasets = apiData.anonymisedResponseDataSet || [];
 
-        // Build set of all unique questions
-        const questionsSet = new Set<string>();
-        datasets.forEach((dataset: any) => {
-          dataset.anonymisedResponses.forEach((q: any) =>
-            questionsSet.add(q.question)
-          );
+        // Build ordered list of questions by position (don't dedupe by text)
+        // Some questions may have identical text (e.g. 'N/A') but represent
+        // different question positions. Using position prevents merging them.
+        const maxLen = datasets.length
+          ? Math.max(...datasets.map((d: any) => d.anonymisedResponses?.length || 0))
+          : 0;
+        const questionsByPosition: string[] = [];
+        const detectedQuestionIds: Array<string | null> = [];
+        for (let i = 0; i < maxLen; i++) {
+          // Prefer the label from the first dataset that has a value at this index
+          let label = "";
+          let idVal: string | null = null;
+          for (const d of datasets) {
+            if (
+              d.anonymisedResponses &&
+              d.anonymisedResponses[i] &&
+              d.anonymisedResponses[i].question
+            ) {
+              const q = d.anonymisedResponses[i];
+              label = q.question;
+              // detect stable id field if backend provided one
+              idVal = q.id ?? q.questionId ?? null;
+              break;
+            }
+          }
+          questionsByPosition.push(label || `Question ${i + 1}`);
+          detectedQuestionIds.push(idVal);
+        }
+
+        // remember detected question ids for matching later
+        this.questionIds = detectedQuestionIds;
+
+        // If multiple questions have the same label (e.g. 'N/A'), disambiguate
+        // them for display by appending a short position suffix so the UI
+        // treats them as distinct entries while keeping the original text.
+        const labelCounts: Record<string, number> = {};
+        const disambiguated = questionsByPosition.map((lbl, idx) => {
+          const key = lbl || `Question ${idx + 1}`;
+          labelCounts[key] = (labelCounts[key] || 0) + 1;
+          return { label: key, idx };
         });
-        this.questions = Array.from(questionsSet);
+
+        // If any label occurs more than once, append a (n) suffix to each
+        const duplicates = Object.keys(labelCounts).filter((k) => labelCounts[k] > 1);
+        if (duplicates.length > 0) {
+          const occurrence: Record<string, number> = {};
+          this.questions = disambiguated.map(({ label, idx }) => {
+            occurrence[label] = (occurrence[label] || 0) + 1;
+            if (labelCounts[label] > 1) {
+              return `${label} (${occurrence[label]})`;
+            }
+            return label;
+          });
+        } else {
+          // DEBUG: inspect computed lists
+          console.debug('DataCompare: questionsByPosition', questionsByPosition);
+          this.questions = questionsByPosition;
+        }
 
         // Build set of all unique years (extract from datasetTitle)
         const yearsSet = new Set<string>();
@@ -376,6 +431,9 @@ export class DataCompareComponent implements OnInit, OnDestroy {
         this.currentYearIndex =
           this.years.length > 0 ? this.years.length - 1 : 0;
 
+        // DEBUG: final computed questions and datasets summary
+        console.debug('DataCompare: final questions', this.questions);
+        console.debug('DataCompare: datasets count', datasets.length, 'allAnswers length', this.allAnswers.length);
         this.updateChartForCurrentQuestion();
       },
       error: (err) => {
@@ -416,7 +474,7 @@ export class DataCompareComponent implements OnInit, OnDestroy {
     )
       return null;
 
-    const question = this.questions[this.currentQuestionIndex];
+    const questionIndex = this.currentQuestionIndex;
     const year = this.years[this.currentYearIndex];
 
     // Filter datasets for the selected year (datasetTitle starts with year)
@@ -424,13 +482,23 @@ export class DataCompareComponent implements OnInit, OnDestroy {
       d.datasetTitle?.startsWith(year)
     );
 
-    // Aggregate answer counts for the selected question across all datasets in the year
+    // Aggregate answer counts for the selected question across all datasets in the year.
+    // Prefer matching by stable question id when the backend provides one; fall back to positional index.
     const answers: AnswerCounts = {};
     datasetsForYear.forEach((dataset: any) => {
-      const questionObj = dataset.anonymisedResponses.find(
-        (q: any) => q.question === question
-      );
-      if (questionObj) {
+      let questionObj: any = null;
+      const qId = this.questionIds && this.questionIds[questionIndex];
+      if (qId && Array.isArray(dataset.anonymisedResponses)) {
+        questionObj = dataset.anonymisedResponses.find(
+          (q: any) => q.id === qId || q.questionId === qId
+        );
+      }
+      // Fallback to positional lookup if no id match
+      if (!questionObj && dataset.anonymisedResponses) {
+        questionObj = dataset.anonymisedResponses[questionIndex];
+      }
+
+      if (questionObj && Array.isArray(questionObj.answers)) {
         questionObj.answers.forEach((a: any) => {
           if (!answers[a.answer]) {
             answers[a.answer] = { count: 0, dates: [] };
@@ -441,7 +509,11 @@ export class DataCompareComponent implements OnInit, OnDestroy {
       }
     });
 
-    return { question, year, answers };
+    // DEBUG: inspect aggregated answers produced by buildChartInput
+    console.debug('DataCompare: buildChartInput - questionIndex', questionIndex, 'year', year, 'answers', answers);
+
+  const question = this.questions[this.currentQuestionIndex];
+  return { question, year, answers };
   }
 
   /**
