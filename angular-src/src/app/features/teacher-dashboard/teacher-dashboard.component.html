@@ -2,7 +2,7 @@
   <div class="flex flex-col w-full max-w-5xl bg-primary_background_white/80 shadow-lg rounded-xl border-2 border-primary_orange_1 p-4 sm:p-10 overflow-hidden">
     <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">
       <!-- Overview over active questionnaires. -->
-       {{ 'TMP_OVERVIEW_ACTIVE_QUESTIONNAIRES' | translate }}
+       {{ 'TEACHER.OVERVIEW_ACTIVE_QUESTIONNAIRES' | translate }}
     </h2>
 
     <!-- Search & Filters Row -->
@@ -14,7 +14,7 @@
           #searchInput
           type="text"
           (input)="onSearchChange(searchInput.value)"
-          placeholder="{{'TMP_SEARCH_GROUP_PLACEHOLDER' | translate}}"
+          placeholder="{{'TEMPLATE.LIST.SEARCH_GROUP_PLACEHOLDER' | translate}}"
           class="px-4 py-2 border border-primary_orange rounded-lg shadow-sm focus:ring-primary_orange focus:border-primary_orange text-sm w-full sm:flex-grow min-w-0 bg-primary_background_white/80"
         />
       </div>
@@ -27,7 +27,7 @@
             [(ngModel)]="filterStudentCompleted"
             (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">{{'FILTER_STUDENT_PENDING'| translate}}</span>
+          <span class="text-sm">{{'TEACHER.FILTER_STUDENT_PENDING'| translate}}</span>
         </label>
         <label class="flex items-center gap-2 text-primary_dark_blue">
           <input
@@ -35,13 +35,13 @@
             [(ngModel)]="filterTeacherCompleted"
             (change)="onCompletionFilterChange()"
           />
-          <span class="text-sm">{{'FILTER_TEACHER_PENDING'| translate}}</span>
+          <span class="text-sm">{{'TEACHER.FILTER_TEACHER_PENDING'| translate}}</span>
         </label>
       </div>
 
       <!-- Page Size Selector -->
       <div class="flex w-full sm:w-auto flex-col sm:flex-row gap-2 items-center">
-        <label for="pageSize" class="text-primary_dark_light font-medium"> {{'TMP_ITEMS_PER_PAGE'| translate}}</label>
+        <label for="pageSize" class="text-primary_dark_light font-medium"> {{'TEMPLATE.LIST.ITEMS_PER_PAGE'| translate}}</label>
         <select
           #pageSize
           id="pageSize"
@@ -145,21 +145,21 @@
                     (click)="copyAnswersUrl(q.id)"
                     class="ml-2 cursor-pointer text-sm text-primary_orange_1 font-normal hover:text-primary_orange_light underline underline-offset-2 transition"
                   >
-                    {{'TMP_COPY_LINK' | translate}}
+                    {{'TEACHER.COPY_LINK' | translate}}
                   </button>
                   <button
                     *ngIf="!q.teacherCompletedAt"
                     [routerLink]="['/answer', q.id]"
                     class="px-4 py-2 text-sm bg-primary_orange_1 text-white rounded-md hover:bg-primary_orange_light focus:outline-none"
                   >
-                    {{ 'TMP_ANSWER' | translate }}
+                    {{ 'TEACHER.ANSWER' | translate }}
                   </button>
                   <button
                     *ngIf="q.teacherCompletedAt && q.studentCompletedAt"
                     [routerLink]="['/results', q.id]"
                     class="px-4 py-2 text-sm bg-secondary_blue text-white rounded-md hover:bg-primary_orange focus:outline-none"
                   >
-                    {{ 'TMP_VIEW_RESULTS' | translate }}
+                    {{ 'TEACHER.VIEW_RESULTS' | translate }}
                   </button>
 
                   
@@ -172,7 +172,7 @@
 
       <!-- Fallback when no groups -->
       <div *ngIf="displayedGroups.length === 0" class="text-center p-6 text-gray-600">
-        {{ 'TMP_NO_ACTIVE_QUESTIONNAIRES' | translate }}
+        {{ 'TEMPLATE.LIST.NO_ACTIVE_QUESTIONNAIRES' | translate }}
       </div>
     </div>
 

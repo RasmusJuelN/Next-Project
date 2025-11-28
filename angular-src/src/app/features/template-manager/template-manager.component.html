@@ -5,8 +5,8 @@
     <ng-container *ngIf="!selectedTemplate; else editor">
 
       <!-- Title -->
-      <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">
-        {{ 'TMP_TITLE_ADMINISTER_TEMPLATES' | translate }}
+        <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">
+        {{ 'TEMPLATE.LIST.TITLE_ADMINISTER_TEMPLATES' | translate }}
       </h2>
 
       <!-- Actions -->
@@ -14,13 +14,13 @@
         <button
           (click)="addTemplate()"
           class="bg-primary_orange_1 hover:bg-primary_orange_light text-white font-bold py-3 px-6 rounded-xl shadow transition-colors w-full sm:w-auto">
-          {{ 'TMP_BUTTON_CREATE_NEW' | translate }}
+          {{ 'TEMPLATE.LIST.BUTTON_CREATE_NEW' | translate }}
         </button>
       </div>
 
       <!-- Template List Title -->
       <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 flex items-center justify-between">
-        {{ 'TMP_TITLE_TEMPLATE_LIST' | translate }}
+        {{ 'TEACHER.TITLE_TEMPLATE_LIST' | translate }}
       </h2>
 
       <!-- Filters -->
@@ -31,8 +31,8 @@
           #searchType
           (change)="onSearchTypeChange(searchType.value)"
           class="w-full sm:w-auto min-w-0 border border-primary_orange_1 rounded-xl px-3 py-2 focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-gray-50">
-          <option value="name" selected>{{ 'TMP_SEARCH_BY_NAME' | translate }}</option>
-          <option value="id">{{ 'TMP_SEARCH_BY_ID' | translate }}</option>
+          <option value="name" selected>{{ 'TEMPLATE.LIST.SEARCH_BY_NAME' | translate }}</option>
+          <option value="id">{{ 'TEMPLATE.LIST.SEARCH_BY_ID' | translate }}</option>
         </select>
 
         <!-- Search Input -->
@@ -40,13 +40,13 @@
           #search
           type="text"
           (input)="onSearchChange(search.value)"
-          placeholder="{{ 'TMP_SEARCH_GROUP_PLACEHOLDER' | translate }}"
+          placeholder="{{ 'TEMPLATE.LIST.SEARCH_GROUP_PLACEHOLDER' | translate }}"
           class="w-full sm:w-64 px-4 py-2 border-primary_orange_1 rounded-lg focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm bg-primary_background_white/80" />
 
         <!-- Page Size Selector -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
           <label for="pageSize" class="text-primary_dark_blue font-medium text-sm sm:text-base">
-            {{ 'TMP_ITEMS_PER_PAGE' | translate }}
+            {{ 'TEMPLATE.LIST.ITEMS_PER_PAGE' | translate }}
           </label>
           <select
             #pageSize
@@ -99,7 +99,7 @@
             <button
               (click)="showModal(TemplateModalType.Delete, template.id)"
               class="w-full sm:w-auto px-4 py-1 text-sm bg-red-500 text-white rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-              {{ 'TMP_BUTTON_DELETE' | translate }}
+              {{ 'COMMON.BUTTONS.DELETE' | translate }}
             </button>
 
             <button

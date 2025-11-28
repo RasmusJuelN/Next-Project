@@ -159,7 +159,7 @@ export class TemplateManagerComponent {
         },
         error: (err) => {
           console.error('Error fetching templates:', err);
-          this.errorMessage = 'TMP_FAIL_LOAD_LIST';
+          this.errorMessage = 'TEMPLATE.LIST.FAIL_LOAD_LIST';
         },
       });
   }
@@ -193,9 +193,9 @@ selectTemplate(id: string): void {
       next: tmpl => {
         this.selectedTemplate = tmpl;
       },
-      error: err => {
+        error: err => {
         console.error('Error fetching template:', err);
-        this.errorMessage = 'TMP_FAIL_LOAD_LIST';
+        this.errorMessage = 'TEMPLATE.LIST.FAIL_LOAD_LIST';
       }
     });
 }
@@ -224,12 +224,12 @@ onFinalizeTemplate(tmpl: Template): void {
     this.selectedTemplate = {
       id: '',
       templateStatus: TemplateStatus.Draft,
-       title: this.translate.instant('TMP_NEW_TITLE'), //  New Template
-       description: this.translate.instant('TMP_NEW_DESC'), //Description for the new template
+      title: this.translate.instant('TEMPLATE.NEW.TITLE'), //  New Template
+      description: this.translate.instant('TEMPLATE.NEW.DESC'), //Description for the new template
       questions: [
         {
           id: -1,
-          prompt: this.translate.instant('TMP_NEW_QUESTION'), //Default Question
+          prompt: this.translate.instant('TEMPLATE.NEW.STANDARD_NEW_QUESTION'), //Default Question
           allowCustom: true,
           options: [],
           sortOrder: 0
@@ -321,10 +321,10 @@ get modalTitle(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
       return this.deleteConfirmStep === 0
-        ? this.translate.instant('TMP_DELETE_CONFIRM_TITLE')
-        : this.translate.instant('TMP_DELETE_CONFIRM_WARN');
+        ? this.translate.instant('TEMPLATE.DELETE.CONFIRM_TITLE')
+        : this.translate.instant('TEMPLATE.DELETE.CONFIRM_WARN');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_LOCKED_TITLE');
+      return this.translate.instant('TEMPLATE.ADMIN.LOCKED_TITLE');
     default:
       return '';
   }
@@ -334,10 +334,10 @@ get modalText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
       return this.deleteConfirmStep === 0
-        ? this.translate.instant('TEMPLATES.DELETE.MSG')
-        : this.translate.instant('TMP_DELETE_FINAL_WARN_MSG');
+        ? this.translate.instant('TEMPLATE.DELETE.MSG')
+        : this.translate.instant('TEMPLATE.DELETE.FINAL_WARN_MSG');
     case TemplateModalType.Copy:
-      return this.translate.instant('TMP_LOCKED_MSG');
+      return this.translate.instant('TEMPLATE.ADMIN.LOCKED_MSG');
     default:
       return '';
   }
@@ -348,8 +348,8 @@ get confirmText(): string {
   switch (this.activeModalType) {
     case TemplateModalType.Delete:
       return this.deleteConfirmStep === 0
-        ? this.translate.instant('TMP_DELETE')
-        : this.translate.instant('TMP_DELETE');
+        ? this.translate.instant('COMMON.BUTTONS.DELETE')
+        : this.translate.instant('COMMON.BUTTONS.DELETE');
     case TemplateModalType.Copy:
       return this.translate.instant('COMMON.BUTTONS.COPY');
     default:
