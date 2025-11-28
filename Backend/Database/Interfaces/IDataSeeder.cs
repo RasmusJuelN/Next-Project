@@ -7,6 +7,10 @@ namespace Database.Interfaces;
 /// <typeparam name="T">The type of data model that will be used for seeding operations.</typeparam>
 public interface IDataSeeder<T>
 {
+    private static readonly JsonSerializerOptions _options = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     /// <summary>
     /// Loads and deserializes seed data from a JSON file.
@@ -17,18 +21,12 @@ public interface IDataSeeder<T>
     /// </returns>
     /// <exception cref="FileNotFoundException">Thrown when the specified file path does not exist.</exception>
     /// <exception cref="JsonException">Thrown when the JSON content cannot be deserialized to the specified type T.</exception>
-
     public static T? LoadSeed(string path)
     {
         T? seed;
-        var options = new JsonSerializerOptions()
-        {
-            PropertyNameCaseInsensitive = true
-
-        };
         string json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, path));
 
-        seed = JsonSerializer.Deserialize<T>(json, options);
+        seed = JsonSerializer.Deserialize<T>(json, _options);
 
         return seed;
     }
