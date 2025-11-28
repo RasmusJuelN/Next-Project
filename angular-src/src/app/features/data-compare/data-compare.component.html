@@ -5,24 +5,24 @@ DataCompareComponent HTML
 - Question and year navigation
 - Chart display
 -->
-<div class="flex flex-col items-center w-full">
-  <!-- Main card container -->
-  <div
-    class="flex flex-col w-full max-w-full sm:max-w-7xl bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border-primary_dark_blue: px-4 py-2 border-2 border-primary_orange_1  focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm  bg-gray-50">
-    <!-- Title -->
-    <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">{{'TMP_DATA_COMPARE_TITLE' | translate}}
-    </h2>
-    <!-- Search areas for students and templates -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-      <!-- Template search area -->
-      <div class="flex flex-col w-full mt-4 sm:mt-0 relative" #templateSearchArea>
-        <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'DATA_COMPARE.SEARCH_TEMPLATE_LABEL' |
-        translate }}</label>
-        <!-- Template search input -->
-        <input type="text" placeholder="Indtast skabelontitel..." [(ngModel)]="template.searchInput"
-          (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
-          class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
-          [placeholder]="'DATA_COMPARE.SEARCH_TEMPLATE_PLACEHOLDER' | translate" #templateSearch />
+<div class="flex flex-col items-center w-full px-4">
+    <!-- Main card container -->
+    <div
+        class="flex flex-col w-full max-w-full sm:max-w-4xl bg-primary_background_white/80 shadow-xl rounded-2xl sm:p-10 border-primary_dark_blue: px-4 py-2 border-2 border-primary_orange_1  focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm  bg-gray-50">
+        <!-- Title -->
+        <h2 class="text-3xl font-bold text-primary_dark_blue mb-6 text-center">{{'DATA_COMPARE.TITLE' | translate}}
+        </h2>
+        <!-- Search areas for students and templates -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+            <!-- Template search area -->
+            <div class="flex flex-col w-full mt-4 sm:mt-0 relative" #templateSearchArea>
+                <label class="text-primary_dark_blue text-sm mb-1 sm:mb-2">{{ 'DATA_COMPARE.SEARCH_TEMPLATE_LABEL' |
+                    translate }}</label>
+                <!-- Template search input -->
+                <input type="text" placeholder="Indtast skabelontitel..." [(ngModel)]="template.searchInput"
+                    (input)="onInputChange('template', templateSearch.value)" (focus)="showTemplateResults = true"
+                    class="px-4 py-2 border border-primary_orange_1 rounded-xl shadow-sm focus:ring-primary_orange_1 focus:border-primary_orange_1 text-sm w-full bg-gray-50"
+                    [placeholder]="'DATA_COMPARE.SEARCH_TEMPLATE_PLACEHOLDER' | translate" #templateSearch />
 
           <!-- Loading indicator for template search -->
           @if (template.isLoading) {
